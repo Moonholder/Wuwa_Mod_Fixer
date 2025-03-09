@@ -3,6 +3,30 @@
 version = 4
 
 [[package]]
+name = "Wuwa_Mod_Fixer"
+version = "2.1.5"
+dependencies = [
+ "anyhow",
+ "backtrace",
+ "clap",
+ "ctor",
+ "env_logger",
+ "inquire",
+ "lazy_static",
+ "log",
+ "once_cell",
+ "regex",
+ "reqwest",
+ "semver",
+ "serde",
+ "serde_json",
+ "sys-locale",
+ "tokio",
+ "walkdir",
+ "winres",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1895,30 +1919,6 @@ name = "writeable"
 version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e9df38ee2d2c3c5948ea468a8406ff0db0b29ae1ffde1bcf20ef305bcc95c51"
-
-[[package]]
-name = "wwmi_mod_fixer"
-version = "2.1.4"
-dependencies = [
- "anyhow",
- "backtrace",
- "clap",
- "ctor",
- "env_logger",
- "inquire",
- "lazy_static",
- "log",
- "once_cell",
- "regex",
- "reqwest",
- "semver",
- "serde",
- "serde_json",
- "sys-locale",
- "tokio",
- "walkdir",
- "winres",
-]
 
 [[package]]
 name = "yoke"

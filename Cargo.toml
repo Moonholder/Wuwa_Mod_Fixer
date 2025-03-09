@@ -1,6 +1,6 @@
 [package]
-name = "wwmi_mod_fixer"
-version = "2.1.4"
+name = "Wuwa_Mod_Fixer"
+version = "2.1.5"
 edition = "2024"
 
 [dependencies]
