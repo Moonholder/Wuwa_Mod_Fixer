@@ -1,0 +1,114 @@
+{
+    "title": {
+    "zh": "此修复工具适用于WWMI生产的Mod因游戏版本更新导致失效的情况",
+    "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version."
+    },
+    "intro": {
+        "zh": "修复 2.0: 男主 秧秧 雪豹 2.1: 男主 秧秧 菲比 ",
+        "en": "Fix 2.0: Male Rover Yangyang LingYang 2.1: Male Rover Yangyang Phoebe."
+    },
+    "intro_note": {
+        "zh": "新增1.4版本之前的失效角色\n修复长离和维里奈时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
+        "en": "Add the ineffective characters from before version 1.4.\nWhen fixing Changli and Virina, it is recommended to restore the mod to the state before any fixes or re-unpack it, and then apply this repair tool."
+    },
+    "compatibility_note": {
+        "zh": "\n注：wwmi 0.6x版本的旧Mod在WWMI 070版本之后需开启兼容模式才能加载. 从WWMI076开始默认关闭了兼容模式. 开启方式: 游戏内 Alt + F12. 显示 Compatibility Mode: Enabled",
+        "en": "\nNote: The old mods of the WWMI 0.6x version need to have the compatibility mode enabled to be loaded after the WWMI 070 version. Starting from WWMI 076, the compatibility mode is turned off by default. The way to enable it is: press Alt + F12 in the game. It should display 'Compatibility Mode: Enabled'."
+    },
+    "graphics_setting_note": {
+        "zh": "游戏从2.0版本开始不同画面预设的Hash值可能不同，这可能导致Mod贴图错误，请将图形质量预设调整至均衡/画面优先",
+        "en": "Starting from version 2.0, different graphics presets may have different hash values, which may cause mod texture errors. Please set the graphics quality preset to Balanced/Quality."
+    },
+    "graphics_quality_note": {
+        "zh": "不想修改画面设置的并希望在其他画面挡位下正常加载Mod的 请参考此链接: https://gamebanana.com/tools/18999",
+        "en": "If you don't want to change graphics settings and want to load mods normally under other presets, please refer to this link: https://gamebanana.com/tools/18999"
+    },
+    "texture_override_note": {
+        "zh": "\n游戏2.1版本已经在设置添加了受伤表现开关，此工具仍提供战损修复功能，自行选择是否启用",
+        "en": "\nIn game 2.1 version, injured textures removal has been added to the settings, this tool still provides injured texture hash fix, please choose whether to enable it"
+    },
+    "found_old_mod": {
+        "zh": "发现旧版Mod(wwmi 0.6x)，正在尝试修复...",
+        "en": "Found old mod (wwmi 0.6x), trying to fix..."
+    },
+    "texture_override_prompt": {
+        "zh": "是否移除受伤表现？:",
+        "en": "Remove injured state in Quality?:"
+    },
+    "match_character_prompt": {
+        "zh": "匹配到角色 {character}，正在处理...",
+        "en": "Matching character {character}, processing..."
+    },
+    "need_fix_main_hash": {
+        "zh": "角色 {character} 的main_hash值发生变化，需要修复",
+        "en": "Main hash of character {character} has changed, need to fix"
+    },
+    "need_fix_texture_hash": {
+        "zh": "角色 {character} 的texture_hash值发生变化，需要修复",
+        "en": "Texture hash of character {character} has changed, need to fix"
+    },
+    "need_fix_injured_hash": {
+        "zh": "角色 {character} 满足条件，可修复战损贴图hash",
+        "en": "Character {character} meets the condition to fix injured texture hash"
+    },
+    "backup_created": {
+        "zh": "创建备份: {backup_path}",
+        "en": "Backup created: {backup_path}"
+    },
+    "backup_failed": {
+        "zh": "创建备份失败: {file_path}",
+        "en": "Backup creation failed: {file_path}"
+    },
+    "injured_hash_replace_note": {
+        "zh": "角色 {character} 的受损hash {original_hash} -> {section_header}节",
+        "en": "Character {character} has injured texture hash {original_hash} -> section {section_header}"
+    },
+    "injured_hash_replace_warning": {
+        "zh": "文件 {file_path} 中没有找到合适的位置插入战损修复节，请手动检查",
+        "en": "No suitable position found for injured texture hash replacement in file {file_path}, please check manually"
+    },
+    "process_file_start": {
+        "zh": "正在处理文件 {file_path}",
+        "en": "Processing file {file_path}"
+    },
+    "process_file_done": {
+        "zh": "已完成对文件 {file_path} 的处理",
+        "en": "Processing of file {file_path} done"
+    },
+    "remapped_successfully": {
+        "zh": "顶点组重映射...",
+        "en": "Vertex group remapping..."
+    },
+    "no_need_fix": {
+        "zh": "未匹配到修复，跳过备份与处理",
+        "en": "No need to fix, skip backup and processing"
+    },
+    "process_file_error": {
+        "zh": "处理文件 {file_path} 时出现异常: {exception}",
+        "en": "Exception occurred while processing file {file_path}: {exception}"
+    },
+    "process_folder_done": {
+        "zh": "共处理了 {success_count} 个文件，跳过 {failure_count} 个文件",
+        "en": "processed {success_count} files, skipped {failure_count} files"
+    },
+    "input_folder_prompt": {
+        "zh": "请输入包含Mod文件的文件夹路径（直接回车则从当前目录开始）:",
+        "en": "Please enter the folder path containing mod files (press Enter to use current directory):"
+    },
+    "start_processing": {
+        "zh": "开始处理文件夹 {mod_folder_path} 下的Mod ini文件",
+        "en": "Start processing mod ini files in folder {mod_folder_path}"
+    },
+    "all_done": {
+        "zh": "所有文件处理完成，按任意键关闭窗口...",
+        "en": "All files processed, press any key to exit..."
+    },
+    "error_occurred": {
+        "zh": "程序出现异常: {error}",
+        "en": "An error occurred: {error}"
+    },
+    "error_prompt": {
+        "zh": "程序出现异常，请查看上述错误信息，按任意键关闭窗口...",
+        "en": "An error occurred. Please check the error message above and press any key to exit..."
+    }
+}
