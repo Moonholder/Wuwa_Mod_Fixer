@@ -1,8 +1,10 @@
 #[macro_use]
 extern crate log;
 
-mod config_loader;
 mod localization;
+use localization::config::get_lang;
+mod config_loader;
+use config_loader::{CharacterConfig, Replacement, ReplacementRule, VertexRemapConfig};
 
 use anyhow::{Error, Result};
 use backtrace::Backtrace;
@@ -20,105 +22,16 @@ use std::{
 };
 use walkdir::WalkDir;
 
-#[derive(serde::Deserialize)]
-pub struct CharacterConfig {
-    pub main_hashes: Vec<Replacement>,
-    pub texture_hashes: Vec<Replacement>,
-    pub checksum: Option<String>,
-    pub rules: Option<Vec<ReplacementRule>>,
-    pub vg_remaps: Option<Vec<VertexRemapConfig>>,
-}
-
-#[derive(serde::Deserialize)]
-pub struct Replacement {
-    pub old: Vec<String>,
-    pub new: String,
-}
-
-#[derive(serde::Deserialize)]
-pub struct ReplacementRule {
-    pub line_prefix: String,
-    pub replacements: Vec<Replacement>,
-}
-#[derive(serde::Deserialize)]
-pub struct VertexRemapConfig {
-    pub trigger_hash: Vec<String>,
-    pub vertex_groups: Option<HashMap<u8, u8>>,
-    #[serde(default)]
-    pub component_remap: Option<Vec<ComponentRemapRegion>>,
-}
-
-#[derive(serde::Deserialize)]
-pub struct ComponentRemapRegion {
-    pub vertex_offset: usize,
-    #[serde(default)]
-    pub vertex_count: Option<usize>, // 可选字段，默认 None
-    pub indices: HashMap<u8, u8>,
-}
-
-impl VertexRemapConfig {
-    pub fn apply_remap(&self, blend_data: &mut Vec<u8>, use_default_remap: bool) -> bool {
-        const STRIDE: usize = 8;
-
-        if use_default_remap {
-            // 处理顶点组重映射
-            if let Some(vertex_groups) = &self.vertex_groups {
-                for chunk in blend_data.chunks_exact_mut(STRIDE) {
-                    let indices = &mut chunk[0..4];
-                    indices.iter_mut().for_each(|idx| {
-                        *idx = *vertex_groups.get(idx).unwrap_or(idx);
-                    });
-                }
-                info!("merged remapping...");
-                return true;
-            }
-            false
-        } else if let Some(regions) = &self.component_remap {
-            // 处理多区块组件重映射
-            for region in regions {
-                let offset = region.vertex_offset * STRIDE;
-                let end = region
-                    .vertex_count
-                    .map(|cnt| offset + cnt * STRIDE)
-                    .unwrap_or(blend_data.len());
-
-                let end = end.min(blend_data.len());
-                if offset >= end {
-                    continue;
-                }
-
-                info!("component remapping...");
-
-                // 遍历当前区块的每个顶点
-                for chunk in blend_data[offset..end].chunks_exact_mut(STRIDE) {
-                    let indices = &mut chunk[0..4];
-                    indices.iter_mut().for_each(|idx| {
-                        *idx = *region.indices.get(idx).unwrap_or(idx);
-                    });
-                }
-            }
-            true
-        } else {
-            false
-        }
-    }
-}
 struct ModFixer {
     characters: HashMap<String, CharacterConfig>,
-    characters_states: HashMap<String, HashMap<String, HashMap<String, String>>>,
     enable_texture_override: bool,
     checksum_regex: Regex,
 }
 
 impl ModFixer {
-    fn new(
-        characters: HashMap<String, CharacterConfig>,
-        characters_states: HashMap<String, HashMap<String, HashMap<String, String>>>,
-        enable_texture_override: bool,
-    ) -> Self {
+    fn new(characters: &HashMap<String, CharacterConfig>, enable_texture_override: bool) -> Self {
         Self {
-            characters,
-            characters_states,
+            characters: characters.clone(),
             enable_texture_override,
             checksum_regex: Regex::new(r"(checksum\s*=\s*)\d+").unwrap(),
         }
@@ -225,7 +138,7 @@ impl ModFixer {
 
             // 战损,湿身修复
             if self.enable_texture_override {
-                if let Some(char_states) = self.characters_states.get(char_name) {
+                if let Some(char_states) = &config.states {
                     for state_name in char_states.keys() {
                         if let Some(state_map) = char_states.get(state_name) {
                             modified |= self.texture_override_redirection(
@@ -506,7 +419,9 @@ impl ModFixer {
             Vec::new()
         };
 
-        let use_default_remap = content.contains("[ResourceMergedSkeleton]");
+        let use_merged_skeleton = content.contains("[ResourceMergedSkeleton]");
+        // let use_default_remap = false;
+
         for blend_file in blend_files {
             let blend_path = meshes_folder.join(&blend_file);
             let blend_data = fs::read(&blend_path)?;
@@ -516,7 +431,7 @@ impl ModFixer {
 
             for vg_remap in vg_remaps {
                 if match_flag || vg_remap.trigger_hash.iter().any(|h| content.contains(h)) {
-                    apply_flag = vg_remap.apply_remap(&mut blend_data, use_default_remap);
+                    apply_flag = vg_remap.apply_remap(&mut blend_data, use_merged_skeleton);
                     match_flag = true;
                 }
             }
@@ -562,11 +477,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 版本检查
     let available = match config_loader::check_version() {
         Ok(msg) => {
-            println!("✅ 版本检查通过: {}\n", msg);
+            println!(
+                "✅ {}: {}\n",
+                if get_lang() == "zh" {
+                    "版本检查通过"
+                } else {
+                    "Version check passed"
+                },
+                msg
+            );
             true
         }
         Err(e) => {
-            eprintln!("❌ 版本检查失败: {}\n", e);
+            eprintln!(
+                "❌ {}: {}\n",
+                if get_lang() == "zh" {
+                    "版本检查失败"
+                } else {
+                    "Version check failed"
+                },
+                e
+            );
             false
         }
     };
@@ -596,11 +527,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_default(false)
         .prompt()?;
 
-    let characters = serde_json::from_str(config_loader::characters())?;
-    let characters_states = serde_json::from_str(config_loader::states())?;
-
     // 处理文件
-    let fixer = ModFixer::new(characters, characters_states, enable_texture_override);
+    let fixer = ModFixer::new(config_loader::characters(), enable_texture_override);
     panic::set_hook(Box::new(|info| {
         let backtrace = Backtrace::new();
         error!("{}", t!(error_occurred, error = info.to_string()));
