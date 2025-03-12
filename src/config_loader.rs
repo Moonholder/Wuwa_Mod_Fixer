@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::time::{Duration, Instant};
 use tokio::sync::OnceCell as AsyncOnceCell;
+use ureq::AgentBuilder;
 
 static CONFIG: AsyncOnceCell<GlobalConfig> = AsyncOnceCell::const_new();
 
@@ -111,7 +112,12 @@ impl VertexRemapConfig {
                     .map(|cnt| offset + cnt * STRIDE)
                     .unwrap_or(blend_data.len());
 
-                info!("offset: {}, end: {}, len: {}", offset, end, blend_data.len());
+                debug!(
+                    "offset: {}, end: {}, len: {}",
+                    offset,
+                    end,
+                    blend_data.len()
+                );
 
                 let end = end.min(blend_data.len());
                 if offset >= end {
@@ -144,18 +150,12 @@ pub struct VersionConfig {
 
 #[derive(Debug)]
 pub enum ConfigError {
-    ReqwestError(reqwest::Error),
     SerdeError(serde_json::Error),
     IoError(std::io::Error),
+    NetworkError(ureq::Error),
     AllRemoteFailed,
     Semver(String),
     VersionMismatch(String),
-}
-
-impl From<reqwest::Error> for ConfigError {
-    fn from(e: reqwest::Error) -> Self {
-        ConfigError::ReqwestError(e)
-    }
 }
 
 impl From<serde_json::Error> for ConfigError {
@@ -176,12 +176,18 @@ impl From<semver::Error> for ConfigError {
     }
 }
 
+impl From<ureq::Error> for ConfigError {
+    fn from(e: ureq::Error) -> Self {
+        ConfigError::NetworkError(e)
+    }
+}
+
 impl std::fmt::Display for ConfigError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Self::ReqwestError(e) => write!(f, "网络错误: {}", e),
             Self::SerdeError(e) => write!(f, "JSON解析错误: {}", e),
             Self::IoError(e) => write!(f, "文件读写错误: {}", e),
+            Self::NetworkError(e) => write!(f, "网络错误: {}", e),
             Self::AllRemoteFailed => write!(f, "所有远程源都不可用"),
             Self::Semver(e) => write!(f, "Semver解析错误: {}", e),
             Self::VersionMismatch(e) => write!(f, "版本不匹配: {}", e),
@@ -229,9 +235,17 @@ pub async fn init_config() -> &'static GlobalConfig {
 }
 
 async fn load_config(file_name: &str) -> Result<String, ConfigError> {
-    let client = reqwest::Client::builder()
-        .timeout(Duration::from_secs(3))
-        .build()?;
+    let agent = AgentBuilder::new().timeout(Duration::from_secs(3)).build();
+
+    let (success_msg, status_code_msg, connection_failed_msg) = if get_lang() == "zh" {
+        ("远程加载成功", "远程异常状态码", "远程请求失败")
+    } else {
+        (
+            "Remote loaded successfully",
+            "Remote status code",
+            "Remote connection failed",
+        )
+    };
 
     // 远程源列表
     let remotes = [
@@ -247,38 +261,18 @@ async fn load_config(file_name: &str) -> Result<String, ConfigError> {
 
     // 尝试所有远程源
     for url in &remotes {
-        match client.get(url).send().await {
-            Ok(resp) if resp.status().is_success() => {
-                let content = resp.text().await?;
-                println!(
-                    "🌐 {}: {}",
-                    if get_lang() == "zh" {
-                        "远程加载成功"
-                    } else {
-                        "Remote loaded successfully"
-                    },
-                    file_name
-                );
+        match agent.get(url).call() {
+            Ok(resp) => {
+                let content = resp.into_string()?;
+                println!("🌐 {}: {}", success_msg, file_name);
                 return Ok(content);
             }
-            Ok(resp) => eprintln!(
-                "⚠️ {}: {}",
-                if get_lang() == "zh" {
-                    "远程异常状态码"
-                } else {
-                    " Remote status code"
-                },
-                resp.status()
-            ),
-            Err(e) => eprintln!(
-                "⚠️ {}: {}",
-                if get_lang() == "zh" {
-                    "远程请求失败"
-                } else {
-                    " Remote connection failed"
-                },
-                e
-            ),
+            Err(ureq::Error::Status(code, _)) => {
+                eprintln!("⚠️ {}: {}", status_code_msg, code)
+            }
+            Err(e) => {
+                eprintln!("⚠️ {}: {}", connection_failed_msg, e)
+            }
         }
     }
 
@@ -339,14 +333,8 @@ pub fn check_version() -> Result<String, ConfigError> {
         }));
     }
     Ok(if get_lang() == "zh" {
-        format!(
-            "当前配置版本: {}",
-            config.current_version
-        )
+        format!("当前配置版本: {}", config.current_version)
     } else {
-        format!(
-            "Current config version: {}",
-            config.current_version
-        )
+        format!("Current config version: {}", config.current_version)
     })
 }
