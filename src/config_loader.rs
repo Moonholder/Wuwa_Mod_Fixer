@@ -7,6 +7,8 @@ use std::path::Path;
 use std::time::{Duration, Instant};
 use tokio::sync::OnceCell as AsyncOnceCell;
 use ureq::AgentBuilder;
+use winreg::RegKey;
+use winreg::enums::HKEY_CURRENT_USER;
 
 static CONFIG: AsyncOnceCell<GlobalConfig> = AsyncOnceCell::const_new();
 
@@ -235,8 +237,6 @@ pub async fn init_config() -> &'static GlobalConfig {
 }
 
 async fn load_config(file_name: &str) -> Result<String, ConfigError> {
-    let agent = AgentBuilder::new().timeout(Duration::from_secs(3)).build();
-
     let (success_msg, status_code_msg, connection_failed_msg) = if get_lang() == "zh" {
         ("远程加载成功", "远程异常状态码", "远程请求失败")
     } else {
@@ -259,20 +259,33 @@ async fn load_config(file_name: &str) -> Result<String, ConfigError> {
         ),
     ];
 
+    let mut tasks = Vec::new();
+
     // 尝试所有远程源
     for url in &remotes {
-        match agent.get(url).call() {
-            Ok(resp) => {
+        let url = url.clone();
+        tasks.push(tokio::spawn(async move {
+            build_agent().get(&url).call()
+        }));
+    }
+
+    while !tasks.is_empty() {
+        let (result, _, remaining) = futures::future::select_all(tasks).await;
+        tasks = remaining;
+
+        match result {
+            Ok(Ok(resp)) => {
                 let content = resp.into_string()?;
                 println!("🌐 {}: {}", success_msg, file_name);
                 return Ok(content);
             }
-            Err(ureq::Error::Status(code, _)) => {
-                eprintln!("⚠️ {}: {}", status_code_msg, code)
+            Ok(Err(ureq::Error::Status(code, _))) => {
+                eprintln!("⚠️ {}: {}", status_code_msg, code);
             }
-            Err(e) => {
-                eprintln!("⚠️ {}: {}", connection_failed_msg, e)
+            Ok(Err(e)) => {
+                eprintln!("⚠️ {}: {}", connection_failed_msg, e);
             }
+            Err(join_err) => eprintln!("⚠️ Task failed: {}", join_err),
         }
     }
 
@@ -300,6 +313,42 @@ fn load_local(file_name: &str) -> String {
             std::fs::read_to_string(fallback_path)
         })
         .unwrap_or_else(|e| panic!("💥 本地配置 {} 加载失败: {}", path, e));
+}
+
+fn build_agent() -> ureq::Agent {
+    let mut builder = AgentBuilder::new()
+        .timeout_connect(Duration::from_secs(2))
+        .timeout(Duration::from_secs(3));
+
+    if let Some(proxy) = get_system_proxy() {
+        if let Some((host, port)) = proxy.split_once(':') {
+            builder = builder.proxy(ureq::Proxy::new(format!("http://{}:{}", host, port)).unwrap());
+        }
+    }
+
+    builder.build()
+}
+
+fn get_system_proxy() -> Option<String> {
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+    let internet_settings = hkcu.open_subkey(r"Software\Microsoft\Windows\CurrentVersion\Internet Settings")
+        .ok()?;
+
+    let proxy_enable: u32 = internet_settings.get_value("ProxyEnable").ok()?;
+    if proxy_enable != 1 {
+        return None;
+    }
+
+    let proxy_server: String = internet_settings.get_value("ProxyServer").ok()?;
+    
+    // 处理代理格式，可能包含http=或https=前缀
+    proxy_server.split(';')
+        .find(|s| s.starts_with("http=") || s.starts_with("https=") || !s.contains("://"))
+        .map(|s| {
+            s.trim_start_matches("http=")
+             .trim_start_matches("https=")
+             .trim().to_string()
+        })
 }
 
 pub fn lang() -> &'static LangPack {

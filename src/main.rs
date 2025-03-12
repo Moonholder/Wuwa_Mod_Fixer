@@ -18,7 +18,6 @@ use std::{
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
-    time::SystemTime,
 };
 use walkdir::WalkDir;
 
@@ -264,7 +263,7 @@ impl ModFixer {
             let line = line.trim();
 
             // 检查是否是以 [TextureOverride 开头的节
-            if line.starts_with("[TextureOverride") {
+            if !match_priority_found && line.starts_with("[TextureOverride") {
                 section_header = line.to_string();
                 found_section = false; // 每次新节开始，重置标记
                 continue; // 继续到下一行
@@ -284,7 +283,9 @@ impl ModFixer {
                     if line.starts_with('[') {
                         break;
                     }
-                    content.push(line.to_string());
+                    if !line.starts_with(";") {
+                        content.push(line.to_string());
+                    }
                 }
             }
 
@@ -305,12 +306,10 @@ impl ModFixer {
     }
 
     fn create_backup(&self, path: &Path) -> Result<PathBuf, Error> {
-        let timestamp = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)?
-            .as_secs();
+        let datetime = chrono::Local::now().format("%Y-%m-%d %H-%M-%S").to_string();
         if let Some(file_name) = path.file_name() {
             if let Some(name) = file_name.to_str() {
-                let backup_name = format!("{}_{}.bak", name, timestamp);
+                let backup_name = format!("{}_{}.BAK", name, datetime);
                 let backup_path = path.with_file_name(backup_name);
                 fs::copy(path, &backup_path)?;
                 return Ok(backup_path);

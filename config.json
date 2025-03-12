@@ -712,6 +712,21 @@
                 "wet": {},
                 "wet_injured": {}
             }
+        },
+        "Brant": {
+            "main_hashes": [{"old": ["5943f99a"], "new": "5943f99a"}],
+            "texture_hashes": [],
+            "states": {
+                "injured": {
+                    "8a6d655d": "41be688c",
+                    "b33059f7": "93f37a93",
+                    "e096a650": "67175ee6",
+                    "d86edd42": "2cf897c6",
+                    "12c849c4": "fc28e018"
+                },
+                "wet": {},
+                "wet_injured": {}
+            }
         }
     }
 }
