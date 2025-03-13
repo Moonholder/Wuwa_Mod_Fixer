@@ -14,8 +14,8 @@
             "en": "Fix 2.0: Male Rover Yangyang LingYang 2.1: Male Rover Yangyang Phoebe."
         },
         "intro_note": {
-            "zh": "新增1.4版本之前的失效角色\n修复长离和维里奈时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
-            "en": "Add the ineffective characters from before version 1.4.\nWhen fixing Changli and Virina, it is recommended to restore the mod to the state before any fixes or re-unpack it, and then apply this repair tool."
+            "zh": "新增1.4版本之前的失效角色\n修复长离和维里奈时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复\n新增布兰特的受伤表现移除",
+            "en": "Add the ineffective characters from before version 1.4.\nWhen fixing Changli and Virina, it is recommended to restore the mod to the state before any fixes or re-unpack it, and then apply this repair tool.\nRemove the injured state of Brant."
         },
         "compatibility_note": {
             "zh": "\n注：wwmi 0.6x版本的旧Mod在WWMI 070版本之后需开启兼容模式才能加载. 从WWMI076开始默认关闭了兼容模式. 开启方式: 游戏内 Alt + F12. 显示 Compatibility Mode: Enabled",
