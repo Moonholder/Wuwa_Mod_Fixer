@@ -250,7 +250,11 @@ async fn load_config(file_name: &str) -> Result<String, ConfigError> {
     // 远程源列表
     let remotes = [
         format!(
-            "https://cdn.jsdelivr.net/gh/Moonholder/Wuwa_Mod_Fixer@latest/{}",
+            "https://raw.gitmirror.com/Moonholder/Wuwa_Mod_Fixer/main/{}",
+            file_name
+        ),
+        format!(
+            "https://gitee.com/moonholder/Wuwa_Mod_Fixer/raw/main/{}",
             file_name
         ),
         format!(
