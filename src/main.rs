@@ -419,7 +419,6 @@ impl ModFixer {
         };
 
         let use_merged_skeleton = content.contains("[ResourceMergedSkeleton]");
-        // let use_default_remap = false;
 
         for blend_file in blend_files {
             let blend_path = meshes_folder.join(&blend_file);
