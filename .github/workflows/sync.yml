@@ -1,0 +1,25 @@
+name: Sync2Gitee
+
+on: [ push, delete, create ]
+
+concurrency:
+  group: git-mirror
+  
+jobs:
+  git-mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GITEE_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan gitee.com >> ~/.ssh/known_hosts
+
+      - name: GitHub -> Gitee 镜像同步
+        uses: wearerequired/git-mirror-action@v1.2.0
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.GITEE_PRIVATE_KEY }}
+        with:
+          source-repo: "https://github.com/Moonholder/Wuwa_Mod_Fixer.git"
+          destination-repo: "git@gitee.com:moonholder/Wuwa_Mod_Fixer.git"
