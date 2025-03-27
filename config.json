@@ -1,7 +1,7 @@
 {
     "version" : {
-        "min_required_version": "2.1.5",
-        "current_version": "2.1.5.2",
+        "min_required_version": "2.2.0",
+        "current_version": "2.2.0",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -10,11 +10,11 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version."
         },
         "intro": {
-            "zh": "修复 2.0: 男主 秧秧 雪豹 2.1: 男主 秧秧 菲比 ",
-            "en": "Fix 2.0: Male Rover Yangyang LingYang 2.1: Male Rover Yangyang Phoebe."
+            "zh": "修复 2.2: 男主 女主 秧秧 菲比 赤霞 白芷 折枝 今汐皮肤(未完整修复) 雪豹",
+            "en": "Fix 2.2: RoverMale RoverFemale Yangyang Phoebe Chixia Baizhi Zhezhi JinhsiSkin(Partial repair) Lingyang."
         },
         "intro_note": {
-            "zh": "新增1.4版本之前的失效角色\n修复长离和维里奈时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复\n新增布兰特的受伤表现移除",
+            "zh": "新增1.4版本之前的失效角色\n修复长离和维里奈时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
             "en": "Add the ineffective characters from before version 1.4.\nWhen fixing Changli and Virina, it is recommended to restore the mod to the state before any fixes or re-unpack it, and then apply this repair tool.\nRemove the injured state of Brant."
         },
         "compatibility_note": {
@@ -30,8 +30,8 @@
             "en": "If you don't want to change graphics settings and want to load mods normally under other presets, please refer to this link: https://gamebanana.com/tools/18999"
         },
         "texture_override_note": {
-            "zh": "\n游戏2.1版本已经在设置添加了受伤表现开关，此工具仍提供战损修复功能，自行选择是否启用",
-            "en": "\nIn game 2.1 version, injured textures removal has been added to the settings, this tool still provides injured texture hash fix, please choose whether to enable it"
+            "zh": "\n游戏2.1版本已经在设置添加了受伤表现开关，此工具仍提供战损修复功能，自行选择是否启用 (2.2更新后未得到验证，暂时不建议开启)",
+            "en": "\nIn game 2.1 version, injured textures removal has been added to the settings, this tool still provides injured texture hash fix, please choose whether to enable it. (It has not been verified after the 2.2 update, and it is not recommended to turn it on for the time being)"
         },
         "found_old_mod": {
             "zh": "发现旧版Mod(wwmi 0.6x)，正在尝试修复...",
@@ -121,12 +121,13 @@
     "characters": {
         "RoverMale": {
             "main_hashes": [
-                {"old": ["d53c2cc7"], "new": "c9db8418"},
-                {"old": ["f8375eb4"], "new": "3ab7c4d1"},
-                {"old": ["6e2f48ba"], "new": "a4be44e5"}
+                {"old": ["d53c2cc7", "c9db8418"], "new": "e18ca2cc"},
+                {"old": ["f8375eb4", "3ab7c4d1"], "new": "f8375eb4"},
+                {"old": ["6e2f48ba", "a4be44e5"], "new": "6e2f48ba"}
             ],
             "texture_hashes": [
-                {"old": ["f16d5dae"], "new": "a1c0d97c"}
+                {"old": ["a1c0d97c"], "new": "f16d5dae"},
+                {"old": ["7931ea8a"], "new": "fedfec0e"}
             ],
             "states": {
                 "injured": {
@@ -140,7 +141,7 @@
             }
         },
         "RoverFemale": {
-            "main_hashes": [{"old": ["be84b775", "e8b5a730"], "new": "e8b5a730"}],
+            "main_hashes": [{"old": ["be84b775", "e8b5a730"], "new": "3533a957"}],
             "texture_hashes": [
                 {"old": ["2d5b41f6"], "new": "372bd73a"},
                 {"old": ["c446a221"], "new": "99d33a32"}
@@ -165,21 +166,21 @@
                 {"old": ["502c1487"], "new": "1b1ed7be"}
             ],
             "texture_hashes": [
-                {"old": ["77fe24ce"], "new": "d25b9648"},
-                {"old": ["edf438d9"], "new": "3bd37212"},
-                {"old": ["123bcc8e"], "new": "fba3de34"},
-                {"old": ["bd8fff82"], "new": "c3b2a42e"},
-                {"old": ["f42c4870"], "new": "8e27c9a2"},
-                {"old": ["69c48be0"], "new": "1a9b9391"},
-                {"old": ["92d4ad47"], "new": "49b790e0"},
-                {"old": ["16f9802d"], "new": "ae886086"},
-                {"old": ["fc40048f"], "new": "250c59b6"},
+                {"old": ["d25b9648"], "new": "77fe24ce"},
+                {"old": ["3bd37212"], "new": "edf438d9"},
+                {"old": ["fba3de34"], "new": "123bcc8e"},
+                {"old": ["c3b2a42e"], "new": "bd8fff82"},
+                {"old": ["8e27c9a2"], "new": "f42c4870"},
+                {"old": ["1a9b9391"], "new": "69c48be0"},
+                {"old": ["49b790e0"], "new": "92d4ad47"},
+                {"old": ["ae886086"], "new": "16f9802d"},
+                {"old": ["250c59b6"], "new": "fc40048f"},
                 {"old": ["b487d389"], "new": "6905a9bd"},
-                {"old": ["1607589b"], "new": "02e9009d"}
+                {"old": ["02e9009d"], "new": "1607589b"}
             ],
             "states": {
                 "injured": {
-                    "a6fbf4d2": "250c59b6"
+                    "a6fbf4d2": "fc40048f"
                 },
                 "wet": {},
                 "wet_injured": {}
@@ -187,9 +188,9 @@
         },
         "Lingyang": {
             "main_hashes": [
-                {"old": ["9925d10e"], "new": "8b3c13f9"},
-                {"old": ["d02c1cb1"], "new": "b239a59d"},
-                {"old": ["2e3de562"], "new": "497106c3"}
+                {"old": ["8b3c13f9"], "new": "9925d10e"},
+                {"old": ["b239a59d"], "new": "d02c1cb1"},
+                {"old": ["497106c3"], "new": "2e3de562"}
             ],
             "texture_hashes": [
                 {"old": ["587edf05"], "new": "9925d10e"}
@@ -236,6 +237,44 @@
                 "wet_injured": {}
             }
         },
+        "JinhsiPeachBlossom": {
+            "main_hashes": [
+                {"old": ["493ff3b9"], "new": "35f167aa"},
+                {"old": ["2ebd42ac"], "new": "5c9d8190"},
+                {"old": ["1f3fe8c7"], "new": "cbe0b3ad"}
+            ],
+            "texture_hashes": [
+                {"old": ["67b24870"], "new": "7fd16705"},
+                {"old": ["e2165717"], "new": "ffe3eb56"},
+                {"old": ["17f46e6f"], "new": "5523c61b"},
+                {"old": ["ec98aed8"], "new": "d7753a6c"}
+            ],
+            "checksum": "1360",
+            "states": {
+                "injured": {
+                },
+                "wet": {},
+                "wet_injured": {}
+            },
+            "rules": [
+                {
+                    "line_prefix": "match_first_index",
+                    "replacements": [
+                        {"old": ["121599"], "new": "128598"},
+                        {"old": ["215265"], "new": "222492"},
+                        {"old": ["216813"], "new": "224040"},
+                        {"old": ["217041"], "new": "224268"}
+                    ]
+                },
+                {
+                    "line_prefix": "match_index_count",
+                    "replacements": [
+                        {"old": ["48537"],"new": "55536"},
+                        {"old": ["93666"],"new": "93894"}
+                    ]
+                }
+            ]
+        },
         "Shorekeeper": {
             "main_hashes": [{"old": ["0266ab77"], "new": "0266ab77"}],
             "texture_hashes": [],
@@ -252,7 +291,11 @@
             }
         },
         "Zhezhi": {
-            "main_hashes": [{"old": ["c8b08afd"], "new": "c8b08afd"}],
+            "main_hashes": [
+                {"old": ["c8b08afd"], "new": "b4525ff8"},
+                {"old": ["4cdc5987"], "new": "a7ff2cab"},
+                {"old": ["7ebe61e9"], "new": "2208a16a"}
+            ],
             "texture_hashes": [],
             "states": {
                 "injured": {
@@ -302,7 +345,6 @@
                     "replacements": [
                         {"old": ["152343"], "new": "153363"},
                         {"old": ["198855"], "new": "199875"},
-                        {"old": ["283461"], "new": "284481"},
                         {"old": ["283461"], "new": "284481"},
                         {"old": ["285489"], "new": "286509"}
                     ]
@@ -441,12 +483,13 @@
             }
         },
         "Baizhi": {
-            "main_hashes": [{"old": ["4a2b2eca"], "new": "4a2b2eca"}],
+            "main_hashes": [{"old": ["4a2b2eca"], "new": "3cb91e7f"}],
             "texture_hashes": [
                 {"old": ["37bed36b"], "new": "718456ac"},
                 {"old": ["52c9b804"], "new": "d7756134"},
-                {"old": ["1a09bbb5"], "new": "43ae1deb"},
-                {"old": ["d755a4a9"], "new": "fe4e4afe"}
+                {"old": ["43ae1deb"], "new": "1a09bbb5"},
+                {"old": ["d755a4a9"], "new": "fe4e4afe"},
+                {"old": ["fe4e4afe"], "new": "d755a4a9"}
             ],
             "states": {
                 "injured": {
@@ -463,20 +506,21 @@
         "Chixia": {
             "main_hashes": [{"old": ["1606ae41"], "new": "1606ae41"}],
             "texture_hashes": [
-                {"old": ["eee73787"], "new": "ab72381e"},
-                {"old": ["45e0cedb"], "new": "7988637b"},
-                {"old": ["489b5f2a"], "new": "94afca13"},
+                {"old": ["ab72381e"], "new": "eee73787"},
+                {"old": ["7988637b"], "new": "45e0cedb"},
+                {"old": ["94afca13"], "new": "489b5f2a"},
                 {"old": ["cb974015"], "new": "94d10f56"},
-                {"old": ["ba246036"], "new": "873ca04e"},
-                {"old": ["4a2657d7"], "new": "a7141c04"}
+                {"old": ["873ca04e"], "new": "ba246036"},
+                {"old": ["a7141c04"], "new": "4a2657d7"},
+                {"old": ["8da682dd"], "new": "9497a1b9"}
             ],
             "states": {
                 "injured": {
                     "064234d1": "8f423e37",
                     "8da682dd": "9497a1b9",
-                    "7993434a": "873ca04e",
-                    "fd9dd557": "94afca13",
-                    "f6c24f7d": "7988637b"
+                    "7993434a": "ba246036",
+                    "fd9dd557": "489b5f2a",
+                    "f6c24f7d": "45e0cedb"
                 },
                 "wet": {},
                 "wet_injured": {}
@@ -698,11 +742,13 @@
         },
         "Phoebe": {
             "main_hashes": [
-                {"old": ["93b4481e", "3a4bf877"], "new": "8ee2fb7c"},
-                {"old": ["e304df53", "a284a970"], "new": "00b2a919"},
-                {"old": ["3f411789", "baea13f2"], "new": "ecac2cc5"}
+                {"old": ["93b4481e", "3a4bf877", "8ee2fb7c"], "new": "026f7616"},
+                {"old": ["e304df53", "a284a970", "00b2a919"], "new": "8ba3d365"},
+                {"old": ["3f411789", "baea13f2", "ecac2cc5"], "new": "2c8f9580"}
             ],
-            "texture_hashes": [],
+            "texture_hashes": [
+                {"old": ["4a30f1df"], "new": "83bc4e8a"}
+            ],
             "states": {
                 "injured": {
                     "2c8ff000": "4a30f1df",
