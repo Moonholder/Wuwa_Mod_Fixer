@@ -1,6 +1,6 @@
 [package]
 name = "Wuwa_Mod_Fixer"
-version = "2.2.0"
+version = "2.2.1"
 edition = "2024"
 
 [dependencies]
