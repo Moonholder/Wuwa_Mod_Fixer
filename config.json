@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "2.2.1",
-        "current_version": "2.2.1.1",
+        "current_version": "2.2.1.2",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -10,12 +10,12 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复 2.2: 男主 女主 秧秧 菲比 赤霞 白芷 折枝 今汐皮肤 雪豹\n* 修复今汐皮肤左肩\n* 修复白芷右肘和手指\n* 修复安可头发贴图\n如果已经对今汐皮肤和白芷使用过v2.2.0修复工具，请先将mod还原至未使用过修复的状态或者直接重新解压，再使用此修复工具\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
-            "en": "Fix 2.2: RoverMale RoverFemale Yangyang Phoebe Chixia Baizhi Zhezhi JinhsiSkin Lingyang.\n* Fix the left shoulder of JinhsiSkin.\n* Fix the right elbow and fingers of Baizhi.\n* Fix the hair texture of Encore\n* If you have already used the v2.2.0 repair tool for JinhsiSkin and Bai Zhi, please first restore the mod to the state before using the repair, or directly decompress it again, and then use this fix tool.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
+            "zh": "修复 2.2: 男主 女主 秧秧 菲比 赤霞 白芷 折枝 今汐皮肤 雪豹\n* 修复今汐皮肤左肩 (奔跑状态下会右腿会出现异常, 因为我没有今汐皮肤:(，这个问题可能暂时不会到修复)\n* 修复白芷右肘和手指\n* 修复安可头发贴图\n* 新增坎特蕾拉的受伤表现移除(战损/湿身/湿身战损)\n如果已经对今汐皮肤和白芷使用过其他修复工具或手动更改过hash，请先将mod还原至未使用过修复的状态或者直接重新解压，再使用此修复工具\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
+            "en": "Fix 2.2: RoverMale RoverFemale Yangyang Phoebe Chixia Baizhi Zhezhi JinhsiSkin Lingyang.\n* Fix the left shoulder of JinhsiSkin. (The right leg will show abnormalities when the character is running. Since I don't have Jinhsi skin :(, this issue may not be fixed for the time being)\n* Fix the right elbow and fingers of Baizhi.\n* Fix the hair texture of Encore\n* New: Removed Cantarella's Wounded Effect(injured, wet, wet-injured)\nIf you've used other repair tools on Jinhsi skin and Baizhi, or manually changed the hash values, restore the mod to its pre-repair state first, or just re-extract it, then use this repair tool.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
         },
         "intro_note": {
             "zh": "新增1.4版本之前的失效角色\n修复长离和维里奈时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
-            "en": "Add the ineffective characters from before version 1.4.\nWhen fixing Changli and Virina, it is recommended to restore the mod to the state before any fixes or re-unpack it, and then apply this repair tool.\nRemove the injured state of Brant."
+            "en": "Add the ineffective characters from before version 1.4.\nWhen fixing Changli and Virina, it is recommended to restore the mod to the state before any fixes or re-unpack it, and then apply this repair tool.\n"
         },
         "compatibility_note": {
             "zh": "\n注：wwmi 0.6x版本的旧Mod在WWMI 070版本之后需开启兼容模式才能加载. 从WWMI076开始默认关闭了兼容模式. 开启方式: 游戏内 Alt + F12. 显示 Compatibility Mode: Enabled",
@@ -30,8 +30,8 @@
             "en": "If you don't want to change graphics settings and want to load mods normally under other presets, please refer to this link: https://gamebanana.com/tools/18999"
         },
         "texture_override_note": {
-            "zh": "\n游戏2.1版本已经在设置添加了受伤表现开关，此工具仍提供战损修复功能，自行选择是否启用 (2.2更新后未得到验证，暂时不建议开启)",
-            "en": "\nIn game 2.1 version, injured textures removal has been added to the settings, this tool still provides injured texture hash fix, please choose whether to enable it. (It has not been verified after the 2.2 update, and it is not recommended to turn it on for the time being)"
+            "zh": "\n游戏2.1版本已经在设置添加了受伤表现开关，此工具仍提供战损修复功能，自行选择是否启用",
+            "en": "\nIn game 2.1 version, 'Wounded Effect' has been added to the settings, this tool still provides injured texture hash fix, please choose whether to enable it. "
         },
         "found_old_mod": {
             "zh": "发现旧版Mod(wwmi 0.6x)，正在尝试修复...",
@@ -793,6 +793,33 @@
                 },
                 "wet": {},
                 "wet_injured": {}
+            }
+        },
+        "Cantarella": {
+            "main_hashes": [{"old": ["5432f939"], "new": "5432f939"}],
+            "texture_hashes": [],
+            "states": {
+                "injured": {
+                    "4a9b2a09": "d789c54e",
+                    "7423d5d0": "787c92b8",
+                    "01c122b3": "35c01267",
+                    "25144e25": "dc14e209",
+                    "2745d8b5": "c93ea25b"
+                },
+                "wet": {
+                    "5e48f2a4": "d789c54e",
+                    "8f3ebd32": "787c92b8",
+                    "354e8743": "35c01267",
+                    "d67890aa": "dc14e209",
+                    "ef3dab0e": "c93ea25b"
+                },
+                "wet_injured": {
+                    "316457f4": "d789c54e",
+                    "797bc768": "787c92b8",
+                    "28105b41": "35c01267",
+                    "f9f65a14": "dc14e209",
+                    "a45cb30b": "c93ea25b"
+                }
             }
         }
     }
