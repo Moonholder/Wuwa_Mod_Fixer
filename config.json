@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "2.2.1",
-        "current_version": "2.2.1.2",
+        "current_version": "2.2.1.3",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -10,8 +10,8 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复 2.2: 男主 女主 秧秧 菲比 赤霞 白芷 折枝 今汐皮肤 雪豹\n* 修复今汐皮肤左肩 (奔跑状态下会右腿会出现异常, 因为我没有今汐皮肤:(，这个问题可能暂时不会到修复)\n* 修复白芷右肘和手指\n* 修复安可头发贴图\n* 新增坎特蕾拉的受伤表现移除(战损/湿身/湿身战损)\n如果已经对今汐皮肤和白芷使用过其他修复工具或手动更改过hash，请先将mod还原至未使用过修复的状态或者直接重新解压，再使用此修复工具\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
-            "en": "Fix 2.2: RoverMale RoverFemale Yangyang Phoebe Chixia Baizhi Zhezhi JinhsiSkin Lingyang.\n* Fix the left shoulder of JinhsiSkin. (The right leg will show abnormalities when the character is running. Since I don't have Jinhsi skin :(, this issue may not be fixed for the time being)\n* Fix the right elbow and fingers of Baizhi.\n* Fix the hair texture of Encore\n* New: Removed Cantarella's Wounded Effect(injured, wet, wet-injured)\nIf you've used other repair tools on Jinhsi skin and Baizhi, or manually changed the hash values, restore the mod to its pre-repair state first, or just re-extract it, then use this repair tool.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
+            "zh": "修复 2.2: 男主 女主 秧秧 菲比 赤霞 白芷 折枝 雪豹\n* 修复今汐皮肤左肩 (奔跑状态下会右腿会出现异常，这个问题请等待Mod作者修复)\n* 修复白芷右肘和手指\n* 修复安可头发贴图\n* 新增坎特蕾拉的受伤表现移除(战损/湿身/湿身战损)\n* 新增今汐皮肤的受伤表现移除\n如果已经对今汐皮肤和白芷使用过其他修复工具或手动更改过hash，请先将mod还原至未使用过修复的状态或者直接重新解压，再使用此修复工具\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
+            "en": "Fix 2.2: RoverMale RoverFemale Yangyang Phoebe Chixia Baizhi Zhezhi Lingyang.\n* Fix the left shoulder of JinhsiSkin. (The right leg will show abnormalities when the character is running. Please wait for the Mod author to fix this problem.)\n* Fix the right elbow and fingers of Baizhi.\n* Fix the hair texture of Encore\n* New: Removed Cantarella's Wounded Effect(injured, wet, wet-injured)\n* New: Removed JinhsiSkin Wounded Effect\nIf you've used other repair tools on Jinhsi skin and Baizhi, or manually changed the hash values, restore the mod to its pre-repair state first, or just re-extract it, then use this repair tool.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
         },
         "intro_note": {
             "zh": "新增1.4版本之前的失效角色\n修复长离和维里奈时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
@@ -239,7 +239,7 @@
         },
         "JinhsiPeachBlossom": {
             "main_hashes": [
-                {"old": ["493ff3b9"], "new": "35f167aa"},
+                {"old": ["493ff3b9", "35f167aa"], "new": "8a382bf1"},
                 {"old": ["2ebd42ac"], "new": "5c9d8190"},
                 {"old": ["1f3fe8c7"], "new": "cbe0b3ad"}
             ],
@@ -249,11 +249,15 @@
                 {"old": ["17f46e6f"], "new": "5523c61b"},
                 {"old": ["ec98aed8"], "new": "d7753a6c"}
             ],
-            "checksum": "2008",
+            "checksum": "2010",
             "states": {
-                "injured": {},
-                "wet": {},
-                "wet_injured": {}
+                "injured": {
+                    "4282f943": "ef3cbf99",
+                    "c30c292f": "1ccb4d01",
+                    "81b36a74": "43d2d155",
+                    "b02ff93b": "ffe3eb56",
+                    "f0e2b5d5": "5523c61b"
+                }
             },
             "rules": [
                 {

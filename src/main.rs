@@ -182,7 +182,7 @@ impl ModFixer {
         let mut modified = false;
         for hr in hashes {
             for old_hash in &hr.old {
-                if content.contains(old_hash) && !content.contains(&format!("hash = {}", &hr.new)) {
+                if content.contains(&format!("hash = {}", &old_hash)) {
                     let re = Regex::new(&format!(r"\bhash\s*=\s*{}\b", regex::escape(old_hash)))
                         .unwrap();
                     *content = re
