@@ -4,7 +4,7 @@ version = 4
 
 [[package]]
 name = "Wuwa_Mod_Fixer"
-version = "2.2.1"
+version = "2.2.2"
 dependencies = [
  "anyhow",
  "backtrace",

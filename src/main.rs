@@ -9,6 +9,7 @@ use config_loader::{CharacterConfig, Replacement, ReplacementRule, VertexRemapCo
 use anyhow::{Error, Result};
 use backtrace::Backtrace;
 use inquire::{Confirm, Text};
+use lazy_static::lazy_static;
 use log::LevelFilter;
 use regex::Regex;
 use std::borrow::Cow;
@@ -118,11 +119,12 @@ impl ModFixer {
             modified |= self.replace_hashes(&mut new_content, &config.texture_hashes);
 
             if let Some(checksum) = &config.checksum {
-                if !content.contains(&format!("checksum = {}", checksum)) {
-                    new_content = self
-                        .checksum_regex
-                        .replace_all(&new_content, &format!("checksum = {}", checksum))
-                        .into_owned();
+                let new_content_replaced = self
+                    .checksum_regex
+                    .replace_all(&new_content, &format!("checksum = {}", checksum));
+
+                if new_content_replaced.as_ref() != new_content {
+                    new_content = new_content_replaced.into_owned();
                     info!(
                         "checksum_replaced: {char_name} = {checksum}",
                         char_name = char_name,
@@ -132,8 +134,8 @@ impl ModFixer {
                 }
             }
 
-            // vertex_offset_count 替换
-            modified |= self.replace_vertex_offset_count(&mut new_content, &config.rules);
+            // index_offset_count 替换
+            modified |= self.replace_index_offset_count(&mut new_content, &config.rules);
 
             // 战损,湿身修复
             if self.enable_texture_override {
@@ -171,18 +173,20 @@ impl ModFixer {
             info!("{}", t!(process_file_done, file_path = path.display()));
         }
 
-        if !modified && !buf_files_modified {
+        modified |= buf_files_modified;
+
+        if !modified {
             info!("{}", t!(no_need_fix));
         }
 
-        Ok(modified || buf_files_modified)
+        Ok(modified)
     }
 
     fn replace_hashes(&self, content: &mut String, hashes: &[Replacement]) -> bool {
         let mut modified = false;
         for hr in hashes {
             for old_hash in &hr.old {
-                if content.contains(&format!("hash = {}", &old_hash)) {
+                if old_hash != &hr.new && content.contains(&format!("hash = {}", &old_hash)) {
                     let re = Regex::new(&format!(r"\bhash\s*=\s*{}\b", regex::escape(old_hash)))
                         .unwrap();
                     *content = re
@@ -330,7 +334,7 @@ impl ModFixer {
         false
     }
 
-    fn replace_vertex_offset_count(
+    fn replace_index_offset_count(
         &self,
         content: &mut String,
         rules_option: &Option<Vec<ReplacementRule>>,
@@ -390,59 +394,81 @@ impl ModFixer {
         vg_remaps: &[VertexRemapConfig],
     ) -> Result<bool> {
         let mut modified = false;
-        let meshes_folder = Path::new(file_path.parent().unwrap()).join("Meshes");
-        let blend_files: Vec<String> = if meshes_folder.is_dir() {
-            fs::read_dir(&meshes_folder)
-                .map(|entries| {
-                    entries
-                        .filter_map(|entry| {
-                            let path = entry.ok()?.path();
-                            if !path.is_file() {
-                                return None;
-                            }
+        lazy_static! {
+            static ref BLEND_BUFFER_RE: Regex = Regex::new(
+                r"(?i)\[ResourceBlendBuffer(?:_\d+)?\][\s\S]*?filename\s*=\s*([^\s]+?\.buf)"
+            )
+            .unwrap();
+        }
 
-                            let name = path.file_name()?.to_str()?.to_lowercase();
-                            if name.contains("blend")
-                                && name.contains(".buf")
-                                && !name.ends_with(".bak")
-                            {
-                                Some(path.file_name()?.to_str()?.to_string())
-                            } else {
-                                None
-                            }
-                        })
-                        .collect()
-                })
-                .unwrap_or_default()
-        } else {
-            Vec::new()
-        };
+        let blend_buffer_matches: Vec<PathBuf> = BLEND_BUFFER_RE
+            .find_iter(content)
+            .filter_map(|m| {
+                BLEND_BUFFER_RE
+                    .captures(m.as_str())
+                    .and_then(|c| c.get(1).map(|g| g.as_str()))
+                    .map(|blend_file| {
+                        file_path.parent().map_or_else(
+                            || PathBuf::from(blend_file),
+                            |parent| parent.join(blend_file),
+                        )
+                    })
+            })
+            .collect();
+
+        debug!("{:?}", blend_buffer_matches);
 
         let use_merged_skeleton = content.contains("[ResourceMergedSkeleton]");
+        let multiple_blend_files = blend_buffer_matches.len() > (1 as usize);
 
-        for blend_file in blend_files {
-            let blend_path = meshes_folder.join(&blend_file);
-            let blend_data = fs::read(&blend_path)?;
-            let mut blend_data = blend_data.to_vec();
+        for blend_path in blend_buffer_matches {
+            if !blend_path.exists() {
+                warn!("{} not found", blend_path.display());
+                continue;
+            }
+
             let mut match_flag = false;
             let mut apply_flag = false;
 
+            let mut blend_data = fs::read(&blend_path)?;
+
             for vg_remap in vg_remaps {
                 if match_flag || vg_remap.trigger_hash.iter().any(|h| content.contains(h)) {
-                    apply_flag = vg_remap.apply_remap(&mut blend_data, use_merged_skeleton);
+                    let remap_result = if use_merged_skeleton {
+                        vg_remap.apply_remap_merged(&mut blend_data)
+                    } else {
+                        vg_remap.apply_remap_component(
+                            &mut blend_data,
+                            &blend_path,
+                            &content,
+                            multiple_blend_files,
+                        )
+                    };
+
+                    apply_flag |= match remap_result {
+                        Ok(true) => true,
+                        Ok(false) => {
+                            info!("skip remap for {}", &blend_path.display());
+                            false
+                        }
+                        Err(e) => {
+                            error!("{:?}", e);
+                            false
+                        }
+                    };
                     match_flag = true;
                 }
             }
 
             if apply_flag {
-                modified = true;
                 info!("{}", t!(remapped_successfully));
                 let backup_path = self.create_backup(&blend_path)?;
                 info!(
                     "{}",
                     t!(backup_created, backup_path = backup_path.display())
                 );
-                fs::write(&blend_path, blend_data)?;
+                fs::write(&blend_path, &blend_data)?;
+                modified = true;
             }
         }
         return Ok(modified);

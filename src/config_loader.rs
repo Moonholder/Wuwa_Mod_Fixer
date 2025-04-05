@@ -1,9 +1,10 @@
 use crate::localization;
 use localization::config::get_lang;
+use regex::Regex;
 use semver::Version;
 use serde::Deserialize;
 use std::collections::HashMap;
-use std::path::Path;
+use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use tokio::sync::OnceCell as AsyncOnceCell;
 use ureq::AgentBuilder;
@@ -12,14 +13,16 @@ use winreg::enums::HKEY_CURRENT_USER;
 
 static CONFIG: AsyncOnceCell<GlobalConfig> = AsyncOnceCell::const_new();
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
+#[serde(default)]
 pub struct GlobalConfig {
     lang: LangPack,
     characters: HashMap<String, CharacterConfig>,
     version: VersionConfig,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
+#[serde(default)]
 pub struct LangPack {
     pub title: LangItem,
     pub intro: LangItem,
@@ -46,13 +49,15 @@ pub struct LangPack {
     pub error_prompt: LangItem,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Default)]
+#[serde(default)]
 pub struct LangItem {
     pub zh: String,
     pub en: String,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Default)]
+#[serde(default)]
 pub struct CharacterConfig {
     pub main_hashes: Vec<Replacement>,
     pub texture_hashes: Vec<Replacement>,
@@ -61,18 +66,20 @@ pub struct CharacterConfig {
     pub vg_remaps: Option<Vec<VertexRemapConfig>>,
     pub states: Option<HashMap<String, HashMap<String, String>>>,
 }
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Default)]
+#[serde(default)]
 pub struct Replacement {
     pub old: Vec<String>,
     pub new: String,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Default)]
 pub struct ReplacementRule {
     pub line_prefix: String,
     pub replacements: Vec<Replacement>,
 }
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Default)]
+#[serde(default)]
 pub struct VertexRemapConfig {
     pub trigger_hash: Vec<String>,
     pub vertex_groups: Option<HashMap<u8, u8>>,
@@ -80,70 +87,265 @@ pub struct VertexRemapConfig {
     pub component_remap: Option<Vec<ComponentRemapRegion>>,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Default)]
+#[serde(default)]
 pub struct ComponentRemapRegion {
-    pub vertex_offset: usize,
-    #[serde(default)]
-    pub vertex_count: Option<usize>, // 可选字段，默认 None
+    pub component_index: u8,
     pub indices: HashMap<u8, u8>,
 }
 
 impl VertexRemapConfig {
-    pub fn apply_remap(&self, blend_data: &mut Vec<u8>, use_merged_skeleton: bool) -> bool {
-        const STRIDE: usize = 8;
+    const STRIDE: usize = 8;
 
-        if use_merged_skeleton {
-            // 处理顶点组重映射
-            if let Some(vertex_groups) = &self.vertex_groups {
-                for chunk in blend_data.chunks_exact_mut(STRIDE) {
-                    let indices = &mut chunk[0..4];
-                    indices.iter_mut().for_each(|idx| {
-                        *idx = *vertex_groups.get(idx).unwrap_or(idx);
-                    });
-                }
-                info!("merged remapping...");
-                return true;
+    const INDEX_SIZE: usize = 4;
+
+    pub fn apply_remap_merged(&self, blend_data: &mut Vec<u8>) -> Result<bool, String> {
+        if let Some(vertex_groups) = &self.vertex_groups {
+            for chunk in blend_data.chunks_exact_mut(Self::STRIDE) {
+                let indices = &mut chunk[0..4];
+                indices.iter_mut().for_each(|idx| {
+                    *idx = *vertex_groups.get(idx).unwrap_or(idx);
+                });
             }
-            false
-        } else if let Some(regions) = &self.component_remap {
-            // 处理多区块组件重映射
+            info!("merged remapping...");
+            return Ok(true);
+        }
+        Ok(false)
+    }
+
+    pub fn apply_remap_component(
+        &self,
+        blend_data: &mut Vec<u8>,
+        blend_path: &PathBuf,
+        content: &str,
+        multiple: bool,
+    ) -> Result<bool, String> {
+        if let Some(regions) = &self.component_remap {
+            let buf_index = blend_path
+                .file_stem()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .split("_")
+                .last()
+                .unwrap()
+                .parse::<u8>()
+                .unwrap_or(0);
+            let index_path = if multiple && buf_index > 0 {
+                blend_path.with_file_name(format!("Index_{}.buf", buf_index))
+            } else {
+                blend_path.with_file_name(format!("Index.buf"))
+            };
+
+            debug!("index_path={}: ", index_path.display());
+
+            let index_data = std::fs::read(&index_path).map_err(|e| {
+                format!(
+                    "Failed to read index buffer from {}: {}",
+                    index_path.display(),
+                    e
+                )
+            })?;
+
+            let component_indices = if multiple {
+                Self::parse_component_indices_with_multiple(content, buf_index)
+                    .map_err(|e| format!("Failed to parse component indices: {}", e))?
+            } else {
+                Self::parse_component_indices(content)
+                    .map_err(|e| format!("Failed to parse component indices: {}", e))?
+            };
+
             for region in regions {
-                let offset = region.vertex_offset * STRIDE;
-                let end = region
-                    .vertex_count
-                    .map(|cnt| offset + cnt * STRIDE)
-                    .unwrap_or(blend_data.len());
+                let component_index = region.component_index;
+
+                let &(index_count, index_offset) =
+                    component_indices.get(&component_index).ok_or_else(|| {
+                        format!("Component {} not found in parsed indices", component_index)
+                    })?;
 
                 debug!(
-                    "offset: {}, end: {}, len: {}",
-                    offset,
-                    end,
-                    blend_data.len()
+                    "component {}: index_count={}, index_offset={}",
+                    component_index, index_count, index_offset
                 );
 
-                let end = end.min(blend_data.len());
-                if offset >= end {
+                let (start, end) =
+                    Self::get_byte_range_in_buffer(index_count, index_offset, &index_data)
+                        .map_err(|e| format!("Failed to get byte range in buffer: {}", e))?;
+
+                debug!(
+                    "component {}: start_byte={}, end_byte={}",
+                    component_index, start, end
+                );
+
+                if start >= end {
+                    warn!(
+                        "Component {}: Invalid range (start={}, end={}), skipped",
+                        component_index, start, end
+                    );
                     continue;
                 }
 
-                info!("component remapping...");
+                info!(
+                    "Remapping component {}: index_count={}, index_offset={}",
+                    component_index, index_count, index_offset
+                );
 
-                // 遍历当前区块的每个顶点
-                for chunk in blend_data[offset..end].chunks_exact_mut(STRIDE) {
+                for chunk in blend_data[start..end].chunks_exact_mut(Self::STRIDE) {
                     let indices = &mut chunk[0..4];
                     indices.iter_mut().for_each(|idx| {
                         *idx = *region.indices.get(idx).unwrap_or(idx);
                     });
                 }
             }
-            true
-        } else {
-            false
+            return Ok(true);
         }
+        Ok(false)
+    }
+
+    fn parse_component_indices(content: &str) -> Result<HashMap<u8, (usize, usize)>, String> {
+        // 1. 匹配 [TextureOverrideComponentX] 节
+        let component_re = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)\]([^\[]*)")
+            .map_err(|e| format!("Regex error: {}", e))?;
+
+        // 2. 提取 drawindexed 的 indexCount 和 indexOffset
+        let drawindexed_re = Regex::new(r"drawindexed\s*=\s*(\d+),\s*(\d+),")
+            .map_err(|e| format!("Regex error: {}", e))?;
+
+        let mut component_indices = HashMap::new();
+
+        // 3. 遍历所有匹配的组件块
+        for cap in component_re.captures_iter(content) {
+            let component_index: u8 = cap[1]
+                .parse()
+                .map_err(|_| format!("invalid component id: {}", &cap[1]))?;
+
+            let block_content = &cap[2];
+            let mut index_offset = usize::MAX;
+            let mut max_end_offset = 0;
+
+            // 4. 提取每个 drawindexed 的 indexCount 和 indexOffset
+            for draw_cap in drawindexed_re.captures_iter(block_content) {
+                let count: usize = draw_cap[1]
+                    .parse()
+                    .map_err(|_| format!("invalid index count in component {}", component_index))?;
+                let offset: usize = draw_cap[2].parse().map_err(|_| {
+                    format!("invalid index offset in component {}", component_index)
+                })?;
+                index_offset = index_offset.min(offset);
+                max_end_offset = max_end_offset.max(offset + count);
+            }
+
+            let index_count = max_end_offset - index_offset;
+
+            if index_count > 0 {
+                component_indices.insert(component_index, (index_count, index_offset));
+            }
+        }
+
+        if component_indices.is_empty() {
+            Err("No component found in content".into())
+        } else {
+            Ok(component_indices)
+        }
+    }
+
+    fn parse_component_indices_with_multiple(
+        content: &str,
+        draw_block_index: u8,
+    ) -> Result<HashMap<u8, (usize, usize)>, String> {
+        // 1. 匹配 [TextureOverrideComponentX] 节
+        let component_re = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)\]([^\[]*)")
+            .map_err(|e| format!("Regex error: {}", e))?;
+
+        // 2. 提取 drawindexed 的 indexCount 和 indexOffset
+        let drawindexed_re = Regex::new(r"drawindexed\s*=\s*(\d+),\s*(\d+),")
+            .map_err(|e| format!("Regex error: {}", e))?;
+
+        let mut component_indices = HashMap::new();
+
+        // 3. 遍历所有匹配的组件块
+        for cap in component_re.captures_iter(content) {
+            let component_index: u8 = cap[1]
+                .parse()
+                .map_err(|_| format!("invalid component id: {}", &cap[1]))?;
+
+            let block_content = &cap[2];
+            let mut index_count = 0;
+            let mut index_offset = usize::MAX;
+
+            // 根据 draw_block_index 分割获取对应的 drawindexed
+            let pattern = format!(
+                r"if \$swapvar == {}\s*([\s\S]*?)(?:else if \$swapvar|endif)",
+                draw_block_index
+            );
+            let re = Regex::new(&pattern).map_err(|e| format!("Regex error: {}", e))?;
+
+            if let Some(swapvar_cap) = re.captures(block_content) {
+                let target_section = swapvar_cap.get(1).map(|m| m.as_str()).unwrap_or("");
+                let mut max_end_offset = 0;
+                // 4. 提取每个 drawindexed 的 indexCount 和 indexOffset
+                for draw_cap in drawindexed_re.captures_iter(target_section) {
+                    let count: usize = draw_cap[1].parse().map_err(|_| {
+                        format!("invalid index count in component {}", component_index)
+                    })?;
+                    let offset: usize = draw_cap[2].parse().map_err(|_| {
+                        format!("invalid index offset in component {}", component_index)
+                    })?;
+                    index_offset = index_offset.min(offset);
+                    max_end_offset = max_end_offset.max(offset + count);
+                }
+                index_count = max_end_offset - index_offset;
+            }
+
+            if index_count > 0 {
+                component_indices.insert(component_index, (index_count, index_offset));
+            }
+        }
+
+        if component_indices.is_empty() {
+            Err("No component found in content".into())
+        } else {
+            Ok(component_indices)
+        }
+    }
+
+    fn get_byte_range_in_buffer(
+        index_count: usize,
+        index_offset: usize,
+        index_buffer: &[u8],
+    ) -> Result<(usize, usize), String> {
+        let start_index = index_offset;
+        let end_index = index_offset + index_count;
+
+        if end_index > index_buffer.len() / Self::INDEX_SIZE {
+            return Err("index out of range".to_string());
+        }
+
+        let mut vertex_indices = Vec::with_capacity(index_count);
+        for i in start_index..end_index {
+            let start = i * Self::INDEX_SIZE;
+            let end = start + Self::INDEX_SIZE;
+            let index = u32::from_le_bytes(index_buffer[start..end].try_into().unwrap()) as usize;
+            vertex_indices.push(index);
+        }
+
+        let min_vertex_index = vertex_indices
+            .iter()
+            .min()
+            .ok_or("not found min vertex index")?;
+        let max_vertex_index = vertex_indices
+            .iter()
+            .max()
+            .ok_or("not found max vertex index")?;
+        let start_byte = *min_vertex_index * Self::STRIDE;
+        let end_byte = (*max_vertex_index + 1) * Self::STRIDE;
+
+        Ok((start_byte, end_byte))
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Default)]
+#[serde(default)]
 pub struct VersionConfig {
     pub min_required_version: String,
     pub current_version: String,
@@ -250,10 +452,6 @@ async fn load_config(file_name: &str) -> Result<String, ConfigError> {
     // 远程源列表
     let remotes = [
         format!(
-            "https://raw.gitmirror.com/Moonholder/Wuwa_Mod_Fixer/main/{}",
-            file_name
-        ),
-        format!(
             "https://gitee.com/moonholder/Wuwa_Mod_Fixer/raw/main/{}",
             file_name
         ),
@@ -268,9 +466,7 @@ async fn load_config(file_name: &str) -> Result<String, ConfigError> {
     // 尝试所有远程源
     for url in &remotes {
         let url = url.clone();
-        tasks.push(tokio::spawn(async move {
-            build_agent().get(&url).call()
-        }));
+        tasks.push(tokio::spawn(async move { build_agent().get(&url).call() }));
     }
 
     while !tasks.is_empty() {
@@ -297,7 +493,7 @@ async fn load_config(file_name: &str) -> Result<String, ConfigError> {
 }
 
 fn load_local(file_name: &str) -> String {
-    let path = format!("{}", file_name);
+    let path = PathBuf::from(file_name);
     println!(
         "📁 {}: {}",
         if get_lang() == "zh" {
@@ -305,18 +501,15 @@ fn load_local(file_name: &str) -> String {
         } else {
             "Loaded local config"
         },
-        path
+        path.display()
     );
     return std::fs::read_to_string(&path)
         .or_else(|_| {
-            let fallback_path = format!(
-                "{}/{}",
-                env!("CARGO_MANIFEST_DIR"),
-                Path::new(&path).file_name().unwrap().to_str().unwrap()
-            );
+            let mut fallback_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            fallback_path.push(path.file_name().unwrap());
             std::fs::read_to_string(fallback_path)
         })
-        .unwrap_or_else(|e| panic!("💥 本地配置 {} 加载失败: {}", path, e));
+        .unwrap_or_else(|e| panic!("💥 本地配置 {} 加载失败: {}", path.display(), e));
 }
 
 fn build_agent() -> ureq::Agent {
@@ -335,7 +528,8 @@ fn build_agent() -> ureq::Agent {
 
 fn get_system_proxy() -> Option<String> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
-    let internet_settings = hkcu.open_subkey(r"Software\Microsoft\Windows\CurrentVersion\Internet Settings")
+    let internet_settings = hkcu
+        .open_subkey(r"Software\Microsoft\Windows\CurrentVersion\Internet Settings")
         .ok()?;
 
     let proxy_enable: u32 = internet_settings.get_value("ProxyEnable").ok()?;
@@ -344,14 +538,16 @@ fn get_system_proxy() -> Option<String> {
     }
 
     let proxy_server: String = internet_settings.get_value("ProxyServer").ok()?;
-    
+
     // 处理代理格式，可能包含http=或https=前缀
-    proxy_server.split(';')
+    proxy_server
+        .split(';')
         .find(|s| s.starts_with("http=") || s.starts_with("https=") || !s.contains("://"))
         .map(|s| {
             s.trim_start_matches("http=")
-             .trim_start_matches("https=")
-             .trim().to_string()
+                .trim_start_matches("https=")
+                .trim()
+                .to_string()
         })
 }
 

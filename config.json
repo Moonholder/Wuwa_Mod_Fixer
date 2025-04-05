@@ -1,7 +1,7 @@
 {
     "version" : {
-        "min_required_version": "2.2.1",
-        "current_version": "2.2.1.3",
+        "min_required_version": "2.2.2",
+        "current_version": "2.2.2",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -10,8 +10,8 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复 2.2: 男主 女主 秧秧 菲比 赤霞 白芷 折枝 雪豹\n* 修复今汐皮肤左肩 (奔跑状态下会右腿会出现异常，这个问题请等待Mod作者修复)\n* 修复白芷右肘和手指\n* 修复安可头发贴图\n* 新增坎特蕾拉的受伤表现移除(战损/湿身/湿身战损)\n* 新增今汐皮肤的受伤表现移除\n如果已经对今汐皮肤和白芷使用过其他修复工具或手动更改过hash，请先将mod还原至未使用过修复的状态或者直接重新解压，再使用此修复工具\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
-            "en": "Fix 2.2: RoverMale RoverFemale Yangyang Phoebe Chixia Baizhi Zhezhi Lingyang.\n* Fix the left shoulder of JinhsiSkin. (The right leg will show abnormalities when the character is running. Please wait for the Mod author to fix this problem.)\n* Fix the right elbow and fingers of Baizhi.\n* Fix the hair texture of Encore\n* New: Removed Cantarella's Wounded Effect(injured, wet, wet-injured)\n* New: Removed JinhsiSkin Wounded Effect\nIf you've used other repair tools on Jinhsi skin and Baizhi, or manually changed the hash values, restore the mod to its pre-repair state first, or just re-extract it, then use this repair tool.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
+            "zh": "修复 2.2: 男主 女主 秧秧 菲比 赤霞 白芷 折枝 雪豹\n* 今汐皮肤(仅Per-Component骨架的mod完全修复) (Merged skeleton 导出的mod奔跑状态下会右腿会出现异常，请等待Mod作者修复)\n* 修复白芷头发右肘手指裙摆左腿\n* 修复安可头发贴图\n* 新增坎特蕾拉的受伤表现移除(战损/湿身/湿身战损)\n* 新增今汐皮肤的受伤表现移除\n如果已经对今汐皮肤和白芷使用过修复工具或手动更改过hash，请先将mod还原至未使用过修复的状态或者直接重新解压，再使用此修复工具\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
+            "en": "Fix 2.2: RoverMale RoverFemale Yangyang Phoebe Chixia Baizhi Zhezhi Lingyang.\n* JinhsiSkin(Per-Component Skeleton only fully fixed). (Merged skeleton mod will have an abnormal right leg when running, please wait for the mod author to fix it.)\n* Fix the hair, the fingers of the right elbow, the skirt hem and the left leg of Baizhi.\n* Fix the hair texture of Encore\n* New: Removed Cantarella's Wounded Effect(injured, wet, wet-injured)\n* New: Removed JinhsiSkin Wounded Effect\nIf you've used fix tools on Jinhsi skin and Baizhi, or manually changed the hash values, restore the mod to its pre-repair state first, or just re-extract it, then use this fix tool.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
         },
         "intro_note": {
             "zh": "新增1.4版本之前的失效角色\n修复长离和维里奈时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
@@ -135,13 +135,14 @@
                     "e7b350ce": "7bc718ed",
                     "fc2a5fb9": "65af60de",
                     "28b2e0ae": "db7ba06b"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "RoverFemale": {
-            "main_hashes": [{"old": ["be84b775", "e8b5a730"], "new": "3533a957"}],
+            "main_hashes": [
+                {"old": ["be84b775", "e8b5a730"], "new": "3533a957"},
+                {"old": ["ac681fc1"], "new": "ac681fc1"}
+            ],
             "texture_hashes": [
                 {"old": ["2d5b41f6"], "new": "372bd73a"},
                 {"old": ["c446a221"], "new": "99d33a32"}
@@ -154,9 +155,7 @@
                     "b7f20fb3": "be8666c3",
                     "fae1dec5": "7bc718ed",
                     "9f464714": "cccc4663"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Yangyang": {
@@ -181,9 +180,7 @@
             "states": {
                 "injured": {
                     "a6fbf4d2": "fc40048f"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Lingyang": {
@@ -204,9 +201,7 @@
                     "082598f8": "6deb3b31",
                     "2ddd54b4": "abea3993",
                     "fbda8c64": "90e7de37"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Camellya": {
@@ -217,13 +212,14 @@
                     "10a2a706": "3a299182",
                     "65ee0c91": "830aecff",
                     "2231a66a": "faf8f2ae"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Jinhsi": {
-            "main_hashes": [{"old": ["243b7e59"], "new": "243b7e59"}],
+            "main_hashes": [
+                {"old": ["243b7e59"], "new": "243b7e59"},
+                {"old": ["8fb7baf7"], "new": "8fb7baf7"}
+            ],
             "texture_hashes": [],
             "states": {
                 "injured": {
@@ -232,9 +228,7 @@
                     "d508a408": "4296f0e8",
                     "a2f121b4": "27f4ef91",
                     "e2ced28a": "3943dca3"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "JinhsiPeachBlossom": {
@@ -285,7 +279,24 @@
                         "86": 80, "87": 81, "88": 82, "89": 83, "90": 84, "91": 93, "92": 101, "93": 91, "94": 92, "95": 99, "96": 94, "97": 95, "98": 85,
                         "99": 86, "101": 102, "102": 103, "103": 87, "104": 88, "105": 89, "106": 90, "107": 98, "108": 106, "109": 107, "110": 109, "111": 108,
                         "112": 110, "113": 112, "114": 111
-                    }
+                    },
+                    "component_remap": [
+                        {
+                            "component_index": 3,
+                            "vertex_offset": 0,
+                            "vertex_count": 0,
+                            "indices": { "46": 85, "47": 86, "48": 69, "49": 77, "50": 68, "51": 76, "52": 46, "53": 47, "54": 48, "55": 49, "56": 50, "57": 51, "58": 52,
+                                "59": 53, "60": 54, "61": 55, "62": 56, "63": 65, "64": 73, "65": 63, "66": 64, "67": 71, "68": 66, "69": 67, "70": 57, "71": 58, "73": 74,
+                                "74": 75, "75": 59, "76": 60, "77": 61, "78": 62, "79": 70, "80": 78, "81": 79, "82": 81, "83": 80, "84": 82, "85": 84, "86": 83
+                            }
+                        },
+                        {
+                            "component_index": 4,
+                            "vertex_offset": 0,
+                            "vertex_count": 0,
+                            "indices": { "125": 126, "126": 125, "130": 131, "131": 132, "132": 135, "133": 130, "134": 133, "135": 134 }
+                        }
+                    ]
                 }
             ]
         },
@@ -299,9 +310,7 @@
                     "ee8d84b9": "a2f6b3e4",
                     "b682c0e1": "be955444",
                     "2d692f90": "15d38062"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Zhezhi": {
@@ -319,13 +328,14 @@
                     "b42b8f11": "16bf75a8",
                     "806b0500": "2931bfa1",
                     "63df44b0": "26045936"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Encore": {
-            "main_hashes": [{"old": ["592add5c"], "new": "592add5c"}],
+            "main_hashes": [
+                {"old": ["592add5c"], "new": "592add5c"}, 
+                {"old": ["388cecb3"], "new": "388cecb3"}
+            ],
             "texture_hashes": [
                 {"old": ["47c515ac"], "new": "a347d2bc"},
                 {"old": ["b6021f06"], "new": "6ff2b9f1"}
@@ -338,16 +348,14 @@
                     "1062e3a5": "beb2b10e",
                     "77d8a4de": "c44c3cb9",
                     "c93b8e26": "cd7ec1f3"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Changli": {
             "main_hashes": [
                 {"old": ["77975500", "5f8aac45"], "new": "d14bed8b"},
                 {"old": ["d8decbca", "1ccb8008"], "new": "59f24b66"},
-                {"old": ["fd9483ca","060f5303"], "new": "277e18c9"}
+                {"old": ["fd9483ca", "060f5303"], "new": "277e18c9"}
             ],
             "texture_hashes": [
                 {"old": ["8f067708"], "new": "f23483e3"},
@@ -375,8 +383,9 @@
                     "trigger_hash": ["fd9483ca"],
                     "component_remap": [
                         {
-                            "vertex_offset": 47750,
-                            "vertex_count": 21664,
+                            "component_index": 5,
+                            "vertex_offset": 0,
+                            "vertex_count": 0,
                             "indices": {
                                 "9": 23, "11": 28, "12": 10, "13": 11, "14": 12, "15": 13, "16": 14, "17": 15, "18": 16, "19": 17, "20": 18,
                                 "21": 19, "22": 20, "23": 21, "24": 22, "25": 23, "26": 24, "27": 25, "28": 26, "29": 27, "30": 29, "31": 30,
@@ -398,8 +407,9 @@
                     },
                     "component_remap": [
                         {
-                            "vertex_offset": 16935,
-                            "vertex_count": 18037,
+                            "component_index": 3,
+                            "vertex_offset": 0,
+                            "vertex_count": 0,
                             "indices": {
                                 "64": 65,"65": 66,"66": 67,"67": 64,"76": 78,"78": 76
                             }
@@ -415,13 +425,14 @@
                     "d36f54a5": "a260e7f7",
                     "a8e5e794": "a45bfe26",
                     "3bfaa05b": "d6f4003a"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Danjin": {
-            "main_hashes": [{"old": ["6aefd9b3"], "new": "6aefd9b3"}],
+            "main_hashes": [
+                {"old": ["6aefd9b3"], "new": "6aefd9b3"},
+                {"old": ["9f182348"], "new": "9f182348"}
+            ],
             "texture_hashes": [],
             "states": {
                 "injured": {
@@ -430,13 +441,14 @@
                     "1e1108eb": "500d4413",
                     "429b6083": "e2321307",
                     "df6295e2": "b7758489"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Sanhua": {
-            "main_hashes": [{"old": ["33e4890f"], "new": "33e4890f"}],
+            "main_hashes": [
+                {"old": ["33e4890f"], "new": "33e4890f"},
+                {"old": ["a80e0e2b"], "new": "a80e0e2b"}
+            ],
             "texture_hashes": [
                 {"old": ["2584190a"], "new": "cef6494f"},
                 {"old": ["28708ab8"], "new": "0bd3b5ab"},
@@ -446,13 +458,14 @@
             "states": {
                 "injured": {
                     "b222ae08": "2c0c2728"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Verina": {
-            "main_hashes": [{"old": ["83ced9f7"], "new": "82aa82e1"}],
+            "main_hashes": [
+                {"old": ["83ced9f7"], "new": "82aa82e1"},
+                {"old": ["15791c57"], "new": "15791c57"}
+            ],
             "texture_hashes": [
                 {"old": ["fd892e3c"], "new": "953daba7"},
                 {"old": ["5981e400"], "new": "40f3c4ea"},
@@ -468,15 +481,18 @@
                         "107": 108,"108": 109,"109": 110,"110": 111, "111": 77, "112": 113,"114": 115,"174": 178,"175": 177,"176": 174,"177": 175,"178": 176
                     },
                     "component_remap": [
-                        {
-                            "vertex_offset": 12570,
-                            "vertex_count": 56081,
+                        {   
+                            "component_index": 3,
+                            "vertex_offset": 0,
+                            "vertex_count": 0,
                             "indices": {
                                 "5": 6, "6": 5, "34": 33, "37": 46, "76": 42, "79": 80, "80": 79
                             }
                         },
                         {
-                            "vertex_offset": 68651,
+                            "component_index": 4,
+                            "vertex_offset": 0,
+                            "vertex_count": 0,
                             "indices": {
                                 "39": 43, "40": 42, "41": 39, "42": 40, "43": 41
                             }
@@ -491,13 +507,14 @@
                     "4dd974c7": "ae7043eb",
                     "6bc44ed6": "c0ca0958",
                     "16261db1": "24c1883d"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Baizhi": {
-            "main_hashes": [{"old": ["4a2b2eca"], "new": "3cb91e7f"}],
+            "main_hashes": [
+                {"old": ["4a2b2eca"], "new": "3cb91e7f"}, 
+                {"old": ["d8d2286b"], "new": "d8d2286b"}
+            ],
             "texture_hashes": [
                 {"old": ["37bed36b"], "new": "718456ac"},
                 {"old": ["52c9b804"], "new": "d7756134"},
@@ -511,23 +528,50 @@
                     "83a57d50": "7c460f02",
                     "a3ea2aee": "804d32e9",
                     "7729d9e7": "d7756134"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             },
             "vg_remaps": [
                 {
-                    "trigger_hash": ["4a2b2eca"],
+                    "trigger_hash": ["37bed36b", "4a2b2eca", "43ae1deb"],
                     "vertex_groups": {
+                        "17": 20, "18": 21, "19": 18, "20": 19, "21": 17,
                         "51": 53, "52": 51, "53": 52,
+                        "84": 85, "85": 87, "86": 88, "87": 89, "88": 84, "89": 86,
                         "119": 122, "120": 121, "121": 119, "122": 120, "123": 128, "124": 129, "125": 126, "126": 125, "127": 123, "128": 124, "129": 127, "133": 136,
                         "134": 137, "135": 133, "136": 140, "137": 141, "138": 142, "139": 134, "140": 135, "141": 138, "142": 139
-                    }
+                    },
+                    "component_remap": [
+                        {
+                            "component_index": 0,
+                            "vertex_offset": 0,
+                            "vertex_count": 0,
+                            "indices": { "17": 20, "18": 21, "19": 18, "20": 19, "21": 17 }
+                        },
+                        {   
+                            "component_index": 3,
+                            "vertex_offset": 0,
+                            "vertex_count": 0,
+                            "indices": {
+                                "14": 16, "15": 14, "16": 15, "47": 48, "48": 50, "49": 51, "50": 52, "51": 47, "52": 49, 
+                                "82": 85, "83": 84, "84": 82, "85": 83, "86": 91, "87": 92, "88": 89, "89": 88, "90": 86, "91": 87, "92": 90,
+                                "96": 99, "97": 100, "98": 96, "99": 103, "100": 104, "101": 105, "102": 97, "103": 98, "104": 101, "105": 102
+                            }
+                        },
+                        {
+                            "component_index": 4,
+                            "vertex_offset": 0,
+                            "vertex_count": 0,
+                            "indices": { "17": 21, "18": 19, "19": 17, "20": 18, "21": 20 }
+                        }
+                    ]
                 }
             ]
         },
         "Chixia": {
-            "main_hashes": [{"old": ["1606ae41"], "new": "1606ae41"}],
+            "main_hashes": [
+                {"old": ["1606ae41"], "new": "1606ae41"},
+                {"old": ["9b69878e"], "new": "9b69878e"}
+            ],
             "texture_hashes": [
                 {"old": ["ab72381e"], "new": "eee73787"},
                 {"old": ["7988637b"], "new": "45e0cedb"},
@@ -544,20 +588,19 @@
                     "7993434a": "ba246036",
                     "fd9dd557": "489b5f2a",
                     "f6c24f7d": "45e0cedb"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Taoqi": {
-            "main_hashes": [{"old": ["e2685889"], "new": "e2685889"}],
+            "main_hashes": [
+                {"old": ["e2685889"], "new": "e2685889"},
+                {"old": ["9f13087a"], "new": "9f13087a"}
+            ],
             "texture_hashes": [],
             "states": {
                 "injured": {
                     "921c63f7": "33a41964"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Jianxin": {
@@ -577,9 +620,7 @@
                     "21604370": "534c2615",
                     "1efc8bd1": "a7275cef",
                     "4080dfd4": "f095bfbc"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Youhu": {
@@ -593,9 +634,7 @@
                     "f31f91ff": "eb5b96b2",
                     "2411e310": "baee6fc5",
                     "ffd57c26": "c1078929"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "XiangliYao": {
@@ -609,13 +648,14 @@
                     "3f81c006": "580004ac",
                     "a4aceecb": "3865a786",
                     "6ada1c07": "7c17bb8d"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "CalcharoBody": {
-            "main_hashes": [{"old": ["63e02559"], "new": "63e02559"}],
+            "main_hashes": [
+                {"old": ["63e02559"], "new": "63e02559"},
+                {"old": ["9c24e7eb"], "new": "9c24e7eb"}
+            ],
             "texture_hashes": [
                 {"old": ["8b43ad38"], "new": "f3e04a65"},
                 {"old": ["cb23f0b5"], "new": "52197a16"},
@@ -628,13 +668,14 @@
                     "60628a85": "96cdca80",
                     "7b017cc9": "feff1922",
                     "4ead195a": "8a7d6de5"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Yuanwu": {
-            "main_hashes": [{"old": ["51c230c2"], "new": "51c230c2"}],
+            "main_hashes": [
+                {"old": ["51c230c2"], "new": "51c230c2"},
+                {"old": ["0b0fecc4"], "new": "0b0fecc4"}
+            ],
             "texture_hashes": [],
             "states": {
                 "injured": {
@@ -642,13 +683,14 @@
                     "8c14e5f2": "389f5e85",
                     "bd954ba8": "2ba57c1b",
                     "44fa35d0": "c6025664"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Mortefi": {
-            "main_hashes": [{"old": ["7b29fedf"], "new": "7b29fedf"}],
+            "main_hashes": [
+                {"old": ["7b29fedf"], "new": "7b29fedf"},
+                {"old": ["7d919713"], "new": "7d919713"}
+            ],
             "texture_hashes": [],
             "states": {
                 "injured": {
@@ -658,13 +700,14 @@
                     "052d9b73": "18fb0f57",
                     "033e7f72": "413c2f2e",
                     "afa20d6f": "f81811a7"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Aalto": {
-            "main_hashes": [{"old": ["93bbbdc0"], "new": "93bbbdc0"}],
+            "main_hashes": [
+                {"old": ["93bbbdc0"], "new": "93bbbdc0"},
+                {"old": ["4f0a1fba"], "new": "4f0a1fba"}
+            ],
             "texture_hashes": [],
             "states": {
                 "injured": {
@@ -672,13 +715,14 @@
                     "05358c37": "83220aa9",
                     "e73a299b": "78616c21",
                     "e3ee8d85": "03265d9c"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Yinlin": {
-            "main_hashes": [{"old": ["42702199"], "new": "42702199"}],
+            "main_hashes": [
+                {"old": ["42702199"], "new": "42702199"},
+                {"old":["41d656e8"], "new": "41d656e8"}
+            ],
             "texture_hashes": [
                 {"old": ["00120eee"], "new": "86b95122"},
                 {"old": ["584b7755"], "new": "750390fa"},
@@ -698,13 +742,14 @@
                     "7a826f6c": "86b95122",
                     "17bd5877": "711af10e",
                     "b5054dd5": "76967821"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Jiyan": {
-            "main_hashes": [{"old": ["31b50c1d"], "new": "31b50c1d"}],
+            "main_hashes": [
+                {"old": ["31b50c1d"], "new": "31b50c1d"},
+                {"old": ["7759b7d3"], "new": "7759b7d3"}
+            ],
             "texture_hashes": [
                 {"old": ["b05fac63"], "new": "9631335c"},
                 {"old": ["1b3a68de"], "new": "7741698a"}
@@ -712,9 +757,7 @@
             "states": {
                 "injured": {
                     "a782abc1": "9631335c"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Lumi": {
@@ -727,9 +770,7 @@
                     "11dd9524": "2decd61b",
                     "f9934a03": "dda29ba9",
                     "1e55dd5a": "0249a0f6"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Roccia": {
@@ -743,9 +784,7 @@
                     "59d4e7cf": "6f2fd0ce",
                     "9104e80a": "16558db2",
                     "21bfae92": "c9c9ae65"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "SanhuaExorcistic": {
@@ -758,9 +797,7 @@
                     "b908eb42": "9522bbc7",
                     "41d44529": "fd078186",
                     "e8fdba2d": "168462a9"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Phoebe": {
@@ -779,9 +816,7 @@
                     "68055536": "a04d2480",
                     "cf6f91c1": "1641ec82",
                     "c464c8d5": "18b491c2"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Brant": {
@@ -794,9 +829,7 @@
                     "e096a650": "67175ee6",
                     "d86edd42": "2cf897c6",
                     "12c849c4": "fc28e018"
-                },
-                "wet": {},
-                "wet_injured": {}
+                }
             }
         },
         "Cantarella": {
