@@ -433,7 +433,7 @@ impl ModFixer {
             let mut blend_data = fs::read(&blend_path)?;
 
             for vg_remap in vg_remaps {
-                if match_flag || vg_remap.trigger_hash.iter().any(|h| content.contains(h)) {
+                if match_flag || vg_remap.trigger_hash.iter().any(|h| content.contains(&format!("hash = {}", h))) {
                     let remap_result = if use_merged_skeleton {
                         vg_remap.apply_remap_merged(&mut blend_data)
                     } else {
