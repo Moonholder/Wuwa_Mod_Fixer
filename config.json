@@ -1,7 +1,7 @@
 {
     "version" : {
-        "min_required_version": "2.2.2",
-        "current_version": "2.2.2.3",
+        "min_required_version": "2.2.3",
+        "current_version": "2.2.3",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -10,11 +10,11 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复 2.2: 男主 女主 秧秧 菲比 赤霞 白芷 折枝 雪豹\n* 今汐皮肤(仅Per-Component骨架的mod完全修复) (Merged skeleton 导出的mod奔跑状态下会右腿会出现异常，请等待Mod作者修复)\n* 修复白芷头发右肘手指裙摆左腿\n* 修复安可头发贴图\n* 新增今汐皮肤的受伤表现移除\n* 更新了菲比的受伤表现移除\n* 修复了折枝的眼镜不能完全隐藏的问题\n* 更新了坎特蕾拉的纹理hash和战损表现移除\n如果已经对今汐皮肤和白芷使用过修复工具或手动更改过hash，请先将mod还原至未使用过修复的状态或者直接重新解压，再使用此修复工具\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
-            "en": "Fix 2.2: RoverMale RoverFemale Yangyang Phoebe Chixia Baizhi Zhezhi Lingyang.\n* JinhsiSkin(Per-Component Skeleton only fully fixed). (Merged skeleton mod will have an abnormal right leg when running, please wait for the mod author to fix it.)\n* Fix the hair, the fingers of the right elbow, the skirt hem and the left leg of Baizhi.\n* Fix the hair texture of Encore\n* New: Removed JinhsiSkin Wounded Effect\n* Update: Phoebe Wounded Effect hash\n* Fix the issue that the glasses of Zhezhi cannot be completely hidden.\n* Updated Cantarella texture_hashes and Wounded Effect hash\nIf you've used fix tools on Jinhsi skin and Baizhi, or manually changed the hash values, restore the mod to its pre-repair state first, or just re-extract it, then use this fix tool.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
+            "zh": "修复 2.2: 男主 女主 秧秧 菲比 赤霞 白芷 折枝 雪豹\n* 今汐皮肤(仅Per-Component骨架的mod完全修复) (Merged skeleton 导出的mod奔跑状态下会右腿会出现异常，请等待Mod作者修复)\n* 修复白芷头发右肘手指裙摆左腿\n* 修复安可头发贴图\n* 新增今汐皮肤的受伤表现移除\n* 更新了菲比的受伤表现移除\n* 修复了折枝的眼镜不能完全隐藏的问题\n* 更新了坎特蕾拉的纹理hash和战损表现移除\n* 修复吟霖和忌炎的头发贴图\n* 修复了女漂-风主形态在满共鸣能量状态下眼睛异常的问题\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
+            "en": "Fix 2.2: RoverMale RoverFemale Yangyang Phoebe Chixia Baizhi Zhezhi Lingyang.\n* JinhsiSkin(Per-Component Skeleton only fully fixed). (Merged skeleton mod will have an abnormal right leg when running, please wait for the mod author to fix it.)\n* Fix the hair, the fingers of the right elbow, the skirt hem and the left leg of Baizhi.\n* Fix the hair texture of Encore\n* New: Removed JinhsiSkin Wounded Effect\n* Update: Phoebe Wounded Effect hash\n* Fix the issue that the glasses of Zhezhi cannot be completely hidden.\n* Updated Cantarella texture_hashes and Wounded Effect hash\n* Fix the hair texture of Yinlin and Jiyan\n* Fix the issue that the eyes of the aero-rover female shape are abnormal when the full charged is reached\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
         },
         "intro_note": {
-            "zh": "新增1.4版本之前的失效角色\n修复长离和维里奈时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
+            "zh": "新增1.4版本之前的失效角色\n修复长离和维里奈，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
             "en": "Add the ineffective characters from before version 1.4.\nWhen fixing Changli and Virina, it is recommended to restore the mod to the state before any fixes or re-unpack it, and then apply this repair tool.\n"
         },
         "compatibility_note": {
@@ -116,6 +116,14 @@
         "error_prompt": {
             "zh": "程序出现异常，请查看上述错误信息，按任意键关闭窗口...",
             "en": "An error occurred. Please check the error message above and press any key to exit..."
+        },
+        "aero_rover_female_eyes_prompt": {
+            "zh": "是否修复女漂-风主形态满共鸣能量时眼睛异常？确保你的mod存在问题，否则不要开启!",
+            "en": "Fix eyes of female aero-rover when it has full charge? Make sure your mod has the problem, otherwise don't enable it!"
+        },
+        "aero_rover_female_eyes_fixed": {
+            "zh": "女漂-风主形态满共鸣能量时眼睛已修复",
+            "en": "Female aero-rover eyes fixed when it has full charge"
         }
     },
     "characters": {
@@ -737,9 +745,9 @@
                 {"old": ["87bbb0c1"], "new": "30053482"},
                 {"old": ["9ea4dc96"], "new": "76967821"},
                 {"old": ["58b06268"], "new": "1f0f6dc8"},
-                {"old": ["71525c2a"], "new": "7d1b007a"},
+                {"old": ["7d1b007a"], "new": "71525c2a"},
                 {"old": ["e50849e0"], "new": "e56f82b1"},
-                {"old": ["3271530d"], "new": "5f0fbdb9"},
+                {"old": ["5f0fbdb9"], "new": "3271530d"},
                 {"old": ["148a83c6"], "new": "33d00a20"},
                 {"old": ["9ebf7cad"], "new": "5065eae3"}
             ],
@@ -760,7 +768,8 @@
             ],
             "texture_hashes": [
                 {"old": ["b05fac63"], "new": "9631335c"},
-                {"old": ["1b3a68de"], "new": "7741698a"}
+                {"old": ["1b3a68de"], "new": "7741698a"},
+                {"old": ["55f78d68"], "new": "9a8dc04e"}
             ],
             "states": {
                 "injured": {

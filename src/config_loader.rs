@@ -1,6 +1,5 @@
-use crate::localization;
+use crate::{collector, localization};
 use localization::config::get_lang;
-use regex::Regex;
 use semver::Version;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -47,6 +46,8 @@ pub struct LangPack {
     pub all_done: LangItem,
     pub error_occurred: LangItem,
     pub error_prompt: LangItem,
+    pub aero_rover_female_eyes_prompt: LangItem,
+    pub aero_rover_female_eyes_fixed: LangItem,
 }
 
 #[derive(Deserialize, Default)]
@@ -95,13 +96,9 @@ pub struct ComponentRemapRegion {
 }
 
 impl VertexRemapConfig {
-    const STRIDE: usize = 8;
-
-    const INDEX_SIZE: usize = 4;
-
     pub fn apply_remap_merged(&self, blend_data: &mut Vec<u8>) -> Result<bool, String> {
         if let Some(vertex_groups) = &self.vertex_groups {
-            for chunk in blend_data.chunks_exact_mut(Self::STRIDE) {
+            for chunk in blend_data.chunks_exact_mut(collector::BLEND_STRIDE) {
                 let indices = &mut chunk[0..4];
                 indices.iter_mut().for_each(|idx| {
                     *idx = *vertex_groups.get(idx).unwrap_or(idx);
@@ -121,20 +118,19 @@ impl VertexRemapConfig {
         multiple: bool,
     ) -> Result<bool, String> {
         if let Some(regions) = &self.component_remap {
-            let buf_index = blend_path
-                .file_stem()
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .split("_")
-                .last()
-                .unwrap()
-                .parse::<u8>()
-                .unwrap_or(0);
-            let index_path = if multiple && buf_index > 0 {
-                blend_path.with_file_name(format!("Index_{}.buf", buf_index))
+            let index_path =
+                collector::combile_buf_path(&blend_path, &collector::BufferType::Index);
+
+            let buf_index_opt = collector::get_buf_path_index(&blend_path);
+            let component_indices = if multiple || buf_index_opt.is_some() {
+                collector::parse_component_indices_with_multiple(
+                    content,
+                    buf_index_opt.unwrap_or("0"),
+                )
+                .map_err(|e| format!("Failed to parse component indices: {}", e))?
             } else {
-                blend_path.with_file_name(format!("Index.buf"))
+                collector::parse_component_indices(content)
+                    .map_err(|e| format!("Failed to parse component indices: {}", e))?
             };
 
             debug!("index_path={}: ", index_path.display());
@@ -146,14 +142,6 @@ impl VertexRemapConfig {
                     e
                 )
             })?;
-
-            let component_indices = if multiple {
-                Self::parse_component_indices_with_multiple(content, buf_index)
-                    .map_err(|e| format!("Failed to parse component indices: {}", e))?
-            } else {
-                Self::parse_component_indices(content)
-                    .map_err(|e| format!("Failed to parse component indices: {}", e))?
-            };
 
             for region in regions {
                 let component_index = region.component_index;
@@ -168,9 +156,13 @@ impl VertexRemapConfig {
                     component_index, index_count, index_offset
                 );
 
-                let (start, end) =
-                    Self::get_byte_range_in_buffer(index_count, index_offset, &index_data)
-                        .map_err(|e| format!("Failed to get byte range in buffer: {}", e))?;
+                let (start, end) = collector::get_byte_range_in_buffer(
+                    index_count,
+                    index_offset,
+                    &index_data,
+                    collector::BLEND_STRIDE,
+                )
+                .map_err(|e| format!("Failed to get byte range in buffer: {}", e))?;
 
                 debug!(
                     "component {}: start_byte={}, end_byte={}",
@@ -190,7 +182,7 @@ impl VertexRemapConfig {
                     component_index, index_count, index_offset
                 );
 
-                for chunk in blend_data[start..end].chunks_exact_mut(Self::STRIDE) {
+                for chunk in blend_data[start..end].chunks_exact_mut(collector::BLEND_STRIDE) {
                     let indices = &mut chunk[0..4];
                     indices.iter_mut().for_each(|idx| {
                         *idx = *region.indices.get(idx).unwrap_or(idx);
@@ -200,147 +192,6 @@ impl VertexRemapConfig {
             return Ok(true);
         }
         Ok(false)
-    }
-
-    fn parse_component_indices(content: &str) -> Result<HashMap<u8, (usize, usize)>, String> {
-        // 1. 匹配 [TextureOverrideComponentX] 节
-        let component_re = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)\]([^\[]*)")
-            .map_err(|e| format!("Regex error: {}", e))?;
-
-        // 2. 提取 drawindexed 的 indexCount 和 indexOffset
-        let drawindexed_re = Regex::new(r"drawindexed\s*=\s*(\d+),\s*(\d+),")
-            .map_err(|e| format!("Regex error: {}", e))?;
-
-        let mut component_indices = HashMap::new();
-
-        // 3. 遍历所有匹配的组件块
-        for cap in component_re.captures_iter(content) {
-            let component_index: u8 = cap[1]
-                .parse()
-                .map_err(|_| format!("invalid component id: {}", &cap[1]))?;
-
-            let block_content = &cap[2];
-            let mut index_offset = usize::MAX;
-            let mut max_end_offset = 0;
-
-            // 4. 提取每个 drawindexed 的 indexCount 和 indexOffset
-            for draw_cap in drawindexed_re.captures_iter(block_content) {
-                let count: usize = draw_cap[1]
-                    .parse()
-                    .map_err(|_| format!("invalid index count in component {}", component_index))?;
-                let offset: usize = draw_cap[2].parse().map_err(|_| {
-                    format!("invalid index offset in component {}", component_index)
-                })?;
-                index_offset = index_offset.min(offset);
-                max_end_offset = max_end_offset.max(offset + count);
-            }
-
-            let index_count = max_end_offset - index_offset;
-
-            if index_count > 0 {
-                component_indices.insert(component_index, (index_count, index_offset));
-            }
-        }
-
-        if component_indices.is_empty() {
-            Err("No component found in content".into())
-        } else {
-            Ok(component_indices)
-        }
-    }
-
-    fn parse_component_indices_with_multiple(
-        content: &str,
-        draw_block_index: u8,
-    ) -> Result<HashMap<u8, (usize, usize)>, String> {
-        // 1. 匹配 [TextureOverrideComponentX] 节
-        let component_re = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)\]([^\[]*)")
-            .map_err(|e| format!("Regex error: {}", e))?;
-
-        // 2. 提取 drawindexed 的 indexCount 和 indexOffset
-        let drawindexed_re = Regex::new(r"drawindexed\s*=\s*(\d+),\s*(\d+),")
-            .map_err(|e| format!("Regex error: {}", e))?;
-
-        let mut component_indices = HashMap::new();
-
-        // 3. 遍历所有匹配的组件块
-        for cap in component_re.captures_iter(content) {
-            let component_index: u8 = cap[1]
-                .parse()
-                .map_err(|_| format!("invalid component id: {}", &cap[1]))?;
-
-            let block_content = &cap[2];
-            let mut index_count = 0;
-            let mut index_offset = usize::MAX;
-
-            // 根据 draw_block_index 分割获取对应的 drawindexed
-            let pattern = format!(
-                r"if \$swapvar == {}\s*([\s\S]*?)(?:else if \$swapvar|endif)",
-                draw_block_index
-            );
-            let re = Regex::new(&pattern).map_err(|e| format!("Regex error: {}", e))?;
-
-            if let Some(swapvar_cap) = re.captures(block_content) {
-                let target_section = swapvar_cap.get(1).map(|m| m.as_str()).unwrap_or("");
-                let mut max_end_offset = 0;
-                // 4. 提取每个 drawindexed 的 indexCount 和 indexOffset
-                for draw_cap in drawindexed_re.captures_iter(target_section) {
-                    let count: usize = draw_cap[1].parse().map_err(|_| {
-                        format!("invalid index count in component {}", component_index)
-                    })?;
-                    let offset: usize = draw_cap[2].parse().map_err(|_| {
-                        format!("invalid index offset in component {}", component_index)
-                    })?;
-                    index_offset = index_offset.min(offset);
-                    max_end_offset = max_end_offset.max(offset + count);
-                }
-                index_count = max_end_offset - index_offset;
-            }
-
-            if index_count > 0 {
-                component_indices.insert(component_index, (index_count, index_offset));
-            }
-        }
-
-        if component_indices.is_empty() {
-            Err("No component found in content".into())
-        } else {
-            Ok(component_indices)
-        }
-    }
-
-    fn get_byte_range_in_buffer(
-        index_count: usize,
-        index_offset: usize,
-        index_buffer: &[u8],
-    ) -> Result<(usize, usize), String> {
-        let start_index = index_offset;
-        let end_index = index_offset + index_count;
-
-        if end_index > index_buffer.len() / Self::INDEX_SIZE {
-            return Err("index out of range".to_string());
-        }
-
-        let mut vertex_indices = Vec::with_capacity(index_count);
-        for i in start_index..end_index {
-            let start = i * Self::INDEX_SIZE;
-            let end = start + Self::INDEX_SIZE;
-            let index = u32::from_le_bytes(index_buffer[start..end].try_into().unwrap()) as usize;
-            vertex_indices.push(index);
-        }
-
-        let min_vertex_index = vertex_indices
-            .iter()
-            .min()
-            .ok_or("not found min vertex index")?;
-        let max_vertex_index = vertex_indices
-            .iter()
-            .max()
-            .ok_or("not found max vertex index")?;
-        let start_byte = *min_vertex_index * Self::STRIDE;
-        let end_byte = (*max_vertex_index + 1) * Self::STRIDE;
-
-        Ok((start_byte, end_byte))
     }
 }
 
@@ -493,7 +344,6 @@ async fn load_config(file_name: &str) -> Result<String, ConfigError> {
 }
 
 fn load_local(file_name: &str) -> String {
-    let path = PathBuf::from(file_name);
     println!(
         "📁 {}: {}",
         if get_lang() == "zh" {
@@ -501,15 +351,9 @@ fn load_local(file_name: &str) -> String {
         } else {
             "Loaded local config"
         },
-        path.display()
+        file_name
     );
-    return std::fs::read_to_string(&path)
-        .or_else(|_| {
-            let mut fallback_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-            fallback_path.push(path.file_name().unwrap());
-            std::fs::read_to_string(fallback_path)
-        })
-        .unwrap_or_else(|e| panic!("💥 本地配置 {} 加载失败: {}", path.display(), e));
+    return include_str!("../config.json").to_string();
 }
 
 fn build_agent() -> ureq::Agent {

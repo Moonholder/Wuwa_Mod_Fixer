@@ -5,11 +5,11 @@ mod localization;
 use localization::config::get_lang;
 mod config_loader;
 use config_loader::{CharacterConfig, Replacement, ReplacementRule, VertexRemapConfig};
+mod collector;
 
-use anyhow::{Error, Result};
+use anyhow::{Error, Result, anyhow};
 use backtrace::Backtrace;
 use inquire::{Confirm, Text};
-use lazy_static::lazy_static;
 use log::LevelFilter;
 use regex::Regex;
 use std::borrow::Cow;
@@ -88,9 +88,10 @@ impl ModFixer {
     fn process_file(&self, path: &Path) -> Result<bool> {
         let content = fs::read_to_string(path)?;
         let mut modified = false;
+        let mut ini_modified = false;
+        let mut buf_files_modified = false;
         let mut match_old_mod = false;
         let mut new_content = content.clone();
-        let mut match_vg_maps = Option::<&Vec<VertexRemapConfig>>::None;
         info!("{}", t!(process_file_start, file_path = path.display()));
 
         // 处理每个角色的哈希替换
@@ -115,8 +116,8 @@ impl ModFixer {
             info!("{}", t!(match_character_prompt, character = char_name));
 
             // 主哈希和贴图哈希替换
-            modified |= self.replace_hashes(&mut new_content, &config.main_hashes);
-            modified |= self.replace_hashes(&mut new_content, &config.texture_hashes);
+            ini_modified |= self.replace_hashes(&mut new_content, &config.main_hashes);
+            ini_modified |= self.replace_hashes(&mut new_content, &config.texture_hashes);
 
             if let Some(checksum) = &config.checksum {
                 let new_content_replaced = self
@@ -130,19 +131,19 @@ impl ModFixer {
                         char_name = char_name,
                         checksum = checksum
                     );
-                    modified = true;
+                    ini_modified = true;
                 }
             }
 
-            // index_offset_count 替换
-            modified |= self.replace_index_offset_count(&mut new_content, &config.rules);
+            // replace component match_first_index and match_first_count
+            ini_modified |= self.replace_index_offset_count(&mut new_content, &config.rules);
 
-            // 战损,湿身修复
+            // 受损表现移除
             if self.enable_texture_override {
                 if let Some(char_states) = &config.states {
                     for state_name in char_states.keys() {
                         if let Some(state_map) = char_states.get(state_name) {
-                            modified |= self.texture_override_redirection(
+                            ini_modified |= self.texture_override_redirection(
                                 &mut new_content,
                                 state_map,
                                 state_name.as_str(),
@@ -152,27 +153,43 @@ impl ModFixer {
                 }
             }
 
-            match_vg_maps = config.vg_remaps.as_ref();
+            // 顶点组重映射
+            if let Some(vg_maps) = &config.vg_remaps {
+                buf_files_modified |= self.remaps(&content, path, vg_maps)?;
+            }
+
+            let enable_aero_rover_fix = if char_name == "RoverFemale" {
+                println!();
+                Confirm::new(t!(aero_rover_female_eyes_prompt))
+                    .with_default(false)
+                    .prompt()?
+            } else {
+                false
+            };
+
+            // 修复风主满共鸣能量眼睛异常
+            if enable_aero_rover_fix {
+                buf_files_modified |=
+                    self.fix_aero_rover_female_eyes_with_texcoord(path, &content)?;
+
+                if !buf_files_modified {
+                    ini_modified |=
+                        self.fix_aero_rover_female_eyes_with_texture(path, &mut new_content)?;
+                }
+
+                info!("{}", t!(aero_rover_female_eyes_fixed));
+            }
 
             break;
         }
 
-        // 处理顶点组和组件重映射
-        let mut buf_files_modified = false;
-        if let Some(vg_maps) = match_vg_maps {
-            buf_files_modified = self.remaps(&content, path, vg_maps)?;
-        }
-
-        if modified {
-            let backup_path = self.create_backup(path)?;
-            info!(
-                "{}",
-                t!(backup_created, backup_path = backup_path.display())
-            );
+        if ini_modified {
+            self.create_backup(path)?;
             fs::write(path, new_content)?;
             info!("{}", t!(process_file_done, file_path = path.display()));
         }
 
+        modified |= ini_modified;
         modified |= buf_files_modified;
 
         if !modified {
@@ -316,6 +333,10 @@ impl ModFixer {
                 let backup_name = format!("{}_{}.BAK", name, datetime);
                 let backup_path = path.with_file_name(backup_name);
                 fs::copy(path, &backup_path)?;
+                info!(
+                    "{}",
+                    t!(backup_created, backup_path = backup_path.display())
+                );
                 return Ok(backup_path);
             }
         }
@@ -394,27 +415,8 @@ impl ModFixer {
         vg_remaps: &[VertexRemapConfig],
     ) -> Result<bool> {
         let mut modified = false;
-        lazy_static! {
-            static ref BLEND_BUFFER_RE: Regex = Regex::new(
-                r"(?i)\[ResourceBlendBuffer(?:_\d+)?\][\s\S]*?filename\s*=\s*([^\s]+?\.buf)"
-            )
-            .unwrap();
-        }
-
-        let blend_buffer_matches: Vec<PathBuf> = BLEND_BUFFER_RE
-            .find_iter(content)
-            .filter_map(|m| {
-                BLEND_BUFFER_RE
-                    .captures(m.as_str())
-                    .and_then(|c| c.get(1).map(|g| g.as_str()))
-                    .map(|blend_file| {
-                        file_path.parent().map_or_else(
-                            || PathBuf::from(blend_file),
-                            |parent| parent.join(blend_file),
-                        )
-                    })
-            })
-            .collect();
+        let blend_buffer_matches =
+            collector::parse_resouce_buffer_path(content, collector::BufferType::Blend, file_path);
 
         debug!("{:?}", blend_buffer_matches);
 
@@ -433,7 +435,12 @@ impl ModFixer {
             let mut blend_data = fs::read(&blend_path)?;
 
             for vg_remap in vg_remaps {
-                if match_flag || vg_remap.trigger_hash.iter().any(|h| content.contains(&format!("hash = {}", h))) {
+                if match_flag
+                    || vg_remap
+                        .trigger_hash
+                        .iter()
+                        .any(|h| content.contains(&format!("hash = {}", h)))
+                {
                     let remap_result = if use_merged_skeleton {
                         vg_remap.apply_remap_merged(&mut blend_data)
                     } else {
@@ -462,16 +469,131 @@ impl ModFixer {
 
             if apply_flag {
                 info!("{}", t!(remapped_successfully));
-                let backup_path = self.create_backup(&blend_path)?;
-                info!(
-                    "{}",
-                    t!(backup_created, backup_path = backup_path.display())
-                );
+                self.create_backup(&blend_path)?;
                 fs::write(&blend_path, &blend_data)?;
                 modified = true;
             }
         }
         return Ok(modified);
+    }
+
+    fn fix_aero_rover_female_eyes_with_texcoord(
+        &self,
+        ini_path: &Path,
+        content: &str,
+    ) -> Result<bool> {
+        let component_indices =
+            collector::parse_component_indices(&content).map_err(|e| anyhow!(e))?;
+        let &(index_count, index_offset) = component_indices
+            .get(&5)
+            .ok_or_else(|| anyhow!("Failed to find component indices"))?;
+
+        let tex_coord_paths = collector::parse_resouce_buffer_path(
+            &content,
+            collector::BufferType::TexCoord,
+            &ini_path,
+        );
+
+        let mut ret = false;
+
+        for tex_coord_path in tex_coord_paths {
+            if !tex_coord_path.exists() {
+                continue;
+            }
+
+            let index_path =
+                collector::combile_buf_path(&tex_coord_path, &collector::BufferType::Index);
+
+            let index_data = fs::read(index_path)?;
+
+            let (start, end) = collector::get_byte_range_in_buffer(
+                index_count,
+                index_offset,
+                &index_data,
+                collector::TEXCOORD_STRIDE,
+            )
+            .map_err(|e| anyhow!("Failed to get byte range in buffer: {}", e))?;
+
+            let fixed_data = include_bytes!("resources/RoverFemale_Componet5_TexCoord.buf");
+
+            debug!(
+                "start: {}, end: {}, count: {}, len: {}",
+                start,
+                end,
+                end - start,
+                fixed_data.len()
+            );
+
+            let mut tex_coord_data = fs::read(&tex_coord_path)?;
+
+            if end - start == fixed_data.len() {
+                tex_coord_data[start..end].copy_from_slice(fixed_data);
+
+                self.create_backup(&tex_coord_path)?;
+                fs::write(&tex_coord_path, &tex_coord_data)?;
+
+                ret = true;
+            }
+        }
+        return Ok(ret);
+    }
+
+    fn fix_aero_rover_female_eyes_with_texture(
+        &self,
+        ini_path: &Path,
+        new_content: &mut String,
+    ) -> Result<bool> {
+        let texture_path = ini_path.parent().unwrap().join("Textures");
+        if !texture_path.exists() {
+            fs::create_dir_all(&texture_path)?;
+        }
+
+        let fixed_data = include_bytes!("resources/FixAeroRoverFemaleEyesMap=fa3f84a8.dds");
+        let file_name = "FixAeroRoverFemaleEyesMap=fa3f84a8.dds";
+        fs::write(texture_path.join(file_name), fixed_data)?;
+
+        let new_section_content = format!(
+            r#"
+        [Constants]
+        global $charged = 0
+        global $rf_state = 0
+
+        [TextureOverride_Normal]
+        hash = a2207e11
+        $charged = 0
+
+        [TextureOverride_Charged]
+        hash = fa3f84a8
+        $charged = 1
+
+        [TextureOverride_RoverMale]
+        if $charged == 1
+        hash = e18ca2cc
+        $rf_state = 0
+        endif
+
+        [TextureOverride_RoverFemale]
+        if $charged == 1
+        hash = 3533a957
+        $rf_state = 1
+        endif
+
+        [ResourceTexture_AeroRoverFemaleEyes]
+        filename = Textures/{}
+
+        [TextureOverrideTexture_AeroRoverFemaleEyes]
+        if $charged == 1 && $rf_state == 1
+        hash = {}
+        match_priority = 0
+        this = ResourceTexture_AeroRoverFemaleEyes
+        endif
+        "#,
+            file_name, "fa3f84a8"
+        )
+        .replace(&" ".repeat(8), "");
+
+        new_content.push_str(&new_section_content);
+        return Ok(true);
     }
 }
 
