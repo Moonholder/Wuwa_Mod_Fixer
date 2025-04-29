@@ -1,5 +1,5 @@
 use crate::{collector, localization};
-use localization::config::get_lang;
+use localization::config::{get_lang, LangPack};
 use semver::Version;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -18,43 +18,6 @@ pub struct GlobalConfig {
     lang: LangPack,
     characters: HashMap<String, CharacterConfig>,
     version: VersionConfig,
-}
-
-#[derive(Deserialize, Default)]
-#[serde(default)]
-pub struct LangPack {
-    pub title: LangItem,
-    pub intro: LangItem,
-    pub intro_note: LangItem,
-    pub compatibility_note: LangItem,
-    pub graphics_setting_note: LangItem,
-    pub graphics_quality_note: LangItem,
-    pub texture_override_note: LangItem,
-    pub found_old_mod: LangItem,
-    pub texture_override_prompt: LangItem,
-    pub match_character_prompt: LangItem,
-    pub remapped_successfully: LangItem,
-    pub process_file_start: LangItem,
-    pub process_file_done: LangItem,
-    pub backup_created: LangItem,
-    pub backup_failed: LangItem,
-    pub no_need_fix: LangItem,
-    pub process_file_error: LangItem,
-    pub process_folder_done: LangItem,
-    pub input_folder_prompt: LangItem,
-    pub start_processing: LangItem,
-    pub all_done: LangItem,
-    pub error_occurred: LangItem,
-    pub error_prompt: LangItem,
-    pub aero_rover_female_eyes_prompt: LangItem,
-    pub aero_rover_female_eyes_fixed: LangItem,
-}
-
-#[derive(Deserialize, Default)]
-#[serde(default)]
-pub struct LangItem {
-    pub zh: String,
-    pub en: String,
 }
 
 #[derive(Deserialize, Clone, Default)]

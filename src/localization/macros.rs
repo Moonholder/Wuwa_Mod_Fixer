@@ -2,18 +2,12 @@
 macro_rules! t {
     ($item:ident) => {{
         use $crate::localization::config::{get_lang, get_pack};
-        match get_lang() {
-            "zh" => &get_pack().$item.zh,
-            _ => &get_pack().$item.en,
-        }
+        get_pack().$item.get_translation(get_lang())
     }};
 
     ($item:ident, $($key:ident = $value:expr),*) => {{
         use $crate::localization::config::{get_lang, get_pack};
-        let mut template = match get_lang() {
-            "zh" => get_pack().$item.zh.clone(),
-            _ => get_pack().$item.en.clone(),
-        };
+        let mut template = get_pack().$item.get_translation(get_lang()).to_string();
         $(template = template.replace(concat!("{", stringify!($key), "}"), &$value.to_string());)*
         template
     }};

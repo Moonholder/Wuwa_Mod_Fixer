@@ -1,7 +1,7 @@
 {
     "version" : {
-        "min_required_version": "2.2.3",
-        "current_version": "2.2.3.1",
+        "min_required_version": "2.3.0",
+        "current_version": "2.3.0",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -10,12 +10,12 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复 2.2: 男主 女主 秧秧 菲比 赤霞 白芷 折枝 雪豹\n* 修复今汐皮肤肩部及右腿\n* 修复白芷头发右肘手指裙摆左腿\n* 修复安可头发贴图\n* 新增今汐皮肤的受伤表现移除\n* 更新了菲比的受伤表现移除\n* 修复了折枝的眼镜不能完全隐藏的问题\n* 更新了坎特蕾拉的纹理hash和战损表现移除\n* 修复吟霖和忌炎的头发贴图\n* 修复了女漂-风主形态在满共鸣能量状态下眼睛异常的问题\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
-            "en": "Fix 2.2: RoverMale RoverFemale Yangyang Phoebe Chixia Baizhi Zhezhi Lingyang.\n* Fix the Shoulder and Right Leg of JinhsiPeachSkin.\n* Fix the hair, the fingers of the right elbow, the skirt hem and the left leg of Baizhi.\n* Fix the hair texture of Encore\n* New: Removed JinhsiPeachSkin Wounded Effect\n* Update: Phoebe Wounded Effect hash\n* Fix the issue that the glasses of Zhezhi cannot be completely hidden.\n* Updated Cantarella texture_hashes and Wounded Effect hash\n* Fix the hair texture of Yinlin and Jiyan\n* Fix the issue that the eyes of the aero-rover female shape are abnormal when the full charged is reached\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
+            "zh": "修复 2.3: 男主 秧秧 坎特蕾拉 芙露德莉斯\n* 修复秧秧手指及其他异常\n* 更新坎特蕾拉的受伤/湿身表现\n\n修复 2.2: 男主 女主 秧秧 菲比 赤霞 白芷 折枝 雪豹\n* 修复今汐皮肤肩部及右腿\n* 修复白芷头发右肘手指裙摆左腿\n* 修复安可头发贴图\n* 新增今汐皮肤的受伤表现移除\n* 更新了菲比的受伤表现移除\n* 修复了折枝的眼镜不能完全隐藏的问题\n* 更新了坎特蕾拉的纹理hash和战损表现移除\n* 修复吟霖和忌炎的头发贴图\n* 修复了女漂-风主形态在满共鸣能量状态下眼睛异常的问题\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
+            "en": "Fix 2.3: RoverMale Yangyang Cantarella Fleurdelys\n* Fixed the abnormal fingers and other issues of Yangyang\n* Updated Cantarella texture_hashes and Wounded Effect hash \n\nFix 2.2: RoverMale RoverFemale Yangyang Phoebe Chixia Baizhi Zhezhi Lingyang.\n* Fix the Shoulder and Right Leg of JinhsiPeachSkin.\n* Fix the hair, the fingers of the right elbow, the skirt hem and the left leg of Baizhi.\n* Fix the hair texture of Encore\n* New: Removed JinhsiPeachSkin Wounded Effect\n* Update: Phoebe Wounded Effect hash\n* Fix the issue that the glasses of Zhezhi cannot be completely hidden.\n* Updated Cantarella texture_hashes and Wounded Effect hash\n* Fix the hair texture of Yinlin and Jiyan\n* Fix the issue that the eyes of the aero-rover female shape are abnormal when the full charged is reached\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
         },
         "intro_note": {
-            "zh": "新增1.4版本之前的失效角色\n修复【长离】【维里奈】【今汐皮肤】【白芷】时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
-            "en": "Add the ineffective characters from before version 1.4.\nWhen fixing [Changli] [Virina] [JinhsiPeachSkin] [Baizhi], it is recommended to restore the mod to the state before any fixes or re-download/re-extract it, and then apply this fix tool.\n"
+            "zh": "修复【长离】【维里奈】【今汐皮肤】【白芷】时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
+            "en": "When fixing [Changli] [Virina] [JinhsiPeachSkin] [Baizhi], it is recommended to restore the mod to the state before any fixes or re-download/re-extract it, and then apply this fix tool.\n"
         },
         "compatibility_note": {
             "zh": "\n注：wwmi 0.6x版本的旧Mod在WWMI 070版本之后需开启兼容模式才能加载. 从WWMI076开始默认关闭了兼容模式. 开启方式: 游戏内 Alt + F12. 显示 Compatibility Mode: Enabled",
@@ -24,10 +24,6 @@
         "graphics_setting_note": {
             "zh": "游戏从2.0版本开始不同画面预设的Hash值可能不同，这可能导致Mod贴图错误，请将图形质量预设调整至均衡/画面优先",
             "en": "Starting from version 2.0, different graphics presets may have different hash values, which may cause mod texture errors. Please set the graphics quality preset to Balanced/Quality."
-        },
-        "graphics_quality_note": {
-            "zh": "不想修改画面设置的并希望在其他画面挡位下正常加载Mod的 请参考此链接: https://gamebanana.com/tools/18999",
-            "en": "If you don't want to change graphics settings and want to load mods normally under other presets, please refer to this link: https://gamebanana.com/tools/18999"
         },
         "texture_override_note": {
             "zh": "\n游戏2.1版本已经在设置添加了受伤表现开关，此工具仍提供战损修复功能，自行选择是否启用",
@@ -38,8 +34,8 @@
             "en": "Found old mod (wwmi 0.6x), trying to fix..."
         },
         "texture_override_prompt": {
-            "zh": "是否移除受伤表现？:",
-            "en": "Remove injured state in Quality?:"
+            "zh": "是否移除受伤表现？ （默认否）:",
+            "en": "Remove injured state in Quality? (default no):"
         },
         "match_character_prompt": {
             "zh": "匹配到角色 {character}，正在处理...",
@@ -118,8 +114,8 @@
             "en": "An error occurred. Please check the error message above and press any key to exit..."
         },
         "aero_rover_female_eyes_prompt": {
-            "zh": "是否修复女漂-风主形态满共鸣能量时眼睛异常？确保你的mod存在问题，否则不要开启!",
-            "en": "Fix eyes of female aero-rover when it has full charge? Make sure your mod has the problem, otherwise don't enable it!"
+            "zh": "是否修复女漂-风主形态满共鸣能量时眼睛异常？确保你的mod存在此问题，否则不要开启! （默认否）:",
+            "en": "Fix eyes of female aero-rover when it has full charge? Make sure your mod has the problem, otherwise don't enable it! (default no):"
         },
         "aero_rover_female_eyes_fixed": {
             "zh": "女漂-风主形态满共鸣能量时眼睛已修复",
@@ -129,7 +125,7 @@
     "characters": {
         "RoverMale": {
             "main_hashes": [
-                {"old": ["d53c2cc7", "c9db8418"], "new": "e18ca2cc"},
+                {"old": ["d53c2cc7", "c9db8418", "e18ca2cc"], "new": "b22dacf9"},
                 {"old": ["f8375eb4", "3ab7c4d1"], "new": "f8375eb4"},
                 {"old": ["6e2f48ba", "a4be44e5"], "new": "6e2f48ba"}
             ],
@@ -153,7 +149,8 @@
             ],
             "texture_hashes": [
                 {"old": ["2d5b41f6"], "new": "372bd73a"},
-                {"old": ["c446a221"], "new": "99d33a32"}
+                {"old": ["c446a221"], "new": "99d33a32"},
+                {"old": ["e18ca2cc"], "new": "b22dacf9"}
             ],
             "states": {
                 "injured": {
@@ -168,9 +165,9 @@
         },
         "Yangyang": {
             "main_hashes": [
-                {"old": ["8ac49d65"], "new": "249200ff"},
-                {"old": ["2ce54174"], "new": "d70fa623"},
-                {"old": ["502c1487"], "new": "1b1ed7be"}
+                {"old": ["8ac49d65", "249200ff"], "new": "bb5dfeaf"},
+                {"old": ["2ce54174", "d70fa623"], "new": "b43ab901"},
+                {"old": ["502c1487", "1b1ed7be"], "new": "15a4a9b9"}
             ],
             "texture_hashes": [
                 {"old": ["d25b9648"], "new": "77fe24ce"},
@@ -184,6 +181,57 @@
                 {"old": ["250c59b6"], "new": "fc40048f"},
                 {"old": ["b487d389"], "new": "6905a9bd"},
                 {"old": ["02e9009d"], "new": "1607589b"}
+            ],
+            "rules": [
+                {
+                    "line_prefix": "match_first_index",
+                    "replacements": [
+                        { "old": ["120018"], "new": "120021" }
+                    ]
+                },
+                {
+                    "line_prefix": "match_index_count",
+                    "replacements": [
+                        { "old": ["2085"],"new": "2088" }
+                    ]
+                }
+            ],
+            "vg_remaps": [
+                {
+                    "trigger_hash": ["1b1ed7be"],
+                    "vertex_groups": {
+                        "3": 5, "4": 3, "5": 4,
+                        "36": 40,"37": 41, "38": 39, "39": 36, "40": 37, "41": 38, "48": 52, "49": 48, "50": 49, "51": 50, "52": 51, 
+                        "63": 69, "64": 70, "65": 71, "66": 72, "67": 68, "68": 65, "69": 66, "70": 67, "71": 75, "72": 76, "75": 63, "76": 64,
+                        "94": 95, "95": 94, "102": 101, "103": 102, "113": 119, "114": 120, "116": 114, "117": 112, "118": 122, "119": 123, "120": 113,
+                        "122": 116, "123": 117, "153": 154, "154": 153 
+                    
+                    },
+                    "component_remap": [
+                        {
+                            "component_index": 0,
+                            "indices": {"3": 5, "4": 3, "5": 4 }
+                        },
+                        {
+                            "component_index": 3,
+                            "indices": {
+                                "3": 7, "4": 8, "5": 6, "6": 3, "7": 4, "8": 5, "15": 19, "16": 15, "17": 16, "18": 17, "19": 18, "30": 36, "31": 37,
+                                "32": 38, "33": 39, "34": 35, "35": 32, "36": 33, "37": 34, "38": 42, "39": 43, "42": 30, "43": 31
+                            }
+                        },
+                        {
+                            "component_index": 4,
+                            "indices": {
+                                "15": 16, "16": 15, "22": 24, "23": 22, "24": 23, "33": 39, "34": 40, "35": 41, "37": 35, "38": 33, "39": 43, "40": 44,
+                                "41": 34, "43": 37, "44": 38, "55": 56, "56": 55
+                            }
+                        },
+                        {
+                            "component_index": 5,
+                            "indices": { "13": 14, "14": 13 }
+                        }
+                    ]
+                }
             ],
             "states": {
                 "injured": {
@@ -835,35 +883,51 @@
         "Cantarella": {
             "main_hashes": [{"old": ["5432f939"], "new": "5432f939"}],
             "texture_hashes": [
-                {"old": ["35c01267"], "new": "b6deb6c2"},
-                {"old": ["0fce3633"], "new": "0480d129"},
+                {"old": ["787c92b8"], "new": "812ba53f"},
+                {"old": ["35c01267", "b6deb6c2"], "new": "734ad993"},
+                {"old": ["0fce3633", "0480d129"], "new": "59c7c460"},
                 {"old": ["01c122b3"], "new": "e3127902"},
-                {"old": ["354e8743"], "new": "801b4344"},
-                {"old": ["28105b41"], "new": "884dc2c3"}
+                {"old": ["354e8743", "801b4344"], "new": "abd93fa3"},
+                {"old": ["28105b41", "884dc2c3"], "new": "3ea27f2c"},
+                {"old": ["797bc768"], "new": "62a665e3"},
+                {"old": ["8f3ebd32"], "new": "5cfb3cbc"},
+                {"old": ["7423d5d0"], "new": "ad7c2fad"}
             ],
             "states": {
                 "injured": {
                     "4a9b2a09": "d789c54e",
-                    "7423d5d0": "787c92b8",
-                    "e3127902": "b6deb6c2",
+                    "ad7c2fad": "812ba53f",
+                    "e3127902": "734ad993",
                     "25144e25": "dc14e209",
                     "2745d8b5": "c93ea25b"
                 },
                 "wet": {
                     "5e48f2a4": "d789c54e",
-                    "8f3ebd32": "787c92b8",
-                    "801b4344": "b6deb6c2",
+                    "5cfb3cbc": "812ba53f",
+                    "abd93fa3": "734ad993",
                     "d67890aa": "dc14e209",
                     "ef3dab0e": "c93ea25b"
                 },
                 "wet_injured": {
                     "316457f4": "d789c54e",
-                    "797bc768": "787c92b8",
-                    "884dc2c3": "b6deb6c2",
+                    "62a665e3": "812ba53f",
+                    "3ea27f2c": "734ad993",
                     "f9f65a14": "dc14e209",
                     "a45cb30b": "c93ea25b"
                 }
             }
+        },
+        "Fleurdelys": {
+            "main_hashes": [
+                {"old": ["618a230e", "a74b1202"], "new": "6a4d2710"},
+                {"old": ["b1151c81"], "new": "2f1d7ffd"},
+                {"old": ["426cd36b"], "new": "2109de80"}
+            ],
+            "texture_hashes": [
+                {"old": ["874ab04e", "afb0ea93"], "new": "cc3910e7"},
+                {"old": ["c35ad2eb", "1036407c"], "new": "b08d5d57"},
+                {"old": ["e385365e", "f079e2b8"], "new": "1028b6b7"}
+            ]
         }
     }
 }

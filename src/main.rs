@@ -113,6 +113,10 @@ impl ModFixer {
                 }
             }
 
+            if char_name == "RoverMale" && content.contains("FixAeroRoverFemale") {
+                continue;
+            }
+
             info!("{}", t!(match_character_prompt, character = char_name));
 
             // 主哈希和贴图哈希替换
@@ -178,6 +182,40 @@ impl ModFixer {
                 }
 
                 info!("{}", t!(aero_rover_female_eyes_fixed));
+            }
+
+            // 修复芙露德莉斯
+            if char_name == "Fleurdelys" && content.contains("618a230e") {
+                let blend_block_re = Regex::new(r"\[ResourceBlendBuffer\][^\[]+").unwrap();
+
+                let stride_re = Regex::new(r"stride\s*=\s*8").unwrap();
+
+                let replaced_content =
+                    blend_block_re.replace_all(&new_content, |cap: &regex::Captures| {
+                        let original_block = cap[0].to_string();
+                        stride_re
+                            .replace_all(&original_block, "stride = 16")
+                            .to_string()
+                    });
+
+                if replaced_content != new_content {
+                    ini_modified = true;
+                    new_content = replaced_content.into_owned();
+
+                    let blend_paths = collector::parse_resouce_buffer_path(
+                        &content,
+                        collector::BufferType::Blend,
+                        &path,
+                    );
+
+                    for blend_path in blend_paths {
+                        let blend_data = fs::read(&blend_path)?;
+                        let expanded_data = self.expand_blend_stride_to_16(&blend_data);
+                        self.create_backup(&blend_path)?;
+                        fs::write(&blend_path, expanded_data)?;
+                        buf_files_modified = true;
+                    }
+                }
             }
 
             break;
@@ -568,7 +606,7 @@ impl ModFixer {
 
         [TextureOverride_RoverMale]
         if $charged == 1
-        hash = e18ca2cc
+        hash = b22dacf9
         $rf_state = 0
         endif
 
@@ -594,6 +632,18 @@ impl ModFixer {
 
         new_content.push_str(&new_section_content);
         return Ok(true);
+    }
+
+    fn expand_blend_stride_to_16(&self, blend_data: &[u8]) -> Vec<u8> {
+        let mut buf_data: Vec<u8> = Vec::with_capacity(blend_data.len() * 2);
+        for chunk in blend_data.chunks_exact(collector::BLEND_STRIDE) {
+            let (indices, weights) = chunk.split_at(4);
+            buf_data.extend_from_slice(indices);
+            buf_data.extend_from_slice(&[0u8; 4]);
+            buf_data.extend_from_slice(weights);
+            buf_data.extend_from_slice(&[0u8; 4]);
+        }
+        return buf_data;
     }
 }
 
@@ -659,7 +709,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", t!(intro_note));
     println!("{}", t!(compatibility_note));
     println!("{}", t!(graphics_setting_note));
-    println!("{}", t!(graphics_quality_note));
     println!("\n");
 
     // 用户输入
