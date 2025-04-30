@@ -22,6 +22,8 @@ use std::{
 };
 use walkdir::WalkDir;
 
+const EARLY_CHARACTERS: [&str; 19] = ["RoverFemale", "RoverMale", "Yangyang", "Baizhi", "Chixia", "Jianxin", "Lingyang", "Encore", "Sanhua", "Verina", "Taoqi",  "Calcharo", "Yuanwu", "Mortefi", "Aalto", "Jiyan", "Yinlin", "Jinhsi", "Changli"];
+
 struct ModFixer {
     characters: HashMap<String, CharacterConfig>,
     enable_texture_override: bool,
@@ -102,12 +104,17 @@ impl ModFixer {
             };
 
             if !self.any_match(&content, vb0) {
+                if !EARLY_CHARACTERS.contains(&char_name.as_str()) {
+                    continue;
+                }
+
                 if let Some(shape_key_hashes) = config.main_hashes.get(1) {
                     if self.any_match(&content, shape_key_hashes) {
                         info!("{}", t!(found_old_mod));
                         match_old_mod = true;
                     }
                 }
+
                 if !match_old_mod {
                     continue;
                 }
@@ -240,7 +247,7 @@ impl ModFixer {
     fn replace_hashes(&self, content: &mut String, hashes: &[Replacement]) -> bool {
         let mut modified = false;
         for hr in hashes {
-            for old_hash in &hr.old {
+            for old_hash in hr.old.iter().rev() {
                 if old_hash != &hr.new && content.contains(&format!("hash = {}", &old_hash)) {
                     let re = Regex::new(&format!(r"\bhash\s*=\s*{}\b", regex::escape(old_hash)))
                         .unwrap();
@@ -253,6 +260,7 @@ impl ModFixer {
                         old_hash = old_hash,
                         new_hash = hr.new
                     );
+                    break;
                 }
             }
         }
@@ -412,7 +420,7 @@ impl ModFixer {
                     }
 
                     for replacement in &rule.replacements {
-                        for old_val in &replacement.old {
+                        for old_val in replacement.old.iter().rev() {
                             if let Some(pos) = cow_line.find(old_val) {
                                 let mut new_line = String::with_capacity(cow_line.len());
                                 new_line.push_str(&cow_line[..pos]);
