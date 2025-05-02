@@ -945,6 +945,10 @@
             "main_hashes": [{"old": ["12b90236"], "new": "07352718"}],
             "states": {"injured": { "3cc705ad": "988c2332"}}
         },
+        "Zani_Burst": {
+            "main_hashes": [{"old": ["dbc0a3d1"], "new": "dbc0a3d1"}],
+            "states": {"injured": { "f7694bcf": "c28372b3"}}
+        },
         "Cartethyia_NPC": {
             "main_hashes": [{"old": ["b1213fab"], "new": "b1213fab"}],
             "texture_hashes": [
