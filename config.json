@@ -26,8 +26,8 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复 2.3: 男主 秧秧 坎特蕾拉 芙露德莉斯\n* 修复秧秧手指及其他异常\n* 更新坎特蕾拉的受伤/湿身表现\n* 修复赞妮并增加受伤表现移除\n* 修复卡提希娅(NPC)贴图错误\n* 修复坎特蕾拉伞的贴图错误\n\n修复 2.2: 男主 女主 秧秧 菲比 今汐皮肤 安可 吟霖 忌炎 赤霞 白芷 折枝 雪豹\n\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
-            "en": "Fix 2.3: RoverMale Yangyang Cantarella Fleurdelys\n* Fixed the abnormal fingers and other issues of Yangyang\n* Updated Cantarella texture_hashes and Wounded Effect hash\n* Fixed Zani and added the removal of the Wounded Effect\n* Fixed the texture error of Cartethyia(NPC)\n* Fixed the texture error of Cantarella_Umbrella\n\nFix 2.2: RoverMale RoverFemale Yangyang Phoebe JinhsiPeachSkin Encore Yinlin Jiyan Chixia Baizhi Zhezhi Lingyang.\n\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
+            "zh": "修复 2.3: 男主 秧秧 坎特蕾拉 芙露德莉斯\n* 修复秧秧手指及其他异常\n* 更新坎特蕾拉的受伤/湿身表现\n* 修复赞妮并增加受伤表现移除\n* 修复卡提希娅(NPC)贴图错误\n* 修复坎特蕾拉伞的贴图错误\n* 新增夏空的受伤表现移除\n\n修复 2.2: 男主 女主 秧秧 菲比 今汐皮肤 安可 吟霖 忌炎 赤霞 白芷 折枝 雪豹\n\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
+            "en": "Fix 2.3: RoverMale Yangyang Cantarella Fleurdelys\n* Fixed the abnormal fingers and other issues of Yangyang\n* Updated Cantarella texture_hashes and Wounded Effect hash\n* Fixed Zani and added the removal of the Wounded Effect\n* Fixed the texture error of Cartethyia(NPC)\n* Fixed the texture error of Cantarella_Umbrella\n* Added the removal of the Wounded Effect of the Ciaccona\n\nFix 2.2: RoverMale RoverFemale Yangyang Phoebe JinhsiPeachSkin Encore Yinlin Jiyan Chixia Baizhi Zhezhi Lingyang.\n\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
         },
         "intro_note": {
             "zh": "修复【长离】【维里奈】【今汐皮肤】【白芷】【秧秧】时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
@@ -964,6 +964,20 @@
                 {"old": ["f953f385"], "new": "7ef7dba9"},
                 {"old": ["a6ac08f5"], "new": "7f08cd4f"}
             ]
+        },
+        "Ciaccona": {
+            "main_hashes": [{"old": ["e57c9380"], "new": "e57c9380"}],
+            "states": {
+                "injured": {
+                    "70a4acf0": "fe853fcf",
+                    "987a6f0e": "cca1af56",
+                    "064492c6": "852b2b72",
+                    "1603d6fa": "24af21ae",
+                    "bebbf828": "2f590d3f",
+                    "17a8f8fa": "4c379f61",
+                    "55dfd156": "1e072c24"
+                }
+            }
         }
     }
 }
