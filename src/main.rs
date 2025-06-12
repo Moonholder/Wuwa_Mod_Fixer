@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate log;
 
+#[macro_use]
 mod localization;
-use localization::config::get_lang;
 mod config_loader;
 use config_loader::{CharacterConfig, Replacement, ReplacementRule, VertexRemapConfig};
 mod collector;
@@ -22,7 +22,27 @@ use std::{
 };
 use walkdir::WalkDir;
 
-const EARLY_CHARACTERS: [&str; 19] = ["RoverFemale", "RoverMale", "Yangyang", "Baizhi", "Chixia", "Jianxin", "Lingyang", "Encore", "Sanhua", "Verina", "Taoqi",  "Calcharo", "Yuanwu", "Mortefi", "Aalto", "Jiyan", "Yinlin", "Jinhsi", "Changli"];
+const EARLY_CHARACTERS: [&str; 19] = [
+    "RoverFemale",
+    "RoverMale",
+    "Yangyang",
+    "Baizhi",
+    "Chixia",
+    "Jianxin",
+    "Lingyang",
+    "Encore",
+    "Sanhua",
+    "Verina",
+    "Taoqi",
+    "Calcharo",
+    "Yuanwu",
+    "Mortefi",
+    "Aalto",
+    "Jiyan",
+    "Yinlin",
+    "Jinhsi",
+    "Changli",
+];
 
 struct ModFixer {
     characters: HashMap<String, CharacterConfig>,
@@ -209,13 +229,16 @@ impl ModFixer {
                     ini_modified = true;
                     new_content = replaced_content.into_owned();
 
-                    let blend_paths = collector::parse_resouce_buffer_path(
+                    let blend_buf_matches = collector::parse_resouce_buffer_path(
                         &content,
                         collector::BufferType::Blend,
                         &path,
                     );
 
-                    for blend_path in blend_paths {
+                    for (blend_path, _) in blend_buf_matches {
+                        if !blend_path.exists() {
+                            continue;
+                        }
                         let blend_data = fs::read(&blend_path)?;
                         let expanded_data = self.expand_blend_stride_to_16(&blend_data);
                         self.create_backup(&blend_path)?;
@@ -461,15 +484,15 @@ impl ModFixer {
         vg_remaps: &[VertexRemapConfig],
     ) -> Result<bool> {
         let mut modified = false;
-        let blend_buffer_matches =
+        let blend_buf_matches =
             collector::parse_resouce_buffer_path(content, collector::BufferType::Blend, file_path);
 
-        debug!("{:?}", blend_buffer_matches);
+        debug!("{:?}", blend_buf_matches);
 
         let use_merged_skeleton = content.contains("[ResourceMergedSkeleton]");
-        let multiple_blend_files = blend_buffer_matches.len() > (1 as usize);
+        let multiple_blend_files = blend_buf_matches.len() > (1 as usize);
 
-        for blend_path in blend_buffer_matches {
+        for (blend_path, stride) in blend_buf_matches {
             if !blend_path.exists() {
                 warn!("{} not found", blend_path.display());
                 continue;
@@ -488,13 +511,14 @@ impl ModFixer {
                         .any(|h| content.contains(&format!("hash = {}", h)))
                 {
                     let remap_result = if use_merged_skeleton {
-                        vg_remap.apply_remap_merged(&mut blend_data)
+                        vg_remap.apply_remap_merged(&mut blend_data, stride)
                     } else {
                         vg_remap.apply_remap_component(
                             &mut blend_data,
                             &blend_path,
                             &content,
                             multiple_blend_files,
+                            stride,
                         )
                     };
 
@@ -528,13 +552,16 @@ impl ModFixer {
         ini_path: &Path,
         content: &str,
     ) -> Result<bool> {
-        let component_indices =
-            collector::parse_component_indices(&content).map_err(|e| anyhow!(e))?;
+        let component_indices = collector::parse_component_indices(&content);
+        if !component_indices.contains_key(&5) {
+            return Ok(false);
+        }
+
         let &(index_count, index_offset) = component_indices
             .get(&5)
             .ok_or_else(|| anyhow!("Failed to find component indices"))?;
 
-        let tex_coord_paths = collector::parse_resouce_buffer_path(
+        let texcoord_buf_matches = collector::parse_resouce_buffer_path(
             &content,
             collector::BufferType::TexCoord,
             &ini_path,
@@ -542,7 +569,7 @@ impl ModFixer {
 
         let mut ret = false;
 
-        for tex_coord_path in tex_coord_paths {
+        for (tex_coord_path, stride) in texcoord_buf_matches {
             if !tex_coord_path.exists() {
                 continue;
             }
@@ -552,13 +579,9 @@ impl ModFixer {
 
             let index_data = fs::read(index_path)?;
 
-            let (start, end) = collector::get_byte_range_in_buffer(
-                index_count,
-                index_offset,
-                &index_data,
-                collector::TEXCOORD_STRIDE,
-            )
-            .map_err(|e| anyhow!("Failed to get byte range in buffer: {}", e))?;
+            let (start, end) =
+                collector::get_byte_range_in_buffer(index_count, index_offset, &index_data, stride)
+                    .map_err(|e| anyhow!("Failed to get byte range in buffer: {}", e))?;
 
             let fixed_data = include_bytes!("resources/RoverFemale_Componet5_TexCoord.buf");
 
@@ -644,7 +667,7 @@ impl ModFixer {
 
     fn expand_blend_stride_to_16(&self, blend_data: &[u8]) -> Vec<u8> {
         let mut buf_data: Vec<u8> = Vec::with_capacity(blend_data.len() * 2);
-        for chunk in blend_data.chunks_exact(collector::BLEND_STRIDE) {
+        for chunk in blend_data.chunks_exact(8) {
             let (indices, weights) = chunk.split_at(4);
             buf_data.extend_from_slice(indices);
             buf_data.extend_from_slice(&[0u8; 4]);
@@ -661,8 +684,25 @@ struct MatchTextureOverrideContent {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 初始化日志
+async fn main() -> Result<()> {
+    init_logger();
+    init_panic_hook();
+
+    config_loader::init_config().await;
+
+    if !check_version() {
+        let _ = std::io::stdin().read_line(&mut String::new());
+        return Ok(());
+    }
+
+    show_intro();
+    run_interactive();
+
+    Ok(())
+}
+
+/// 初始化日志
+fn init_logger() {
     env_logger::Builder::new()
         .filter_level(LevelFilter::Info)
         .format(|buf, record| {
@@ -675,71 +715,58 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             )
         })
         .init();
+}
 
-    // 加载配置
-    config_loader::init_config().await;
-    // 版本检查
-    let available = match config_loader::check_version() {
+/// 全局 panic 处理
+fn init_panic_hook() {
+    panic::set_hook(Box::new(|info| {
+        let backtrace = Backtrace::new();
+        error!("{}", t!(error_occurred, error = info.to_string()));
+        debug!("Backtrace:\n{:?}", backtrace);
+    }));
+}
+
+/// 版本检查
+fn check_version() -> bool {
+    match config_loader::check_version() {
         Ok(msg) => {
-            println!(
-                "✅ {}: {}\n",
-                if get_lang() == "zh" {
-                    "版本检查通过"
-                } else {
-                    "Version check passed"
-                },
-                msg
-            );
+            println!("{}", t!(version_check_passed, msg = msg));
             true
         }
         Err(e) => {
-            eprintln!(
-                "❌ {}: {}\n",
-                if get_lang() == "zh" {
-                    "版本检查失败"
-                } else {
-                    "Version check failed"
-                },
-                e
-            );
+            eprintln!("{}", t!(version_check_failed, error = e));
             false
         }
-    };
-
-    if !available {
-        let _ = std::io::stdin().read_line(&mut String::new());
-        return Ok(());
     }
+}
 
-    // 显示标题
+/// 显示标题
+fn show_intro() {
     println!("{}", t!(title));
     println!("{}", t!(intro));
     println!("{}", t!(intro_note));
     println!("{}", t!(compatibility_note));
     println!("{}", t!(graphics_setting_note));
     println!("\n");
+}
 
-    // 用户输入
-    let path = Text::new(t!(input_folder_prompt))
+/// 运行交互逻辑
+fn run_interactive() {
+    let input_path = Text::new(t!(input_folder_prompt))
         .with_default(".")
-        .prompt()?;
+        .prompt()
+        .unwrap();
 
     println!("{}", t!(texture_override_note));
 
     let enable_texture_override = Confirm::new(t!(texture_override_prompt))
         .with_default(false)
-        .prompt()?;
+        .prompt()
+        .unwrap();
 
-    // 处理文件
     let fixer = ModFixer::new(config_loader::characters(), enable_texture_override);
-    panic::set_hook(Box::new(|info| {
-        let backtrace = Backtrace::new();
-        error!("{}", t!(error_occurred, error = info.to_string()));
-        debug!("{:?}", backtrace);
-    }));
-
     let result = panic::catch_unwind(|| {
-        let _ = fixer.process_directory(Path::new(&path));
+        let _ = fixer.process_directory(Path::new(&input_path));
         info!("{}", t!(all_done));
     });
 
@@ -748,5 +775,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let _ = std::io::stdin().read_line(&mut String::new()); // 等待按键
-    Ok(())
 }

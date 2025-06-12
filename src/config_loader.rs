@@ -1,12 +1,12 @@
 use crate::{collector, localization};
-use localization::config::{get_lang, LangPack};
+use localization::config::{LangPack, get_lang};
 use semver::Version;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use tokio::sync::OnceCell as AsyncOnceCell;
-use ureq::AgentBuilder;
+use ureq::Agent;
 use winreg::RegKey;
 use winreg::enums::HKEY_CURRENT_USER;
 
@@ -30,6 +30,7 @@ pub struct CharacterConfig {
     pub vg_remaps: Option<Vec<VertexRemapConfig>>,
     pub states: Option<HashMap<String, HashMap<String, String>>>,
 }
+
 #[derive(Deserialize, Clone, Default)]
 #[serde(default)]
 pub struct Replacement {
@@ -42,12 +43,12 @@ pub struct ReplacementRule {
     pub line_prefix: String,
     pub replacements: Vec<Replacement>,
 }
+
 #[derive(Deserialize, Clone, Default)]
 #[serde(default)]
 pub struct VertexRemapConfig {
     pub trigger_hash: Vec<String>,
     pub vertex_groups: Option<HashMap<u8, u8>>,
-    #[serde(default)]
     pub component_remap: Option<Vec<ComponentRemapRegion>>,
 }
 
@@ -59,14 +60,18 @@ pub struct ComponentRemapRegion {
 }
 
 impl VertexRemapConfig {
-    pub fn apply_remap_merged(&self, blend_data: &mut Vec<u8>) -> Result<bool, String> {
+    pub fn apply_remap_merged(
+        &self,
+        blend_data: &mut Vec<u8>,
+        stride: usize,
+    ) -> Result<bool, String> {
         if let Some(vertex_groups) = &self.vertex_groups {
-            for chunk in blend_data.chunks_exact_mut(collector::BLEND_STRIDE) {
-                let indices = &mut chunk[0..4];
-                indices.iter_mut().for_each(|idx| {
-                    *idx = *vertex_groups.get(idx).unwrap_or(idx);
-                });
+            // Ensure stride is valid (even number and >=8)
+            if stride % 2 != 0 || stride < 8 {
+                return Err(format!("Invalid stride {} - must be even and >=8", stride));
             }
+
+            self.remapping_vertex_groups(blend_data, vertex_groups, 0, blend_data.len(), stride);
             info!("merged remapping...");
             return Ok(true);
         }
@@ -79,8 +84,16 @@ impl VertexRemapConfig {
         blend_path: &PathBuf,
         content: &str,
         multiple: bool,
+        stride: usize,
     ) -> Result<bool, String> {
+        // Validate stride is valid (even number and >=8)
+        if stride % 2 != 0 || stride < 8 {
+            return Err(format!("Invalid stride {} - must be even and >=8", stride));
+        }
+
         if let Some(regions) = &self.component_remap {
+            let mut applied = false;
+
             let index_path =
                 collector::combile_buf_path(&blend_path, &collector::BufferType::Index);
 
@@ -90,10 +103,8 @@ impl VertexRemapConfig {
                     content,
                     buf_index_opt.unwrap_or("0"),
                 )
-                .map_err(|e| format!("Failed to parse component indices: {}", e))?
             } else {
                 collector::parse_component_indices(content)
-                    .map_err(|e| format!("Failed to parse component indices: {}", e))?
             };
 
             debug!("index_path={}: ", index_path.display());
@@ -109,52 +120,69 @@ impl VertexRemapConfig {
             for region in regions {
                 let component_index = region.component_index;
 
-                let &(index_count, index_offset) =
-                    component_indices.get(&component_index).ok_or_else(|| {
-                        format!("Component {} not found in parsed indices", component_index)
-                    })?;
+                if let Some(&(index_count, index_offset)) = component_indices.get(&component_index)
+                {
+                    debug!(
+                        "component {}: index_count={}, index_offset={}",
+                        component_index, index_count, index_offset
+                    );
 
-                debug!(
-                    "component {}: index_count={}, index_offset={}",
-                    component_index, index_count, index_offset
-                );
+                    let (start, end) = collector::get_byte_range_in_buffer(
+                        index_count,
+                        index_offset,
+                        &index_data,
+                        stride,
+                    )
+                    .map_err(|e| format!("Failed to get byte range in buffer: {}", e))?;
 
-                let (start, end) = collector::get_byte_range_in_buffer(
-                    index_count,
-                    index_offset,
-                    &index_data,
-                    collector::BLEND_STRIDE,
-                )
-                .map_err(|e| format!("Failed to get byte range in buffer: {}", e))?;
-
-                debug!(
-                    "component {}: start_byte={}, end_byte={}",
-                    component_index, start, end
-                );
-
-                if start >= end {
-                    warn!(
-                        "Component {}: Invalid range (start={}, end={}), skipped",
+                    debug!(
+                        "component {}: start_byte={}, end_byte={}",
                         component_index, start, end
+                    );
+
+                    if start >= end || end > blend_data.len() {
+                        warn!(
+                            "Component {}: Invalid range (start={}, end={}), skipped",
+                            component_index, start, end
+                        );
+                        continue;
+                    }
+
+                    info!(
+                        "Remapping component {}: index_count={}, index_offset={}",
+                        component_index, index_count, index_offset
+                    );
+
+                    self.remapping_vertex_groups(blend_data, &region.indices, start, end, stride);
+                    applied = true;
+                } else {
+                    warn!(
+                        "Component {} not found in parsed indices, continuing to next region",
+                        component_index
                     );
                     continue;
                 }
-
-                info!(
-                    "Remapping component {}: index_count={}, index_offset={}",
-                    component_index, index_count, index_offset
-                );
-
-                for chunk in blend_data[start..end].chunks_exact_mut(collector::BLEND_STRIDE) {
-                    let indices = &mut chunk[0..4];
-                    indices.iter_mut().for_each(|idx| {
-                        *idx = *region.indices.get(idx).unwrap_or(idx);
-                    });
-                }
             }
-            return Ok(true);
+            return Ok(applied);
         }
         Ok(false)
+    }
+
+    fn remapping_vertex_groups(
+        &self,
+        blend_data: &mut Vec<u8>,
+        remap_indices: &HashMap<u8, u8>,
+        start: usize,
+        end: usize,
+        stride: usize,
+    ) {
+        let indices_len = stride / 2;
+        for chunk in blend_data[start..end].chunks_exact_mut(stride) {
+            let indices = &mut chunk[0..indices_len];
+            indices.iter_mut().for_each(|idx| {
+                *idx = *remap_indices.get(idx).unwrap_or(idx);
+            });
+        }
     }
 }
 
@@ -277,10 +305,14 @@ async fn load_config(file_name: &str) -> Result<String, ConfigError> {
 
     let mut tasks = Vec::new();
 
-    // 尝试所有远程源
+    let agent = build_agent();
+
     for url in &remotes {
         let url = url.clone();
-        tasks.push(tokio::spawn(async move { build_agent().get(&url).call() }));
+        let agent = agent.clone();
+        tasks.push(tokio::spawn(async move {
+            tokio::task::spawn_blocking(move || agent.get(&url).call()).await
+        }));
     }
 
     while !tasks.is_empty() {
@@ -288,18 +320,19 @@ async fn load_config(file_name: &str) -> Result<String, ConfigError> {
         tasks = remaining;
 
         match result {
-            Ok(Ok(resp)) => {
-                let content = resp.into_string()?;
+            Ok(Ok(Ok(resp))) => {
+                let content = resp.into_body().read_to_string()?;
                 println!("🌐 {}: {}", success_msg, file_name);
                 return Ok(content);
             }
-            Ok(Err(ureq::Error::Status(code, _))) => {
+            Ok(Ok(Err(ureq::Error::StatusCode(code)))) => {
                 eprintln!("⚠️ {}: {}", status_code_msg, code);
             }
-            Ok(Err(e)) => {
+            Ok(Ok(Err(e))) => {
                 eprintln!("⚠️ {}: {}", connection_failed_msg, e);
             }
-            Err(join_err) => eprintln!("⚠️ Task failed: {}", join_err),
+            Ok(Err(join_err)) => eprintln!("⚠️ Task failed: {}", join_err),
+            Err(join_err) => eprintln!("⚠️ Task join failed: {}", join_err),
         }
     }
 
@@ -319,18 +352,24 @@ fn load_local(file_name: &str) -> String {
     return include_str!("../config.json").to_string();
 }
 
-fn build_agent() -> ureq::Agent {
-    let mut builder = AgentBuilder::new()
-        .timeout_connect(Duration::from_secs(2))
-        .timeout(Duration::from_secs(3));
+fn build_agent() -> Agent {
+    let mut config_builder = Agent::config_builder()
+        .timeout_connect(Some(Duration::from_secs(2)))
+        .timeout_global(Some(Duration::from_secs(3)));
 
     if let Some(proxy) = get_system_proxy() {
-        if let Some((host, port)) = proxy.split_once(':') {
-            builder = builder.proxy(ureq::Proxy::new(format!("http://{}:{}", host, port)).unwrap());
+        println!("🌐 Using system proxy: {}", proxy);
+        match ureq::Proxy::new(&proxy) {
+            Ok(proxy_obj) => {
+                config_builder = config_builder.proxy(Some(proxy_obj));
+            }
+            Err(e) => {
+                eprintln!("Failed to set system proxy: {}", e);
+            }
         }
     }
 
-    builder.build()
+    Agent::new_with_config(config_builder.build())
 }
 
 fn get_system_proxy() -> Option<String> {
@@ -376,21 +415,12 @@ pub fn check_version() -> Result<String, ConfigError> {
     let min_ver = Version::parse(&config.min_required_version)?;
 
     if current_ver < min_ver {
-        return Err(ConfigError::VersionMismatch(if get_lang() == "zh" {
-            format!(
-                "当前版本 {} < 要求的最低版本 {}，请下载最新版本: {}",
-                current_ver, min_ver, config.update_url
-            )
-        } else {
-            format!(
-                "Current version {} < minimum required version {}. Please download the latest version: {}",
-                current_ver, min_ver, config.update_url
-            )
-        }));
+        return Err(ConfigError::VersionMismatch(t!(
+            version_mismatch,
+            current_version = current_ver,
+            min_required_version = min_ver,
+            update_url = config.update_url
+        )));
     }
-    Ok(if get_lang() == "zh" {
-        format!("当前配置版本: {}", config.current_version)
-    } else {
-        format!("Current config version: {}", config.current_version)
-    })
+    Ok(t!(current_version, version = current_ver))
 }

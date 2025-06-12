@@ -14,6 +14,10 @@ pub struct LangItem {
 #[derive(Deserialize, Default)]
 #[serde(default)]
 pub struct LangPack {
+    pub version_mismatch: LangItem,
+    pub current_version: LangItem,
+    pub version_check_passed: LangItem,
+    pub version_check_failed: LangItem,
     pub title: LangItem,
     pub intro: LangItem,
     pub intro_note: LangItem,

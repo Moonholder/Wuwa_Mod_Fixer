@@ -3,9 +3,6 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 pub const INDEX_SIZE: usize = 4;
-pub const BLEND_STRIDE: usize = 8;
-pub const TEXCOORD_STRIDE: usize = 16;
-
 pub enum BufferType {
     Blend,
     TexCoord,
@@ -22,144 +19,204 @@ impl std::fmt::Display for BufferType {
     }
 }
 
+lazy_static::lazy_static! {
+    static ref FILENAME_RE: Regex = Regex::new(r"(?i)filename\s*=\s*([^\s]+?\.buf)").unwrap();
+    static ref STRIDE_RE: Regex = Regex::new(r"(?i)stride\s*=\s*(\d+)").unwrap();
+    static ref COMPONENT_RE: Regex = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)\]([^\[]*)").unwrap();
+    static ref DRAWINDEXED_RE: Regex = Regex::new(r"drawindexed\s*=\s*(\d+),\s*(\d+),").unwrap();
+}
+
 pub fn parse_resouce_buffer_path(
     content: &str,
     buf_type: BufferType,
     ini_path: &Path,
-) -> Vec<PathBuf> {
-    let buffer_re_str = &format!(
-        r"(?i)\[Resource{}Buffer(?:_\d+)?\][\s\S]*?filename\s*=\s*([^\s]+?\.buf)",
+) -> Vec<(PathBuf, usize)> {
+    let section_re = match Regex::new(&format!(
+        r"(?i)\[Resource{}Buffer(?:_\d+)?\][\s\S]*?([^\[]*)",
         buf_type
-    );
+    )) {
+        Ok(re) => re,
+        Err(e) => {
+            error!("Failed to compile regex: {}", e);
+            return Vec::new();
+        }
+    };
 
-    let buffer_re = Regex::new(buffer_re_str).unwrap();
+    let mut results = Vec::new();
 
-    return buffer_re
-        .find_iter(content)
-        .filter_map(|m| {
-            buffer_re
-                .captures(m.as_str())
-                .and_then(|c| c.get(1).map(|g| g.as_str()))
-                .map(|buf_file| {
-                    ini_path
-                        .parent()
-                        .map_or_else(|| PathBuf::from(buf_file), |parent| parent.join(buf_file))
-                })
-        })
-        .collect();
+    for section_cap in section_re.captures_iter(content) {
+        let section_content = match section_cap.get(0) {
+            Some(m) => m.as_str(),
+            None => {
+                warn!("Invalid section format");
+                continue;
+            }
+        };
+
+        let filename = match FILENAME_RE
+            .captures(section_content)
+            .and_then(|cap| cap.get(1))
+            .map(|m| m.as_str().trim())
+        {
+            Some(name) => name,
+            None => {
+                warn!("Missing filename in section");
+                continue;
+            }
+        };
+
+        let stride = match STRIDE_RE
+            .captures(section_content)
+            .and_then(|cap| cap.get(1))
+            .map(|m| m.as_str().trim())
+            .and_then(|s| s.parse::<usize>().ok())
+        {
+            Some(s) => s,
+            None => {
+                warn!("Failed to parse stride");
+                continue;
+            }
+        };
+
+        let path = ini_path
+            .parent()
+            .map_or_else(|| PathBuf::from(filename), |p| p.join(filename));
+
+        results.push((path, stride));
+    }
+
+    results
 }
 
-pub fn parse_component_indices(content: &str) -> Result<HashMap<u8, (usize, usize)>, String> {
-    // 1. 匹配 [TextureOverrideComponentX] 节
-    let component_re = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)\]([^\[]*)")
-        .map_err(|e| format!("Regex error: {}", e))?;
-
-    // 2. 提取 drawindexed 的 indexCount 和 indexOffset
-    let drawindexed_re = Regex::new(r"drawindexed\s*=\s*(\d+),\s*(\d+),")
-        .map_err(|e| format!("Regex error: {}", e))?;
-
+fn extract_component_indices<'a>(
+    content: &'a str,
+    extractor: impl Fn(&'a str) -> Option<&'a str> + 'a,
+) -> HashMap<u8, (usize, usize)> {
     let mut component_indices = HashMap::new();
 
-    // 3. 遍历所有匹配的组件块
-    for cap in component_re.captures_iter(content) {
-        let component_index: u8 = cap[1]
-            .parse()
-            .map_err(|_| format!("invalid component id: {}", &cap[1]))?;
+    for cap in COMPONENT_RE.captures_iter(content) {
+        // 解析组件ID
+        let component_id = match cap.get(1) {
+            Some(m) => m.as_str(),
+            None => {
+                warn!("Invalid component format: missing ID");
+                continue;
+            }
+        };
 
-        let block_content = &cap[2];
-        let mut index_offset = usize::MAX;
+        let component_index = match component_id.parse::<u8>() {
+            Ok(id) => id,
+            Err(_) => {
+                warn!("Invalid component ID: {}", component_id);
+                continue;
+            }
+        };
+
+        let block_content = match cap.get(2) {
+            Some(m) => m.as_str(),
+            None => {
+                warn!("Component {} has no content", component_index);
+                continue;
+            }
+        };
+
+        let target_section = match extractor(block_content) {
+            Some(section) => section,
+            None => continue,
+        };
+
+        // 提取所有drawindexed信息
+        let mut min_offset = usize::MAX;
         let mut max_end_offset = 0;
 
-        // 4. 提取每个 drawindexed 的 indexCount 和 indexOffset
-        for draw_cap in drawindexed_re.captures_iter(block_content) {
-            let count: usize = draw_cap[1]
-                .parse()
-                .map_err(|_| format!("invalid index count in component {}", component_index))?;
-            let offset: usize = draw_cap[2]
-                .parse()
-                .map_err(|_| format!("invalid index offset in component {}", component_index))?;
-            index_offset = index_offset.min(offset);
+        for draw_cap in DRAWINDEXED_RE.captures_iter(target_section) {
+            // 解析indexCount
+            let count_str = match draw_cap.get(1) {
+                Some(m) => m.as_str(),
+                None => {
+                    warn!(
+                        "Invalid drawindexed format in component {}: missing count",
+                        component_index
+                    );
+                    continue;
+                }
+            };
+
+            let count = match count_str.parse::<usize>() {
+                Ok(c) => c,
+                Err(_) => {
+                    warn!(
+                        "Invalid index count in component {}: {}",
+                        component_index, count_str
+                    );
+                    continue;
+                }
+            };
+
+            // 解析indexOffset
+            let offset_str = match draw_cap.get(2) {
+                Some(m) => m.as_str(),
+                None => {
+                    warn!(
+                        "Invalid drawindexed format in component {}: missing offset",
+                        component_index
+                    );
+                    continue;
+                }
+            };
+
+            let offset = match offset_str.parse::<usize>() {
+                Ok(o) => o,
+                Err(_) => {
+                    warn!(
+                        "Invalid index offset in component {}: {}",
+                        component_index, offset_str
+                    );
+                    continue;
+                }
+            };
+
+            min_offset = min_offset.min(offset);
             max_end_offset = max_end_offset.max(offset + count);
         }
 
-        let mut index_count = 0;
-
-        if index_offset != usize::MAX {
-            index_count = max_end_offset - index_offset;
-        }
-
-        if index_count > 0 {
-            component_indices.insert(component_index, (index_count, index_offset));
+        // 计算最终的index_count和index_offset
+        if min_offset != usize::MAX {
+            let index_count = max_end_offset - min_offset;
+            component_indices.insert(component_index, (index_count, min_offset));
         }
     }
 
-    if component_indices.is_empty() {
-        Err("No component found in content".into())
-    } else {
-        Ok(component_indices)
-    }
+    component_indices
+}
+
+pub fn parse_component_indices(content: &str) -> HashMap<u8, (usize, usize)> {
+    extract_component_indices(content, |block| Some(block))
 }
 
 pub fn parse_component_indices_with_multiple(
     content: &str,
     draw_block_index: &str,
-) -> Result<HashMap<u8, (usize, usize)>, String> {
-    // 1. 匹配 [TextureOverrideComponentX] 节
-    let component_re = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)\]([^\[]*)")
-        .map_err(|e| format!("Regex error: {}", e))?;
+) -> HashMap<u8, (usize, usize)> {
+    let pattern = format!(
+        r"if \$swapvar == {}\s*([\s\S]*?)(?:else if \$swapvar|endif)",
+        regex::escape(draw_block_index)
+    );
 
-    // 2. 提取 drawindexed 的 indexCount 和 indexOffset
-    let drawindexed_re = Regex::new(r"drawindexed\s*=\s*(\d+),\s*(\d+),")
-        .map_err(|e| format!("Regex error: {}", e))?;
-
-    let mut component_indices = HashMap::new();
-
-    // 3. 遍历所有匹配的组件块
-    for cap in component_re.captures_iter(content) {
-        let component_index: u8 = cap[1]
-            .parse()
-            .map_err(|_| format!("invalid component id: {}", &cap[1]))?;
-
-        let block_content = &cap[2];
-        let mut index_count = 0;
-        let mut index_offset = usize::MAX;
-
-        // 根据 draw_block_index 分割获取对应的 drawindexed
-        let pattern = format!(
-            r"if \$swapvar == {}\s*([\s\S]*?)(?:else if \$swapvar|endif)",
-            draw_block_index
-        );
-        let re = Regex::new(&pattern).map_err(|e| format!("Regex error: {}", e))?;
-
-        if let Some(swapvar_cap) = re.captures(block_content) {
-            let target_section = swapvar_cap.get(1).map(|m| m.as_str()).unwrap_or("");
-            let mut max_end_offset = 0;
-            // 4. 提取每个 drawindexed 的 indexCount 和 indexOffset
-            for draw_cap in drawindexed_re.captures_iter(target_section) {
-                let count: usize = draw_cap[1]
-                    .parse()
-                    .map_err(|_| format!("invalid index count in component {}", component_index))?;
-                let offset: usize = draw_cap[2].parse().map_err(|_| {
-                    format!("invalid index offset in component {}", component_index)
-                })?;
-                index_offset = index_offset.min(offset);
-                max_end_offset = max_end_offset.max(offset + count);
-            }
-            if index_offset != usize::MAX {
-                index_count = max_end_offset - index_offset;
-            }
+    let swapvar_re = match Regex::new(&pattern) {
+        Ok(re) => re,
+        Err(e) => {
+            error!("Failed to compile regex: {}", e);
+            return HashMap::new();
         }
+    };
 
-        if index_count > 0 {
-            component_indices.insert(component_index, (index_count, index_offset));
-        }
-    }
-
-    if component_indices.is_empty() {
-        Err("No component found in content".into())
-    } else {
-        Ok(component_indices)
-    }
+    extract_component_indices(content, move |block| {
+        swapvar_re
+            .captures(block)
+            .and_then(|cap| cap.get(1))
+            .map(|m| m.as_str())
+    })
 }
 
 pub fn get_byte_range_in_buffer(
