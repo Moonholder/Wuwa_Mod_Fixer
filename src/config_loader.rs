@@ -7,8 +7,7 @@ use std::path::PathBuf;
 use std::time::{Duration, Instant};
 use tokio::sync::OnceCell as AsyncOnceCell;
 use ureq::Agent;
-use winreg::RegKey;
-use winreg::enums::HKEY_CURRENT_USER;
+use inquire::Confirm;
 
 static CONFIG: AsyncOnceCell<GlobalConfig> = AsyncOnceCell::const_new();
 
@@ -246,6 +245,8 @@ impl std::error::Error for ConfigError {}
 pub async fn init_config() -> &'static GlobalConfig {
     CONFIG
         .get_or_init(|| async {
+
+            let should_load_remote = should_load_remote();
             println!(
                 "🔄 {}...",
                 if get_lang() == "zh" {
@@ -257,10 +258,14 @@ pub async fn init_config() -> &'static GlobalConfig {
 
             let load_start = Instant::now();
 
-            let data = load_config("config.json")
+            let data = if should_load_remote {
+            load_config("config.json")
                 .await
                 .map_err(|_| ())
-                .unwrap_or_else(|_| load_local("config.json"));
+                .unwrap_or_else(|_| load_local("config.json"))
+            } else {
+                load_local("config.json")
+            };
 
             let config: GlobalConfig = serde_json::from_str(&data).unwrap();
 
@@ -352,49 +357,25 @@ fn load_local(file_name: &str) -> String {
     return include_str!("../config.json").to_string();
 }
 
+fn should_load_remote() -> bool {
+    let prompt = if get_lang() == "zh" {
+        "需要联网获取最新配置吗？"
+    } else {
+        "Do you want to fetch the latest config from the Internet?"
+    };
+    match Confirm::new(prompt).with_default(true).prompt() {
+        Ok(true) => true,
+        Ok(false) => false,
+        Err(_) => false,
+    }
+}
+
 fn build_agent() -> Agent {
-    let mut config_builder = Agent::config_builder()
+    let config_builder = Agent::config_builder()
         .timeout_connect(Some(Duration::from_secs(2)))
         .timeout_global(Some(Duration::from_secs(3)));
 
-    if let Some(proxy) = get_system_proxy() {
-        println!("🌐 Using system proxy: {}", proxy);
-        match ureq::Proxy::new(&proxy) {
-            Ok(proxy_obj) => {
-                config_builder = config_builder.proxy(Some(proxy_obj));
-            }
-            Err(e) => {
-                eprintln!("Failed to set system proxy: {}", e);
-            }
-        }
-    }
-
     Agent::new_with_config(config_builder.build())
-}
-
-fn get_system_proxy() -> Option<String> {
-    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
-    let internet_settings = hkcu
-        .open_subkey(r"Software\Microsoft\Windows\CurrentVersion\Internet Settings")
-        .ok()?;
-
-    let proxy_enable: u32 = internet_settings.get_value("ProxyEnable").ok()?;
-    if proxy_enable != 1 {
-        return None;
-    }
-
-    let proxy_server: String = internet_settings.get_value("ProxyServer").ok()?;
-
-    // 处理代理格式，可能包含http=或https=前缀
-    proxy_server
-        .split(';')
-        .find(|s| s.starts_with("http=") || s.starts_with("https=") || !s.contains("://"))
-        .map(|s| {
-            s.trim_start_matches("http=")
-                .trim_start_matches("https=")
-                .trim()
-                .to_string()
-        })
 }
 
 pub fn lang() -> &'static LangPack {

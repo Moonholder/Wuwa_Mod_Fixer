@@ -3,6 +3,13 @@ name = "Wuwa_Mod_Fixer"
 version = "2.4.0"
 edition = "2024"
 
+[profile.release]
+opt-level = 2
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = true
+
 [dependencies]
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
@@ -20,7 +27,6 @@ tokio = { version = "1.45.1", features = ["rt-multi-thread", "sync", "macros"]}
 semver = "1.0"
 chrono = "0.2"
 futures = "0.3"
-winreg = "0.55.0"
 lazy_static = "1.4.0"
 
 [build-dependencies]

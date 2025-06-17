@@ -8,10 +8,9 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  TARGET: x86_64-pc-windows-msvc
 
 jobs:
-  build-release:
+  build-windows:
     runs-on: windows-latest
     permissions:
       contents: write
@@ -19,39 +18,65 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 设置 Rust 工具链
-        uses: actions-rs/toolchain@v1
+      - name: 安装 Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
+          components: rustfmt, clippy
 
-      - name: 构建项目
-        run: cargo build --release
+      - name: 获取版本号
+        id: get_version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        shell: bash
 
-      - name: 创建发布
-        id: create_release
-        uses: actions/create-release@v1
+      - name: 构建 Windows 版本
+        run: |
+          cargo build --release --target x86_64-pc-windows-msvc
+          strip ./target/x86_64-pc-windows-msvc/release/Wuwa_Mod_Fixer.exe
+          mv ./target/x86_64-pc-windows-msvc/release/Wuwa_Mod_Fixer.exe ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}.exe
+
+      - name: 创建发布并上传 Windows 版本
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
+          name: ${{ github.ref_name }}
+          files: |
+            ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}.exe
+
+  build-linux:
+    needs: build-windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
 
       - name: 获取版本号
         id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: 上传发布
-        id: upload-release
-        uses: actions/upload-release-asset@v1
+      - name: 构建 Linux 版本
+        run: |
+          cargo build --release
+          strip ./target/release/Wuwa_Mod_Fixer
+          mv ./target/release/Wuwa_Mod_Fixer ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-unknown-linux-gnu
+
+      - name: 设置可执行权限
+        run: chmod +x ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-unknown-linux-gnu
+
+      - name: 上传 Linux 版本
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/release/Wuwa_Mod_Fixer.exe
-          asset_name: Wuwa_Mod_Fixer v${{ steps.get_version.outputs.VERSION }}.exe
-          asset_content_type: application/octet-stream
+          tag_name: ${{ github.ref_name }}
+          files: |
+            ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-unknown-linux-gnu
