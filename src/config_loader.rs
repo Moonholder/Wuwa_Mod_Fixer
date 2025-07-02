@@ -403,5 +403,5 @@ pub fn check_version() -> Result<String, ConfigError> {
             update_url = config.update_url
         )));
     }
-    Ok(t!(current_version, version = current_ver))
+    Ok(t!(current_version, version = config.current_version))
 }

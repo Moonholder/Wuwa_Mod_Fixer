@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "2.4.0",
-        "current_version": "2.4.0",
+        "current_version": "2.4.1",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -26,8 +26,8 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.4: 夏空 今汐 散华皮肤 卡提希娅 芙露德莉斯\n* 更新坎特蕾拉的湿身/湿身战损表现hash\n* 新增卡提希娅 芙露德莉斯 长离皮肤和珂莱塔皮肤的受损表现移除\n\n修复 2.3: 男主 秧秧 坎特蕾拉 芙露德莉斯\n* 修复秧秧手指及其他异常\n* 更新坎特蕾拉的受伤/湿身表现\n* 修复赞妮并增加受伤表现移除\n* 修复卡提希娅(NPC)贴图错误\n* 修复坎特蕾拉伞的贴图错误\n* 新增夏空的受伤表现移除\n\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
-            "en": "Fix 2.4: Ciaccona Jinhsi SanhuaSkin Cartethyia Flurdelys\n* Updated Cantarella's texture_hashes for wet/wet_injured\n* Added the removal of the Wounded Effect of Cartethyia, Flurdelys, ChangliSkin and CarlottaSkin\n\nFix 2.3: RoverMale Yangyang Cantarella Fleurdelys\n* Fixed the abnormal fingers and other issues of Yangyang\n* Updated Cantarella texture_hashes and Wounded Effect hash\n* Fixed Zani and added the removal of the Wounded Effect\n* Fixed the texture error of Cartethyia(NPC)\n* Fixed the texture error of Cantarella_Umbrella\n* Added the removal of the Wounded Effect of the Ciaccona\n\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
+            "zh": "修复2.4: 夏空 今汐 散华皮肤 卡提希娅 芙露德莉斯\n* 更新坎特蕾拉的湿身/湿身战损表现hash\n* 新增卡提希娅 芙露德莉斯 长离皮肤和珂莱塔皮肤的受损表现移除\n* 更新长离皮肤的受伤表现hash\n\n修复 2.3: 男主 秧秧 坎特蕾拉 芙露德莉斯\n* 修复秧秧手指及其他异常\n* 更新坎特蕾拉的受伤/湿身表现\n* 修复赞妮并增加受伤表现移除\n* 修复卡提希娅(NPC)贴图错误\n* 修复坎特蕾拉伞的贴图错误\n* 新增夏空的受伤表现移除\n\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
+            "en": "Fix 2.4: Ciaccona Jinhsi SanhuaSkin Cartethyia Flurdelys\n* Updated Cantarella's texture_hashes for wet/wet_injured\n* Added the removal of the Wounded Effect of Cartethyia, Flurdelys, ChangliSkin and CarlottaSkin\n* Updated ChangliSkin texture_hash for Wounded Effect\n\nFix 2.3: RoverMale Yangyang Cantarella Fleurdelys\n* Fixed the abnormal fingers and other issues of Yangyang\n* Updated Cantarella texture_hashes and Wounded Effect hash\n* Fixed Zani and added the removal of the Wounded Effect\n* Fixed the texture error of Cartethyia(NPC)\n* Fixed the texture error of Cantarella_Umbrella\n* Added the removal of the Wounded Effect of the Ciaccona\n\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
         },
         "intro_note": {
             "zh": "修复【长离】【维里奈】【今汐皮肤】【白芷】【秧秧】时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
@@ -499,14 +499,18 @@
             }
         },
         "ChangliLaurelNymph": {
-            "main_hashes": [{"old": ["acbfcfec"], "new": "acbfcfec"}],
+            "main_hashes": [
+                {"old": ["e3e045ee"], "new": "ccc37f56"},
+                {"old": ["b9958562"], "new": "5d935e73"},
+                {"old": ["d961039b"], "new": "794e60a8"}
+            ],
             "states": {
                 "injured": {
                     "0ad91a84": "529d2b99",
                     "f14d946b": "bfc103ef",
                     "3121f41a": "12638aa6",
-                    "d961039b": "e3e045ee",
-                    "b9958562": "014b4c3f",
+                    "794e60a8": "ccc37f56",
+                    "5d935e73": "014b4c3f",
                     "28d3e794": "6804b3ae"
                 }
             }
