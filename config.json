@@ -26,8 +26,8 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.5: 夏空 露帕\n\n修复2.4: 夏空 今汐 散华皮肤 卡提希娅 芙露德莉斯\n* 更新坎特蕾拉的湿身/湿身战损表现hash\n* 新增卡提希娅 芙露德莉斯 长离皮肤和珂莱塔皮肤的受损表现移除\n* 更新长离皮肤的受伤表现hash\n* 新增露帕的受损表现移除\n\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
-            "en": "Fix 2.5: Ciaccona Lupa\n\nFix 2.4: Ciaccona Jinhsi SanhuaSkin Cartethyia Flurdelys\n* Updated Cantarella's texture_hashes for wet/wet_injured\n* Added the removal of the Wounded Effect of Cartethyia, Flurdelys, ChangliSkin and CarlottaSkin\n* Updated ChangliSkin texture_hash for Wounded Effect\n* Added the removal of the Wounded Effect of Lupa\n\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
+            "zh": "修复2.5: 夏空 露帕 芙露德莉斯\n\n修复2.4: 夏空 今汐 散华皮肤 卡提希娅 芙露德莉斯\n* 更新坎特蕾拉的湿身/湿身战损表现hash\n* 新增卡提希娅 芙露德莉斯 长离皮肤和珂莱塔皮肤的受损表现移除\n* 更新长离皮肤的受伤表现hash\n* 新增露帕的受损表现移除\n\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
+            "en": "Fix 2.5: Ciaccona Lupa Flurdelys\n\nFix 2.4: Ciaccona Jinhsi SanhuaSkin Cartethyia Flurdelys\n* Updated Cantarella's texture_hashes for wet/wet_injured\n* Added the removal of the Wounded Effect of Cartethyia, Flurdelys, ChangliSkin and CarlottaSkin\n* Updated ChangliSkin texture_hash for Wounded Effect\n* Added the removal of the Wounded Effect of Lupa\n\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
         },
         "intro_note": {
             "zh": "修复【长离】【维里奈】【今汐皮肤】【白芷】【秧秧】时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
@@ -1057,21 +1057,32 @@
                 {"old": ["874ab04e", "afb0ea93"], "new": "cc3910e7"},
                 {"old": ["c35ad2eb", "1036407c"], "new": "b08d5d57"},
                 {"old": ["e385365e", "f079e2b8"], "new": "1028b6b7"},
-                {"old": ["bd6bfc8f"], "new": "14e47dee"},
-                {"old": ["88f64559"], "new": "3766bc13"},
-                {"old": ["3ef0be7c"], "new": "00a2663b"},
+                {"old": ["bd6bfc8f", "14e47dee"], "new": "4bac35dd"},
+                {"old": ["88f64559", "3766bc13"], "new": "b9a64e57"},
+                {"old": ["3ef0be7c", "00a2663b"], "new": "bd9cd630"},
                 {"old": ["f1c2e889"], "new": "6df8bc60"},
                 {"old": ["1028b6b7"], "new": "ece8436e"},
-                {"old": ["b08d5d57"], "new": "73110195"}
+                {"old": ["b08d5d57", "73110195"], "new": "8160bcb0"},
+                {"old": ["f4e65f69"], "new": "c51aa8d2"},
+                {"old": ["d685d037"], "new": "c9124759"},
+                {"old": ["1f606caf"], "new": "50de5497"},
+                {"old": ["8022dc07"], "new": "5eee477c"},
+                {"old": ["48e09820"], "new": "40cd7ff6"},
+                {"old": ["858f3573"], "new": "c51948e5"},
+                {"old": ["c344d062"], "new": "1c8589de"},
+                {"old": ["54d78775"], "new": "d1534303"},
+                {"old": ["9c079580"], "new": "3bd74696"},
+                {"old": ["b471214b"], "new": "afbff73e"},
+                {"old": ["e4ea3515"], "new": "d7c318df"},
+                {"old": ["1fb03721"], "new": "19862710"}
             ],
             "states": {
                 "injured": {
-                    "9c079580": "14e47dee",
-                    "b471214b": "1f606caf",
-                    "e4ea3515": "858f3573",
+                    "3bd74696": "4bac35dd",
+                    "afbff73e": "50de5497",
+                    "d7c318df": "c51948e5",
                     "75f9c97e": "ece8436e",
-                    "1fb03721": "d685d037",
-                    "a92820a4": "a92820a4"
+                    "19862710": "c9124759"
                 }
             }
         },
