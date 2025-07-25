@@ -26,8 +26,8 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.5: 夏空 露帕&NPC 芙露德莉斯 弗洛洛\n* 修复夏空 露帕 芙露德莉斯的贴图错误\n* 修复弗洛洛的贴图错误（请启用'移除受伤表现 [Y]'以避免剧情贴图错误）\n* 新增弗洛洛的受伤表现移除\n\n修复2.4: 夏空 今汐 散华皮肤 卡提希娅 芙露德莉斯\n* 更新坎特蕾拉的湿身/湿身战损表现hash\n* 新增卡提希娅 芙露德莉斯 长离皮肤和珂莱塔皮肤的受伤表现移除\n* 更新长离皮肤的受伤表现hash\n* 新增露帕的受伤表现移除\n\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
-            "en": "Fix 2.5: Ciaccona Lupa&NPC Flurdelys Phrolova\n* Fixed texture errors of Ciaccona Lupa Flurdelys\n* Fixed texture errors of Phrolova (Please enable 'Remove Wounded Effect in Quality [Y]' to avoid texture errors in the storyline.)\n* Added the removal of the Wounded Effect of Phrolova\n\nFix 2.4: Ciaccona Jinhsi SanhuaSkin Cartethyia Flurdelys\n* Updated Cantarella's texture_hashes for wet/wet_injured\n* Added the removal of the Wounded Effect of Cartethyia, Flurdelys, ChangliSkin and CarlottaSkin\n* Updated ChangliSkin texture_hash for Wounded Effect\n* Added the removal of the Wounded Effect of Lupa\n\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
+            "zh": "修复2.5: 夏空 露帕&NPC 芙露德莉斯 弗洛洛\n* 修复夏空 露帕 芙露德莉斯的贴图错误\n* 修复弗洛洛的贴图错误（请启用'移除受伤表现 [Y]'以避免剧情贴图错误）\n* 新增弗洛洛的受伤表现移除\n* 更新卡提希娅的的受伤表现hash\n\n修复2.4: 夏空 今汐 散华皮肤 卡提希娅 芙露德莉斯\n* 更新坎特蕾拉的湿身/湿身战损表现hash\n* 新增卡提希娅 芙露德莉斯 长离皮肤和珂莱塔皮肤的受伤表现移除\n* 更新长离皮肤的受伤表现hash\n* 新增露帕的受伤表现移除\n\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
+            "en": "Fix 2.5: Ciaccona Lupa&NPC Flurdelys Phrolova\n* Fixed texture errors of Ciaccona Lupa Flurdelys\n* Fixed texture errors of Phrolova (Please enable 'Remove Wounded Effect in Quality [Y]' to avoid texture errors in the storyline.)\n* Added the removal of the Wounded Effect of Phrolova\n* Updated Cartethyia's texture_hash for Wounded Effect\n\nFix 2.4: Ciaccona Jinhsi SanhuaSkin Cartethyia Flurdelys\n* Updated Cantarella's texture_hashes for wet/wet_injured\n* Added the removal of the Wounded Effect of Cartethyia, Flurdelys, ChangliSkin and CarlottaSkin\n* Updated ChangliSkin texture_hash for Wounded Effect\n* Added the removal of the Wounded Effect of Lupa\n\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
         },
         "intro_note": {
             "zh": "修复【长离】【维里奈】【今汐皮肤】【白芷】【秧秧】时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
@@ -1005,7 +1005,12 @@
                 {"old": ["a6ac08f5"], "new": "7f08cd4f"},
                 {"old": ["037e710d"], "new": "51638d38"},
                 {"old": ["2a69362a"], "new": "052142b5"},
-                {"old": ["b5ce9d77"], "new": "fd0268ad"}
+                {"old": ["b5ce9d77"], "new": "fd0268ad"},
+                {"old": ["4fbc82ca"], "new": "62306677"},
+                {"old": ["beef40ba"], "new": "75dd7f87"},
+                {"old": ["e08e17b5"], "new": "9a586aa6"},
+                {"old": ["bfd19633"], "new": "b9590b12"},
+                {"old": ["58037f6f"], "new": "5b9e0c57"}
             ],
             "checksum": "3471",
             "rules": [
@@ -1038,12 +1043,12 @@
             ],
             "states": {
                 "injured": {
-                    "4fbc82ca": "8d9954bf",
-                    "bfd19633": "3ff8b56e",
-                    "58037f6f": "423ec9ce",
-                    "e08e17b5": "1f426e73",
+                    "62306677": "8d9954bf",
+                    "b9590b12": "3ff8b56e",
+                    "5b9e0c57": "423ec9ce",
+                    "9a586aa6": "1f426e73",
                     "f12ebf02": "51638d38",
-                    "beef40ba": "ae8fd5fb"
+                    "75dd7f87": "ae8fd5fb"
                 }
             }
         },
