@@ -26,8 +26,8 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.5: 夏空 露帕 芙露德莉斯 弗洛洛\n* 修复夏空 露帕 芙露德莉斯的贴图错误\n* 修复弗洛洛的贴图错误\n* 新增弗洛洛的受损表现移除\n\n修复2.4: 夏空 今汐 散华皮肤 卡提希娅 芙露德莉斯\n* 更新坎特蕾拉的湿身/湿身战损表现hash\n* 新增卡提希娅 芙露德莉斯 长离皮肤和珂莱塔皮肤的受损表现移除\n* 更新长离皮肤的受伤表现hash\n* 新增露帕的受损表现移除\n\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
-            "en": "Fix 2.5: Ciaccona Lupa Flurdelys Phrolova\n* Fixed texture errors of Ciaccona Lupa Flurdelys\n* Fixed texture errors of Phrolova\n* Added the removal of the Wounded Effect of Phrolova\n\nFix 2.4: Ciaccona Jinhsi SanhuaSkin Cartethyia Flurdelys\n* Updated Cantarella's texture_hashes for wet/wet_injured\n* Added the removal of the Wounded Effect of Cartethyia, Flurdelys, ChangliSkin and CarlottaSkin\n* Updated ChangliSkin texture_hash for Wounded Effect\n* Added the removal of the Wounded Effect of Lupa\n\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
+            "zh": "修复2.5: 夏空 露帕&NPC 芙露德莉斯 弗洛洛\n* 修复夏空 露帕 芙露德莉斯的贴图错误\n* 修复弗洛洛的贴图错误（请启用'移除受伤表现 [Y]'以避免剧情贴图错误）\n* 新增弗洛洛的受伤表现移除\n\n修复2.4: 夏空 今汐 散华皮肤 卡提希娅 芙露德莉斯\n* 更新坎特蕾拉的湿身/湿身战损表现hash\n* 新增卡提希娅 芙露德莉斯 长离皮肤和珂莱塔皮肤的受伤表现移除\n* 更新长离皮肤的受伤表现hash\n* 新增露帕的受伤表现移除\n\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
+            "en": "Fix 2.5: Ciaccona Lupa&NPC Flurdelys Phrolova\n* Fixed texture errors of Ciaccona Lupa Flurdelys\n* Fixed texture errors of Phrolova (Please enable 'Remove Wounded Effect in Quality [Y]' to avoid texture errors in the storyline.)\n* Added the removal of the Wounded Effect of Phrolova\n\nFix 2.4: Ciaccona Jinhsi SanhuaSkin Cartethyia Flurdelys\n* Updated Cantarella's texture_hashes for wet/wet_injured\n* Added the removal of the Wounded Effect of Cartethyia, Flurdelys, ChangliSkin and CarlottaSkin\n* Updated ChangliSkin texture_hash for Wounded Effect\n* Added the removal of the Wounded Effect of Lupa\n\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
         },
         "intro_note": {
             "zh": "修复【长离】【维里奈】【今汐皮肤】【白芷】【秧秧】时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
@@ -51,7 +51,7 @@
         },
         "texture_override_prompt": {
             "zh": "是否移除受伤表现？ （默认否）:",
-            "en": "Remove injured state in Quality? (default no):"
+            "en": "Remove 'Wounded Effect' in Quality? (default no):"
         },
         "match_character_prompt": {
             "zh": "匹配到角色 {character}，正在处理...",
@@ -66,7 +66,7 @@
             "en": "Backup creation failed: {file_path}"
         },
         "injured_hash_replace_note": {
-            "zh": "角色 {character} 的受损hash {original_hash} -> {section_header}节",
+            "zh": "角色 {character} 的受伤hash {original_hash} -> {section_header}节",
             "en": "Character {character} has injured texture hash {original_hash} -> section {section_header}"
         },
         "injured_hash_replace_warning": {
@@ -1101,6 +1101,10 @@
                     "04e5b9f5": "62ef42ef"
                 }
             }
+        },
+        "Lupa(NPC)": {
+            "main_hashes": [{"old": ["c5633912"], "new": "c5633912"}],
+            "texture_hashes":[{"old": ["e541ab4b"], "new": "312fc5e4"}]
         },
         "Phrolova": {
             "main_hashes": [{"old": ["2819cef7"], "new": "2819cef7"}],
