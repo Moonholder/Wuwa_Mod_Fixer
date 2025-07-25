@@ -26,8 +26,8 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.5: 夏空 露帕 芙露德莉斯\n\n修复2.4: 夏空 今汐 散华皮肤 卡提希娅 芙露德莉斯\n* 更新坎特蕾拉的湿身/湿身战损表现hash\n* 新增卡提希娅 芙露德莉斯 长离皮肤和珂莱塔皮肤的受损表现移除\n* 更新长离皮肤的受伤表现hash\n* 新增露帕的受损表现移除\n\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
-            "en": "Fix 2.5: Ciaccona Lupa Flurdelys\n\nFix 2.4: Ciaccona Jinhsi SanhuaSkin Cartethyia Flurdelys\n* Updated Cantarella's texture_hashes for wet/wet_injured\n* Added the removal of the Wounded Effect of Cartethyia, Flurdelys, ChangliSkin and CarlottaSkin\n* Updated ChangliSkin texture_hash for Wounded Effect\n* Added the removal of the Wounded Effect of Lupa\n\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
+            "zh": "修复2.5: 夏空 露帕 芙露德莉斯 弗洛洛\n* 修复夏空 露帕 芙露德莉斯的贴图错误\n* 修复弗洛洛的贴图错误\n* 新增弗洛洛的受损表现移除\n\n修复2.4: 夏空 今汐 散华皮肤 卡提希娅 芙露德莉斯\n* 更新坎特蕾拉的湿身/湿身战损表现hash\n* 新增卡提希娅 芙露德莉斯 长离皮肤和珂莱塔皮肤的受损表现移除\n* 更新长离皮肤的受伤表现hash\n* 新增露帕的受损表现移除\n\n据反馈，角色面部出现撕裂，请关闭设置中的光追选项，重新运行游戏\n",
+            "en": "Fix 2.5: Ciaccona Lupa Flurdelys Phrolova\n* Fixed texture errors of Ciaccona Lupa Flurdelys\n* Fixed texture errors of Phrolova\n* Added the removal of the Wounded Effect of Phrolova\n\nFix 2.4: Ciaccona Jinhsi SanhuaSkin Cartethyia Flurdelys\n* Updated Cantarella's texture_hashes for wet/wet_injured\n* Added the removal of the Wounded Effect of Cartethyia, Flurdelys, ChangliSkin and CarlottaSkin\n* Updated ChangliSkin texture_hash for Wounded Effect\n* Added the removal of the Wounded Effect of Lupa\n\nFeedback: There is tearing on the character's face, please turn off the ray tracing option in the settings and run the game again.\nAccording to the feedback, there is tearing on the character's face. Please turn off the ray tracing option in the settings and run the game again.\n"
         },
         "intro_note": {
             "zh": "修复【长离】【维里奈】【今汐皮肤】【白芷】【秧秧】时，建议将mod还原至未使用任何修复的状态或重新解压，再应用此修复",
@@ -1099,6 +1099,23 @@
                     "cf4e8663": "77ba7584",
                     "2559facd": "bd1bcfd8",
                     "04e5b9f5": "62ef42ef"
+                }
+            }
+        },
+        "Phrolova": {
+            "main_hashes": [{"old": ["2819cef7"], "new": "2819cef7"}],
+            "texture_hashes": [
+                {"old": ["9b2007f8"], "new": "d8121963"},
+                {"old": ["8592dec8"], "new": "b7d01975"},
+                {"old": ["be835337"], "new": "e6819fc8"}
+            ],
+            "states":{
+                "injured": {
+                    "d18149e4": "584e289f",
+                    "cc94ce39": "5ef9b4d3",
+                    "6170e02a": "d8121963",
+                    "7b76485f": "dd620352",
+                    "fa6bce7b": "183fe440"
                 }
             }
         }
