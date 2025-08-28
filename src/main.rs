@@ -628,7 +628,7 @@ impl ModFixer {
         global $rf_state = 0
 
         [TextureOverride_Normal]
-        hash = a2207e11
+        hash = 52c18227
         $charged = 0
 
         [TextureOverride_Charged]
@@ -657,7 +657,7 @@ impl ModFixer {
         this = ResourceTexture_AeroRoverFemaleEyes
         endif
         "#,
-            file_name, "fa3f84a8"
+            file_name, "29304593"
         )
         .replace(&" ".repeat(8), "");
 
