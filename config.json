@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "2.6.0",
-        "current_version": "2.6.2",
+        "current_version": "2.6.3",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -26,8 +26,8 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.6: 修复 男主 女主 珂莱塔 椿 今汐/皮肤 守岸人 折枝 长离 维里奈 白芷 卡卡罗 秋水 菲比 布兰特 坎特蕾拉 赞妮 夏空 卡提西娅 露帕 弗洛洛\n忌炎 吟霖 长离皮肤 相里要 洛可可 散华/皮肤 丹瑾 秧秧 赤霞 桃琦 鉴心 安可 釉壶 灯灯 凌阳 渊武 莫特斐 翱翔翼(默认) 的贴图问题\n* 新增: 露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 滑翔翼(默认) 奥古斯塔的受伤表现移除\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
-            "en": "Fix 2.6: Fix texture issues for MaleRover FemaleRover Carlotta Camellya Jinhsi/JinhsiPeachBlossom Shorekeeper Zhezhi Changli Virina Baizhi Calcharo Aalto Phoebe Brant Cantarella Zani Ciaccona Cartethyia Lupa Phrolova\nJiyan Yinlin ChangliSkin XiangliYao Roccia Sanhua/SanhuaSkin Yangyang Chixia Taoqi Jianxin Encore Youhu Lumi Lingyang Yuanwu Mortefi Flight(normal)\n* New: LupaNpc LupaTail Zani_Shield CarlottaHairCrystal Glider(normal) \n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
+            "zh": "修复2.6: 修复 男主 女主 珂莱塔/头发 椿 今汐/皮肤 守岸人 折枝 长离 维里奈 白芷 卡卡罗 秋水 菲比 布兰特 坎特蕾拉 赞妮/盾牌 夏空 卡提西娅 露帕/NPC/尾巴/长枪 弗洛洛\n忌炎 吟霖 长离皮肤 相里要 洛可可 散华/皮肤 丹瑾 秧秧 赤霞 桃琦 鉴心 安可 釉壶 灯灯 凌阳 渊武 莫特斐 翱翔翼(默认) 滑翔翼(默认) 的贴图问题\n* 添加奥古斯塔的受伤表现移除\n* 新增: 补充守岸人、坎特蕾拉、维里奈缺失的贴图hash\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
+            "en": "Fix 2.6: Fix texture issues for MaleRover FemaleRover Carlotta CarlottaHairCrystal Camellya Jinhsi/JinhsiPeachBlossom Shorekeeper Zhezhi Changli Virina Baizhi Calcharo Aalto Phoebe Brant Cantarella Zani Zani_Shield Ciaccona Cartethyia Lupa LupaNpc LupaTail LupaSpear Phrolova\nJiyan Yinlin ChangliSkin XiangliYao Roccia Sanhua/SanhuaSkin Yangyang Chixia Taoqi Jianxin Encore Youhu Lumi Lingyang Yuanwu Mortefi Flight(normal) Glider(normal)\n* Added the removal of the Wounded Effect of Augusta\n* New: Added the missing texture hashes for Shorekeeper, Cantarella, and Verina\n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
         },
         "intro_note": {
             "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
@@ -505,7 +505,9 @@
                 {"old": ["b7997090"], "new": "b9136153"},
                 {"old": ["f510cf89"], "new": "03284c19"},
                 {"old": ["00b2fa86"], "new": "6e3d31e6"},
-                {"old": ["49f91bc3"], "new": "a7c9acc3"}
+                {"old": ["49f91bc3"], "new": "a7c9acc3"},
+                {"old": ["6a6c419b"], "new": "2293ef8e"},
+                {"old": ["26ef0c33"], "new": "ec2a6255"}
             ],
             "states": {
                 "injured": {
@@ -776,7 +778,8 @@
                 {"old": ["03416881"], "new": "cb01a05c"},
                 {"old": ["fcc47274"], "new": "e2a003ed"},
                 {"old": ["ae7043eb"], "new": "e2887be0"},
-                {"old": ["dc7f97f7"], "new": "412de025"}
+                {"old": ["dc7f97f7"], "new": "412de025"},
+                {"old": ["309b25ba"], "new": "edc699f5"}
             ],
             "vg_remaps": [
                 {
@@ -1361,7 +1364,8 @@
                 {"old": ["5e48f2a4"], "new": "b4b8de71"},
                 {"old": ["ef3dab0e"], "new": "f6c26213"},
                 {"old": ["d67890aa"], "new": "c3902379"},
-                {"old": ["87821a93"], "new": "f7dadc16"}
+                {"old": ["87821a93"], "new": "f7dadc16"},
+                {"old": ["a01a5acf"], "new": "d0429c4a"}
             ],
             "states": {
                 "injured": {
@@ -1376,7 +1380,8 @@
                     "8f3ebd32": "787c92b8",
                     "abd93fa3": "b6deb6c2",
                     "c3902379": "9986ce50",
-                    "f6c26213": "b8fe5f0a"
+                    "f6c26213": "b8fe5f0a",
+                    "d0429c4a": "f7dadc16"
                 },
                 "wet_injured": {
                     "316457f4": "3ebe428b",
