@@ -1,7 +1,7 @@
 {
     "version" : {
-        "min_required_version": "2.4.0",
-        "current_version": "2.6.1",
+        "min_required_version": "2.6.0",
+        "current_version": "2.6.2",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -26,12 +26,12 @@
         "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.6: 修复 男主 女主 珂莱塔 椿 今汐/皮肤 守岸人 折枝 长离 维里奈 白芷 卡卡罗 秋水 菲比 布兰特 坎特蕾拉 赞妮 夏空 卡提西娅 露帕 弗洛洛\n忌炎 吟霖 长离皮肤 相里要 洛可可 散华/皮肤 丹瑾 秧秧 赤霞 桃琦 鉴心 安可 釉壶 灯灯 凌阳 渊武 莫特斐 翱翔翼(默认) 的贴图问题\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
-            "en": "Fix 2.6: Fix texture issues for MaleRover FemaleRover Carlotta Camellya Jinhsi/JinhsiPeachBlossom Shorekeeper Zhezhi Changli Virina Baizhi Calcharo Aalto Phoebe Brant Cantarella Zani Ciaccona Cartethyia Lupa Phrolova\nJiyan Yinlin ChangliSkin XiangliYao Roccia Sanhua/SanhuaSkin Yangyang Chixia Taoqi Jianxin Encore Youhu Lumi Lingyang Yuanwu Mortefi Flight(normal)\n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
+            "zh": "修复2.6: 修复 男主 女主 珂莱塔 椿 今汐/皮肤 守岸人 折枝 长离 维里奈 白芷 卡卡罗 秋水 菲比 布兰特 坎特蕾拉 赞妮 夏空 卡提西娅 露帕 弗洛洛\n忌炎 吟霖 长离皮肤 相里要 洛可可 散华/皮肤 丹瑾 秧秧 赤霞 桃琦 鉴心 安可 釉壶 灯灯 凌阳 渊武 莫特斐 翱翔翼(默认) 的贴图问题\n* 新增: 露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 滑翔翼(默认) 奥古斯塔的受伤表现移除\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
+            "en": "Fix 2.6: Fix texture issues for MaleRover FemaleRover Carlotta Camellya Jinhsi/JinhsiPeachBlossom Shorekeeper Zhezhi Changli Virina Baizhi Calcharo Aalto Phoebe Brant Cantarella Zani Ciaccona Cartethyia Lupa Phrolova\nJiyan Yinlin ChangliSkin XiangliYao Roccia Sanhua/SanhuaSkin Yangyang Chixia Taoqi Jianxin Encore Youhu Lumi Lingyang Yuanwu Mortefi Flight(normal)\n* New: LupaNpc LupaTail Zani_Shield CarlottaHairCrystal Glider(normal) \n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
         },
         "intro_note": {
-            "zh": "修复【长离】【维里奈】【今汐皮肤】【白芷】【秧秧】有问题时，建议将mod还原至未使用任何修复的状态或重新下载解压，再应用此修复",
-            "en": "When fixing [Changli] [Virina] [JinhsiPeachSkin] [Baizhi] [Yangyang], it is recommended to restore the mod to the state before any fixes or re-download/re-extract it, and then apply this fix tool.\n"
+            "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
+            "en": "Update WWMI to version 0.9.6 to fix the broken facial (and shoulder) animations."
         },
         "compatibility_note": {
             "zh": "\n注：wwmi 0.6x版本的旧Mod在WWMI 070版本之后需开启兼容模式才能加载. 从WWMI076开始默认关闭了兼容模式. 开启方式: 游戏内 Alt + F12. 显示 Compatibility Mode: Enabled",
@@ -42,8 +42,8 @@
             "en": "Starting from version 2.0, different graphics presets may have different hash values, which may cause mod texture errors. Please set the graphics quality preset to Balanced/Quality."
         },
         "texture_override_note": {
-            "zh": "\n游戏2.1版本已经在设置添加了受伤表现开关，此工具仍提供战损修复功能，自行选择是否启用",
-            "en": "\nIn game 2.1 version, 'Wounded Effect' has been added to the settings, this tool still provides injured texture hash fix, please choose whether to enable it. "
+            "zh": "\n游戏2.1版本已经在设置添加了受伤表现开关，此工具仍提供战损修复功能，除坎特蕾拉外目前2.6以前的角色暂不建议启用此选项",
+            "en": "\nIn game 2.1 version, 'Wounded Effect' has been added to the settings, this tool still provides injured texture hash fix, Currently, it is not recommended to enable this option for characters from versions prior to 2.6, except for Cantarella."
         },
         "found_old_mod": {
             "zh": "发现旧版Mod(wwmi 0.6x)，正在尝试修复...",
@@ -133,6 +133,10 @@
                 {"old": ["7233337e"], "new": "ff615a59"},
                 {"old": ["99977887"], "new": "4082c8ea"}
             ]
+        },
+        "glider(normal)": {
+            "main_hashes": [{"old": ["a0c4996d"], "new": "a0c4996d"}],
+            "texture_hashes": [{"old": ["e0b526b0"], "new": "8c2f4684"}]
         },
         "RoverMale": {
             "main_hashes": [
@@ -320,6 +324,18 @@
                 {"old": ["24d244c6"], "new": "2c08bef8"},
                 {"old": ["a522548d"], "new": "ea549e9a"},
                 {"old": ["514a16b0"], "new": "30bc60f3"},
+                {"old": ["df2d1f7b"], "new": "9ec0b80f"}
+            ]
+        },
+        "CarlottaHairCrystal": {
+            "main_hashes": [{"old": ["873457db"], "new": "873457db"}],
+            "texture_hashes": [
+                {"old": ["1d394c0e"], "new": "c7042488"},
+                {"old": ["24d244c6"], "new": "2c08bef8"},
+                {"old": ["3886b266"], "new": "cae39d06"},
+                {"old": ["4b8a6357"], "new": "137c6faa"},
+                {"old": ["7f0aa102"], "new": "cae6d5b6"},
+                {"old": ["9d0b65e1"], "new": "1842bc28"},
                 {"old": ["df2d1f7b"], "new": "9ec0b80f"}
             ]
         },
@@ -663,7 +679,8 @@
             }
         },
         "ChangliLaurelNymph": {
-            "main_hashes": [
+            "main_hashes": [{"old": ["acbfcfec"], "new": "acbfcfec"}],
+            "texture_hashes": [
                 {"old": ["e3e045ee"], "new": "ccc37f56"},
                 {"old": ["b9958562"], "new": "5d935e73"},
                 {"old": ["d961039b"], "new": "794e60a8"},
@@ -1452,6 +1469,13 @@
             ],
             "states": {"injured": { "f7694bcf": "a4a04996"}}
         },
+        "Zani_Shield": {
+            "main_hashes": [{"old": ["76834247"], "new": "76834247"}],
+            "texture_hashes": [
+                {"old": ["067e9607"], "new": "78c7ca2a"},
+                {"old": ["16f888b0"], "new": "4e718e13"}
+            ]
+        },
         "Ciaccona": {
             "main_hashes": [{"old": ["e57c9380"], "new": "e57c9380"}],
             "texture_hashes": [
@@ -1625,11 +1649,32 @@
         },
         "Lupa(NPC)": {
             "main_hashes": [{"old": ["c5633912"], "new": "c5633912"}],
-            "texture_hashes":[{"old": ["e541ab4b"], "new": "312fc5e4"}]
+            "texture_hashes":[
+                {"old": ["e541ab4b"], "new": "312fc5e4"},
+                {"old": ["06c9cbd2"], "new": "20927988"},
+                {"old": ["c5d64764"], "new": "d1c82bf3"},
+                {"old": ["eb4d05bb"], "new": "3ba4af04"},
+                {"old": ["e541ab4b"], "new": "312fc5e4"},
+                {"old": ["5d7d3f28"], "new": "41532ac9"},
+                {"old": ["84206d9f"], "new": "3cf552bd"},
+                {"old": ["77ba7584"], "new": "bbb18270"},
+                {"old": ["bd1bcfd8"], "new": "8f9bacd2"},
+                {"old": ["e4638507"], "new": "4c57726e"},
+                {"old": ["62ef42ef"], "new": "b7a16140"},
+                {"old": ["79b6c3f4"], "new": "9d5fe765"},
+                {"old": ["c347ca65"], "new": "1443c0c0"}
+            ]
         },
         "LupaSpear": {
             "main_hashes": [{"old": ["3ae1074d"], "new": "3ae1074d"}],
             "texture_hashes":[{"old": ["1b7cac73"], "new": "0ad8f0ae"}]
+        },
+        "LupaTail": {
+            "main_hashes": [{"old": ["f49ec658"], "new": "f49ec658"}],
+            "texture_hashes":[
+                {"old": ["0bf5cead"], "new": "7fb7147f"},
+                {"old": ["06c9cbd2"], "new": "20927988"}
+            ]
         },
         "Phrolova": {
             "main_hashes": [{"old": ["2819cef7"], "new": "2819cef7"}],
@@ -1647,6 +1692,18 @@
                     "6170e02a": "d8121963",
                     "7b76485f": "dd620352",
                     "fa6bce7b": "183fe440"
+                }
+            }
+        },
+        "Augusta": {
+            "main_hashes": [{"old": ["c7aae00c"], "new": "c7aae00c"}],
+            "states":{
+                "injured": {
+                    "bd48a998": "36d75345",
+                    "a45da7a1": "c2492522",
+                    "bba149ae": "3153462b",
+                    "8b5c7a14": "d7d7a406",
+                    "db50c591": "c613797e"
                 }
             }
         }

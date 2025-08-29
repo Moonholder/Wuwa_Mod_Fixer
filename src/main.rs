@@ -112,143 +112,144 @@ impl ModFixer {
         let mut modified = false;
         let mut ini_modified = false;
         let mut buf_files_modified = false;
-        let mut match_old_mod = false;
         let mut new_content = content.clone();
         info!("{}", t!(process_file_start, file_path = path.display()));
 
         // 处理每个角色的哈希替换
         for (char_name, config) in &self.characters {
-            // 检查vb0哈希
-            let Some(vb0) = config.main_hashes.first() else {
-                continue;
-            };
-
-            if !self.any_match(&content, vb0) {
-                if !EARLY_CHARACTERS.contains(&char_name.as_str()) {
-                    continue;
-                }
-
-                if let Some(shape_key_hashes) = config.main_hashes.get(1) {
-                    if self.any_match(&content, shape_key_hashes) {
-                        info!("{}", t!(found_old_mod));
-                        match_old_mod = true;
-                    }
-                }
-
-                if !match_old_mod {
-                    continue;
-                }
-            }
-
-            if char_name == "RoverMale" && content.contains("FixAeroRoverFemale") {
-                continue;
-            }
-
-            info!("{}", t!(match_character_prompt, character = char_name));
-
-            // 主哈希和贴图哈希替换
-            ini_modified |= self.replace_hashes(&mut new_content, &config.main_hashes);
-            ini_modified |= self.replace_hashes(&mut new_content, &config.texture_hashes);
-
-            if let Some(checksum) = &config.checksum {
-                let new_content_replaced = self
-                    .checksum_regex
-                    .replace_all(&new_content, &format!("checksum = {}", checksum));
-
-                if new_content_replaced.as_ref() != new_content {
-                    new_content = new_content_replaced.into_owned();
-                    info!(
-                        "checksum_replaced: {char_name} = {checksum}",
-                        char_name = char_name,
-                        checksum = checksum
-                    );
-                    ini_modified = true;
-                }
-            }
-
-            // replace component match_first_index and match_first_count
-            ini_modified |= self.replace_index_offset_count(&mut new_content, &config.rules);
-
-            // 受损表现移除
-            if self.enable_texture_override {
-                if let Some(char_states) = &config.states {
-                    for state_name in char_states.keys() {
-                        if let Some(state_map) = char_states.get(state_name) {
-                            ini_modified |= self.texture_override_redirection(
-                                &mut new_content,
-                                state_map,
-                                state_name.as_str(),
-                            )?;
-                        }
-                    }
-                }
-            }
-
-            // 顶点组重映射
-            if let Some(vg_maps) = &config.vg_remaps {
-                buf_files_modified |= self.remaps(&content, path, vg_maps)?;
-            }
-
-            let enable_aero_rover_fix = if char_name == "RoverFemale" {
-                println!();
-                Confirm::new(t!(aero_rover_female_eyes_prompt))
-                    .with_default(false)
-                    .prompt()?
+            let is_broad_match = if let Some(vb0) = config.main_hashes.first() {
+                self.any_match(&content, vb0)
             } else {
                 false
             };
 
-            // 修复风主满共鸣能量眼睛异常
-            if enable_aero_rover_fix {
-                buf_files_modified |=
-                    self.fix_aero_rover_female_eyes_with_texcoord(path, &content)?;
+            let is_old_mod_match = if !is_broad_match && EARLY_CHARACTERS.contains(&char_name.as_str()) {
+                if let Some(shape_key_hashes) = config.main_hashes.get(1) {
+                    self.any_match(&content, shape_key_hashes)
+                } else {
+                    false
+                }
+            } else {
+                false
+            };
 
-                if !buf_files_modified {
-                    ini_modified |=
-                        self.fix_aero_rover_female_eyes_with_texture(path, &mut new_content)?;
+            if !is_broad_match && !is_old_mod_match {
+                continue;
+            }
+            
+            if char_name == "RoverMale" && content.contains("FixAeroRoverFemale") {
+                continue;
+            }
+            info!("{}", t!(match_character_prompt, character = char_name));
+
+            // 哈希替换
+            ini_modified |= self.replace_hashes(&mut new_content, &config.main_hashes);
+            ini_modified |= self.replace_hashes(&mut new_content, &config.texture_hashes);
+            
+            // 进行精确的角色匹配，只有匹配成功才执行后续的特定修复
+            if self.is_character_match(&content, char_name, config) {
+
+                if let Some(checksum) = &config.checksum {
+                    let new_content_replaced = self
+                        .checksum_regex
+                        .replace_all(&new_content, &format!("checksum = {}", checksum));
+
+                    if new_content_replaced.as_ref() != new_content {
+                        new_content = new_content_replaced.into_owned();
+                        info!(
+                            "checksum_replaced: {char_name} = {checksum}",
+                            char_name = char_name,
+                            checksum = checksum
+                        );
+                        ini_modified = true;
+                    }
                 }
 
-                info!("{}", t!(aero_rover_female_eyes_fixed));
-            }
+                // replace component match_first_index and match_first_count
+                ini_modified |= self.replace_index_offset_count(&mut new_content, &config.rules);
 
-            // 修复芙露德莉斯
-            if char_name == "Fleurdelys" && content.contains("618a230e") {
-                let blend_block_re = Regex::new(r"\[ResourceBlendBuffer\][^\[]+").unwrap();
-
-                let stride_re = Regex::new(r"stride\s*=\s*8").unwrap();
-
-                let replaced_content =
-                    blend_block_re.replace_all(&new_content, |cap: &regex::Captures| {
-                        let original_block = cap[0].to_string();
-                        stride_re
-                            .replace_all(&original_block, "stride = 16")
-                            .to_string()
-                    });
-
-                if replaced_content != new_content {
-                    ini_modified = true;
-                    new_content = replaced_content.into_owned();
-
-                    let blend_buf_matches = collector::parse_resouce_buffer_path(
-                        &content,
-                        collector::BufferType::Blend,
-                        &path,
-                    );
-
-                    for (blend_path, _) in blend_buf_matches {
-                        if !blend_path.exists() {
-                            continue;
+                // 受损表现移除
+                if self.enable_texture_override {
+                    if let Some(char_states) = &config.states {
+                        for state_name in char_states.keys() {
+                            if let Some(state_map) = char_states.get(state_name) {
+                                ini_modified |= self.texture_override_redirection(
+                                    &mut new_content,
+                                    state_map,
+                                    state_name.as_str(),
+                                )?;
+                            }
                         }
-                        let blend_data = fs::read(&blend_path)?;
-                        let expanded_data = self.expand_blend_stride_to_16(&blend_data);
-                        self.create_backup(&blend_path)?;
-                        fs::write(&blend_path, expanded_data)?;
-                        buf_files_modified = true;
+                    }
+                }
+
+                // 顶点组重映射
+                if let Some(vg_maps) = &config.vg_remaps {
+                    buf_files_modified |= self.remaps(&content, path, vg_maps)?;
+                }
+
+                let enable_aero_rover_fix = if char_name == "RoverFemale" {
+                    println!();
+                    Confirm::new(t!(aero_rover_female_eyes_prompt))
+                        .with_default(false)
+                        .prompt()?
+                } else {
+                    false
+                };
+
+                // 修复风主满共鸣能量眼睛异常
+                if enable_aero_rover_fix {
+                    buf_files_modified |=
+                        self.fix_aero_rover_female_eyes_with_texcoord(path, &content)?;
+
+                    if !buf_files_modified {
+                        ini_modified |=
+                            self.fix_aero_rover_female_eyes_with_texture(path, &mut new_content)?;
+                    }
+
+                    info!("{}", t!(aero_rover_female_eyes_fixed));
+                }
+
+                // 修复芙露德莉斯
+                if char_name == "Fleurdelys" {
+                    let re = Regex::new(r"\[TextureOverrideComponent\w*\][^\[]*?hash\s*=\s*618a230e").unwrap();
+                    if re.is_match(&content) {
+                        let blend_block_re = Regex::new(r"\[ResourceBlendBuffer\][^\[]+").unwrap();
+
+                        let stride_re = Regex::new(r"stride\s*=\s*8").unwrap();
+
+                        let replaced_content =
+                            blend_block_re.replace_all(&new_content, |cap: &regex::Captures| {
+                                let original_block = cap[0].to_string();
+                                stride_re
+                                    .replace_all(&original_block, "stride = 16")
+                                    .to_string()
+                            });
+
+                        if replaced_content != new_content {
+                            ini_modified = true;
+                            new_content = replaced_content.into_owned();
+
+                            let blend_buf_matches = collector::parse_resouce_buffer_path(
+                                &content,
+                                collector::BufferType::Blend,
+                                &path,
+                            );
+
+                            for (blend_path, _) in blend_buf_matches {
+                                if !blend_path.exists() {
+                                    continue;
+                                }
+                                let blend_data = fs::read(&blend_path)?;
+                                let expanded_data = self.expand_blend_stride_to_16(&blend_data);
+                                self.create_backup(&blend_path)?;
+                                fs::write(&blend_path, expanded_data)?;
+                                buf_files_modified = true;
+                            }
+                        }
                     }
                 }
             }
-
-            break;
         }
 
         if ini_modified {
@@ -265,6 +266,45 @@ impl ModFixer {
         }
 
         Ok(modified)
+    }
+
+    fn is_character_match(&self, content: &str, char_name: &str, config: &CharacterConfig) -> bool {
+        // Rule 1: Check for vb0 hash in [TextureOverrideComponent...]
+        if let Some(vb0) = config.main_hashes.first() {
+            for hash in vb0.old.iter().chain(std::iter::once(&vb0.new)) {
+                let re = Regex::new(&format!(
+                    r"\[TextureOverrideComponent\w*\][^\[]*?hash\s*=\s*{}",
+                    hash
+                ))
+                .unwrap();
+                if re.is_match(content) {
+                    return true;
+                }
+            }
+        }
+
+        // Rule 2: For EARLY_CHARACTERS, also check for shape_key_hashes in [TextureOverrideShapeKey...]
+        if EARLY_CHARACTERS.contains(&char_name) {
+            if let Some(shape_key_hashes) = config.main_hashes.get(1) {
+                for hash in shape_key_hashes
+                    .old
+                    .iter()
+                    .chain(std::iter::once(&shape_key_hashes.new))
+                {
+                    let re = Regex::new(&format!(
+                        r"\[TextureOverrideShapeKey\w*\][^\[]*?hash\s*=\s*{}",
+                        hash
+                    ))
+                    .unwrap();
+                    if re.is_match(content) {
+                        info!("{}", t!(found_old_mod));
+                        return true;
+                    }
+                }
+            }
+        }
+
+        false
     }
 
     fn replace_hashes(&self, content: &mut String, hashes: &[Replacement]) -> bool {
