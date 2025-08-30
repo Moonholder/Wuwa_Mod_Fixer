@@ -26,8 +26,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 死与舞 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 苍鳞千嶂 时和岁稔 凋亡频率\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 \n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾遗漏的头发光照贴图和折纸的眼睛贴图hash\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
-            "en": "Fix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance TheLastDance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor VerdantSummit AgesOfHarvest WaningRedshift\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal Glider(normal) Flight(normal) PhoebeWand BaizhiPet\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin, as well as the missing eye texture hash for Zhezhi.\n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
+            "zh": "修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 时和岁稔 凋亡频率\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 \n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾遗漏的头发光照贴图和折纸的眼睛贴图hash\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
+            "en": "Fix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor AgesOfHarvest WaningRedshift\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal Glider(normal) Flight(normal) PhoebeWand BaizhiPet\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin, as well as the missing eye texture hash for Zhezhi.\n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
         },
         "intro_note": {
             "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
@@ -1740,21 +1740,14 @@
             "main_hashes": [{"old": ["d53ea67e"], "new": "d53ea67e"}],
             "texture_hashes": [
                 {"old": ["23c62b79"], "new": "620ad65d"},
-                {"old": ["146320ad"], "new": "38f67e45"}
+                {"old": ["146320ad"], "new": "aac2561c"}
             ]
         },
         "StaticMist": {
             "main_hashes": [{"old": ["73715b78"], "new": "73715b78"}],
             "texture_hashes": [
                 {"old": ["ce31201a"], "new": "93cba663"},
-                {"old": ["7cd9efa8"], "new": "c1d2c543"}
-            ]
-        },
-        "TheLastDance": {
-            "main_hashes": [{"old": ["7a99d388"], "new": "7a99d388"}],
-            "texture_hashes": [
-                {"old": ["2068cc7f"], "new": "97d0d805"},
-                {"old": ["e5c2ff32"], "new": "bca03418"}
+                {"old": ["7cd9efa8"], "new": "cc4babc2"}
             ]
         },
         "Overture": {
@@ -1768,13 +1761,13 @@
             "main_hashes": [{"old": ["b1914728"], "new": "b1914728"}],
             "texture_hashes": [
                 {"old": ["83819cda"], "new": "cb370521"},
-                {"old": ["b46d4c5a"], "new": "730125ca"}
+                {"old": ["b46d4c5a"], "new": "4cc237ca"}
             ]
         },
         "BlazingBrilliance": {
             "main_hashes": [{"old": ["1504a946"], "new": "1504a946"}],
             "texture_hashes": [
-                {"old": ["11c6338a"], "new": "1d33d6cd"},
+                {"old": ["11c6338a"], "new": "99378d4e"},
                 {"old": ["1667904f"], "new": "6c56deec"},
                 {"old": ["9a0529f4"], "new": "6f6dd255"},
                 {"old": ["c688b58f"], "new": "da907816"}
@@ -1799,7 +1792,7 @@
         "Abyss Surges": {
             "main_hashes": [{"old": ["2f5823ab"], "new": "2f5823ab"}],
             "texture_hashes": [
-                {"old": ["234d655c"], "new": "db8f0e92"},
+                {"old": ["234d655c"], "new": "2332bc48"},
                 {"old": ["0f7906cc"], "new": "9d24cbfe"}
             ]
         },
@@ -1813,15 +1806,8 @@
         "Lustrous Razor": {
             "main_hashes": [{"old": ["6c13129e"], "new": "6c13129e"}],
             "texture_hashes": [
-                {"old": ["1accaab3"], "new": "d26cc1d4"},
+                {"old": ["1accaab3"], "new": "792bab54"},
                 {"old": ["b5acb120"], "new": "9283115f"}
-            ]
-        },
-        "Verdant Summit": {
-            "main_hashes": [{"old": ["a933108e"], "new": "a933108e"}],
-            "texture_hashes": [
-                {"old": ["4ea65e5f"], "new": "a2eda43b"},
-                {"old": ["6165f9da"], "new": "62054e28"}
             ]
         },
         "Ages of Harvest": {
@@ -1829,7 +1815,7 @@
             "texture_hashes": [
                 {"old": ["b549206e"], "new": "7bc9c197"},
                 {"old": ["14433fb4"], "new": "19812849"},
-                {"old": ["f2d3a758"], "new": "18f97544"}
+                {"old": ["f2d3a758"], "new": "579982d9"}
             ]
         },
         "WaningRedshift": {
