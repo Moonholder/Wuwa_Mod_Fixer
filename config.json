@@ -26,8 +26,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 死与舞 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 苍鳞千嶂 时和岁稔 凋亡频率\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 \n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾遗漏的头发光照贴图hash\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
-            "en": "Fix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance TheLastDance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor VerdantSummit AgesOfHarvest WaningRedshift\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal Glider(normal) Flight(normal) PhoebeWand BaizhiPet\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin\n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
+            "zh": "修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 死与舞 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 苍鳞千嶂 时和岁稔 凋亡频率\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 \n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾遗漏的头发光照贴图和折纸的眼睛贴图hash\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
+            "en": "Fix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance TheLastDance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor VerdantSummit AgesOfHarvest WaningRedshift\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal Glider(normal) Flight(normal) PhoebeWand BaizhiPet\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin, as well as the missing eye texture hash for Zhezhi.\n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
         },
         "intro_note": {
             "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
@@ -539,7 +539,8 @@
                 {"old": ["04f24eb9"], "new": "cc072002"},
                 {"old": ["8427b202"], "new": "082752de"},
                 {"old": ["9122d2f2"], "new": "db2412ad"},
-                {"old": ["14df60bb"], "new": "d9a6d77f"}
+                {"old": ["14df60bb"], "new": "d9a6d77f"},
+                {"old": ["a28f18f6"], "new": "1f4bb8ab"}
             ],
             "states": {
                 "injured": {
