@@ -22,13 +22,14 @@ use std::{
 };
 use walkdir::WalkDir;
 
-const EARLY_CHARACTERS: [&str; 19] = [
+const EARLY_CHARACTERS: [&str; 20] = [
     "RoverFemale",
     "RoverMale",
     "Yangyang",
     "Baizhi",
     "Chixia",
     "Jianxin",
+    "Danjin",
     "Lingyang",
     "Encore",
     "Sanhua",
@@ -46,14 +47,30 @@ const EARLY_CHARACTERS: [&str; 19] = [
 
 struct ModFixer {
     characters: HashMap<String, CharacterConfig>,
+    hash_to_character: HashMap<String, String>,
     enable_texture_override: bool,
     checksum_regex: Regex,
 }
 
 impl ModFixer {
     fn new(characters: &HashMap<String, CharacterConfig>, enable_texture_override: bool) -> Self {
+        let mut hash_to_character = HashMap::new();
+        for (char_name, config) in characters.iter() {
+            let all_hashes = config
+                .main_hashes
+                .iter()
+                .chain(config.texture_hashes.iter());
+            for replacement in all_hashes {
+                for old_hash in &replacement.old {
+                    hash_to_character.insert(old_hash.clone(), char_name.clone());
+                }
+                hash_to_character.insert(replacement.new.clone(), char_name.clone());
+            }
+        }
+
         Self {
             characters: characters.clone(),
+            hash_to_character,
             enable_texture_override,
             checksum_regex: Regex::new(r"(checksum\s*=\s*)\d+").unwrap(),
         }
@@ -115,39 +132,34 @@ impl ModFixer {
         let mut new_content = content.clone();
         info!("{}", t!(process_file_start, file_path = path.display()));
 
-        // 处理每个角色的哈希替换
-        for (char_name, config) in &self.characters {
-            let is_broad_match = if let Some(vb0) = config.main_hashes.first() {
-                self.any_match(&content, vb0)
-            } else {
-                false
-            };
-
-            let is_old_mod_match = if !is_broad_match && EARLY_CHARACTERS.contains(&char_name.as_str()) {
-                if let Some(shape_key_hashes) = config.main_hashes.get(1) {
-                    self.any_match(&content, shape_key_hashes)
-                } else {
-                    false
-                }
-            } else {
-                false
-            };
-
-            if !is_broad_match && !is_old_mod_match {
-                continue;
+        let mut potential_chars = std::collections::HashSet::new();
+        let hash_re = Regex::new(r"hash\s*=\s*([0-9a-fA-F]{8})").unwrap();
+        for cap in hash_re.captures_iter(&content) {
+            if let Some(char_name) = self.hash_to_character.get(&cap[1]) {
+                potential_chars.insert(char_name.clone());
             }
-            
+        }
+
+        if potential_chars.is_empty() {
+            info!("{}", t!(no_need_fix));
+            return Ok(false);
+        }
+
+        for char_name in potential_chars {
+            let config = self.characters.get(&char_name).unwrap();
+
             if char_name == "RoverMale" && content.contains("FixAeroRoverFemale") {
                 continue;
             }
+
             info!("{}", t!(match_character_prompt, character = char_name));
 
             // 哈希替换
             ini_modified |= self.replace_hashes(&mut new_content, &config.main_hashes);
             ini_modified |= self.replace_hashes(&mut new_content, &config.texture_hashes);
-            
+
             // 进行精确的角色匹配，只有匹配成功才执行后续的特定修复
-            if self.is_character_match(&content, char_name, config) {
+            if self.is_character_match(&content, &char_name, config) {
 
                 if let Some(checksum) = &config.checksum {
                     let new_content_replaced = self
@@ -211,41 +223,38 @@ impl ModFixer {
                 }
 
                 // 修复芙露德莉斯
-                if char_name == "Fleurdelys" {
-                    let re = Regex::new(r"\[TextureOverrideComponent\w*\][^\[]*?hash\s*=\s*618a230e").unwrap();
-                    if re.is_match(&content) {
-                        let blend_block_re = Regex::new(r"\[ResourceBlendBuffer\][^\[]+").unwrap();
+                if char_name == "Fleurdelys" && content.contains("618a230e") {
+                    let blend_block_re = Regex::new(r"\[ResourceBlendBuffer\][^\[]+").unwrap();
 
-                        let stride_re = Regex::new(r"stride\s*=\s*8").unwrap();
+                    let stride_re = Regex::new(r"stride\s*=\s*8").unwrap();
 
-                        let replaced_content =
-                            blend_block_re.replace_all(&new_content, |cap: &regex::Captures| {
-                                let original_block = cap[0].to_string();
-                                stride_re
-                                    .replace_all(&original_block, "stride = 16")
-                                    .to_string()
-                            });
+                    let replaced_content =
+                        blend_block_re.replace_all(&new_content, |cap: &regex::Captures| {
+                            let original_block = cap[0].to_string();
+                            stride_re
+                                .replace_all(&original_block, "stride = 16")
+                                .to_string()
+                        });
 
-                        if replaced_content != new_content {
-                            ini_modified = true;
-                            new_content = replaced_content.into_owned();
+                    if replaced_content != new_content {
+                        ini_modified = true;
+                        new_content = replaced_content.into_owned();
 
-                            let blend_buf_matches = collector::parse_resouce_buffer_path(
-                                &content,
-                                collector::BufferType::Blend,
-                                &path,
-                            );
+                        let blend_buf_matches = collector::parse_resouce_buffer_path(
+                            &content,
+                            collector::BufferType::Blend,
+                            &path,
+                        );
 
-                            for (blend_path, _) in blend_buf_matches {
-                                if !blend_path.exists() {
-                                    continue;
-                                }
-                                let blend_data = fs::read(&blend_path)?;
-                                let expanded_data = self.expand_blend_stride_to_16(&blend_data);
-                                self.create_backup(&blend_path)?;
-                                fs::write(&blend_path, expanded_data)?;
-                                buf_files_modified = true;
+                        for (blend_path, _) in blend_buf_matches {
+                            if !blend_path.exists() {
+                                continue;
                             }
+                            let blend_data = fs::read(&blend_path)?;
+                            let expanded_data = self.expand_blend_stride_to_16(&blend_data);
+                            self.create_backup(&blend_path)?;
+                            fs::write(&blend_path, expanded_data)?;
+                            buf_files_modified = true;
                         }
                     }
                 }
@@ -429,10 +438,6 @@ impl ModFixer {
             section_header,
             content: content.join("\n"),
         })
-    }
-
-    fn any_match(&self, content: &str, vb0: &Replacement) -> bool {
-        vb0.old.iter().any(|h| content.contains(h)) || content.contains(&vb0.new)
     }
 
     fn create_backup(&self, path: &Path) -> Result<PathBuf, Error> {

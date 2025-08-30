@@ -1,7 +1,7 @@
 {
     "version" : {
-        "min_required_version": "2.6.0",
-        "current_version": "2.6.3",
+        "min_required_version": "2.6.1",
+        "current_version": "2.6.4",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -23,11 +23,11 @@
         },
         "title": {
         "zh": "此修复工具适用于WWMI生产的Mod因游戏版本更新导致失效的情况\n",
-        "en": "This repair tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
+        "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.6: 修复 男主 女主 珂莱塔/头发 椿 今汐/皮肤 守岸人 折枝 长离 维里奈 白芷 卡卡罗 秋水 菲比 布兰特 坎特蕾拉 赞妮/盾牌 夏空 卡提西娅 露帕/NPC/尾巴/长枪 弗洛洛\n忌炎 吟霖 长离皮肤 相里要 洛可可 散华/皮肤 丹瑾 秧秧 赤霞 桃琦 鉴心 安可 釉壶 灯灯 凌阳 渊武 莫特斐 翱翔翼(默认) 滑翔翼(默认) 的贴图问题\n* 添加奥古斯塔的受伤表现移除\n* 新增: 补充守岸人、坎特蕾拉、维里奈缺失的贴图hash\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
-            "en": "Fix 2.6: Fix texture issues for MaleRover FemaleRover Carlotta CarlottaHairCrystal Camellya Jinhsi/JinhsiPeachBlossom Shorekeeper Zhezhi Changli Virina Baizhi Calcharo Aalto Phoebe Brant Cantarella Zani Zani_Shield Ciaccona Cartethyia Lupa LupaNpc LupaTail LupaSpear Phrolova\nJiyan Yinlin ChangliSkin XiangliYao Roccia Sanhua/SanhuaSkin Yangyang Chixia Taoqi Jianxin Encore Youhu Lumi Lingyang Yuanwu Mortefi Flight(normal) Glider(normal)\n* Added the removal of the Wounded Effect of Augusta\n* New: Added the missing texture hashes for Shorekeeper, Cantarella, and Verina\n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
+            "zh": "修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 死与舞 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 苍鳞千嶂 时和岁稔 凋亡频率\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 \n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾遗漏的头发光照贴图hash\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
+            "en": "Fix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance TheLastDance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor VerdantSummit AgesOfHarvest WaningRedshift\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal Glider(normal) Flight(normal) PhoebeWand BaizhiPet\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin\n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
         },
         "intro_note": {
             "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
@@ -42,8 +42,8 @@
             "en": "Starting from version 2.0, different graphics presets may have different hash values, which may cause mod texture errors. Please set the graphics quality preset to Balanced/Quality."
         },
         "texture_override_note": {
-            "zh": "\n游戏2.1版本已经在设置添加了受伤表现开关，此工具仍提供战损修复功能，除坎特蕾拉外目前2.6以前的角色暂不建议启用此选项",
-            "en": "\nIn game 2.1 version, 'Wounded Effect' has been added to the settings, this tool still provides injured texture hash fix, Currently, it is not recommended to enable this option for characters from versions prior to 2.6, except for Cantarella."
+            "zh": "\n游戏2.1版本已经在设置添加了受伤表现开关，此工具仍提供战损修复功能，建议坎特蕾拉启用，除此目前2.6以前的角色暂不建议启用此选项",
+            "en": "\nIn game 2.1 version, 'Wounded Effect' has been added to the settings, this tool still provides injured texture hash fix, It is recommended to enable this option for Cantarella. However, for characters prior to version 2.6, it is not recommended to enable this option."
         },
         "found_old_mod": {
             "zh": "发现旧版Mod(wwmi 0.6x)，正在尝试修复...",
@@ -54,8 +54,8 @@
             "en": "Remove 'Wounded Effect' in Quality? (default no):"
         },
         "match_character_prompt": {
-            "zh": "匹配到角色 {character}，正在处理...",
-            "en": "Matching character {character}, processing..."
+            "zh": "匹配到对象 {character}，正在处理...",
+            "en": "Matching Objects {character}, processing..."
         },
         "backup_created": {
             "zh": "创建备份: {backup_path}",
@@ -376,7 +376,8 @@
                 {"old": ["212d1d6a"], "new": "277dcf73"},
                 {"old": ["830aecff"], "new": "9b03ba8c"},
                 {"old": ["5f4e6f09"], "new": "4f357454"},
-                {"old": ["edfe74f8"], "new": "e299e4ca"}
+                {"old": ["edfe74f8"], "new": "e299e4ca"},
+                {"old": ["837c1b30"], "new": "afadfdbd"}
             ],
             "states": {
                 "injured": {
@@ -725,7 +726,8 @@
                 {"old": ["f56dbcb4"], "new": "8ae06cff"},
                 {"old": ["e2321307"], "new": "65e1499b"},
                 {"old": ["b7758489"], "new": "beefbd72"},
-                {"old": ["1dd49aa4"], "new": "cea68862"}
+                {"old": ["1dd49aa4"], "new": "cea68862"},
+                {"old": ["5da1a7ae"], "new": "7536f732"}
             ],
             "states": {
                 "injured": {
@@ -874,6 +876,13 @@
                         }
                     ]
                 }
+            ]
+        },
+        "BaizhiPet": {
+            "main_hashes": [{"old": ["6bf5ce94"], "new": "6bf5ce94"}],
+            "texture_hashes": [
+                {"old": ["cac3c0d3"], "new": "c8260fc3"},
+                {"old": ["93a05151"], "new": "297d931c"}
             ]
         },
         "Chixia": {
@@ -1316,6 +1325,13 @@
                 }
             }
         },
+        "PhoebeWand": {
+            "main_hashes": [{"old": ["af088a1e"], "new": "af088a1e"}],
+            "texture_hashes": [
+                {"old": ["3325c6d2"], "new": "38a8ddae"},
+                {"old": ["c3d6c485"], "new": "1fc35af1"}
+            ]
+        },
         "Brant": {
             "main_hashes": [{"old": ["5943f99a"], "new": "5943f99a"}],
             "texture_hashes": [
@@ -1711,6 +1727,116 @@
                     "db50c591": "c613797e"
                 }
             }
+        },
+        "Variation": {
+            "main_hashes": [{"old": ["e048d096"], "new": "e048d096"}],
+            "texture_hashes": [
+                {"old": ["dd8be8f2"], "new": "1a108cd4"},
+                {"old": ["213f823b"], "new": "db05b110"}
+            ]
+        },
+        "CosmicRipples": {
+            "main_hashes": [{"old": ["d53ea67e"], "new": "d53ea67e"}],
+            "texture_hashes": [
+                {"old": ["23c62b79"], "new": "620ad65d"},
+                {"old": ["146320ad"], "new": "38f67e45"}
+            ]
+        },
+        "StaticMist": {
+            "main_hashes": [{"old": ["73715b78"], "new": "73715b78"}],
+            "texture_hashes": [
+                {"old": ["ce31201a"], "new": "93cba663"},
+                {"old": ["7cd9efa8"], "new": "c1d2c543"}
+            ]
+        },
+        "TheLastDance": {
+            "main_hashes": [{"old": ["7a99d388"], "new": "7a99d388"}],
+            "texture_hashes": [
+                {"old": ["2068cc7f"], "new": "97d0d805"},
+                {"old": ["e5c2ff32"], "new": "bca03418"}
+            ]
+        },
+        "Overture": {
+            "main_hashes": [{"old": ["adb633a1"], "new": "adb633a1"}],
+            "texture_hashes": [
+                {"old": ["e68271f1"], "new": "02f879b7"},
+                {"old": ["cccfa7fd"], "new": "8d42b4ea"}
+            ]
+        },
+        "EmeraldOfGenesis": {
+            "main_hashes": [{"old": ["b1914728"], "new": "b1914728"}],
+            "texture_hashes": [
+                {"old": ["83819cda"], "new": "cb370521"},
+                {"old": ["b46d4c5a"], "new": "730125ca"}
+            ]
+        },
+        "BlazingBrilliance": {
+            "main_hashes": [{"old": ["1504a946"], "new": "1504a946"}],
+            "texture_hashes": [
+                {"old": ["11c6338a"], "new": "1d33d6cd"},
+                {"old": ["1667904f"], "new": "6c56deec"},
+                {"old": ["9a0529f4"], "new": "6f6dd255"},
+                {"old": ["c688b58f"], "new": "da907816"}
+            ]
+        },
+        "RedSpring": {
+            "main_hashes": [{"old": ["c693a1b0"], "new": "c693a1b0"}],
+            "texture_hashes": [
+                {"old": ["390455ca"], "new": "6afea497"},
+                {"old": ["8af034cf"], "new": "df2ba6d4"},
+                {"old": ["58b9505f"], "new": "b3ff5221"},
+                {"old": ["96d3cc82"], "new": "7980bf2c"}
+            ]
+        },
+        "Bloodpact's Pledge": {
+            "main_hashes": [{"old": ["42108bbf"], "new": "42108bbf"}],
+            "texture_hashes": [
+                {"old": ["1a087b2a"], "new": "6792e6ff"},
+                {"old": ["6515ef9f"], "new": "0f4dd831"}
+            ]
+        },
+        "Abyss Surges": {
+            "main_hashes": [{"old": ["2f5823ab"], "new": "2f5823ab"}],
+            "texture_hashes": [
+                {"old": ["234d655c"], "new": "db8f0e92"},
+                {"old": ["0f7906cc"], "new": "9d24cbfe"}
+            ]
+        },
+        "Helios Cleaver": {
+            "main_hashes": [{"old": ["e83a5452"], "new": "e83a5452"}],
+            "texture_hashes": [
+                {"old": ["4629ae73"], "new": "5cb391c2"},
+                {"old": ["cce0bed7"], "new": "18e2c35d"}
+            ]
+        },
+        "Lustrous Razor": {
+            "main_hashes": [{"old": ["6c13129e"], "new": "6c13129e"}],
+            "texture_hashes": [
+                {"old": ["1accaab3"], "new": "d26cc1d4"},
+                {"old": ["b5acb120"], "new": "9283115f"}
+            ]
+        },
+        "Verdant Summit": {
+            "main_hashes": [{"old": ["a933108e"], "new": "a933108e"}],
+            "texture_hashes": [
+                {"old": ["4ea65e5f"], "new": "a2eda43b"},
+                {"old": ["6165f9da"], "new": "62054e28"}
+            ]
+        },
+        "Ages of Harvest": {
+            "main_hashes": [{"old": ["1408f42b"], "new": "1408f42b"}],
+            "texture_hashes": [
+                {"old": ["b549206e"], "new": "7bc9c197"},
+                {"old": ["14433fb4"], "new": "19812849"},
+                {"old": ["f2d3a758"], "new": "18f97544"}
+            ]
+        },
+        "WaningRedshift": {
+            "main_hashes": [{"old": ["1de81fab"], "new": "1de81fab"}],
+            "texture_hashes": [
+                {"old": ["5fdb85d6"], "new": "5517dda5"},
+                {"old": ["79068d65"], "new": "6f111a0a"}
+            ]
         }
     }
 }
