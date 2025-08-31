@@ -26,7 +26,7 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 时和岁稔 凋亡频率\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 \n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾遗漏的头发光照贴图和折纸的眼睛贴图hash\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
+            "zh": "修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 时和岁稔 凋亡频率\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 \n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾遗漏的头发光照贴图和折枝的眼睛贴图hash\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
             "en": "Fix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor AgesOfHarvest WaningRedshift\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal Glider(normal) Flight(normal) PhoebeWand BaizhiPet\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin, as well as the missing eye texture hash for Zhezhi.\n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
         },
         "intro_note": {
@@ -173,7 +173,6 @@
             "texture_hashes": [
                 {"old": ["2d5b41f6"], "new": "372bd73a"},
                 {"old": ["c446a221", "99d33a32"], "new": "c79b5772"},
-                {"old": ["e18ca2cc"], "new": "b22dacf9"},
                 {"old": ["6aac203f"], "new": "04192868"},
                 {"old": ["dcae957e"], "new": "68a6b802"},
                 {"old": ["a2207e11"], "new": "52c18227"},
@@ -828,10 +827,9 @@
                 {"old": ["37bed36b", "718456ac"], "new": "0be38d62"},
                 {"old": ["52c9b804", "d7756134"], "new": "060f40ba"},
                 {"old": ["1a09bbb5"], "new": "43ae1deb"},
-                {"old": ["fe4e4afe"], "new": "d755a4a9"},
+                {"old": ["d755a4a9"], "new": "fe4e4afe"},
                 {"old": ["7404e947"], "new": "f0f101b3"},
                 {"old": ["804d32e9"], "new": "64b13efd"},
-                {"old": ["d755a4a9"], "new": "fe4e4afe"},
                 {"old": ["7c460f02"], "new": "4e4d79b9"},
                 {"old": ["2b7eb01d"], "new": "cac210d5"},
                 {"old": ["64cc6fa8"], "new": "afe67129"},
@@ -850,7 +848,7 @@
             },
             "vg_remaps": [
                 {
-                    "trigger_hash": ["37bed36b", "4a2b2eca", "43ae1deb"],
+                    "trigger_hash": ["37bed36b", "4a2b2eca"],
                     "vertex_groups": {
                         "17": 20, "18": 21, "19": 18, "20": 19, "21": 17,
                         "51": 53, "52": 51, "53": 52,
@@ -892,17 +890,15 @@
                 {"old": ["9b69878e"], "new": "9b69878e"}
             ],
             "texture_hashes": [
-                {"old": ["ab72381e"], "new": "eee73787"},
+                {"old": ["eee73787"], "new": "ab72381e"},
                 {"old": ["45e0cedb"], "new": "7988637b"},
                 {"old": ["489b5f2a"], "new": "94afca13"},
                 {"old": ["cb974015"], "new": "94d10f56"},
                 {"old": ["ba246036"], "new": "873ca04e"},
-                {"old": ["a7141c04"], "new": "4a2657d7"},
+                {"old": ["4a2657d7"], "new": "a7141c04"},
                 {"old": ["f6fed778", "9497a1b9"], "new": "d51104f6"},
                 {"old": ["8f423e37"], "new": "75333d76"},
-                {"old": ["eee73787"], "new": "ab72381e"},
                 {"old": ["ab057c17"], "new": "cb71b417"},
-                {"old": ["4a2657d7"], "new": "a7141c04"},
                 {"old": ["e29e63d6"], "new": "8080d570"},
                 {"old": ["9f2544e0"], "new": "ebe1f999"}
             ],
@@ -1220,13 +1216,10 @@
                 {"old": ["2decd61b"], "new": "d23090a3"},
                 {"old": ["73dc0ecf"], "new": "33d29aa1"},
                 {"old": ["dda29ba9"], "new": "ac26dd3b"},
-                {"old": ["c3b2f4ed"], "new": "c3b2f4ed"},
-                {"old": ["0d6f5019"], "new": "0d6f5019"},
                 {"old": ["97e43063"], "new": "a614279c"},
                 {"old": ["4dba3f46"], "new": "1e238f6c"},
                 {"old": ["0249a0f6"], "new": "d2ad31db"},
                 {"old": ["2212362c"], "new": "80fdc4d8"},
-                {"old": ["f93d2a49"], "new": "f93d2a49"},
                 {"old": ["4afb92ae"], "new": "801f9d6e"},
                 {"old": ["74703d44"], "new": "c38e9ebc"}
             ],
@@ -1609,13 +1602,11 @@
             ],
             "texture_hashes": [
                 {"old": ["874ab04e", "afb0ea93"], "new": "cc3910e7"},
-                {"old": ["c35ad2eb", "1036407c"], "new": "b08d5d57"},
-                {"old": ["e385365e", "f079e2b8"], "new": "1028b6b7"},
+                {"old": ["e385365e", "f079e2b8", "1028b6b7"], "new": "ece8436e"},
                 {"old": ["bd6bfc8f", "14e47dee"], "new": "4bac35dd"},
                 {"old": ["88f64559", "3766bc13"], "new": "b9a64e57"},
                 {"old": ["3ef0be7c", "00a2663b"], "new": "bd9cd630"},
                 {"old": ["f1c2e889"], "new": "6df8bc60"},
-                {"old": ["1028b6b7"], "new": "ece8436e"},
                 {"old": ["b08d5d57", "73110195"], "new": "8160bcb0"},
                 {"old": ["f4e65f69"], "new": "c51aa8d2"},
                 {"old": ["d685d037"], "new": "c9124759"},
@@ -1648,7 +1639,6 @@
                 {"old": ["06c9cbd2"], "new": "20927988"},
                 {"old": ["c5d64764"], "new": "d1c82bf3"},
                 {"old": ["eb4d05bb"], "new": "3ba4af04"},
-                {"old": ["e541ab4b"], "new": "312fc5e4"},
                 {"old": ["5d7d3f28"], "new": "41532ac9"},
                 {"old": ["84206d9f"], "new": "3cf552bd"},
                 {"old": ["77ba7584"], "new": "bbb18270"},
@@ -1676,7 +1666,6 @@
                 {"old": ["06c9cbd2"], "new": "20927988"},
                 {"old": ["c5d64764"], "new": "d1c82bf3"},
                 {"old": ["eb4d05bb"], "new": "3ba4af04"},
-                {"old": ["e541ab4b"], "new": "312fc5e4"},
                 {"old": ["5d7d3f28"], "new": "41532ac9"},
                 {"old": ["84206d9f"], "new": "3cf552bd"},
                 {"old": ["77ba7584"], "new": "bbb18270"},
