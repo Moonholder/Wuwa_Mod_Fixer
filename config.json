@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "2.6.1",
-        "current_version": "2.6.4",
+        "current_version": "2.6.5",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -26,8 +26,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 时和岁稔 凋亡频率\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 \n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾遗漏的头发光照贴图和折枝的眼睛贴图hash\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
-            "en": "Fix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor AgesOfHarvest WaningRedshift\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal Glider(normal) Flight(normal) PhoebeWand BaizhiPet\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin, as well as the missing eye texture hash for Zhezhi.\n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
+            "zh": "修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 时和岁稔 凋亡频率\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 芙露德莉丝的剑 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 \n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾及安可遗漏的头发光照贴图和折枝的眼睛贴图hash\n* 新增: 修复替换女角色的编队肖像hash\n\n如有问题，请反馈https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n",
+            "en": "Fix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor AgesOfHarvest WaningRedshift\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal FleurdelysSword Glider(normal) Flight(normal) PhoebeWand BaizhiPet\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin and Encore, as well as the missing eye texture hash for Zhezhi.\n* New: Replace the team portrait hash of the female characters\n\nIf you encounter any issues, please provide feedback at https://github.com/Moonholder/Wuwa_Mod_Fixer/issues\n"
         },
         "intro_note": {
             "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
@@ -127,6 +127,36 @@
         }
     },
     "characters": {
+        "UI-Portraits": {
+            "texture_hashes": [
+                {"old": ["a2e39448"], "new": "db41a7c0"},
+                {"old": ["0b0c62dc"], "new": "30d29c41"},
+                {"old": ["c21a766f"], "new": "146c6a6d"},
+                {"old": ["b748481c"], "new": "9f193f21"},
+                {"old": ["f8e3d8c9"], "new": "8e536f03"},
+                {"old": ["95ec9f1b"], "new": "486af6a0"},
+                {"old": ["7767ee3e"], "new": "62552f81"},
+                {"old": ["49082dc4"], "new": "0f6df4e5"},
+                {"old": ["7725471d"], "new": "c2adf773"},
+                {"old": ["fd575c85"], "new": "3f7c3903"},
+                {"old": ["10052fb4"], "new": "18bf410a"},
+                {"old": ["2dbdbe23"], "new": "461fb401"},
+                {"old": ["683686d2"], "new": "d9d919eb"},
+                {"old": ["b5e753eb"], "new": "e6d1829e"},
+                {"old": ["703614de"], "new": "5d22afbc"},
+                {"old": ["960e8497"], "new": "f0cecfc8"},
+                {"old": ["b15518f8"], "new": "10c525d0"},
+                {"old": ["2c1d8de1"], "new": "da14ee89"},
+                {"old": ["0224bb81"], "new": "16f378b3"},
+                {"old": ["4210b6d3"], "new": "bc8bedc9"},
+                {"old": ["5cce271c"], "new": "06770f65"},
+                {"old": ["34cc99c9"], "new": "6a4795fb"},
+                {"old": ["e130c193"], "new": "73efd301"},
+                {"old": ["0b8d373e"], "new": "c8ae362f"},
+                {"old": ["94ad162e"], "new": "aca00308"},
+                {"old": ["ead76ced"], "new": "474c22e1"}
+            ]
+        },
         "Flight(normal)": {
             "main_hashes": [{"old": ["b67843da"], "new": "b67843da"}],
             "texture_hashes": [
@@ -566,7 +596,7 @@
                 {"old": ["388cecb3"], "new": "388cecb3"}
             ],
             "texture_hashes": [
-                {"old": ["47c515ac"], "new": "a347d2bc"},
+                {"old": ["a347d2bc"], "new": "47c515ac"},
                 {"old": ["6ff2b9f1"], "new": "b6021f06"},
                 {"old": ["9b440397"], "new": "3d32cb0e"},
                 {"old": ["e73ee6fb"], "new": "8183786e"},
@@ -1631,6 +1661,16 @@
                     "19862710": "c9124759"
                 }
             }
+        },
+        "FleurdelysSword": {
+            "main_hashes": [{"old": ["75d9b253"], "new": "75d9b253"}],
+            "texture_hashes":[
+                {"old": ["e4951cd7"], "new": "d8fd081b"},
+                {"old": ["5fe74f52"], "new": "4caf3bfb"},
+                {"old": ["8376c2a3"], "new": "545eb465"},
+                {"old": ["57acff23"], "new": "b200ba2d"},
+                {"old": ["f488d64b"], "new": "deacf373"}
+            ]
         },
         "Lupa": {
             "main_hashes": [{"old": ["5b33088a"], "new": "5b33088a"}],
