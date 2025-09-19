@@ -1538,7 +1538,9 @@
                 {"old": ["2f590d3f"], "new": "f58c741e"},
                 {"old": ["748f8d97"], "new": "1cffa7e8"},
                 {"old": ["3b5e4a9b"], "new": "37400c45"},
-                {"old": ["cca1af56"], "new": "5a41b6fa"}
+                {"old": ["cca1af56"], "new": "5a41b6fa"},
+                {"old": ["be1295ae"], "new": "7bcede78"},
+                {"old": ["1c03e88d"], "new": "952d2862"}
             ],
             "states": {
                 "injured": {
@@ -1551,6 +1553,16 @@
                     "55dfd156": "1f746639"
                 }
             }
+        },
+        "CiacconaCloned": {
+            "main_hashes": [{"old": ["dafb1bef"], "new": "dafb1bef"}],
+            "texture_hashes": [
+                {"old": ["3e42e29e"], "new": "a6a7d785"},
+                {"old": ["5bf97cc7"], "new": "eadf0543"},
+                {"old": ["d663e999"], "new": "eeb3f88a"},
+                {"old": ["2787a344"], "new": "e371af27"},
+                {"old": ["1985a6cf"], "new": "15bfd311"}
+            ]
         },
         "Cartethyia": {
             "main_hashes": [
