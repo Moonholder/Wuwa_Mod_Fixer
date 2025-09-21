@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "2.6.1",
-        "current_version": "2.6.5",
+        "current_version": "2.6.6",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -45,13 +45,21 @@
             "zh": "\n游戏2.1版本已经在设置添加了受伤表现开关，此工具仍提供战损修复功能，建议坎特蕾拉启用，除此目前2.6以前的角色暂不建议启用此选项",
             "en": "\nIn game 2.1 version, 'Wounded Effect' has been added to the settings, this tool still provides injured texture hash fix, It is recommended to enable this option for Cantarella. However, for characters prior to version 2.6, it is not recommended to enable this option."
         },
-        "found_old_mod": {
-            "zh": "发现旧版Mod(wwmi 0.6x)，正在尝试修复...",
-            "en": "Found old mod (wwmi 0.6x), trying to fix..."
-        },
         "texture_override_prompt": {
             "zh": "是否移除受伤表现？ （默认否）:",
             "en": "Remove 'Wounded Effect' in Quality? (default no):"
+        },
+        "rabbit_fx_stable_texture_note": {
+            "zh": "\n使用RabbitFX的'Stable texture'功能移除战损/湿身(目前仅坎特蕾拉)，需安装RabbitFX_v65",
+            "en": "\nTo remove the injured/wet of Characters with RabbitFX's 'Stable texture' feature(currently only Cantarella), RabbitFX_v65 is required"
+        },
+        "rabbit_fx_stable_texture_prompt": {
+            "zh": "是否移除？ （默认否）:",
+            "en": "Remove? (default no):"
+        },
+        "found_old_mod": {
+            "zh": "发现旧版Mod(wwmi 0.6x)，正在尝试修复...",
+            "en": "Found old mod (wwmi 0.6x), trying to fix..."
         },
         "match_character_prompt": {
             "zh": "匹配到对象 {character}，正在处理...",
@@ -124,6 +132,26 @@
         "aero_rover_female_eyes_fixed": {
             "zh": "女漂-风主形态满共鸣能量时眼睛已修复",
             "en": "Female aero-rover eyes fixed when it has full charge"
+        },
+        "path_not_a_directory": {
+            "zh": "路径 {path} 不是一个有效的目录",
+            "en": "Path {path} is not a valid directory"
+        },
+        "permission_check_remove_failed": {
+            "zh": "无法删除临时权限检查文件 {path}，请手动删除。错误: {error}",
+            "en": "Failed to remove temporary permission check file {path}, please remove it manually. Error: {error}"
+        },
+        "permission_check_create_failed": {
+            "zh": "在 {path} 创建文件失败，请检查写权限。错误: {error}",
+            "en": "Failed to create file in {path}, please check write permissions. Error: {error}"
+        },
+        "admin_prompt_suggestion": {
+            "zh": "建议以管理员身份重新运行此程序以获取足够的权限。",
+            "en": "It is recommended to re-run this program as an administrator to get sufficient permissions."
+        },
+        "traversal_error": {
+            "zh": "遍历目录时出错: {path}, 错误: {error}",
+            "en": "Error traversing directory: {path}, Error: {error}"
         }
     },
     "characters": {
@@ -1430,6 +1458,9 @@
                     "f9f65a14": "9986ce50",
                     "a45cb30b": "b8fe5f0a"
                 }
+            },
+            "stable_textures": {
+                "0": {"D": "3ebe428b"}, "1": {"D": "b8fe5f0a"}, "2": {"D": "f7dadc16"}, "3": {"D": "787c92b8"}, "4": {"D": "b6deb6c2"}, "5": {"D": "9986ce50"}
             }
         },
         "Cantarella_Umbrella": {
@@ -1627,7 +1658,7 @@
             ],
             "states": {
                 "injured": {
-                    "62306677": "083564da",
+                    "62306677": "d98578ec",
                     "b9590b12": "5ca9b4f0",
                     "5b9e0c57": "ecc1c90a",
                     "9a586aa6": "b2e6f707",
