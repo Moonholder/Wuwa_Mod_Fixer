@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "2.6.1",
-        "current_version": "2.6.6",
+        "current_version": "2.6.7",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -1895,6 +1895,13 @@
             "texture_hashes": [
                 {"old": ["5fdb85d6"], "new": "5517dda5"},
                 {"old": ["79068d65"], "new": "6f111a0a"}
+            ]
+        },
+        "SomnoireAnchor": {
+            "main_hashes": [{"old": ["90554178"], "new": "90554178"}],
+            "texture_hashes": [
+                {"old": ["aaae8418"], "new": "26d963ce"},
+                {"old": ["29d61c94"], "new": "75cdd95d"}
             ]
         }
     }
