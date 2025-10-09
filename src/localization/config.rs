@@ -43,6 +43,11 @@ pub struct LangPack {
     pub error_prompt: LangItem,
     pub aero_rover_female_eyes_prompt: LangItem,
     pub aero_rover_female_eyes_fixed: LangItem,
+    pub path_not_a_directory: LangItem,
+    pub permission_check_remove_failed: LangItem,
+    pub permission_check_create_failed: LangItem,
+    pub admin_prompt_suggestion: LangItem,
+    pub traversal_error: LangItem,
 }
 
 impl LangItem {

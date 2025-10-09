@@ -14,12 +14,12 @@ use log::LevelFilter;
 use regex::Regex;
 use std::borrow::Cow;
 use std::io::Write;
-use std::panic;
 use std::{
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
 };
+use std::panic;
 use walkdir::WalkDir;
 
 const EARLY_CHARACTERS: [&str; 20] = [
@@ -50,6 +50,9 @@ struct ModFixer {
     hash_to_character: HashMap<String, String>,
     enable_texture_override: bool,
     checksum_regex: Regex,
+    hash_re: Regex,
+    blend_block_re: Regex,
+    stride_re: Regex,
 }
 
 impl ModFixer {
@@ -73,24 +76,77 @@ impl ModFixer {
             hash_to_character,
             enable_texture_override,
             checksum_regex: Regex::new(r"(checksum\s*=\s*)\d+").unwrap(),
+            hash_re: Regex::new(r"hash\s*=\s*([0-9a-fA-F]{8})").unwrap(),
+            blend_block_re: Regex::new(r"\[ResourceBlendBuffer\][^\[]+").unwrap(),
+            stride_re: Regex::new(r"stride\s*=\s*8").unwrap(),
+        }
+    }
+
+    /// 检查对指定路径的写权限
+    fn check_write_permission(&self, path: &Path) -> Result<()> {
+        let temp_file_name = format!(".tmp_permission_check_{}", std::process::id());
+        let temp_file_path = path.join(temp_file_name);
+
+        match fs::File::create(&temp_file_path) {
+            Ok(_) => {
+                if let Err(e) = fs::remove_file(&temp_file_path) {
+                    Err(anyhow!(t!(
+                        permission_check_remove_failed,
+                        path = temp_file_path.display(),
+                        error = e
+                    )))
+                } else {
+                    Ok(())
+                }
+            }
+            Err(e) => Err(anyhow!(t!(
+                permission_check_create_failed,
+                path = path.display(),
+                error = e
+            ))),
         }
     }
 
     fn process_directory(&self, path: &Path) -> Result<()> {
+        if !path.is_dir() {
+            error!("{}", t!(path_not_a_directory, path = path.display()));
+            return Ok(());
+        }
+
+        if let Err(e) = self.check_write_permission(path) {
+            error!("{}", e);
+            warn!("{}", t!(admin_prompt_suggestion));
+            return Ok(());
+        }
+
         info!("{}", t!(start_processing, mod_folder_path = path.display()));
 
         let mut success = 0;
         let mut skipped = 0;
+        let mut errors = 0;
 
         for entry in WalkDir::new(path) {
-            let entry = entry?;
-            let path = entry.path();
+            let path = match entry {
+                Ok(entry) => entry.into_path(),
+                Err(e) => {
+                    error!(
+                        "{}",
+                        t!(
+                            traversal_error,
+                            path = e.path().unwrap_or(path).display(),
+                            error = e
+                        )
+                    );
+                    errors += 1;
+                    continue;
+                }
+            };
 
-            if !self.is_target_file(path) {
+            if !path.is_file() || !self.is_target_file(&path) {
                 continue;
             }
 
-            match self.process_file(path) {
+            match self.process_file(&path) {
                 Ok(true) => {
                     success += 1;
                 }
@@ -106,7 +162,7 @@ impl ModFixer {
                             exception = e.to_string()
                         )
                     );
-                    skipped += 1;
+                    errors += 1;
                 }
             }
             info!("---------------------------------------------")
@@ -118,7 +174,7 @@ impl ModFixer {
                 process_folder_done,
                 folder_path = path.display(),
                 success_count = success,
-                failure_count = skipped
+                failure_count = skipped + errors
             )
         );
         Ok(())
@@ -133,8 +189,7 @@ impl ModFixer {
         info!("{}", t!(process_file_start, file_path = path.display()));
 
         let mut potential_chars = std::collections::HashSet::new();
-        let hash_re = Regex::new(r"hash\s*=\s*([0-9a-fA-F]{8})").unwrap();
-        for cap in hash_re.captures_iter(&content) {
+        for cap in self.hash_re.captures_iter(&content) {
             if let Some(char_name) = self.hash_to_character.get(&cap[1]) {
                 potential_chars.insert(char_name.clone());
             }
@@ -160,7 +215,6 @@ impl ModFixer {
 
             // 进行精确的角色匹配，只有匹配成功才执行后续的特定修复
             if self.is_character_match(&content, &char_name, config) {
-
                 if let Some(checksum) = &config.checksum {
                     let new_content_replaced = self
                         .checksum_regex
@@ -224,17 +278,14 @@ impl ModFixer {
 
                 // 修复芙露德莉斯
                 if char_name == "Fleurdelys" && content.contains("618a230e") {
-                    let blend_block_re = Regex::new(r"\[ResourceBlendBuffer\][^\[]+").unwrap();
-
-                    let stride_re = Regex::new(r"stride\s*=\s*8").unwrap();
-
                     let replaced_content =
-                        blend_block_re.replace_all(&new_content, |cap: &regex::Captures| {
-                            let original_block = cap[0].to_string();
-                            stride_re
-                                .replace_all(&original_block, "stride = 16")
-                                .to_string()
-                        });
+                        self.blend_block_re
+                            .replace_all(&new_content, |cap: &regex::Captures| {
+                                let original_block = cap[0].to_string();
+                                self.stride_re
+                                    .replace_all(&original_block, "stride = 16")
+                                    .to_string()
+                            });
 
                     if replaced_content != new_content {
                         ini_modified = true;
@@ -391,27 +442,28 @@ impl ModFixer {
         original_hash: &str,
         content: &str,
     ) -> Result<MatchTextureOverrideContent> {
-        let lines = content.trim().split('\n');
+        let lines = content.lines();
 
         let mut found_section = false;
         let mut match_priority_found = false;
         let mut section_header = String::new();
-        let mut content = Vec::new();
+        let mut collected_content = Vec::new();
 
         for line in lines {
-            let line = line.trim();
+            let trimmed_line = line.trim();
 
             // 检查是否是以 [TextureOverride 开头的节
-            if !match_priority_found && line.starts_with("[TextureOverride") {
-                section_header = line.to_string();
+            if !match_priority_found && trimmed_line.starts_with("[TextureOverride") {
+                section_header = trimmed_line.to_string();
                 found_section = false; // 每次新节开始，重置标记
-                continue; // 继续到下一行
+                match_priority_found = false;
+                collected_content.clear();
             }
 
             // 如果找到了对应的节
             if found_section {
                 // 如果找到match_priority则可以开始提取内容
-                if line.starts_with("match_priority") {
+                if trimmed_line.starts_with("match_priority") {
                     match_priority_found = true;
                     continue;
                 }
@@ -419,24 +471,33 @@ impl ModFixer {
                 // 一旦找到了match_priority后，继续收集内容
                 if match_priority_found {
                     // 如果找到新的节，则结束收集
-                    if line.starts_with('[') {
+                    if trimmed_line.starts_with('[') {
                         break;
                     }
-                    if !line.starts_with(";") {
-                        content.push(line.to_string());
+                    if !trimmed_line.starts_with(";") {
+                        collected_content.push(line.to_string());
                     }
                 }
             }
 
-            if line.contains(original_hash) {
+            if trimmed_line.contains(original_hash) {
                 // 如果当前行中包含所需的hash，表示在相应的节中
                 found_section = true;
             }
         }
 
+        let after_content = collected_content.join("\n");
+
+        if after_content.is_empty() {
+            return Err(Error::msg(format!(
+                "No content found after match_priority for hash: {}",
+                original_hash
+            )));
+        }
+
         Ok(MatchTextureOverrideContent {
             section_header,
-            content: content.join("\n"),
+            content: after_content,
         })
     }
 
@@ -802,14 +863,14 @@ fn run_interactive() {
         .prompt()
         .unwrap();
 
-    println!("{}", t!(texture_override_note));
+    // println!("{}", t!(texture_override_note));
 
-    let enable_texture_override = Confirm::new(t!(texture_override_prompt))
-        .with_default(false)
-        .prompt()
-        .unwrap();
+    // let enable_texture_override = Confirm::new(t!(texture_override_prompt))
+    //     .with_default(false)
+    //     .prompt()
+    //     .unwrap();
 
-    let fixer = ModFixer::new(config_loader::characters(), enable_texture_override);
+    let fixer = ModFixer::new(config_loader::characters(), false);
     let result = panic::catch_unwind(|| {
         let _ = fixer.process_directory(Path::new(&input_path));
         info!("{}", t!(all_done));
