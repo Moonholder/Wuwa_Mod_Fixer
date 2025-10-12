@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "2.6.1",
-        "current_version": "2.7.0",
+        "current_version": "2.7.1",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -26,8 +26,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.7: 赞妮 芙露德莉斯\n修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 时和岁稔 凋亡频率 心之锚\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 芙露德莉丝的剑 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物\n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾及安可遗漏的头发光照贴图和折枝的眼睛贴图hash\n* 新增: 修复替换女角色的编队肖像hash\n",
-            "en": "Fix 2.7: Zani Flurdelys\nFix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor AgesOfHarvest WaningRedshift SomnoireAnchor\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal FleurdelysSword Glider(normal) Flight(normal) PhoebeWand BaizhiPet\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin and Encore, as well as the missing eye texture hash for Zhezhi.\n* New: Replace the team portrait hash of the female characters\n"
+            "zh": "修复2.7: 赞妮 芙露德莉斯\n修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 时和岁稔 凋亡频率 心之锚\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 芙露德莉丝的剑 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 黑海岸NPC身体 阿布\n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾及安可遗漏的头发光照贴图和折枝的眼睛贴图hash\n* 修复替换女角色的编队肖像hash\n* 新增: 补充遗漏的散华脸部贴图hash\n",
+            "en": "Fix 2.7: Zani Flurdelys\nFix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor AgesOfHarvest WaningRedshift SomnoireAnchor\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal FleurdelysSword Glider(normal) Flight(normal) PhoebeWand BaizhiPet BlackShoreNPCBody Abby\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin and Encore, as well as the missing eye texture hash for Zhezhi.\n* Replace the team portrait hash of the female characters\n* New: Added the missing face texture hash of the Sanhua\n"
         },
         "intro_note": {
             "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
@@ -38,7 +38,7 @@
             "en": "\nNote: The old mods of the WWMI 0.6x version need to have the compatibility mode enabled to be loaded after the WWMI 070 version. Starting from WWMI 076, the compatibility mode is turned off by default. The way to enable it is: press Alt + F12 in the game. It should display 'Compatibility Mode: Enabled'."
         },
         "graphics_setting_note": {
-            "zh": "游戏从2.0版本开始不同画面预设的Hash值可能不同，这可能导致Mod贴图错误，请将图形质量预设调整至均衡/画面优先",
+            "zh": "游戏从2.0版本开始不同画面预设的Hash值可能不同，这可能导致Mod贴图错误，请将图形质量预设调整至均衡/画质优先",
             "en": "Starting from version 2.0, different graphics presets may have different hash values, which may cause mod texture errors. Please set the graphics quality preset to Balanced/Quality."
         },
         "texture_override_note": {
@@ -1907,6 +1907,23 @@
             "texture_hashes": [
                 {"old": ["aaae8418"], "new": "26d963ce"},
                 {"old": ["29d61c94"], "new": "75cdd95d"}
+            ]
+        },
+        "BlackShoreNPCBody": {
+            "main_hashes": [{"old": ["1dd0746d"], "new": "1dd0746d"}],
+            "texture_hashes": [
+                {"old": ["f05e8ee8"], "new": "f9b2afbf"}
+            ]
+        },
+        "Abby": {
+            "main_hashes": [{"old": ["0b2aa467"], "new": "78803749"}],
+            "texture_hashes": [
+                {"old": ["3a269e20"], "new": "3c5e2edc"},
+                {"old": ["5d768706"], "new": "65be494c"},
+                {"old": ["b329d9eb"], "new": "ee40a431"},
+                {"old": ["6bd374bc"], "new": "8e2910e6"},
+                {"old": ["5a79b23a"], "new": "f40c6134"},
+                {"old": ["319dd9c5"], "new": "8123fe47"}
             ]
         }
     }
