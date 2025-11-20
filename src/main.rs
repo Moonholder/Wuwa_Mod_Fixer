@@ -62,7 +62,8 @@ impl ModFixer {
             let all_hashes = config
                 .main_hashes
                 .iter()
-                .chain(config.texture_hashes.iter());
+                .chain(config.texture_hashes.iter())
+                .chain(config.shader_hashes.iter());
             for replacement in all_hashes {
                 for old_hash in &replacement.old {
                     hash_to_character.insert(old_hash.clone(), char_name.clone());
@@ -76,7 +77,7 @@ impl ModFixer {
             hash_to_character,
             enable_texture_override,
             checksum_regex: Regex::new(r"(checksum\s*=\s*)\d+").unwrap(),
-            hash_re: Regex::new(r"hash\s*=\s*([0-9a-fA-F]{8})").unwrap(),
+            hash_re: Regex::new(r"hash\s*=\s*([0-9a-fA-F]{8,16})\b").unwrap(),
             blend_block_re: Regex::new(r"\[ResourceBlendBuffer\][^\[]+").unwrap(),
             stride_re: Regex::new(r"stride\s*=\s*8").unwrap(),
         }
@@ -212,6 +213,7 @@ impl ModFixer {
             // 哈希替换
             ini_modified |= self.replace_hashes(&mut new_content, &config.main_hashes);
             ini_modified |= self.replace_hashes(&mut new_content, &config.texture_hashes);
+            ini_modified |= self.replace_hashes(&mut new_content, &config.shader_hashes);
 
             // 进行精确的角色匹配，只有匹配成功才执行后续的特定修复
             if self.is_character_match(&content, &char_name, config) {
@@ -235,7 +237,7 @@ impl ModFixer {
                 ini_modified |= self.replace_index_offset_count(&mut new_content, &config.rules);
 
                 // 受损表现移除
-                if self.enable_texture_override {
+                if char_name == "Cantarella" {
                     if let Some(char_states) = &config.states {
                         for state_name in char_states.keys() {
                             if let Some(state_map) = char_states.get(state_name) {
@@ -254,27 +256,27 @@ impl ModFixer {
                     buf_files_modified |= self.remaps(&content, path, vg_maps)?;
                 }
 
-                let enable_aero_rover_fix = if char_name == "RoverFemale" {
-                    println!();
-                    Confirm::new(t!(aero_rover_female_eyes_prompt))
-                        .with_default(false)
-                        .prompt()?
-                } else {
-                    false
-                };
+                // let enable_aero_rover_fix = if char_name == "RoverFemale" {
+                //     println!();
+                //     Confirm::new(t!(aero_rover_female_eyes_prompt))
+                //         .with_default(false)
+                //         .prompt()?
+                // } else {
+                //     false
+                // };
 
-                // 修复风主满共鸣能量眼睛异常
-                if enable_aero_rover_fix {
-                    buf_files_modified |=
-                        self.fix_aero_rover_female_eyes_with_texcoord(path, &content)?;
+                // // 修复风主满共鸣能量眼睛异常
+                // if enable_aero_rover_fix {
+                //     buf_files_modified |=
+                //         self.fix_aero_rover_female_eyes_with_texcoord(path, &content)?;
 
-                    if !buf_files_modified {
-                        ini_modified |=
-                            self.fix_aero_rover_female_eyes_with_texture(path, &mut new_content)?;
-                    }
+                //     if !buf_files_modified {
+                //         ini_modified |=
+                //             self.fix_aero_rover_female_eyes_with_texture(path, &mut new_content)?;
+                //     }
 
-                    info!("{}", t!(aero_rover_female_eyes_fixed));
-                }
+                //     info!("{}", t!(aero_rover_female_eyes_fixed));
+                // }
 
                 // 修复芙露德莉斯
                 if char_name == "Fleurdelys" && content.contains("618a230e") {
@@ -692,23 +694,65 @@ impl ModFixer {
             let fixed_data = include_bytes!("resources/RoverFemale_Componet5_TexCoord.buf");
 
             debug!(
-                "start: {}, end: {}, count: {}, len: {}",
+                "start: {}, end: {}, range_len: {}, fixed_len: {}, stride: {}",
                 start,
                 end,
                 end - start,
-                fixed_data.len()
+                fixed_data.len(),
+                stride
             );
 
             let mut tex_coord_data = fs::read(&tex_coord_path)?;
-
-            if end - start == fixed_data.len() {
-                tex_coord_data[start..end].copy_from_slice(fixed_data);
-
-                self.create_backup(&tex_coord_path)?;
-                fs::write(&tex_coord_path, &tex_coord_data)?;
-
-                ret = true;
+            let range_len = end - start;
+            if range_len % stride != 0 {
+                warn!("texcoord range length {} is not divisible by stride {} - skip", range_len, stride);
+                continue;
             }
+
+            let vertex_count = range_len / stride;
+
+            if vertex_count == 0 {
+                continue;
+            }
+
+            if fixed_data.len() % vertex_count != 0 {
+                warn!("fixed data length {} is not divisible by vertex count {} - skip", fixed_data.len(), vertex_count);
+                continue;
+            }
+
+            let src_stride = fixed_data.len() / vertex_count;
+            let texcoord1_offset_in_src = 8usize;
+            let texcoord1_size = 4usize;
+
+            if texcoord1_offset_in_src + texcoord1_size > src_stride {
+                warn!("texcoord1 (offset {} + size {}) out of src stride {} - skip", texcoord1_offset_in_src, texcoord1_size, src_stride);
+                continue;
+            }
+
+            let dst_texcoord1_offset = 8usize;
+
+            if dst_texcoord1_offset + texcoord1_size > stride {
+                warn!("dst texcoord1 (offset {} + size {}) out of dst stride {} - skip", dst_texcoord1_offset, texcoord1_size, stride);
+                continue;
+            }
+
+            for i in 0..vertex_count {
+                let src_start = i * src_stride + texcoord1_offset_in_src;
+                let src_end = src_start + texcoord1_size;
+                let dst_start = start + i * stride + dst_texcoord1_offset;
+                let dst_end = dst_start + texcoord1_size;
+
+                if src_end > fixed_data.len() || dst_end > tex_coord_data.len() {
+                    warn!("index out of bounds while copying texcoord1 for vertex {} - skip remaining", i);
+                    break;
+                }
+
+                tex_coord_data[dst_start..dst_end].copy_from_slice(&fixed_data[src_start..src_end]);
+            }
+
+            self.create_backup(&tex_coord_path)?;
+            fs::write(&tex_coord_path, &tex_coord_data)?;
+            ret = true;
         }
         return Ok(ret);
     }
@@ -723,8 +767,8 @@ impl ModFixer {
             fs::create_dir_all(&texture_path)?;
         }
 
-        let fixed_data = include_bytes!("resources/FixAeroRoverFemaleEyesMap=fa3f84a8.dds");
-        let file_name = "FixAeroRoverFemaleEyesMap=fa3f84a8.dds";
+        let fixed_data = include_bytes!("resources/FixAeroRoverFemaleChargedEyesMap.dds");
+        let file_name = "FixAeroRoverFemaleChargedEyesMap.dds";
         fs::write(texture_path.join(file_name), fixed_data)?;
 
         let new_section_content = format!(
@@ -738,7 +782,7 @@ impl ModFixer {
         $charged = 0
 
         [TextureOverride_Charged]
-        hash = fa3f84a8
+        hash = 70d7428b
         $charged = 1
 
         [TextureOverride_RoverMale]
@@ -749,7 +793,7 @@ impl ModFixer {
 
         [TextureOverride_RoverFemale]
         if $charged == 1
-        hash = 3533a957
+        hash = bd26f515
         $rf_state = 1
         endif
 

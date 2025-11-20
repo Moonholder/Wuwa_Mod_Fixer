@@ -24,10 +24,12 @@ pub struct GlobalConfig {
 pub struct CharacterConfig {
     pub main_hashes: Vec<Replacement>,
     pub texture_hashes: Vec<Replacement>,
+    pub shader_hashes: Vec<Replacement>,
     pub checksum: Option<String>,
     pub rules: Option<Vec<ReplacementRule>>,
     pub vg_remaps: Option<Vec<VertexRemapConfig>>,
     pub states: Option<HashMap<String, HashMap<String, String>>>,
+    pub stable_textures: Option<HashMap<String, HashMap<String, String>>>,
 }
 
 #[derive(Deserialize, Clone, Default)]
