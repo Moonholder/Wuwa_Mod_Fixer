@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "2.6.1",
-        "current_version": "2.8.0",
+        "current_version": "2.8.1",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -26,8 +26,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.8: 女漂\n修复2.7: 赞妮 芙露德莉斯\n修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 时和岁稔 凋亡频率 心之锚\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 芙露德莉丝的剑 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 黑海岸NPC身体 阿布\n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾及安可遗漏的头发光照贴图和折枝的眼睛贴图hash\n* 修复替换女角色的编队肖像hash\n* 新增: 补充遗漏的散华脸部贴图hash\n",
-            "en": "Fix 2.8: RoverFemale\nFix 2.7: Zani Flurdelys\nFix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor AgesOfHarvest WaningRedshift SomnoireAnchor\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal FleurdelysSword Glider(normal) Flight(normal) PhoebeWand BaizhiPet BlackShoreNPCBody Abby\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin and Encore, as well as the missing eye texture hash for Zhezhi.\n* Replace the team portrait hash of the female characters\n* New: Added the missing face texture hash of the Sanhua\n"
+            "zh": "修复2.8: 女漂\n* 千咲光照贴图hash更新(Updated on 11/21)\n* 新增千咲强化e受伤表现移除(需更新至2.8.1)\n\n修复2.7: 赞妮 芙露德莉斯\n修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 时和岁稔 凋亡频率 心之锚\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 芙露德莉丝的剑 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 黑海岸NPC身体 阿布\n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾及安可遗漏的头发光照贴图和折枝的眼睛贴图hash\n* 修复替换女角色的编队肖像hash\n* 新增: 补充遗漏的散华脸部贴图hash\n",
+            "en": "Fix 2.8: RoverFemale\n* Updated hash of Chisa's lightmap (Updated on 11/21)\n* Added removal of Chisa's enhanced E skill wounded_effect (requires update to version 2.8.1)\n\nFix 2.7: Zani Flurdelys\nFix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor AgesOfHarvest WaningRedshift SomnoireAnchor\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal FleurdelysSword Glider(normal) Flight(normal) PhoebeWand BaizhiPet BlackShoreNPCBody Abby\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin and Encore, as well as the missing eye texture hash for Zhezhi.\n* Replace the team portrait hash of the female characters\n* New: Added the missing face texture hash of the Sanhua\n"
         },
         "intro_note": {
             "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
@@ -153,6 +153,11 @@
             "zh": "遍历目录时出错: {path}, 错误: {error}",
             "en": "Error traversing directory: {path}, Error: {error}"
         }
+    },
+    "settings": {
+        "enable_wounded_effect": false,
+        "state_texture_removers": ["Cantarella", "Chisa"],
+        "enable_aero_rover_fix": false
     },
     "characters": {
         "UID": {"shader_hashes": [{"old": ["31bd7d7a4b36db57"], "new": "ee9bba54e287c770"}]},
@@ -1683,7 +1688,6 @@
                 {"old": ["bd6bfc8f", "14e47dee"], "new": "4bac35dd"},
                 {"old": ["88f64559", "3766bc13"], "new": "b9a64e57"},
                 {"old": ["3ef0be7c", "00a2663b"], "new": "bd9cd630"},
-                {"old": ["f1c2e889"], "new": "6df8bc60"},
                 {"old": ["b08d5d57", "73110195"], "new": "8160bcb0"},
                 {"old": ["f4e65f69"], "new": "c51aa8d2"},
                 {"old": ["d685d037"], "new": "c9124759"},
@@ -1924,6 +1928,23 @@
                 {"old": ["5a79b23a"], "new": "f40c6134"},
                 {"old": ["319dd9c5"], "new": "8123fe47"}
             ]
+        },
+        "Chisa": {
+            "main_hashes": [{"old": ["afa1587c"], "new": "afa1587c"}],
+            "texture_hashes": [
+                {"old": ["0c153c12"], "new": "ffa1f581"},
+                {"old": ["89517d4e"], "new": "34377808"}
+            ],
+            "states": {
+                "injured": {
+                    "7ff6e112": "c7a7ec1b",
+                    "c7beddc7": "f869e47c",
+                    "2a9050cc": "cd006f06",
+                    "412ba586": "9b396b0d",
+                    "d2bc37bc": "eca8e09b",
+                    "34377808": "ffa1f581"
+                }
+            }
         }
     }
 }

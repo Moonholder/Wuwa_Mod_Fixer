@@ -15,8 +15,17 @@ static CONFIG: AsyncOnceCell<GlobalConfig> = AsyncOnceCell::const_new();
 #[serde(default)]
 pub struct GlobalConfig {
     lang: LangPack,
+    settings: SettingConfig,
     characters: HashMap<String, CharacterConfig>,
     version: VersionConfig,
+}
+
+#[derive(Deserialize, Clone, Default)]
+#[serde(default)]
+pub struct SettingConfig {
+    pub enable_wounded_effect: bool,
+    pub state_texture_removers: Vec<String>,
+    pub enable_aero_rover_fix: bool,
 }
 
 #[derive(Deserialize, Clone, Default)]
@@ -382,6 +391,10 @@ fn build_agent() -> Agent {
 
 pub fn lang() -> &'static LangPack {
     &CONFIG.get().unwrap().lang
+}
+
+pub fn settings() -> &'static SettingConfig {
+    &CONFIG.get().unwrap().settings
 }
 
 pub fn characters() -> &'static HashMap<String, CharacterConfig> {

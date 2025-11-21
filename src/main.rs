@@ -14,12 +14,12 @@ use log::LevelFilter;
 use regex::Regex;
 use std::borrow::Cow;
 use std::io::Write;
+use std::panic;
 use std::{
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
 };
-use std::panic;
 use walkdir::WalkDir;
 
 const EARLY_CHARACTERS: [&str; 20] = [
@@ -188,6 +188,7 @@ impl ModFixer {
         let mut buf_files_modified = false;
         let mut new_content = content.clone();
         info!("{}", t!(process_file_start, file_path = path.display()));
+        let settings = config_loader::settings();
 
         let mut potential_chars = std::collections::HashSet::new();
         for cap in self.hash_re.captures_iter(&content) {
@@ -237,16 +238,17 @@ impl ModFixer {
                 ini_modified |= self.replace_index_offset_count(&mut new_content, &config.rules);
 
                 // 受损表现移除
-                if char_name == "Cantarella" {
+                if self.enable_texture_override
+                    || settings.state_texture_removers.contains(&char_name)
+                {
                     if let Some(char_states) = &config.states {
                         for state_name in char_states.keys() {
-                            if let Some(state_map) = char_states.get(state_name) {
-                                ini_modified |= self.texture_override_redirection(
-                                    &mut new_content,
-                                    state_map,
-                                    state_name.as_str(),
-                                )?;
-                            }
+                            let state_map = char_states.get(state_name).unwrap();
+                            ini_modified |= self.texture_override_redirection(
+                                &mut new_content,
+                                state_map,
+                                state_name.as_str(),
+                            )?;
                         }
                     }
                 }
@@ -256,27 +258,30 @@ impl ModFixer {
                     buf_files_modified |= self.remaps(&content, path, vg_maps)?;
                 }
 
-                // let enable_aero_rover_fix = if char_name == "RoverFemale" {
-                //     println!();
-                //     Confirm::new(t!(aero_rover_female_eyes_prompt))
-                //         .with_default(false)
-                //         .prompt()?
-                // } else {
-                //     false
-                // };
+                let enable_aero_rover_fix =
+                    if settings.enable_aero_rover_fix && char_name == "RoverFemale" {
+                        println!();
+                        Confirm::new(t!(aero_rover_female_eyes_prompt))
+                            .with_default(false)
+                            .prompt()?
+                    } else {
+                        false
+                    };
 
-                // // 修复风主满共鸣能量眼睛异常
-                // if enable_aero_rover_fix {
-                //     buf_files_modified |=
-                //         self.fix_aero_rover_female_eyes_with_texcoord(path, &content)?;
+                // 修复风主满共鸣能量眼睛异常
+                if enable_aero_rover_fix {
+                    let texcoord_modified =
+                        self.fix_aero_rover_female_eyes_with_texcoord(path, &content)?;
 
-                //     if !buf_files_modified {
-                //         ini_modified |=
-                //             self.fix_aero_rover_female_eyes_with_texture(path, &mut new_content)?;
-                //     }
+                    if !texcoord_modified {
+                        let texture_section_added =
+                            self.fix_aero_rover_female_eyes_with_texture(path, &mut new_content)?;
+                        ini_modified |= texture_section_added;
+                    }
 
-                //     info!("{}", t!(aero_rover_female_eyes_fixed));
-                // }
+                    buf_files_modified |= texcoord_modified;
+                    info!("{}", t!(aero_rover_female_eyes_fixed));
+                }
 
                 // 修复芙露德莉斯
                 if char_name == "Fleurdelys" && content.contains("618a230e") {
@@ -705,7 +710,10 @@ impl ModFixer {
             let mut tex_coord_data = fs::read(&tex_coord_path)?;
             let range_len = end - start;
             if range_len % stride != 0 {
-                warn!("texcoord range length {} is not divisible by stride {} - skip", range_len, stride);
+                warn!(
+                    "texcoord range length {} is not divisible by stride {} - skip",
+                    range_len, stride
+                );
                 continue;
             }
 
@@ -716,7 +724,11 @@ impl ModFixer {
             }
 
             if fixed_data.len() % vertex_count != 0 {
-                warn!("fixed data length {} is not divisible by vertex count {} - skip", fixed_data.len(), vertex_count);
+                warn!(
+                    "fixed data length {} is not divisible by vertex count {} - skip",
+                    fixed_data.len(),
+                    vertex_count
+                );
                 continue;
             }
 
@@ -725,14 +737,20 @@ impl ModFixer {
             let texcoord1_size = 4usize;
 
             if texcoord1_offset_in_src + texcoord1_size > src_stride {
-                warn!("texcoord1 (offset {} + size {}) out of src stride {} - skip", texcoord1_offset_in_src, texcoord1_size, src_stride);
+                warn!(
+                    "texcoord1 (offset {} + size {}) out of src stride {} - skip",
+                    texcoord1_offset_in_src, texcoord1_size, src_stride
+                );
                 continue;
             }
 
             let dst_texcoord1_offset = 8usize;
 
             if dst_texcoord1_offset + texcoord1_size > stride {
-                warn!("dst texcoord1 (offset {} + size {}) out of dst stride {} - skip", dst_texcoord1_offset, texcoord1_size, stride);
+                warn!(
+                    "dst texcoord1 (offset {} + size {}) out of dst stride {} - skip",
+                    dst_texcoord1_offset, texcoord1_size, stride
+                );
                 continue;
             }
 
@@ -743,7 +761,10 @@ impl ModFixer {
                 let dst_end = dst_start + texcoord1_size;
 
                 if src_end > fixed_data.len() || dst_end > tex_coord_data.len() {
-                    warn!("index out of bounds while copying texcoord1 for vertex {} - skip remaining", i);
+                    warn!(
+                        "index out of bounds while copying texcoord1 for vertex {} - skip remaining",
+                        i
+                    );
                     break;
                 }
 
@@ -907,14 +928,18 @@ fn run_interactive() {
         .prompt()
         .unwrap();
 
-    // println!("{}", t!(texture_override_note));
+    let enable_texture_override = if config_loader::settings().enable_wounded_effect {
+        println!("{}", t!(texture_override_note));
 
-    // let enable_texture_override = Confirm::new(t!(texture_override_prompt))
-    //     .with_default(false)
-    //     .prompt()
-    //     .unwrap();
+        Confirm::new(t!(texture_override_prompt))
+            .with_default(false)
+            .prompt()
+            .unwrap()
+    } else {
+        false
+    };
 
-    let fixer = ModFixer::new(config_loader::characters(), false);
+    let fixer = ModFixer::new(config_loader::characters(), enable_texture_override);
     let result = panic::catch_unwind(|| {
         let _ = fixer.process_directory(Path::new(&input_path));
         info!("{}", t!(all_done));
