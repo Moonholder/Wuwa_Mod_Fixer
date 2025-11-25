@@ -50,8 +50,8 @@
             "en": "Remove 'Wounded Effect' in Quality? (default no):"
         },
         "rabbit_fx_stable_texture_note": {
-            "zh": "\n使用RabbitFX的'Stable texture'功能移除战损/湿身(目前仅坎特蕾拉)，需安装RabbitFX_v65",
-            "en": "\nTo remove the injured/wet of Characters with RabbitFX's 'Stable texture' feature(currently only Cantarella), RabbitFX_v65 is required"
+            "zh": "\n使用RabbitFX的'Stable texture'功能移除战损/湿身(目前仅坎特蕾拉和千咲)，需安装RabbitFX_v65",
+            "en": "\nTo remove the injured/wet of Characters with RabbitFX's 'Stable texture' feature(At present, only Cantarella and Chisa), RabbitFX_v65 is required"
         },
         "rabbit_fx_stable_texture_prompt": {
             "zh": "是否移除？ （默认否）:",
@@ -1945,6 +1945,9 @@
                     "d2bc37bc": "eca8e09b",
                     "34377808": "ffa1f581"
                 }
+            },
+            "stable_textures": {
+                "3": {"D": "c7a7ec1b", "N": "eca8e09b"}, "4": {"D": "f869e47c", "N": "9b396b0d", "L": "ffa1f581"}, "5": {"D": "cd006f06"}
             }
         }
     }
