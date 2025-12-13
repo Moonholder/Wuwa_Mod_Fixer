@@ -26,8 +26,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.8: 女漂\n* 千咲光照贴图hash更新(更新于11/21)\n* 新增千咲强化e受伤表现移除(需更新至2.8.1)\n* 黑海岸NPC身体贴图hash更新\n\n修复2.7: 赞妮 芙露德莉斯\n修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 时和岁稔 凋亡频率 心之锚\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 芙露德莉丝的剑 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 黑海岸NPC身体 阿布\n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾及安可遗漏的头发光照贴图和折枝的眼睛贴图hash\n* 修复替换女角色的编队肖像hash\n* 新增: 补充遗漏的散华脸部贴图hash\n",
-            "en": "Fix 2.8: RoverFemale\n* Updated hash of Chisa's lightmap (Updated on 11/21)\n* Added removal of Chisa's enhanced E skill wounded_effect (requires update to version 2.8.1)\n* Updated hash of BlackshoreNPC_Body diffusemap\n\nFix 2.7: Zani Flurdelys\nFix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor AgesOfHarvest WaningRedshift SomnoireAnchor\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal FleurdelysSword Glider(normal) Flight(normal) PhoebeWand BaizhiPet BlackShoreNPCBody Abby\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin and Encore, as well as the missing eye texture hash for Zhezhi.\n* Replace the team portrait hash of the female characters\n* New: Added the missing face texture hash of the Sanhua\n"
+            "zh": "修复2.8: 女漂\n* 千咲贴图hash更新(更新于11/27)\n* 新增千咲强化e受伤表现移除(需更新至2.8.1)\n* 黑海岸NPC身体贴图hash更新\n\n修复2.7: 赞妮 芙露德莉斯\n修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 时和岁稔 凋亡频率 心之锚\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 芙露德莉丝的剑 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 黑海岸NPC身体 阿布\n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾及安可遗漏的头发光照贴图和折枝的眼睛贴图hash\n* 修复替换女角色的编队肖像hash\n* 新增: 补充遗漏的散华脸部贴图hash\n",
+            "en": "Fix 2.8: RoverFemale\n* Updated hash of Chisa's textures (Updated on 11/27)\n* Added removal of Chisa's enhanced E skill wounded_effect (requires update to version 2.8.1)\n* Updated hash of BlackshoreNPC_Body diffusemap\n\nFix 2.7: Zani Flurdelys\nFix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor AgesOfHarvest WaningRedshift SomnoireAnchor\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal FleurdelysSword Glider(normal) Flight(normal) PhoebeWand BaizhiPet BlackShoreNPCBody Abby\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin and Encore, as well as the missing eye texture hash for Zhezhi.\n* Replace the team portrait hash of the female characters\n* New: Added the missing face texture hash of the Sanhua\n"
         },
         "intro_note": {
             "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
@@ -50,8 +50,8 @@
             "en": "Remove 'Wounded Effect' in Quality? (default no):"
         },
         "rabbit_fx_stable_texture_note": {
-            "zh": "\n使用RabbitFX的'Stable texture'功能移除战损/湿身(目前仅坎特蕾拉和千咲)，需安装RabbitFX_v65",
-            "en": "\nTo remove the injured/wet of Characters with RabbitFX's 'Stable texture' feature(At present, only Cantarella and Chisa), RabbitFX_v65 is required"
+            "zh": "\n使用RabbitFX的'Stable texture'功能移除战损/湿身(目前仅坎特蕾拉和千咲)，需安装RabbitFX_v615+",
+            "en": "\nTo remove the injured/wet of Characters with RabbitFX's 'Stable texture' feature(At present, only Cantarella and Chisa), RabbitFX_v615+ is required"
         },
         "rabbit_fx_stable_texture_prompt": {
             "zh": "是否移除？ （默认否）:",
@@ -1933,21 +1933,26 @@
         "Chisa": {
             "main_hashes": [{"old": ["afa1587c"], "new": "afa1587c"}],
             "texture_hashes": [
-                {"old": ["0c153c12"], "new": "ffa1f581"},
-                {"old": ["89517d4e"], "new": "34377808"}
+                {"old": ["0c153c12", "ffa1f581"], "new": "403595f8"},
+                {"old": ["89517d4e", "34377808"], "new": "35b4ef7f"},
+                {"old": ["118a1a1f"], "new": "a83a8906"},
+                {"old": ["c7a7ec1b"], "new": "9121c3f8"},
+                {"old": ["f869e47c"], "new": "bb49600b"},
+                {"old": ["7ff6e112"], "new": "2970cef1"},
+                {"old": ["c7beddc7"], "new": "a5da2563"}
             ],
             "states": {
                 "injured": {
-                    "7ff6e112": "c7a7ec1b",
-                    "c7beddc7": "f869e47c",
+                    "2970cef1": "9121c3f8",
+                    "a5da2563": "bb49600b",
                     "2a9050cc": "cd006f06",
                     "412ba586": "9b396b0d",
                     "d2bc37bc": "eca8e09b",
-                    "34377808": "ffa1f581"
+                    "35b4ef7f": "403595f8"
                 }
             },
             "stable_textures": {
-                "3": {"D": "c7a7ec1b", "N": "eca8e09b"}, "4": {"D": "f869e47c", "N": "9b396b0d", "L": "ffa1f581"}, "5": {"D": "cd006f06"}
+                "3": {"D": "9121c3f8", "N": "eca8e09b"}, "4": {"D": "bb49600b", "N": "9b396b0d", "L": "403595f8"}, "5": {"D": "cd006f06"}
             }
         }
     }
