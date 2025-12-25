@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "2.8.1",
-        "current_version": "2.8.1",
+        "current_version": "3.0.0",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -26,8 +26,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复2.8: 女漂\n* 千咲贴图hash更新(更新于11/27)\n* 新增千咲强化e受伤表现移除(需更新至2.8.1)\n* 黑海岸NPC身体贴图hash更新\n\n修复2.7: 赞妮 芙露德莉斯\n修复2.6: 修复所有角色的贴图错误\n* 修复下列武器的贴图错误: 奇幻变奏 漪澜浮录 赫奕流明 千古洑流 停驻之烟 裁春 血誓盟约 擎渊怒涛 东落 浩境粼光 时和岁稔 凋亡频率 心之锚\n* 修复露帕NPC 露帕尾巴 赞妮盾牌 珂莱塔水晶头发 芙露德莉丝的剑 滑翔翼(默认) 翱翔翼(默认) 菲比法杖 白芷宠物 黑海岸NPC身体 阿布\n* 添加奥古斯塔的受伤表现移除\n* 补充红椿和丹瑾及安可遗漏的头发光照贴图和折枝的眼睛贴图hash\n* 修复替换女角色的编队肖像hash\n* 新增: 补充遗漏的散华脸部贴图hash\n",
-            "en": "Fix 2.8: RoverFemale\n* Updated hash of Chisa's textures (Updated on 11/27)\n* Added removal of Chisa's enhanced E skill wounded_effect (requires update to version 2.8.1)\n* Updated hash of BlackshoreNPC_Body diffusemap\n\nFix 2.7: Zani Flurdelys\nFix 2.6: Fixed texture errors for all characters\n* Fixed texture errors for the following weapons: Variation CosmicRipples BlazingBrilliance EmeraldOfGenesis StaticMist RedSpring Bloodpact'sPledge \nAbyssSurges HeliosCleaver LustrousRazor AgesOfHarvest WaningRedshift SomnoireAnchor\n* Fixed texture errors for LupaNpc LupaTail Zani_Shield CarlottaHairCrystal FleurdelysSword Glider(normal) Flight(normal) PhoebeWand BaizhiPet BlackShoreNPCBody Abby\n* Added the removal of the Wounded Effect of Augusta\n* Added the missing hair hash for hair lightMap of RedCamellya and Danjin and Encore, as well as the missing eye texture hash for Zhezhi.\n* Replace the team portrait hash of the female characters\n* New: Added the missing face texture hash of the Sanhua\n"
+            "zh": "修复3.0: 请确保图形质量预设为均衡及以上并且画面细节为极高，或者在Engine.ini中添加r.Streaming.UseAllMips=1\n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n\n修复2.8: 女漂\n* 千咲贴图hash更新(更新于11/27)\n* 新增千咲强化e受伤表现移除(需更新至2.8.1)\n* 黑海岸NPC身体贴图hash更新\n...\n\n",
+            "en": "Fix 3.0: Ensure the Graphics Quality is set to Balanced or higher and the LOD Bias is set to Ultra High, or add r.Streaming.UseAllMips=1 to your Engine.ini file.\n* Fixed Female Rover.\n* Updated texture hashes for Zani and Brant.\n\nFix 2.8: RoverFemale\n* Updated hash of Chisa's textures (Updated on 11/27)\n* Added removal of Chisa's enhanced E skill wounded_effect (requires update to version 2.8.1)\n* Updated hash of BlackshoreNPC_Body diffusemap\n...\n\n"
         },
         "intro_note": {
             "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
@@ -160,7 +160,7 @@
         "enable_aero_rover_fix": false
     },
     "characters": {
-        "UID": {"shader_hashes": [{"old": ["31bd7d7a4b36db57"], "new": "ee9bba54e287c770"}]},
+        "UID": {"shader_hashes": [{"old": ["ee9bba54e287c770"], "new": "31bd7d7a4b36db57"}]},
         "UI-Portraits": {
             "texture_hashes": [
                 {"old": ["a2e39448"], "new": "db41a7c0"},
@@ -229,7 +229,7 @@
         },
         "RoverFemale": {
             "main_hashes": [
-                {"old": ["be84b775", "e8b5a730", "3533a957"], "new": "bd26f515"},
+                {"old": ["be84b775", "e8b5a730", "3533a957", "bd26f515"], "new": "06482222"},
                 {"old": ["ac681fc1"], "new": "ac681fc1"}
             ],
             "texture_hashes": [
@@ -237,7 +237,7 @@
                 {"old": ["c446a221", "99d33a32"], "new": "c79b5772"},
                 {"old": ["6aac203f"], "new": "04192868"},
                 {"old": ["dcae957e"], "new": "68a6b802"},
-                {"old": ["a2207e11"], "new": "52c18227"},
+                {"old": ["a2207e11", "52c18227"], "new": "8ee0408c"},
                 {"old": ["a2aed964"], "new": "2ff23d4c"},
                 {"old": ["be8666c3"], "new": "a01c9b96"},
                 {"old": ["7bc718ed"], "new": "84025dca"},
@@ -1397,12 +1397,13 @@
                 {"old": ["41be688c"], "new": "ef87053b"},
                 {"old": ["567e2ab7"], "new": "92036301"},
                 {"old": ["67175ee6"], "new": "f69259fd"},
-                {"old": ["8b25adba"], "new": "c1f72669"},
+                {"old": ["8b25adba", "c1f72669"], "new": "820515a6"},
                 {"old": ["2cf897c6"], "new": "8b117bac"},
-                {"old": ["47c4cf4b"], "new": "33a5aeec"},
-                {"old": ["1830304b"], "new": "9c7aac2e"},
+                {"old": ["47c4cf4b", "33a5aeec"], "new": "88535a86"},
+                {"old": ["1830304b", "9c7aac2e"], "new": "1d8fc580"},
                 {"old": ["fc28e018"], "new": "b5976b09"},
-                {"old": ["9e2806f0"], "new": "541ea4fd"}
+                {"old": ["9e2806f0"], "new": "541ea4fd"},
+                {"old": ["3253c8b4"], "new": "fa002d7e"}
             ],
             "states": {
                 "injured": {
@@ -1484,7 +1485,6 @@
                 {"old": ["69ce5914"], "new": "de4463e0"},
                 {"old": ["6b885af9"], "new": "85371f27"},
                 {"old": ["a7869af0"], "new": "6df52af4"},
-                {"old": ["66ec53c0"], "new": "612a235b"},
                 {"old": ["c91bc37a"], "new": "5fe6e3f5"},
                 {"old": ["988c2332"], "new": "ac687edd"},
                 {"old": ["a6006726"], "new": "2ba75c9c"},
@@ -1507,12 +1507,12 @@
                 {"old": ["69ce5914"], "new": "de4463e0"},
                 {"old": ["6b885af9"], "new": "85371f27"},
                 {"old": ["a7869af0"], "new": "6df52af4"},
-                {"old": ["66ec53c0"], "new": "612a235b"},
+                {"old": ["66ec53c0", "612a235b"], "new": "d1c1a195"},
                 {"old": ["c91bc37a"], "new": "5fe6e3f5"},
                 {"old": ["988c2332"], "new": "ac687edd"},
                 {"old": ["a6006726"], "new": "2ba75c9c"},
                 {"old": ["ce1aa29a"], "new": "17d03603"},
-                {"old": ["c676996a"], "new": "18a76e47"},
+                {"old": ["c676996a", "18a76e47"], "new": "61de7097"},
                 {"old": ["73c4cc50"], "new": "726c6138"},
                 {"old": ["6118a560"], "new": "15507304"}
             ],
@@ -1532,7 +1532,6 @@
                 {"old": ["69ce5914"], "new": "de4463e0"},
                 {"old": ["6b885af9"], "new": "85371f27"},
                 {"old": ["a7869af0"], "new": "6df52af4"},
-                {"old": ["66ec53c0"], "new": "612a235b"},
                 {"old": ["c91bc37a"], "new": "5fe6e3f5"},
                 {"old": ["988c2332"], "new": "ac687edd"},
                 {"old": ["a6006726"], "new": "2ba75c9c"},
