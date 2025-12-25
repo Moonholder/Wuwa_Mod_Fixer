@@ -26,8 +26,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.0: 请确保图形质量预设为均衡及以上并且画面细节为极高，或者在Engine.ini中添加r.Streaming.UseAllMips=1\n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n\n修复2.8: 女漂\n* 千咲贴图hash更新(更新于11/27)\n* 新增千咲强化e受伤表现移除(需更新至2.8.1)\n* 黑海岸NPC身体贴图hash更新\n...\n\n",
-            "en": "Fix 3.0: Ensure the Graphics Quality is set to Balanced or higher and the LOD Bias is set to Ultra High, or add r.Streaming.UseAllMips=1 to your Engine.ini file.\n* Fixed Female Rover.\n* Updated texture hashes for Zani and Brant.\n\nFix 2.8: RoverFemale\n* Updated hash of Chisa's textures (Updated on 11/27)\n* Added removal of Chisa's enhanced E skill wounded_effect (requires update to version 2.8.1)\n* Updated hash of BlackshoreNPC_Body diffusemap\n...\n\n"
+            "zh": "修复3.0: 请确保图形质量预设为均衡及以上并且画面细节为极高，或者在Engine.ini中添加r.Streaming.UseAllMips=1\n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n\n修复2.8: 女漂\n* 千咲贴图hash更新(更新于11/27)\n* 新增千咲强化e受伤表现移除(需更新至2.8.1)\n* 黑海岸NPC身体贴图hash更新\n...\n\n",
+            "en": "Fix 3.0: Ensure the Graphics Quality is set to Balanced or higher and the LOD Bias is set to Ultra High, or add r.Streaming.UseAllMips=1 to your Engine.ini file.\n* Fixed Female Rover.\n* Updated texture hashes for Zani and Brant.\n* Updated hair textures hashes for Chisa\n\nFix 2.8: RoverFemale\n* Updated hash of Chisa's textures (Updated on 11/27)\n* Added removal of Chisa's enhanced E skill wounded_effect (requires update to version 2.8.1)\n* Updated hash of BlackshoreNPC_Body diffusemap\n...\n\n"
         },
         "intro_note": {
             "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
@@ -1938,7 +1938,9 @@
                 {"old": ["c7a7ec1b"], "new": "9121c3f8"},
                 {"old": ["f869e47c"], "new": "bb49600b"},
                 {"old": ["7ff6e112"], "new": "2970cef1"},
-                {"old": ["c7beddc7"], "new": "a5da2563"}
+                {"old": ["c7beddc7"], "new": "a5da2563"},
+                {"old": ["37250244"], "new": "8348a33b"},
+                {"old": ["fee91ed9"], "new": "06ecbf72"}
             ],
             "states": {
                 "injured": {
@@ -1951,7 +1953,7 @@
                 }
             },
             "stable_textures": {
-               "0": {"D": "37250244", "L": "d0d2cc80"}, "1": {"D": "fee91ed9", "L": "d8ed7611"}, "2": {"D": "a620843e", "L": "f1c2e889"},"3": {"D": "9121c3f8", "N": "eca8e09b", "L": "a83a8906"}, 
+               "0": {"D": "8348a33b", "L": "d0d2cc80"}, "1": {"D": "06ecbf72", "L": "d8ed7611"}, "2": {"D": "a620843e", "L": "f1c2e889"},"3": {"D": "9121c3f8", "N": "eca8e09b", "L": "a83a8906"}, 
                "4": {"D": "bb49600b", "N": "9b396b0d", "L": "403595f8"}, "5": {"D": "cd006f06", "L": "cd006f06", "N": "0cc6f756"}
             }
         }
