@@ -26,8 +26,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.0: 请确保图形质量预设为均衡及以上并且画面细节为极高，或者在Engine.ini中添加r.Streaming.UseAllMips=1\n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n\n修复2.8: 女漂\n* 千咲贴图hash更新(更新于11/27)\n* 新增千咲强化e受伤表现移除(需更新至2.8.1)\n* 黑海岸NPC身体贴图hash更新\n...\n\n",
-            "en": "Fix 3.0: Ensure the Graphics Quality is set to Balanced or higher and the LOD Bias is set to Ultra High, or add r.Streaming.UseAllMips=1 to your Engine.ini file.\n* Fixed Female Rover.\n* Updated texture hashes for Zani and Brant.\n* Updated hair textures hashes for Chisa\n\nFix 2.8: RoverFemale\n* Updated hash of Chisa's textures (Updated on 11/27)\n* Added removal of Chisa's enhanced E skill wounded_effect (requires update to version 2.8.1)\n* Updated hash of BlackshoreNPC_Body diffusemap\n...\n\n"
+            "zh": "修复3.0: 请确保图形质量预设为均衡及以上并且画面细节为极高，或者在Engine.ini中添加r.Streaming.UseAllMips=1\n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n\n修复2.8: 女漂\n* 千咲贴图hash更新(更新于11/27)\n* 新增千咲强化e受伤表现移除(需更新至2.8.1)\n* 黑海岸NPC身体贴图hash更新\n...\n\n",
+            "en": "Fix 3.0: Ensure the Graphics Quality is set to Balanced or higher and the LOD Bias is set to Ultra High, or add r.Streaming.UseAllMips=1 to your Engine.ini file.\n* Fixed Female Rover.\n* Updated texture hashes for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n\nFix 2.8: RoverFemale\n* Updated hash of Chisa's textures (Updated on 11/27)\n* Added removal of Chisa's enhanced E skill wounded_effect (requires update to version 2.8.1)\n* Updated hash of BlackshoreNPC_Body diffusemap\n...\n\n"
         },
         "intro_note": {
             "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
@@ -218,6 +218,7 @@
                 {"old": ["db7ba06b"], "new": "5606456f"},
                 {"old": ["56343b28"], "new": "6913dea1"}
             ],
+            "checksum": "1718",
             "states": {
                 "injured": {
                     "275382c9": "7de9f13a",
