@@ -58,17 +58,28 @@ struct ModFixer {
 impl ModFixer {
     fn new(characters: &HashMap<String, CharacterConfig>, enable_texture_override: bool) -> Self {
         let mut hash_to_character = HashMap::new();
+
         for (char_name, config) in characters.iter() {
-            let all_hashes = config
-                .main_hashes
-                .iter()
-                .chain(config.texture_hashes.iter())
-                .chain(config.shader_hashes.iter());
-            for replacement in all_hashes {
+            let static_hashes = config.main_hashes.iter();
+            for replacement in static_hashes {
                 for old_hash in &replacement.old {
                     hash_to_character.insert(old_hash.clone(), char_name.clone());
                 }
                 hash_to_character.insert(replacement.new.clone(), char_name.clone());
+            }
+
+            for (base_hash, node) in &config.textures {
+                hash_to_character.insert(base_hash.clone(), char_name.clone());
+
+                for old_hash in &node.replace {
+                    hash_to_character.insert(old_hash.clone(), char_name.clone());
+                }
+
+                for target_hashes in node.derive.values() {
+                    for target_hash in target_hashes {
+                        hash_to_character.insert(target_hash.clone(), char_name.clone());
+                    }
+                }
             }
         }
 
@@ -211,13 +222,42 @@ impl ModFixer {
 
             info!("{}", t!(match_character_prompt, character = char_name));
 
-            // 哈希替换
-            ini_modified |= self.replace_hashes(&mut new_content, &config.main_hashes);
-            ini_modified |= self.replace_hashes(&mut new_content, &config.texture_hashes);
-            ini_modified |= self.replace_hashes(&mut new_content, &config.shader_hashes);
+            // --- 哈希替换 (Replace Logic) ---
+            ini_modified |= self.replace_hashes_list(&mut new_content, &config.main_hashes);
 
-            // 进行精确的角色匹配，只有匹配成功才执行后续的特定修复
+            for (base_hash, node) in &config.textures {
+                if !node.replace.is_empty() {
+                    ini_modified |=
+                        self.replace_hash_single_target(&mut new_content, &node.replace, base_hash);
+                }
+            }
+
+            // --- 状态重定向 (Derive Logic) ---
+            if self.enable_texture_override || settings.state_texture_removers.contains(&char_name)
+            {
+                let mut aggregated_states: HashMap<String, HashMap<String, String>> =
+                    HashMap::new();
+
+                for (base_hash, node) in &config.textures {
+                    for (state_name, target_hashes) in &node.derive {
+                        let entry = aggregated_states.entry(state_name.clone()).or_default();
+                        for target in target_hashes {
+                            entry.insert(target.clone(), base_hash.clone());
+                        }
+                    }
+                }
+
+                for (state_name, state_map) in aggregated_states {
+                    ini_modified |= self.texture_override_redirection(
+                        &mut new_content,
+                        &state_map,
+                        &state_name,
+                    )?;
+                }
+            }
+
             if self.is_character_match(&content, &char_name, config) {
+                // Checksum
                 if let Some(checksum) = &config.checksum {
                     let new_content_replaced = self
                         .checksum_regex
@@ -225,39 +265,20 @@ impl ModFixer {
 
                     if new_content_replaced.as_ref() != new_content {
                         new_content = new_content_replaced.into_owned();
-                        info!(
-                            "checksum_replaced: {char_name} = {checksum}",
-                            char_name = char_name,
-                            checksum = checksum
-                        );
+                        info!("checksum_replaced: {char_name} = {checksum}");
                         ini_modified = true;
                     }
                 }
 
-                // replace component match_first_index and match_first_count
+                // Rules
                 ini_modified |= self.replace_index_offset_count(&mut new_content, &config.rules);
 
-                // 受损表现移除
-                if self.enable_texture_override
-                    || settings.state_texture_removers.contains(&char_name)
-                {
-                    if let Some(char_states) = &config.states {
-                        for state_name in char_states.keys() {
-                            let state_map = char_states.get(state_name).unwrap();
-                            ini_modified |= self.texture_override_redirection(
-                                &mut new_content,
-                                state_map,
-                                state_name.as_str(),
-                            )?;
-                        }
-                    }
-                }
-
-                // 顶点组重映射
+                // --- VGs Remaps ---
                 if let Some(vg_maps) = &config.vg_remaps {
                     buf_files_modified |= self.remaps(&content, path, vg_maps)?;
                 }
 
+                // ... Aero Rover Fix logic ...
                 let enable_aero_rover_fix =
                     if settings.enable_aero_rover_fix && char_name == "RoverFemale" {
                         println!();
@@ -268,22 +289,19 @@ impl ModFixer {
                         false
                     };
 
-                // 修复风主满共鸣能量眼睛异常
                 if enable_aero_rover_fix {
                     let texcoord_modified =
                         self.fix_aero_rover_female_eyes_with_texcoord(path, &content)?;
-
                     if !texcoord_modified {
                         let texture_section_added =
                             self.fix_aero_rover_female_eyes_with_texture(path, &mut new_content)?;
                         ini_modified |= texture_section_added;
                     }
-
                     buf_files_modified |= texcoord_modified;
                     info!("{}", t!(aero_rover_female_eyes_fixed));
                 }
 
-                // 修复芙露德莉斯
+                // ... Fleurdelys Fix logic ...
                 if char_name == "Fleurdelys" && content.contains("618a230e") {
                     let replaced_content =
                         self.blend_block_re
@@ -374,7 +392,7 @@ impl ModFixer {
         false
     }
 
-    fn replace_hashes(&self, content: &mut String, hashes: &[Replacement]) -> bool {
+    fn replace_hashes_list(&self, content: &mut String, hashes: &[Replacement]) -> bool {
         let mut modified = false;
         for hr in hashes {
             for old_hash in hr.old.iter().rev() {
@@ -385,13 +403,31 @@ impl ModFixer {
                         .replace_all(content, &format!("hash = {}", hr.new))
                         .to_string();
                     modified = true;
-                    info!(
-                        "{old_hash} -> {new_hash}",
-                        old_hash = old_hash,
-                        new_hash = hr.new
-                    );
+                    info!("{} -> {}", old_hash, hr.new);
                     break;
                 }
+            }
+        }
+        modified
+    }
+
+    fn replace_hash_single_target(
+        &self,
+        content: &mut String,
+        old_hashes: &[String],
+        new_hash: &str,
+    ) -> bool {
+        let mut modified = false;
+        for old_hash in old_hashes.iter().rev() {
+            if old_hash != new_hash && content.contains(&format!("hash = {}", &old_hash)) {
+                let re =
+                    Regex::new(&format!(r"\bhash\s*=\s*{}\b", regex::escape(old_hash))).unwrap();
+                *content = re
+                    .replace_all(content, &format!("hash = {}", new_hash))
+                    .to_string();
+                modified = true;
+                info!("{} -> {}", old_hash, new_hash);
+                break;
             }
         }
         modified
@@ -405,33 +441,83 @@ impl ModFixer {
     ) -> Result<bool> {
         let mut new_fix_sections: Vec<String> = Vec::new();
 
+        let mut existing_headers: std::collections::HashSet<String> = content
+            .lines()
+            .filter_map(|line| {
+                let trimmed = line.trim();
+                if trimmed.starts_with('[') && trimmed.ends_with(']') {
+                    Some(trimmed[1..trimmed.len() - 1].to_string())
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        let mut grouped_map: HashMap<&String, Vec<&String>> = HashMap::new();
         for (changed_hash, original_hash) in tex_override_map {
-            if !content.contains(original_hash) || content.contains(changed_hash) {
+            grouped_map
+                .entry(original_hash)
+                .or_default()
+                .push(changed_hash);
+        }
+
+        for (original_hash, changed_hashes) in grouped_map {
+            if !content.contains(original_hash) {
                 continue;
             }
 
-            let match_texture_override_content =
-                self.get_texture_override_content_after_match_priority(original_hash, content)?;
-            let clone_content = match_texture_override_content.content.trim();
-            // 检查是否有需要修复的TextureOverrideTexture节
-            if !clone_content.is_empty() {
-                let mut section_header = match_texture_override_content.section_header.trim();
-                if let Some(stripped) = section_header
+            let mut needed_hashes: Vec<&String> = changed_hashes
+                .iter()
+                .filter(|&&h| !content.contains(h))
+                .cloned()
+                .collect();
+            needed_hashes.sort();
+
+            if needed_hashes.is_empty() {
+                continue;
+            }
+
+            let match_res =
+                self.get_texture_override_content_after_match_priority(original_hash, content);
+
+            if let Ok(match_data) = match_res {
+                let clone_content = match_data.content.trim();
+                if clone_content.is_empty() {
+                    continue;
+                }
+
+                let mut base_header = match_data.section_header.trim();
+                if let Some(stripped) = base_header
                     .strip_prefix('[')
                     .and_then(|s| s.strip_suffix(']'))
                 {
-                    section_header = stripped;
+                    base_header = stripped;
                 } else {
-                    warn!("Invalid section header format: {}", section_header);
                     continue;
                 }
-                info!("{} -> {}: {}", changed_hash, original_hash, section_header);
-                let texture_override_section = &format!("[{}_{}]", section_header, header_suffix);
-                let new_section_content = format!(
-                    "{}\nhash = {}\nmatch_priority = 0\n{}",
-                    texture_override_section, changed_hash, clone_content
-                );
-                new_fix_sections.push(new_section_content);
+
+                for changed_hash in needed_hashes {
+                    let mut candidate_header = format!("{}_{}", base_header, header_suffix);
+                    let mut counter = 0;
+
+                    while existing_headers.contains(&candidate_header) {
+                        candidate_header = format!("{}_{}_{}", base_header, header_suffix, counter);
+                        counter += 1;
+                    }
+
+                    existing_headers.insert(candidate_header.clone());
+
+                    info!(
+                        "Generating section: [{}] for hash {}",
+                        candidate_header, changed_hash
+                    );
+
+                    let new_section_content = format!(
+                        "[{}]\nhash = {}\nmatch_priority = 0\n{}",
+                        candidate_header, changed_hash, clone_content
+                    );
+                    new_fix_sections.push(new_section_content);
+                }
             }
         }
 
@@ -493,7 +579,7 @@ impl ModFixer {
             }
         }
 
-        let after_content = collected_content.join("\n");
+        let after_content = collected_content.join("\n").trim_end().to_string();
 
         if after_content.is_empty() {
             return Err(Error::msg(format!(
@@ -814,7 +900,7 @@ impl ModFixer {
 
         [TextureOverride_RoverFemale]
         if $charged == 1
-        hash = bd26f515
+        hash = 06482222
         $rf_state = 1
         endif
 
@@ -928,16 +1014,11 @@ fn run_interactive() {
         .prompt()
         .unwrap();
 
-    let enable_texture_override = if config_loader::settings().enable_wounded_effect {
-        println!("{}", t!(texture_override_note));
-
-        Confirm::new(t!(texture_override_prompt))
-            .with_default(false)
-            .prompt()
-            .unwrap()
-    } else {
-        false
-    };
+    println!("{}", t!(texture_override_note));
+    let enable_texture_override = Confirm::new(t!(texture_override_prompt))
+        .with_default(false)
+        .prompt()
+        .unwrap();
 
     let fixer = ModFixer::new(config_loader::characters(), enable_texture_override);
     let result = panic::catch_unwind(|| {

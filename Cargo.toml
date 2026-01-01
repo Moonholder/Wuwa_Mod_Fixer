@@ -1,6 +1,6 @@
 [package]
 name = "Wuwa_Mod_Fixer"
-version = "2.8.1"
+version = "3.0.0"
 edition = "2024"
 
 [profile.release]

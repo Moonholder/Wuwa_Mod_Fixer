@@ -1,7 +1,7 @@
 {
     "version" : {
-        "min_required_version": "2.8.1",
-        "current_version": "3.0.0",
+        "min_required_version": "3.0.0",
+        "current_version": "3.0.1",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -26,12 +26,12 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.0: 请确保图形质量预设为均衡及以上并且画面细节为极高，或者在Engine.ini中添加r.Streaming.UseAllMips=1\n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n\n修复2.8: 女漂\n* 千咲贴图hash更新(更新于11/27)\n* 新增千咲强化e受伤表现移除(需更新至2.8.1)\n* 黑海岸NPC身体贴图hash更新\n...\n\n",
-            "en": "Fix 3.0: Ensure the Graphics Quality is set to Balanced or higher and the LOD Bias is set to Ultra High, or add r.Streaming.UseAllMips=1 to your Engine.ini file.\n* Fixed Female Rover.\n* Updated texture hashes for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n\nFix 2.8: RoverFemale\n* Updated hash of Chisa's textures (Updated on 11/27)\n* Added removal of Chisa's enhanced E skill wounded_effect (requires update to version 2.8.1)\n* Updated hash of BlackshoreNPC_Body diffusemap\n...\n\n"
+            "zh": "修复3.0: 更新您的XXMI至最新版本\n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n\n修复2.8: 女漂\n* 千咲贴图hash更新(更新于11/27)\n* 新增千咲强化e受伤表现移除(需更新至2.8.1)\n* 黑海岸NPC身体贴图hash更新\n...\n\n",
+            "en": "Fix 3.0: Update your XXMI to the latest version.\n* Fixed Female Rover.\n* Updated texture hashes for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n\nFix 2.8: RoverFemale\n* Updated hash of Chisa's textures (Updated on 11/27)\n* Added removal of Chisa's enhanced E skill wounded_effect (requires update to version 2.8.1)\n* Updated hash of BlackshoreNPC_Body diffusemap\n..."
         },
         "intro_note": {
-            "zh": "将WWMI更新至0.9.6以修复损坏的面部(和肩部)动画",
-            "en": "Update WWMI to version 0.9.6 to fix the broken facial (and shoulder) animations."
+            "zh": "确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错",
+            "en": "Disable Ray Tracing. Ensure r.RayTracing.LoadConfig is set to 0 in Engine.ini (if present), or the face will break."
         },
         "compatibility_note": {
             "zh": "\n注：wwmi 0.6x版本的旧Mod在WWMI 070版本之后需开启兼容模式才能加载. 从WWMI076开始默认关闭了兼容模式. 开启方式: 游戏内 Alt + F12. 显示 Compatibility Mode: Enabled",
@@ -42,20 +42,20 @@
             "en": "Starting from version 2.0, different graphics presets may have different hash values, which may cause mod texture errors. Please set the graphics quality preset to Balanced/Quality."
         },
         "texture_override_note": {
-            "zh": "\n游戏2.1版本已经在设置添加了受伤表现开关，此工具仍提供战损修复功能，建议坎特蕾拉启用，除此目前2.6以前的角色暂不建议启用此选项",
-            "en": "\nIn game 2.1 version, 'Wounded Effect' has been added to the settings, this tool still provides injured texture hash fix, It is recommended to enable this option for Cantarella. However, for characters prior to version 2.6, it is not recommended to enable this option."
+            "zh": "\n通过纹理重定向，使部分角色模组能在画面细节高/中下运行",
+            "en": "\nVia Texture Redirection, allows some character mods to work on High/Medium LOD Bias settings."
         },
         "texture_override_prompt": {
-            "zh": "是否移除受伤表现？ （默认否）:",
-            "en": "Remove 'Wounded Effect' in Quality? (default no):"
+            "zh": "是否启用？ （默认否）:",
+            "en": "Enable? (default No):"
         },
         "rabbit_fx_stable_texture_note": {
-            "zh": "\n使用RabbitFX的'Stable texture'功能移除战损/湿身(目前仅坎特蕾拉和千咲)，需安装RabbitFX_v615+",
-            "en": "\nTo remove the injured/wet of Characters with RabbitFX's 'Stable texture' feature(At present, only Cantarella and Chisa), RabbitFX_v615+ is required"
+            "zh": "\n使用RabbitFX为角色设置稳定纹理(目前仅坎特蕾拉和千咲)\n只是单纯根据hash去找到对应的贴图，加到指定的Component里，但实际很多作者会使用合并贴图，\n很有可能多个部位使用同一张贴图，所以需要自行检查并修改，需安装RabbitFX_v616+",
+            "en": "\nUse RabbitFX to set stable textures for characters (currently only supports Cantarella and Chisa).\nThis simply locates the corresponding texture based on its hash and adds it to the specified Component.\nHowever, since many authors use merged textures, it is very likely that multiple body parts share the same texture file.Therefore, you need to manually check and modify the settings.\nRequires RabbitFX_v616+."
         },
         "rabbit_fx_stable_texture_prompt": {
-            "zh": "是否移除？ （默认否）:",
-            "en": "Remove? (default no):"
+            "zh": "是否启用？ （默认启用）:",
+            "en": "Enable? (default Yes):"
         },
         "found_old_mod": {
             "zh": "发现旧版Mod(wwmi 0.6x)，正在尝试修复...",
@@ -155,52 +155,21 @@
         }
     },
     "settings": {
-        "enable_wounded_effect": false,
         "state_texture_removers": ["Cantarella", "Chisa"],
         "enable_aero_rover_fix": false
     },
     "characters": {
-        "UID": {"shader_hashes": [{"old": ["ee9bba54e287c770"], "new": "31bd7d7a4b36db57"}]},
-        "UI-Portraits": {
-            "texture_hashes": [
-                {"old": ["a2e39448"], "new": "db41a7c0"},
-                {"old": ["0b0c62dc"], "new": "30d29c41"},
-                {"old": ["c21a766f"], "new": "146c6a6d"},
-                {"old": ["b748481c"], "new": "9f193f21"},
-                {"old": ["f8e3d8c9"], "new": "8e536f03"},
-                {"old": ["95ec9f1b"], "new": "486af6a0"},
-                {"old": ["7767ee3e"], "new": "62552f81"},
-                {"old": ["49082dc4"], "new": "0f6df4e5"},
-                {"old": ["7725471d"], "new": "c2adf773"},
-                {"old": ["fd575c85"], "new": "3f7c3903"},
-                {"old": ["10052fb4"], "new": "18bf410a"},
-                {"old": ["2dbdbe23"], "new": "461fb401"},
-                {"old": ["683686d2"], "new": "d9d919eb"},
-                {"old": ["b5e753eb"], "new": "e6d1829e"},
-                {"old": ["703614de"], "new": "5d22afbc"},
-                {"old": ["960e8497"], "new": "f0cecfc8"},
-                {"old": ["b15518f8"], "new": "10c525d0"},
-                {"old": ["2c1d8de1"], "new": "da14ee89"},
-                {"old": ["0224bb81"], "new": "16f378b3"},
-                {"old": ["4210b6d3"], "new": "bc8bedc9"},
-                {"old": ["5cce271c"], "new": "06770f65"},
-                {"old": ["34cc99c9"], "new": "6a4795fb"},
-                {"old": ["e130c193"], "new": "73efd301"},
-                {"old": ["0b8d373e"], "new": "c8ae362f"},
-                {"old": ["94ad162e"], "new": "aca00308"},
-                {"old": ["ead76ced"], "new": "474c22e1"}
-            ]
+        "UID": {
+            "31bd7d7a4b36db57": { "replace": ["ee9bba54e287c770"] }
         },
         "Flight(normal)": {
             "main_hashes": [{"old": ["b67843da"], "new": "b67843da"}],
-            "texture_hashes": [
-                {"old": ["7233337e"], "new": "ff615a59"},
-                {"old": ["99977887"], "new": "4082c8ea"}
-            ]
+            "ff615a59": { "replace": ["7233337e"] },
+            "4082c8ea": { "replace": ["99977887"] }
         },
         "glider(normal)": {
             "main_hashes": [{"old": ["a0c4996d"], "new": "a0c4996d"}],
-            "texture_hashes": [{"old": ["e0b526b0"], "new": "8c2f4684"}]
+            "8c2f4684": { "replace": ["e0b526b0"] }
         },
         "RoverMale": {
             "main_hashes": [
@@ -208,56 +177,35 @@
                 {"old": ["f8375eb4", "3ab7c4d1"], "new": "f8375eb4"},
                 {"old": ["6e2f48ba", "a4be44e5"], "new": "6e2f48ba"}
             ],
-            "texture_hashes": [
-                {"old": ["f16d5dae"], "new": "a1c0d97c"},
-                {"old": ["7931ea8a", "fedfec0e"], "new": "e2c06226"},
-                {"old": ["b4855e43"], "new": "7de9f13a"},
-                {"old": ["65af60de"], "new": "6bc458a2"},
-                {"old": ["454843d1"], "new": "7997ade0"},
-                {"old": ["13bc29e0"], "new": "756ab255"},
-                {"old": ["db7ba06b"], "new": "5606456f"},
-                {"old": ["56343b28"], "new": "6913dea1"}
-            ],
             "checksum": "1718",
-            "states": {
-                "injured": {
-                    "275382c9": "7de9f13a",
-                    "e7b350ce": "7bc718ed",
-                    "fc2a5fb9": "6bc458a2",
-                    "28b2e0ae": "5606456f"
-                }
-            }
+            "a1c0d97c": { "replace": ["f16d5dae"] },
+            "e2c06226": { "replace": ["7931ea8a", "fedfec0e"] },
+            "7de9f13a": { "replace": ["b4855e43"], "derive": { "LOD": ["a0b66f1d", "038fedbf"] } },
+            "6bc458a2": { "replace": ["65af60de"], "derive": { "LOD": ["b69bc685", "8654c681"] } },
+            "7997ade0": { "replace": ["454843d1"], "derive": { "LOD": ["a4c833c7", "96789cc5"] } },
+            "756ab255": { "replace": ["13bc29e0"], "derive": { "LOD": ["a8352c72", "9bc4cdc9"] } },
+            "5606456f": { "replace": ["db7ba06b"], "derive": { "LOD": ["8b59db48", "18a5098b"] } },
+            "6913dea1": { "replace": ["56343b28"], "derive": { "LOD": ["b44c4086", "564607b9"] } }
         },
         "RoverFemale": {
             "main_hashes": [
                 {"old": ["be84b775", "e8b5a730", "3533a957", "bd26f515"], "new": "06482222"},
                 {"old": ["ac681fc1"], "new": "ac681fc1"}
             ],
-            "texture_hashes": [
-                {"old": ["2d5b41f6"], "new": "372bd73a"},
-                {"old": ["c446a221", "99d33a32"], "new": "c79b5772"},
-                {"old": ["6aac203f"], "new": "04192868"},
-                {"old": ["dcae957e"], "new": "68a6b802"},
-                {"old": ["a2207e11", "52c18227"], "new": "8ee0408c"},
-                {"old": ["a2aed964"], "new": "2ff23d4c"},
-                {"old": ["be8666c3"], "new": "a01c9b96"},
-                {"old": ["7bc718ed"], "new": "84025dca"},
-                {"old": ["1fe7c3f1"], "new": "946ec36c"},
-                {"old": ["12407ce2"], "new": "ab6288a3"},
-                {"old": ["c39ea10a"], "new": "747ada83"},
-                {"old": ["cccc4663"], "new": "f85b1b15"},
-                {"old": ["fa3f84a8"], "new": "29304593"}
-            ],
-            "states": {
-                "injured": {
-                    "64f39763": "04192868",
-                    "b42b8f11": "68a6b802",
-                    "6bfc52b9": "c79b5772",
-                    "b7f20fb3": "a01c9b96",
-                    "fae1dec5": "84025dca",
-                    "9f464714": "f85b1b15"
-                }
-            }
+            "372bd73a": { "replace": ["2d5b41f6"] },
+            "c79b5772": { "replace": ["c446a221", "99d33a32"], "derive": { "LOD": ["1ac4c955", "8a04102d"] } },
+            "04192868": { "replace": ["6aac203f"], "derive": { "LOD": ["d946b64f", "072b55de"] } },
+            "68a6b802": { "replace": ["dcae957e"] },
+            "52c18227": { "replace": ["a2207e11"], "derive": { "LOD": ["8f9e1c00", "8ee0408c"]} },
+            "2ff23d4c": { "replace": ["a2aed964"] },
+            "a01c9b96": { "replace": ["be8666c3"], "derive": { "LOD": ["7d4305b1", "aea47749"] } },
+            "84025dca": { "replace": ["7bc718ed"], "derive": { "LOD": ["595dc3ed", "fb0b26c4"] } },
+            "946ec36c": { "replace": ["1fe7c3f1"], "derive": { "LOD": ["06481da1", "0681de04"] } },
+            "ab6288a3": { "replace": ["12407ce2"], "derive": { "LOD": ["763d1684", "fa91f2cc"] } },
+            "747ada83": { "replace": ["c39ea10a"], "derive": { "LOD": ["a92544a4", "94f6e8ed"] } },
+            "f85b1b15": { "replace": ["cccc4663"], "derive": { "LOD": ["25048532", "d9282cd3"] } },
+            "29304593": { "replace": ["fa3f84a8"], "derive": { "LOD": ["f46fdbb4", "85700b55"] } },
+            "e02f1a3f": { "derive": { "LOD": ["7209c4f2", "28093edf"] } }
         },
         "Yangyang": {
             "main_hashes": [
@@ -265,77 +213,37 @@
                 {"old": ["2ce54174", "d70fa623"], "new": "b43ab901"},
                 {"old": ["502c1487", "1b1ed7be"], "new": "15a4a9b9"}
             ],
-            "texture_hashes": [
-                {"old": ["77fe24ce"], "new": "d25b9648"},
-                {"old": ["edf438d9"], "new": "3bd37212"},
-                {"old": ["123bcc8e"], "new": "fba3de34"},
-                {"old": ["bd8fff82"], "new": "c3b2a42e"},
-                {"old": ["f42c4870"], "new": "8e27c9a2"},
-                {"old": ["69c48be0"], "new": "1a9b9391"},
-                {"old": ["92d4ad47"], "new": "49b790e0"},
-                {"old": ["16f9802d"], "new": "ae886086"},
-                {"old": ["fc40048f"], "new": "250c59b6"},
-                {"old": ["6905a9bd"], "new": "2da427ff"},
-                {"old": ["1607589b"], "new": "02e9009d"},
-                {"old": ["1e9a1fb8"], "new": "a871413a"},
-                {"old": ["cc7a443c"], "new": "29942440"}
-            ],
             "rules": [
-                {
-                    "line_prefix": "match_first_index",
-                    "replacements": [
-                        { "old": ["120018"], "new": "120021" }
-                    ]
-                },
-                {
-                    "line_prefix": "match_index_count",
-                    "replacements": [
-                        { "old": ["2085"],"new": "2088" }
-                    ]
-                }
+                { "line_prefix": "match_first_index", "replacements": [{ "old": ["120018"], "new": "120021" }] },
+                { "line_prefix": "match_index_count", "replacements": [{ "old": ["2085"],"new": "2088" }] }
             ],
             "vg_remaps": [
                 {
                     "trigger_hash": ["502c1487", "1b1ed7be"],
-                    "vertex_groups": {
-                        "3": 5, "4": 3, "5": 4,
-                        "36": 40,"37": 41, "38": 39, "39": 36, "40": 37, "41": 38, "48": 52, "49": 48, "50": 49, "51": 50, "52": 51, 
-                        "63": 69, "64": 70, "65": 71, "66": 72, "67": 68, "68": 65, "69": 66, "70": 67, "71": 75, "72": 76, "75": 63, "76": 64,
-                        "94": 95, "95": 94, "102": 101, "103": 102, "113": 119, "114": 120, "116": 114, "117": 112, "118": 122, "119": 123, "120": 113,
-                        "122": 116, "123": 117, "153": 154, "154": 153 
-                    
-                    },
+                    "vertex_groups": { "3": 5, "4": 3, "5": 4, "36": 40,"37": 41, "38": 39, "39": 36, "40": 37, "41": 38, "48": 52, "49": 48, "50": 49, "51": 50, "52": 51, "63": 69, "64": 70, "65": 71, "66": 72, "67": 68, "68": 65, "69": 66, "70": 67, "71": 75, "72": 76, "75": 63, "76": 64, "94": 95, "95": 94, "102": 101, "103": 102, "113": 119, "114": 120, "116": 114, "117": 112, "118": 122, "119": 123, "120": 113, "122": 116, "123": 117, "153": 154, "154": 153 },
                     "component_remap": [
-                        {
-                            "component_index": 0,
-                            "indices": {"3": 5, "4": 3, "5": 4 }
-                        },
-                        {
-                            "component_index": 3,
-                            "indices": {
-                                "3": 7, "4": 8, "5": 6, "6": 3, "7": 4, "8": 5, "15": 19, "16": 15, "17": 16, "18": 17, "19": 18, "30": 36, "31": 37,
-                                "32": 38, "33": 39, "34": 35, "35": 32, "36": 33, "37": 34, "38": 42, "39": 43, "42": 30, "43": 31
-                            }
-                        },
-                        {
-                            "component_index": 4,
-                            "indices": {
-                                "15": 16, "16": 15, "22": 24, "23": 22, "24": 23, "33": 39, "34": 40, "35": 41, "37": 35, "38": 33, "39": 43, "40": 44,
-                                "41": 34, "43": 37, "44": 38, "55": 56, "56": 55
-                            }
-                        },
-                        {
-                            "component_index": 5,
-                            "indices": { "13": 14, "14": 13 }
-                        }
+                        { "component_index": 0, "indices": {"3": 5, "4": 3, "5": 4 } },
+                        { "component_index": 3, "indices": { "3": 7, "4": 8, "5": 6, "6": 3, "7": 4, "8": 5, "15": 19, "16": 15, "17": 16, "18": 17, "19": 18, "30": 36, "31": 37, "32": 38, "33": 39, "34": 35, "35": 32, "36": 33, "37": 34, "38": 42, "39": 43, "42": 30, "43": 31 } },
+                        { "component_index": 4, "indices": { "15": 16, "16": 15, "22": 24, "23": 22, "24": 23, "33": 39, "34": 40, "35": 41, "37": 35, "38": 33, "39": 43, "40": 44, "41": 34, "43": 37, "44": 38, "55": 56, "56": 55 } },
+                        { "component_index": 5, "indices": { "13": 14, "14": 13 } }
                     ]
                 }
             ],
-            "states": {
-                "injured": {
-                    "a6fbf4d2": "250c59b6"
-                }
-            }
+            "d25b9648": { "replace": ["77fe24ce"], "derive": { "LOD": ["5c420830"] } },
+            "3bd37212": { "replace": ["edf438d9"], "derive": { "LOD": ["75744c96"] } },
+            "fba3de34": { "replace": ["123bcc8e"] },
+            "c3b2a42e": { "replace": ["bd8fff82"], "derive": { "LOD": ["8f252131"] } },
+            "8e27c9a2": { "replace": ["f42c4870"] },
+            "1a9b9391": { "replace": ["69c48be0"], "derive": { "LOD": ["7056f9e3"] } },
+            "49b790e0": { "replace": ["92d4ad47"], "derive": { "LOD": ["dd6494d1"] } },
+            "ae886086": { "replace": ["16f9802d"], "derive": { "LOD": ["2fa1eb71"] } },
+            "250c59b6": { "replace": ["fc40048f"], "derive": { "LOD": ["2f0f3415"] } },
+            "2da427ff": { "replace": ["6905a9bd"] },
+            "02e9009d": { "replace": ["1607589b"], "derive": { "LOD": ["bfc63c64"] } },
+            "a871413a": { "replace": ["1e9a1fb8"], "derive": { "LOD": ["bc76221b"] } },
+            "29942440": { "replace": ["cc7a443c"], "derive": { "LOD": ["44030476"] } },
+            "0e3eb7d9": { "derive": { "LOD": ["bfc63c64"] } },
+            "95caeb91c": { "derive": { "LOD": ["60662e92"] } }
         },
         "Lingyang": {
             "main_hashes": [
@@ -343,141 +251,95 @@
                 {"old": ["b239a59d"], "new": "d02c1cb1"},
                 {"old": ["497106c3"], "new": "2e3de562"}
             ],
-            "texture_hashes": [
-                {"old": ["587edf05"], "new": "9925d10e"},
-                {"old": ["525e8109"], "new": "f1282b25"},
-                {"old": ["158837cc"], "new": "6e30ff58"},
-                {"old": ["fefe885a"], "new": "84488d7d"},
-                {"old": ["921bc51f"], "new": "eaa6090e"},
-                {"old": ["a5263392"], "new": "66e7b828"},
-                {"old": ["095549b5"], "new": "91bba480"},
-                {"old": ["a4e3009b"], "new": "1d9176cc"},
-                {"old": ["d01c79e9"], "new": "291b46d1"},
-                {"old": ["3a5f46c6"], "new": "3ebe7858"},
-                {"old": ["e37ba92d"], "new": "65faf13f"},
-                {"old": ["08f8fbe7"], "new": "da541842"},
-                {"old": ["b1438a92"], "new": "bdf5e2b4"},
-                {"old": ["d1d6464e"], "new": "535cb397"},
-                {"old": ["4c77312e"], "new": "795b563b"}
-            ]
+            "9925d10e": { "replace": ["587edf05"] },
+            "f1282b25": { "replace": ["525e8109"], "derive": { "LOD": ["13673ea0"] } },
+            "6e30ff58": { "replace": ["158837cc"] },
+            "84488d7d": { "replace": ["fefe885a"], "derive": { "LOD": ["ab105641"] } },
+            "eaa6090e": { "replace": ["921bc51f"], "derive": { "LOD": ["0fe1b653"] } },
+            "66e7b828": { "replace": ["a5263392"], "derive": { "LOD": ["6a58a85b"] } },
+            "91bba480": { "replace": ["095549b5"], "derive": { "LOD": ["9d119268"] } },
+            "1d9176cc": { "replace": ["a4e3009b"] },
+            "291b46d1": { "replace": ["d01c79e9"], "derive": { "LOD": ["c9c5e944"] } },
+            "3ebe7858": { "replace": ["3a5f46c6"], "derive": { "LOD": ["5613b90a"] } },
+            "65faf13f": { "replace": ["e37ba92d"], "derive": { "LOD": ["c24fdf9c"] } },
+            "da541842": { "replace": ["08f8fbe7"], "derive": { "LOD": ["09a7dae1"] } },
+            "bdf5e2b4": { "replace": ["b1438a92"], "derive": { "LOD": ["2b1e14bd"] } },
+            "535cb397": { "replace": ["d1d6464e"], "derive": { "LOD": ["d21efa55"] } },
+            "795b563b": { "replace": ["4c77312e"], "derive": { "LOD": ["5d52d083"] } }
         },
         "Carlotta": {
             "main_hashes": [{"old": ["4ba716ae"], "new": "4ba716ae"}],
-            "texture_hashes": [
-                {"old": ["90e7de37"], "new": "fc76838a"},
-                {"old": ["129c321d"], "new": "c7918746"},
-                {"old": ["6deb3b31"], "new": "6a96ee48"},
-                {"old": ["10d7620f"], "new": "ee96e964"},
-                {"old": ["1874bd89"], "new": "27abb610"},
-                {"old": ["abea3993"], "new": "fd016c75"},
-                {"old": ["aff53965"], "new": "463ab246"}
-            ],
-            "states": {
-                "injured": {
-                    "082598f8": "6a96ee48",
-                    "2ddd54b4": "fd016c75",
-                    "fbda8c64": "fc76838a"
-                }
-            }
+            "fc76838a": { "replace": ["90e7de37"], "derive": { "LOD": ["21291dad", "cbee7046"] } },
+            "c7918746": { "replace": ["129c321d"], "derive": { "LOD": ["1ace1961", "fe16e9c4"] } },
+            "6a96ee48": { "replace": ["6deb3b31"], "derive": { "LOD": ["b7c9706f", "fa6108a4"] } },
+            "ee96e964": { "replace": ["10d7620f"], "derive": { "LOD": ["33c97743", "c63ffae5"] } },
+            "27abb610": { "replace": ["1874bd89"], "derive": { "LOD": ["faf42837", "99713eb2"] } },
+            "fd016c75": { "replace": ["abea3993"], "derive": { "LOD": ["205ef252", "6978ec78"] } },
+            "463ab246": { "replace": ["aff53965"], "derive": { "LOD": ["9b652c61", "424e166f"] } },
+            "333ad4cc": { "derive": { "LOD": ["ee654aeb", "803ae598"] } }
         },
         "CarlottaHair": {
             "main_hashes": [{"old": ["15885f04"], "new": "15885f04"}],
-            "texture_hashes": [
-                {"old": ["24d244c6"], "new": "2c08bef8"},
-                {"old": ["a522548d"], "new": "ea549e9a"},
-                {"old": ["514a16b0"], "new": "30bc60f3"},
-                {"old": ["df2d1f7b"], "new": "9ec0b80f"}
-            ]
+            "2c08bef8": { "replace": ["24d244c6"] },
+            "ea549e9a": { "replace": ["a522548d"], "derive": { "LOD": ["370b00bd", "6fdff835"] } },
+            "30bc60f3": { "replace": ["514a16b0"], "derive": { "LOD": ["ede3fed4", "15268ea3"] } },
+            "9ec0b80f": { "replace": ["df2d1f7b"] }
         },
         "CarlottaHairCrystal": {
             "main_hashes": [{"old": ["873457db"], "new": "873457db"}],
-            "texture_hashes": [
-                {"old": ["1d394c0e"], "new": "c7042488"},
-                {"old": ["24d244c6"], "new": "2c08bef8"},
-                {"old": ["3886b266"], "new": "cae39d06"},
-                {"old": ["4b8a6357"], "new": "137c6faa"},
-                {"old": ["7f0aa102"], "new": "cae6d5b6"},
-                {"old": ["9d0b65e1"], "new": "1842bc28"},
-                {"old": ["df2d1f7b"], "new": "9ec0b80f"}
-            ]
+            "c7042488": { "replace": ["1d394c0e"] },
+            "cae39d06": { "replace": ["3886b266"] },
+            "137c6faa": { "replace": ["4b8a6357"] },
+            "cae6d5b6": { "replace": ["7f0aa102"] },
+            "1842bc28": { "replace": ["9d0b65e1"] }
         },
         "CarlottaSplashingSummer": {
             "main_hashes":[{"old": ["98ec10c8"], "new": "98ec10c8"}],
-            "texture_hashes": [
-                {"old": ["90e7de37"], "new": "fc76838a"},
-                {"old": ["a522548d"], "new": "ea549e9a"},
-                {"old": ["50c8f761"], "new": "05824707"},
-                {"old": ["129c321d"], "new": "c7918746"}
-            ],
-            "states": {
-                "injured": {
-                    "32b9363d": "e7520ca5",
-                    "f0fc511b": "f8ab33e2",
-                    "fb7d86dc": "fc76838a"
-                }
-            }
+            "05824707": { "replace": ["50c8f761"] },
+            "e7520ca5": { "derive": { "LOD": ["7ada86d9"] } },
+            "f8ab33e2": { "derive": { "LOD": ["01740a90"] } },
+            "4b1c9555": { "derive": { "LOD": ["35213b24"] } },
+            "71ef9c36": { "derive": { "LOD": ["6b0ab3ef"] } },
+            "2fae5fc8": { "derive": { "LOD": ["e690babf"] } },
+            "8dc9c2be": { "derive": { "LOD": ["c3f7a100"] } },
+            "9c97599c": { "derive": { "LOD": ["327be21e"] } },
+            "8cb532af": { "derive": { "LOD": ["51eaac88", "8666534d"] } },
+            "38d5560d": { "derive": { "LOD": ["e58ac82a", "1414d48b"] } }
         },
         "CarlottaSplashingSummerHair": {
-            "main_hashes":[{"old": ["fef960d0"], "new": "fef960d0"}],
-            "texture_hashes": [
-                {"old": ["50c8f761"], "new": "05824707"},
-                {"old": ["a522548d"], "new": "ea549e9a"},
-                {"old": ["514a16b0"], "new": "30bc60f3"},
-                {"old": ["df2d1f7b"], "new": "9ec0b80f"}
-            ]
+            "main_hashes":[{"old": ["fef960d0"], "new": "fef960d0"}]
         },
         "Camellya": {
             "main_hashes": [{"old": ["7748c1d8"], "new": "7748c1d8"}],
-            "texture_hashes": [
-                {"old": ["6ce51d7a"], "new": "b4355151"},
-                {"old": ["fc743d45"], "new": "422a50e2"},
-                {"old": ["3a299182"], "new": "fed8469a"},
-                {"old": ["0f14fc34"], "new": "26e023bb"},
-                {"old": ["faf8f2ae"], "new": "4cbab190"},
-                {"old": ["5d4de02b"], "new": "d8a26ff8"},
-                {"old": ["212d1d6a"], "new": "277dcf73"},
-                {"old": ["830aecff"], "new": "9b03ba8c"},
-                {"old": ["5f4e6f09"], "new": "4f357454"},
-                {"old": ["edfe74f8"], "new": "e299e4ca"},
-                {"old": ["837c1b30"], "new": "afadfdbd"}
-            ],
-            "states": {
-                "injured": {
-                    "10a2a706": "fed8469a",
-                    "65ee0c91": "9b03ba8c",
-                    "2231a66a": "4cbab190"
-                }
-            }
+            "b4355151": { "replace": ["6ce51d7a"] },
+            "422a50e2": { "replace": ["fc743d45"] },
+            "fed8469a": { "replace": ["3a299182"] },
+            "26e023bb": { "replace": ["0f14fc34"] },
+            "4cbab190": { "replace": ["faf8f2ae"] },
+            "d8a26ff8": { "replace": ["5d4de02b"] },
+            "277dcf73": { "replace": ["212d1d6a"] },
+            "9b03ba8c": { "replace": ["830aecff"] },
+            "4f357454": { "replace": ["5f4e6f09"] },
+            "e299e4ca": { "replace": ["edfe74f8"] },
+            "afadfdbd": { "replace": ["837c1b30"] }
         },
         "Jinhsi": {
             "main_hashes": [
                 {"old": ["243b7e59"], "new": "243b7e59"},
                 {"old": ["8fb7baf7"], "new": "8fb7baf7"}
             ],
-            "texture_hashes": [
-                {"old": ["21828bbd", "27036b65"], "new": "5b14639e"},
-                {"old": ["14ecacf3"], "new": "188f9150"},
-                {"old": ["4296f0e8"], "new": "9d12b710"},
-                {"old": ["7f025346"], "new": "d2715d43"},
-                {"old": ["911dca0f"], "new": "88aafbc0"},
-                {"old": ["27f4ef91"], "new": "95034a03"},
-                {"old": ["e51cf6a4"], "new": "81bc8818"},
-                {"old": ["e7191b19"], "new": "d00f99ad"},
-                {"old": ["3943dca3"], "new": "7031d19e"},
-                {"old": ["64bbdb18"], "new": "e51f0115"},
-                {"old": ["70b95d89"], "new": "829180c8"},
-                {"old": ["354569e8"], "new": "439ed7f4"}
-
-            ],
-            "states": {
-                "injured": {
-                    "a658902c": "88aafbc0",
-                    "73a02c4e": "e51f0115",
-                    "d508a408": "9d12b710",
-                    "a2f121b4": "95034a03",
-                    "e2ced28a": "7031d19e"
-                }
-            }
+            "5b14639e": { "replace": ["21828bbd", "27036b65"], "derive": { "LOD": ["864bfdb9", "e48ddb05"] } },
+            "188f9150": { "replace": ["14ecacf3"] },
+            "9d12b710": { "replace": ["4296f0e8"], "derive": { "LOD": ["404d2937", "cc9fb385"] } },
+            "d2715d43": { "replace": ["7f025346"], "derive": { "LOD": ["4057838e", "9cf4ab19"] } },
+            "88aafbc0": { "replace": ["911dca0f"], "derive": { "LOD": ["55f565e7", "80d26141"] } },
+            "95034a03": { "replace": ["27f4ef91"], "derive": { "LOD": ["485cd424", "ac9755cd"] } },
+            "81bc8818": { "replace": ["e51cf6a4"] },
+            "d00f99ad": { "replace": ["e7191b19"] },
+            "7031d19e": { "replace": ["3943dca3"], "derive": { "LOD": ["ad6e4fb9", "a4b4f67a"] } },
+            "e51f0115": { "replace": ["64bbdb18"], "derive": { "LOD": ["38409f32", "7715593e"] } },
+            "829180c8": { "replace": ["70b95d89"], "derive": { "LOD": ["5fce1eef", "1f0c0f4a"] } },
+            "439ed7f4": { "replace": ["354569e8"], "derive": { "LOD": ["9ec149d3", "287056fb"] } }
         },
         "JinhsiPeachBlossom": {
             "main_hashes": [
@@ -485,102 +347,57 @@
                 {"old": ["2ebd42ac"], "new": "5c9d8190"},
                 {"old": ["1f3fe8c7"], "new": "cbe0b3ad"}
             ],
-            "texture_hashes": [
-                {"old": ["67b24870", "7fd16705"], "new": "67787504"},
-                {"old": ["e2165717", "ffe3eb56"], "new": "3973960b"},
-                {"old": ["17f46e6f", "5523c61b"], "new": "11c042bc"},
-                {"old": ["ec98aed8", "d7753a6c"], "new": "94e015b4"},
-                {"old": ["ef3cbf99"], "new": "420bc474"},
-                {"old": ["f08bbd4e"], "new": "83b787db"},
-                {"old": ["9d116cf8"], "new": "0cf861f8"},
-                {"old": ["1ccb4d01"], "new": "2eb74e79"},
-                {"old": ["a12dd42b"], "new": "44a33623"},
-                {"old": ["43d2d155"], "new": "301efc44"},
-                {"old": ["5a2462f9"], "new": "ec8277c1"},
-                {"old": ["2fa7e169"], "new": "35fc907b"}
-            ],
             "checksum": "2010",
-            "states": {
-                "injured": {
-                    "4282f943": "420bc474",
-                    "c30c292f": "2eb74e79",
-                    "81b36a74": "301efc44",
-                    "b02ff93b": "3973960b",
-                    "f0e2b5d5": "11c042bc"
-                }
-            },
             "rules": [
-                {
-                    "line_prefix": "match_first_index",
-                    "replacements": [
-                        {"old": ["121599"], "new": "128598"},
-                        {"old": ["215265"], "new": "222492"},
-                        {"old": ["216813"], "new": "224040"},
-                        {"old": ["217041"], "new": "224268"}
-                    ]
-                },
-                {
-                    "line_prefix": "match_index_count",
-                    "replacements": [
-                        {"old": ["48537"],"new": "55536"},
-                        {"old": ["93666"],"new": "93894"}
-                    ]
-                }
+                { "line_prefix": "match_first_index", "replacements": [ {"old": ["121599"], "new": "128598"}, {"old": ["215265"], "new": "222492"}, {"old": ["216813"], "new": "224040"}, {"old": ["217041"], "new": "224268"} ] },
+                { "line_prefix": "match_index_count", "replacements": [ {"old": ["48537"],"new": "55536"}, {"old": ["93666"],"new": "93894"} ] }
             ],
             "vg_remaps": [
                 {
                     "trigger_hash": ["1f3fe8c7"],
-                    "vertex_groups": {
-                        "74": 113, "75": 114, "76": 97, "77": 105, "78": 96, "79": 104, "80": 74, "81": 75, "82": 76, "83": 77, "84": 78, "85": 79,
-                        "86": 80, "87": 81, "88": 82, "89": 83, "90": 84, "91": 93, "92": 101, "93": 91, "94": 92, "95": 99, "96": 94, "97": 95, "98": 85,
-                        "99": 86, "101": 102, "102": 103, "103": 87, "104": 88, "105": 89, "106": 90, "107": 98, "108": 106, "109": 107, "110": 109, "111": 108,
-                        "112": 110, "113": 112, "114": 111, "245": 246, "247": 246, "248": 246, "251": 246, "252": 246
-                    },
+                    "vertex_groups": { "74": 113, "75": 114, "76": 97, "77": 105, "78": 96, "79": 104, "80": 74, "81": 75, "82": 76, "83": 77, "84": 78, "85": 79, "86": 80, "87": 81, "88": 82, "89": 83, "90": 84, "91": 93, "92": 101, "93": 91, "94": 92, "95": 99, "96": 94, "97": 95, "98": 85, "99": 86, "101": 102, "102": 103, "103": 87, "104": 88, "105": 89, "106": 90, "107": 98, "108": 106, "109": 107, "110": 109, "111": 108, "112": 110, "113": 112, "114": 111, "245": 246, "247": 246, "248": 246, "251": 246, "252": 246 },
                     "component_remap": [
-                        {
-                            "component_index": 3,
-                            "indices": { "46": 85, "47": 86, "48": 69, "49": 77, "50": 68, "51": 76, "52": 46, "53": 47, "54": 48, "55": 49, "56": 50, "57": 51, "58": 52,
-                                "59": 53, "60": 54, "61": 55, "62": 56, "63": 65, "64": 73, "65": 63, "66": 64, "67": 71, "68": 66, "69": 67, "70": 57, "71": 58, "73": 74,
-                                "74": 75, "75": 59, "76": 60, "77": 61, "78": 62, "79": 70, "80": 78, "81": 79, "82": 81, "83": 80, "84": 82, "85": 84, "86": 83
-                            }
-                        },
-                        {
-                            "component_index": 4,
-                            "indices": { "125": 126, "126": 125, "130": 131, "131": 132, "132": 135, "133": 130, "134": 133, "135": 134 }
-                        }
+                        { "component_index": 3, "indices": { "46": 85, "47": 86, "48": 69, "49": 77, "50": 68, "51": 76, "52": 46, "53": 47, "54": 48, "55": 49, "56": 50, "57": 51, "58": 52, "59": 53, "60": 54, "61": 55, "62": 56, "63": 65, "64": 73, "65": 63, "66": 64, "67": 71, "68": 66, "69": 67, "70": 57, "71": 58, "73": 74, "74": 75, "75": 59, "76": 60, "77": 61, "78": 62, "79": 70, "80": 78, "81": 79, "82": 81, "83": 80, "84": 82, "85": 84, "86": 83 } },
+                        { "component_index": 4, "indices": { "125": 126, "126": 125, "130": 131, "131": 132, "132": 135, "133": 130, "134": 133, "135": 134 } }
                     ]
                 }
-            ]
+            ],
+            "67787504": { "replace": ["67b24870", "7fd16705"], "derive": { "LOD": ["badfcac7"] } },
+            "3973960b": { "replace": ["e2165717", "ffe3eb56"], "derive": { "LOD": ["85544776"] } },
+            "11c042bc": { "replace": ["17f46e6f", "5523c61b"], "derive": { "LOD": ["373b687e"] } },
+            "94e015b4": { "replace": ["ec98aed8", "d7753a6c"], "derive": { "LOD": ["c294e9a0"] } },
+            "420bc474": { "replace": ["ef3cbf99"], "derive": { "LOD": ["1147be82"] } },
+            "83b787db": { "replace": ["f08bbd4e"] },
+            "0cf861f8": { "replace": ["9d116cf8"], "derive": { "LOD": ["933d23b3"] } },
+            "2eb74e79": { "replace": ["1ccb4d01"], "derive": { "LOD": ["b873797f"] } },
+            "44a33623": { "replace": ["a12dd42b"] },
+            "301efc44": { "replace": ["43d2d155"], "derive": { "LOD": ["e28eaacb"] } },
+            "ec8277c1": { "replace": ["5a2462f9"], "derive": { "LOD": ["bcb2a5cc"] } },
+            "35fc907b": { "replace": ["2fa7e169"], "derive": { "LOD": ["e57fe112"] } },
+            "a0aaf1d5": { "derive": { "LOD": ["071f01b1"] } }
         },
         "Shorekeeper": {
             "main_hashes": [{"old": ["0266ab77"], "new": "0266ab77"}],
-            "texture_hashes": [
-                {"old": ["1fb14596"], "new": "c148034c"},
-                {"old": ["952d9960"], "new": "8e19fa21"},
-                {"old": ["a2f6b3e4"], "new": "13baf2f6"},
-                {"old": ["2779cda7"], "new": "fb389390"},
-                {"old": ["33b7a4d5"], "new": "4b0e4779"},
-                {"old": ["5e0383e5"], "new": "41b0d744"},
-                {"old": ["be955444"], "new": "529645a1"},
-                {"old": ["15d38062"], "new": "5aa61d2f"},
-                {"old": ["5ae09e60"], "new": "a8ef808e"},
-                {"old": ["2cb33efd"], "new": "d2f2fe3e"},
-                {"old": ["b7997090"], "new": "b9136153"},
-                {"old": ["f510cf89"], "new": "03284c19"},
-                {"old": ["00b2fa86"], "new": "6e3d31e6"},
-                {"old": ["49f91bc3"], "new": "a7c9acc3"},
-                {"old": ["6a6c419b"], "new": "2293ef8e"},
-                {"old": ["26ef0c33"], "new": "ec2a6255"}
-            ],
-            "states": {
-                "injured": {
-                    "0518cc35": "4b0e4779",
-                    "cae4b4a7": "d2f2fe3e",
-                    "ee8d84b9": "13baf2f6",
-                    "b682c0e1": "529645a1",
-                    "2d692f90": "5aa61d2f"
-                }
-            }
+            "c148034c": { "replace": ["1fb14596"] },
+            "8e19fa21": { "replace": ["952d9960"] },
+            "13baf2f6": { "replace": ["a2f6b3e4"], "derive": { "LOD": ["cee56cd1", "1f025081"] } },
+            "fb389390": { "replace": ["2779cda7"], "derive": { "LOD": ["26670db7", "9c3fdc2b"] } },
+            "4b0e4779": { "replace": ["33b7a4d5"], "derive": { "LOD": ["9651d95e", "cb108cde"] } },
+            "41b0d744": { "replace": ["5e0383e5"] },
+            "529645a1": { "replace": ["be955444"], "derive": { "LOD": ["8fc9db86", "d7868caf"] } },
+            "5aa61d2f": { "replace": ["15d38062"], "derive": { "LOD": ["87f98308", "b461b5ad"] } },
+            "a8ef808e": { "replace": ["5ae09e60"] },
+            "d2f2fe3e": { "replace": ["2cb33efd"], "derive": { "LOD": ["0fad6019", "1de8f735"] } },
+            "b9136153": { "replace": ["b7997090"], "derive": { "LOD": ["644cff74", "ef411dda"] } },
+            "03284c19": { "replace": ["f510cf89"], "derive": { "LOD": ["de77d23e", "44b15706"] } },
+            "6e3d31e6": { "replace": ["00b2fa86"], "derive": { "LOD": ["b362afc1", "352c3eef"] } },
+            "a7c9acc3": { "replace": ["49f91bc3"] },
+            "2293ef8e": { "replace": ["6a6c419b"] },
+            "ec2a6255": { "replace": ["26ef0c33"] },
+            "3c6893ca": { "derive": { "LOD": ["35ef720e", "ab300b04"] } },
+            "aa2066e4": { "derive": { "LOD": ["3ac95e43", "f4674d5a"] } },
+            "0b818896": { "derive": { "LOD": ["536edd81", "f512e7f5"] } },
+            "beb6768a": { "derive": { "LOD": ["cb4f9855"] } }
         },
         "Zhezhi": {
             "main_hashes": [
@@ -588,70 +405,42 @@
                 {"old": ["4cdc5987"], "new": "a7ff2cab"},
                 {"old": ["7ebe61e9"], "new": "2208a16a"}
             ],
-            "texture_hashes": [
-                {"old": ["16bf75a8"], "new": "15d8e51d"},
-                {"old": ["dc383c2f"], "new": "8f1f16f2"},
-                {"old": ["a39c7832"], "new": "861bd2d1"},
-                {"old": ["2931bfa1"], "new": "42b99a48"},
-                {"old": ["93904edd"], "new": "6ba42f12"},
-                {"old": ["26045936"], "new": "246557d6"},
-                {"old": ["815d50a9"], "new": "9bf218c0"},
-                {"old": ["2c9428d3"], "new": "333217d7"},
-                {"old": ["e2ff72ff"], "new": "a07dd592"},
-                {"old": ["04f24eb9"], "new": "cc072002"},
-                {"old": ["8427b202"], "new": "082752de"},
-                {"old": ["9122d2f2"], "new": "db2412ad"},
-                {"old": ["14df60bb"], "new": "d9a6d77f"},
-                {"old": ["a28f18f6"], "new": "1f4bb8ab"}
+            "rules": [
+                { "line_prefix": "match_index_count", "replacements": [{ "old": ["3420"], "new": "3078" }] }
             ],
-            "states": {
-                "injured": {
-                    "b274962c": "a07dd592",
-                    "70c13f4a": "db2412ad",
-                    "2052adaa": "8f1f16f2",
-                    "b42b8f11": "15d8e51d",
-                    "806b0500": "42b99a48",
-                    "63df44b0": "246557d6"
-                }
-            },
-            "rules":[
-                {
-                    "line_prefix": "match_index_count",
-                    "replacements": [
-                        {"old": ["3420"], "new": "3078"}
-                    ]
-                }
-            ]
+            "15d8e51d": { "replace": ["16bf75a8"] },
+            "8f1f16f2": { "replace": ["dc383c2f"], "derive": { "LOD": ["9a77e638"] } },
+            "861bd2d1": { "replace": ["a39c7832"], "derive": { "LOD": ["e5ed0439"] } },
+            "42b99a48": { "replace": ["2931bfa1"], "derive": { "LOD": ["ef6c51be"] } },
+            "6ba42f12": { "replace": ["93904edd"] },
+            "246557d6": { "replace": ["26045936"], "derive": { "LOD": ["def38eaf"] } },
+            "9bf218c0": { "replace": ["815d50a9"], "derive": { "LOD": ["f0b5963e"] } },
+            "333217d7": { "replace": ["2c9428d3"], "derive": { "LOD": ["35dbfc81"] } },
+            "a07dd592": { "replace": ["e2ff72ff"], "derive": { "LOD": ["a9a8795c"] } },
+            "cc072002": { "replace": ["04f24eb9"], "derive": { "LOD": ["741d771e"] } },
+            "082752de": { "replace": ["8427b202"], "derive": { "LOD": ["e18e22a7"] } },
+            "db2412ad": { "replace": ["9122d2f2"], "derive": { "LOD": ["0b1417ec"] } },
+            "d9a6d77f": { "replace": ["14df60bb"] },
+            "1f4bb8ab": { "replace": ["a28f18f6"], "derive": { "LOD": ["637cf1be"] } }
         },
         "Encore": {
             "main_hashes": [
-                {"old": ["592add5c"], "new": "592add5c"}, 
+                {"old": ["592add5c"], "new": "592add5c"},
                 {"old": ["388cecb3"], "new": "388cecb3"}
             ],
-            "texture_hashes": [
-                {"old": ["a347d2bc"], "new": "47c515ac"},
-                {"old": ["6ff2b9f1"], "new": "b6021f06"},
-                {"old": ["9b440397"], "new": "3d32cb0e"},
-                {"old": ["e73ee6fb"], "new": "8183786e"},
-                {"old": ["5395f197"], "new": "f1838b66"},
-                {"old": ["c26d7da2"], "new": "29c8d938"},
-                {"old": ["34617fc8"], "new": "8def9d8b"},
-                {"old": ["beb2b10e"], "new": "9d0fefda"},
-                {"old": ["cd7ec1f3"], "new": "e3e1281a"},
-                {"old": ["c44c3cb9"], "new": "f7063e17"},
-                {"old": ["b5222998"], "new": "996b2e4b"},
-                {"old": ["61fce32b"], "new": "6f62c47a"}
-            ],
-            "states": {
-                "injured": {
-                    "d5d6d1f1": "8183786e",
-                    "efde5b45": "29c8d938",
-                    "4053249d": "8def9d8b",
-                    "1062e3a5": "9d0fefda",
-                    "77d8a4de": "c44c3cb9",
-                    "c93b8e26": "e3e1281a"
-                }
-            }
+            "47c515ac": { "replace": ["a347d2bc"] },
+            "b6021f06": { "replace": ["6ff2b9f1"] },
+            "3d32cb0e": { "replace": ["9b440397"], "derive": { "LOD": ["96fb0f62"] } },
+            "8183786e": { "replace": ["e73ee6fb"], "derive": { "LOD": ["5e51ee9a"] } },
+            "f1838b66": { "replace": ["5395f197"], "derive": { "LOD": ["9106f8b0"] } },
+            "29c8d938": { "replace": ["c26d7da2"], "derive": { "LOD": ["9e096bf9"] } },
+            "8def9d8b": { "replace": ["34617fc8"], "derive": { "LOD": ["a564ea10"] } },
+            "9d0fefda": { "replace": ["beb2b10e"], "derive": { "LOD": ["df2ea351"] } },
+            "e3e1281a": { "replace": ["cd7ec1f3"], "derive": { "LOD": ["da827fb9"] } },
+            "f7063e17": { "replace": ["c44c3cb9"], "derive": { "LOD": ["5aa95886"] } },
+            "996b2e4b": { "replace": ["b5222998"], "derive": { "LOD": ["414a87e8"] } },
+            "6f62c47a": { "replace": ["61fce32b"] },
+            "b47a7a9b": { "derive": { "LOD": ["b5b05043"] } }
         },
         "Changli": {
             "main_hashes": [
@@ -659,344 +448,220 @@
                 {"old": ["d8decbca", "1ccb8008"], "new": "59f24b66"},
                 {"old": ["fd9483ca", "060f5303"], "new": "277e18c9"}
             ],
-            "texture_hashes": [
-                {"old": ["8f067708", "f23483e3"], "new": "69994531"},
-                {"old": ["c79a4ccb", "225aad5a"], "new": "a97f587b"},
-                {"old": ["8094e3ca"], "new": "25e6decf"},
-                {"old": ["d6f4003a"], "new": "89da6405"},
-                {"old": ["a45bfe26"], "new": "3e6d3c8e"},
-                {"old": ["6f7a2dab"], "new": "0484ab73"},
-                {"old": ["92c11772"], "new": "798ec300"},
-                {"old": ["b54a043e"], "new": "9a3f146d"},
-                {"old": ["e0b2f0d3"], "new": "c0f0b1e1"},
-                {"old": ["8a125464"], "new": "5ed7e436"},
-                {"old": ["dfe134cd"], "new": "3ff7cad2"},
-                {"old": ["00e5703f"], "new": "ee867ac2"},
-                {"old": ["998bc53c"], "new": "4da65048"},
-                {"old": ["2782d638"], "new": "e047ea9c"},
-                {"old": ["c02dbf56"], "new": "258c919f"},
-                {"old": ["f98c7e7c"], "new": "59b52b44"},
-                {"old": ["eb70f116"], "new": "1bc98900"},
-                {"old": ["a260e7f7"], "new": "8407b021"},
-                {"old": ["1d3ad29f"], "new": "fde34d42"},
-                {"old": ["5fff67ee"], "new": "7eb470fc"}
-            ],
             "rules": [
-                {
-                    "line_prefix": "match_first_index",
-                    "replacements": [
-                        {"old": ["152343"], "new": "153363"},
-                        {"old": ["198855"], "new": "199875"},
-                        {"old": ["283461"], "new": "284481"},
-                        {"old": ["285489"], "new": "286509"}
-                    ]
-                },
-                {
-                    "line_prefix": "match_index_count",
-                    "replacements": [
-                        {"old": ["81513"],"new": "82533"}
-                    ]
-                }
+                { "line_prefix": "match_first_index", "replacements": [ {"old": ["152343"], "new": "153363"}, {"old": ["198855"], "new": "199875"}, {"old": ["283461"], "new": "284481"}, {"old": ["285489"], "new": "286509"} ] },
+                { "line_prefix": "match_index_count", "replacements": [{ "old": ["81513"],"new": "82533" }] }
             ],
             "vg_remaps": [
                 {
                     "trigger_hash": ["fd9483ca"],
                     "component_remap": [
-                        {
-                            "component_index": 5,
-                            "indices": {
-                                "9": 23, "11": 28, "12": 10, "13": 11, "14": 12, "15": 13, "16": 14, "17": 15, "18": 16, "19": 17, "20": 18,
-                                "21": 19, "22": 20, "23": 21, "24": 22, "25": 23, "26": 24, "27": 25, "28": 26, "29": 27, "30": 29, "31": 30,
-                                "32": 31, "33": 32, "34": 33, "35": 34, "36": 35, "37": 36, "38": 37, "39": 38, "40": 39, "41": 40, "42": 41,
-                                "43": 42, "44": 43, "45": 44, "46": 45, "47": 46
-                            }
-                        }
+                        { "component_index": 5, "indices": { "9": 23, "11": 28, "12": 10, "13": 11, "14": 12, "15": 13, "16": 14, "17": 15, "18": 16, "19": 17, "20": 18, "21": 19, "22": 20, "23": 21, "24": 22, "25": 23, "26": 24, "27": 25, "28": 26, "29": 27, "30": 29, "31": 30, "32": 31, "33": 32, "34": 33, "35": 34, "36": 35, "37": 36, "38": 37, "39": 38, "40": 39, "41": 40, "42": 41, "43": 42, "44": 43, "45": 44, "46": 45, "47": 46 } }
                     ]
                 },
                 {
                     "trigger_hash": ["060f5303"],
-                    "vertex_groups": {
-                        "135": 137,
-                        "137": 135,
-                        "123": 124,
-                        "124": 125,
-                        "125": 126,
-                        "126": 123
-                    },
+                    "vertex_groups": { "135": 137, "137": 135, "123": 124, "124": 125, "125": 126, "126": 123 },
                     "component_remap": [
-                        {
-                            "component_index": 3,
-                            "indices": {
-                                "64": 65,"65": 66,"66": 67,"67": 64,"76": 78,"78": 76
-                            }
-                        }
+                        { "component_index": 3, "indices": { "64": 65,"65": 66,"66": 67,"67": 64,"76": 78,"78": 76 } }
                     ]
                 }
             ],
-            "states": {
-                "injured": {
-                    "7072654c": "258c919f",
-                    "628df960": "a97f587b",
-                    "ccf96b54": "9a3f146d",
-                    "d36f54a5": "8407b021",
-                    "a8e5e794": "3e6d3c8e",
-                    "3bfaa05b": "89da6405"
-                }
-            }
+            "69994531": { "replace": ["8f067708", "f23483e3"], "derive": { "LOD": ["b4c6db16", "4c62d63b"] } },
+            "a97f587b": { "replace": ["c79a4ccb", "225aad5a"], "derive": { "LOD": ["7420c65c", "6881ae04"] } },
+            "25e6decf": { "replace": ["8094e3ca"] },
+            "89da6405": { "replace": ["d6f4003a"], "derive": { "LOD": ["5485fa22", "765fda54"] } },
+            "3e6d3c8e": { "replace": ["a45bfe26"], "derive": { "LOD": ["e332a2a9", "82aad79c"] } },
+            "0484ab73": { "replace": ["6f7a2dab"], "derive": { "LOD": ["d9db3554", "5ec99b00"] } },
+            "798ec300": { "replace": ["92c11772"] },
+            "9a3f146d": { "replace": ["b54a043e"], "derive": { "LOD": ["47608a4a", "cbd95a32"] } },
+            "c0f0b1e1": { "replace": ["e0b2f0d3"], "derive": { "LOD": ["52d66f2c", "b712b435"] } },
+            "5ed7e436": { "replace": ["8a125464"] },
+            "3ff7cad2": { "replace": ["dfe134cd"] },
+            "ee867ac2": { "replace": ["00e5703f"], "derive": { "LOD": ["33d9e4e5", "5d068c47"] } },
+            "4da65048": { "replace": ["998bc53c"] },
+            "e047ea9c": { "replace": ["2782d638"] },
+            "258c919f": { "replace": ["c02dbf56"], "derive": { "LOD": ["f8d30fb8", "57fd0a1d"] } },
+            "59b52b44": { "replace": ["f98c7e7c"], "derive": { "LOD": ["84eab563", "815e4e56"] } },
+            "1bc98900": { "replace": ["eb70f116"], "derive": { "LOD": ["c6961727", "76c338af"] } },
+            "8407b021": { "replace": ["a260e7f7"], "derive": { "LOD": ["59582e06", "d4ef5c66"] } },
+            "fde34d42": { "replace": ["1d3ad29f"] },
+            "7eb470fc": { "replace": ["5fff67ee"] },
+            "0af29cfb": { "derive": { "LOD": ["85073c94", "0af29cfb"] } },
+            "fcec9218": { "derive": { "LOD": ["6eca4cd5", "97b0c854"] } }
         },
         "ChangliLaurelNymph": {
             "main_hashes": [{"old": ["acbfcfec"], "new": "acbfcfec"}],
-            "texture_hashes": [
-                {"old": ["e3e045ee"], "new": "ccc37f56"},
-                {"old": ["b9958562"], "new": "5d935e73"},
-                {"old": ["d961039b"], "new": "794e60a8"},
-                {"old": ["7f7c7b9c"], "new": "edd1df6c"},
-                {"old": ["e6947b37"], "new": "b7ea5559"},
-                {"old": ["92c11772"], "new": "798ec300"},
-                {"old": ["529d2b99"], "new": "45938ff1"},
-                {"old": ["6f7a2dab"], "new": "0484ab73"},
-                {"old": ["91eab4e8"], "new": "0a785985"},
-                {"old": ["bfc103ef"], "new": "e5a02d0a"},
-                {"old": ["6804b3ae"], "new": "8c983968"},
-                {"old": ["eb70f116"], "new": "1bc98900"}
-            ],
-            "states": {
-                "injured": {
-                    "0ad91a84": "45938ff1",
-                    "f14d946b": "e5a02d0a",
-                    "3121f41a": "12638aa6",
-                    "794e60a8": "ccc37f56",
-                    "5d935e73": "014b4c3f",
-                    "28d3e794": "8c983968"
-                }
-            }
+            "ccc37f56": { "replace": ["e3e045ee"], "derive": { "LOD": ["119ce171", "7fa32ef9"] } },
+            "5d935e73": { "replace": ["b9958562"] },
+            "794e60a8": { "replace": ["d961039b"] },
+            "edd1df6c": { "replace": ["7f7c7b9c"], "derive": { "LOD": ["308e414b", "ea9f735c"] } },
+            "b7ea5559": { "replace": ["e6947b37"] },
+            "45938ff1": { "replace": ["529d2b99"], "derive": { "LOD": ["98cc11d6", "977c3a73"] } },
+            "0a785985": { "replace": ["91eab4e8"] },
+            "e5a02d0a": { "replace": ["bfc103ef"], "derive": { "LOD": ["38ffb32d", "b9e3da02"] } },
+            "8c983968": { "replace": ["6804b3ae"], "derive": { "LOD": ["51c7a74f", "4877e1a4"] } },
+            "12638aa6": { "derive": { "LOD": ["cf3c1481", "50dafda2"] } },
+            "014b4c3f": { "derive": { "LOD": ["dc14d218", "a6749f20"] } },
+            "97de9831": { "derive": { "LOD": ["4a810616", "5d44d305"] } },
+            "f938eae9": { "derive": { "LOD": ["246774ce", "49dc3efd"] } },
+            "8c630ed4": { "derive": { "LOD": ["513c90f3", "9a692ea0"] } },
+            "46328db0": { "derive": { "LOD": ["9b6d1397", "389b5069"] } },
+            "1b670385": { "derive": { "LOD": ["c6389da2", "9a148ad4"] } }
         },
         "Danjin": {
             "main_hashes": [
                 {"old": ["6aefd9b3"], "new": "6aefd9b3"},
                 {"old": ["9f182348"], "new": "9f182348"}
             ],
-            "texture_hashes": [
-                {"old": ["bcf3db0a"], "new": "45a6240e"},
-                {"old": ["da15e0f7"], "new": "18a39719"},
-                {"old": ["f6910c93"], "new": "3802a4e4"},
-                {"old": ["500d4413"], "new": "659ab32e"},
-                {"old": ["2e599849"], "new": "6969fb89"},
-                {"old": ["b4618a2b"], "new": "11315dc1"},
-                {"old": ["7c720662"], "new": "d35da2f0"},
-                {"old": ["c1f7edcc"], "new": "689e446c"},
-                {"old": ["cbb38c6b", "63fbfe72"], "new": "99179105"},
-                {"old": ["f56dbcb4"], "new": "8ae06cff"},
-                {"old": ["e2321307"], "new": "65e1499b"},
-                {"old": ["b7758489"], "new": "beefbd72"},
-                {"old": ["1dd49aa4"], "new": "cea68862"},
-                {"old": ["5da1a7ae"], "new": "7536f732"}
-            ],
-            "states": {
-                "injured": {
-                    "6f6cd4bb": "cea68862",
-                    "b31e750c": "3802a4e4",
-                    "1e1108eb": "659ab32e",
-                    "429b6083": "65e1499b",
-                    "df6295e2": "beefbd72"
-                }
-            }
+            "45a6240e": { "replace": ["bcf3db0a"], "derive": { "LOD": ["d780fac3", "75de5661"] } },
+            "18a39719": { "replace": ["da15e0f7"] },
+            "3802a4e4": { "replace": ["f6910c93"], "derive": { "LOD": ["e55d3ac3", "b1ac6c5c"] } },
+            "659ab32e": { "replace": ["500d4413"], "derive": { "LOD": ["b8c52d09", "49b4212b"] } },
+            "6969fb89": { "replace": ["2e599849"], "derive": { "LOD": ["b43665ae", "141fe859"] } },
+            "11315dc1": { "replace": ["b4618a2b"], "derive": { "LOD": ["8317830c", "11ec00da"] } },
+            "d35da2f0": { "replace": ["7c720662"], "derive": { "LOD": ["417b7c3d", "ac78f338"] } },
+            "689e446c": { "replace": ["c1f7edcc"], "derive": { "LOD": ["b5c1da4b", "f6659f53"] } },
+            "99179105": { "replace": ["cbb38c6b", "63fbfe72"], "derive": { "LOD": ["44480f22", "633de259"] } },
+            "8ae06cff": { "replace": ["f56dbcb4"], "derive": { "LOD": ["18c6b232", "87f27fb9"] } },
+            "65e1499b": { "replace": ["e2321307"], "derive": { "LOD": ["b8bed7bc", "7b39879d"] } },
+            "beefbd72": { "replace": ["b7758489"], "derive": { "LOD": ["63b02355", "7cdcb026"] } },
+            "cea68862": { "replace": ["1dd49aa4"], "derive": { "LOD": ["13f91645", "ab76fc06"] } },
+            "7536f732": { "replace": ["5da1a7ae"] }
         },
         "Sanhua": {
             "main_hashes": [
                 {"old": ["33e4890f"], "new": "33e4890f"},
                 {"old": ["a80e0e2b"], "new": "a80e0e2b"}
             ],
-            "texture_hashes": [
-                {"old": ["2584190a"], "new": "cef6494f"},
-                {"old": ["5efe7892"], "new": "89ba19a1"},
-                {"old": ["11b9cadd"], "new": "f0713dc7"},
-                {"old": ["48616ac9"], "new": "ae6e9014"},
-                {"old": ["345368c9"], "new": "1c0c8b91"},
-                {"old": ["98b9635b"], "new": "68ca7071"},
-                {"old": ["aa70ef15"], "new": "881c236d"},
-                {"old": ["03d9850b"], "new": "e39835c7"},
-                {"old": ["4b6d52b9"], "new": "fde0f298"},
-                {"old": ["1bdd0987"], "new": "1035197c"},
-                {"old": ["0521977a"], "new": "efb25eb3"},
-                {"old": ["ebeeda8c"], "new": "abda232b"},
-                {"old": ["16695017"], "new": "f3b217ab"},
-                {"old": ["2c0c2728"], "new": "c689a8ee"}
-            ],
-            "states": {
-                "injured": {
-                    "b222ae08": "c689a8ee"
-                }
-            }
+            "cef6494f": { "replace": ["2584190a"] },
+            "89ba19a1": { "replace": ["5efe7892"] },
+            "f0713dc7": { "replace": ["11b9cadd"] },
+            "ae6e9014": { "replace": ["48616ac9"], "derive": { "LOD": ["73310e33", "f6a2f27c"] } },
+            "1c0c8b91": { "replace": ["345368c9"] },
+            "68ca7071": { "replace": ["98b9635b"], "derive": { "LOD": ["b595ee56", "80989400"] } },
+            "881c236d": { "replace": ["aa70ef15"], "derive": { "LOD": ["5543bd4a", "311a22aa"] } },
+            "e39835c7": { "replace": ["03d9850b"], "derive": { "LOD": ["3ec7abe0", "1cfe2cd7"] } },
+            "fde0f298": { "replace": ["4b6d52b9"], "derive": { "LOD": ["20bf6cbf", "5b543351"] } },
+            "1035197c": { "replace": ["1bdd0987"], "derive": { "LOD": ["cd6a875b", "f44bebac"] } },
+            "efb25eb3": { "replace": ["0521977a"], "derive": { "LOD": ["32edc094", "6504ee83"] } },
+            "abda232b": { "replace": ["ebeeda8c"], "derive": { "LOD": ["7685bd0c", "faa3ee45"] } },
+            "f3b217ab": { "replace": ["16695017"], "derive": { "LOD": ["2eed898c", "f029bdb8"] } },
+            "c689a8ee": { "replace": ["2c0c2728"], "derive": { "LOD": ["1bd636c9", "c3d78f71"] } },
+            "693b1360": { "derive": { "LOD": ["fb1dcdad", "29c91af3"] } },
+            "bf702e2d": { "derive": { "LOD": ["2d56f0e0", "9db60343"] } }
+        },
+        "SanhuaExorcistic": {
+            "main_hashes": [{"old": ["b101dcf3"], "new": "b101dcf3"}],
+            "4478285f": { "replace": ["f22348f0"] },
+            "72739d6e": { "replace": ["d5a089c8", "6a10c291"] },
+            "f8d5c991": { "replace": ["31a5f36a"] },
+            "c74af063": { "replace": ["d78ad0f5"] },
+            "63c807fe": { "replace": ["d153e37f"] },
+            "52f35e6d": { "replace": ["168462a9"] },
+            "11171f1c": { "replace": ["9522bbc7"] },
+            "9febd992": { "replace": ["a0cf932f"] },
+            "1d50aa4a": { "replace": ["43dc9bdf"] },
+            "221b8ad6": { "replace": ["d96aa9b8"] },
+            "8e5306a9": { "replace": ["fd078186"] },
+            "c98e83cd": { "replace": ["464256d1"] }
         },
         "Verina": {
             "main_hashes": [
                 {"old": ["83ced9f7"], "new": "82aa82e1"},
                 {"old": ["15791c57"], "new": "15791c57"}
             ],
-            "texture_hashes": [
-                {"old": ["fd892e3c", "953daba7"], "new": "48c627b9"},
-                {"old": ["5981e400", "40f3c4ea"], "new": "a2d01f96"},
-                {"old": ["63d590db", "c0ca0958"], "new": "08be5cdb"},
-                {"old": ["679ad2f5"], "new": "16b54cef"},
-                {"old": ["24c1883d"], "new": "5e99cc67"},
-                {"old": ["03416881"], "new": "cb01a05c"},
-                {"old": ["fcc47274"], "new": "e2a003ed"},
-                {"old": ["ae7043eb"], "new": "e2887be0"},
-                {"old": ["dc7f97f7"], "new": "412de025"},
-                {"old": ["309b25ba"], "new": "edc699f5"}
-            ],
             "vg_remaps": [
                 {
                     "trigger_hash": ["83ced9f7"],
-                    "vertex_groups": {
-                        "40": 41, "41": 40,"77": 78,"78": 79,"79": 80,"80": 81,"81": 82,"82": 83,"83": 84,
-                        "84": 85,"85": 86,"86": 87,"87": 88,"88": 89,"89": 90,"90": 91,"91": 92,"92": 93,"93": 94,"94": 95,"95": 96,
-                        "96": 97,"97": 98,"98": 99,"99": 100,"100": 101,"101": 102,"102": 103,"103": 104,"104": 105,"105": 106,"106": 107,
-                        "107": 108,"108": 109,"109": 110,"110": 111, "111": 77, "112": 113,"114": 115,"174": 178,"175": 177,"176": 174,"177": 175,"178": 176
-                    },
+                    "vertex_groups": { "40": 41, "41": 40,"77": 78,"78": 79,"79": 80,"80": 81,"81": 82,"82": 83,"83": 84, "84": 85,"85": 86,"86": 87,"87": 88,"88": 89,"89": 90,"90": 91,"91": 92,"92": 93,"93": 94,"94": 95,"95": 96, "96": 97,"97": 98,"98": 99,"99": 100,"100": 101,"101": 102,"102": 103,"103": 104,"104": 105,"105": 106,"106": 107, "107": 108,"108": 109,"109": 110,"110": 111, "111": 77, "112": 113,"114": 115,"174": 178,"175": 177,"176": 174,"177": 175,"178": 176 },
                     "component_remap": [
-                        {   
-                            "component_index": 3,
-                            "indices": {
-                                "5": 6, "6": 5, "34": 33, "37": 46, "76": 42, "79": 80, "80": 79
-                            }
-                        },
-                        {
-                            "component_index": 4,
-                            "indices": {
-                                "39": 43, "40": 42, "41": 39, "42": 40, "43": 41
-                            }
-                        }
+                        { "component_index": 3, "indices": { "5": 6, "6": 5, "34": 33, "37": 46, "76": 42, "79": 80, "80": 79 } },
+                        { "component_index": 4, "indices": { "39": 43, "40": 42, "41": 39, "42": 40, "43": 41 } }
                     ]
                 }
             ],
-            "states": {
-                "injured": {
-                    "d8553fa9": "16b54cef",
-                    "fbdf715e": "e2a003ed",
-                    "4dd974c7": "e2887be0",
-                    "6bc44ed6": "08be5cdb",
-                    "16261db1": "5e99cc67"
-                }
-            }
+            "48c627b9": { "replace": ["fd892e3c", "953daba7"], "derive": { "LOD": ["5e3f4246"] } },
+            "a2d01f96": { "replace": ["5981e400", "40f3c4ea"], "derive": { "LOD": ["c0ecaf60"] } },
+            "08be5cdb": { "replace": ["63d590db", "c0ca0958"], "derive": { "LOD": ["33dccc25"] } },
+            "16b54cef": { "replace": ["679ad2f5"], "derive": { "LOD": ["1dc174e7"] } },
+            "5e99cc67": { "replace": ["24c1883d"], "derive": { "LOD": ["c8a56de7"] } },
+            "cb01a05c": { "replace": ["03416881"] },
+            "e2a003ed": { "replace": ["fcc47274"], "derive": { "LOD": ["a5b1826c"] } },
+            "e2887be0": { "replace": ["ae7043eb"], "derive": { "LOD": ["fd539613"] } },
+            "412de025": { "replace": ["dc7f97f7"], "derive": { "LOD": ["17488b7e"] } },
+            "edc699f5": { "replace": ["309b25ba"] },
+            "54fb587d": { "derive": { "LOD": ["cd96fcb9"] } },
+            "d859b60d": { "derive": { "LOD": ["6a788c1d"] } }
         },
         "Baizhi": {
             "main_hashes": [
                 {"old": ["4a2b2eca"], "new": "3cb91e7f"}, 
                 {"old": ["d8d2286b"], "new": "d8d2286b"}
             ],
-            "texture_hashes": [
-                {"old": ["37bed36b", "718456ac"], "new": "0be38d62"},
-                {"old": ["52c9b804", "d7756134"], "new": "060f40ba"},
-                {"old": ["1a09bbb5"], "new": "43ae1deb"},
-                {"old": ["d755a4a9"], "new": "fe4e4afe"},
-                {"old": ["7404e947"], "new": "f0f101b3"},
-                {"old": ["804d32e9"], "new": "64b13efd"},
-                {"old": ["7c460f02"], "new": "4e4d79b9"},
-                {"old": ["2b7eb01d"], "new": "cac210d5"},
-                {"old": ["64cc6fa8"], "new": "afe67129"},
-                {"old": ["6f238044"], "new": "ff9b6df0"},
-                {"old": ["91754701"], "new": "a2315519"},
-                {"old": ["49a71537"], "new": "39b39c99"}
-            ],
-            "states": {
-                "injured": {
-                    "c0e31ed3": "f0f101b3",
-                    "1b8e24f0": "0be38d62",
-                    "83a57d50": "4e4d79b9",
-                    "a3ea2aee": "64b13efd",
-                    "7729d9e7": "060f40ba"
-                }
-            },
             "vg_remaps": [
                 {
                     "trigger_hash": ["37bed36b", "4a2b2eca"],
-                    "vertex_groups": {
-                        "17": 20, "18": 21, "19": 18, "20": 19, "21": 17,
-                        "51": 53, "52": 51, "53": 52,
-                        "84": 85, "85": 87, "86": 88, "87": 89, "88": 84, "89": 86,
-                        "119": 122, "120": 121, "121": 119, "122": 120, "123": 128, "124": 129, "125": 126, "126": 125, "127": 123, "128": 124, "129": 127, "133": 136,
-                        "134": 137, "135": 133, "136": 140, "137": 141, "138": 142, "139": 134, "140": 135, "141": 138, "142": 139
-                    },
+                    "vertex_groups": { "17": 20, "18": 21, "19": 18, "20": 19, "21": 17, "51": 53, "52": 51, "53": 52, "84": 85, "85": 87, "86": 88, "87": 89, "88": 84, "89": 86, "119": 122, "120": 121, "121": 119, "122": 120, "123": 128, "124": 129, "125": 126, "126": 125, "127": 123, "128": 124, "129": 127, "133": 136, "134": 137, "135": 133, "136": 140, "137": 141, "138": 142, "139": 134, "140": 135, "141": 138, "142": 139 },
                     "component_remap": [
-                        {
-                            "component_index": 0,
-                            "indices": { "17": 20, "18": 21, "19": 18, "20": 19, "21": 17 }
-                        },
-                        {   
-                            "component_index": 3,
-                            "indices": {
-                                "14": 16, "15": 14, "16": 15, "47": 48, "48": 50, "49": 51, "50": 52, "51": 47, "52": 49, 
-                                "82": 85, "83": 84, "84": 82, "85": 83, "86": 91, "87": 92, "88": 89, "89": 88, "90": 86, "91": 87, "92": 90,
-                                "96": 99, "97": 100, "98": 96, "99": 103, "100": 104, "101": 105, "102": 97, "103": 98, "104": 101, "105": 102
-                            }
-                        },
-                        {
-                            "component_index": 4,
-                            "indices": { "17": 21, "18": 19, "19": 17, "20": 18, "21": 20 }
-                        }
+                        { "component_index": 0, "indices": { "17": 20, "18": 21, "19": 18, "20": 19, "21": 17 } },
+                        { "component_index": 3, "indices": { "14": 16, "15": 14, "16": 15, "47": 48, "48": 50, "49": 51, "50": 52, "51": 47, "52": 49, "82": 85, "83": 84, "84": 82, "85": 83, "86": 91, "87": 92, "88": 89, "89": 88, "90": 86, "91": 87, "92": 90, "96": 99, "97": 100, "98": 96, "99": 103, "100": 104, "101": 105, "102": 97, "103": 98, "104": 101, "105": 102 } },
+                        { "component_index": 4, "indices": { "17": 21, "18": 19, "19": 17, "20": 18, "21": 20 } }
                     ]
                 }
-            ]
+            ],
+            "0be38d62": { "replace": ["37bed36b", "718456ac"], "derive": { "LOD": ["b64abc3f"] } },
+            "060f40ba": { "replace": ["52c9b804", "d7756134"], "derive": { "LOD": ["9e69b7cc"] } },
+            "43ae1deb": { "replace": ["1a09bbb5"] },
+            "fe4e4afe": { "replace": ["d755a4a9"] },
+            "f0f101b3": { "replace": ["7404e947"], "derive": { "LOD": ["588b7355"] } },
+            "64b13efd": { "replace": ["804d32e9"], "derive": { "LOD": ["fcb7c144"] } },
+            "4e4d79b9": { "replace": ["7c460f02"], "derive": { "LOD": ["a3636075"] } },
+            "cac210d5": { "replace": ["2b7eb01d"], "derive": { "LOD": ["7bb1d2b3"] } },
+            "afe67129": { "replace": ["64cc6fa8"], "derive": { "LOD": ["a749359c"] } },
+            "ff9b6df0": { "replace": ["6f238044"], "derive": { "LOD": ["3dd54744"] } },
+            "a2315519": { "replace": ["91754701"], "derive": { "LOD": ["b07a8f0c"] } },
+            "39b39c99": { "replace": ["49a71537"], "derive": { "LOD": ["5448a8ae"] } }
         },
         "BaizhiPet": {
             "main_hashes": [{"old": ["6bf5ce94"], "new": "6bf5ce94"}],
-            "texture_hashes": [
-                {"old": ["cac3c0d3"], "new": "c8260fc3"},
-                {"old": ["93a05151"], "new": "297d931c"}
-            ]
+            "c8260fc3": { "replace": ["cac3c0d3"] },
+            "297d931c": { "replace": ["93a05151"] }
         },
         "Chixia": {
             "main_hashes": [
                 {"old": ["1606ae41"], "new": "1606ae41"},
                 {"old": ["9b69878e"], "new": "9b69878e"}
             ],
-            "texture_hashes": [
-                {"old": ["eee73787"], "new": "ab72381e"},
-                {"old": ["45e0cedb"], "new": "7988637b"},
-                {"old": ["489b5f2a"], "new": "94afca13"},
-                {"old": ["cb974015"], "new": "94d10f56"},
-                {"old": ["ba246036"], "new": "873ca04e"},
-                {"old": ["4a2657d7"], "new": "a7141c04"},
-                {"old": ["f6fed778", "9497a1b9"], "new": "d51104f6"},
-                {"old": ["8f423e37"], "new": "75333d76"},
-                {"old": ["ab057c17"], "new": "cb71b417"},
-                {"old": ["e29e63d6"], "new": "8080d570"},
-                {"old": ["9f2544e0"], "new": "ebe1f999"}
-            ],
-            "states": {
-                "injured": {
-                    "064234d1": "75333d76",
-                    "8da682dd": "d51104f6",
-                    "7993434a": "873ca04e",
-                    "fd9dd557": "94afca13",
-                    "f6c24f7d": "7988637b"
-                }
-            }
+            "ab72381e": { "replace": ["eee73787"] },
+            "7988637b": { "replace": ["45e0cedb"], "derive": { "LOD": ["679b50e1"] } },
+            "94afca13": { "replace": ["489b5f2a"], "derive": { "LOD": ["506c16fd"] } },
+            "94d10f56": { "replace": ["cb974015"] },
+            "873ca04e": { "replace": ["ba246036"], "derive": { "LOD": ["dd80f74a"] } },
+            "a7141c04": { "replace": ["4a2657d7"] },
+            "d51104f6": { "replace": ["f6fed778", "9497a1b9"], "derive": { "LOD": ["2c2d42eb"] } },
+            "75333d76": { "replace": ["8f423e37"], "derive": { "LOD": ["faf0529c"] } },
+            "cb71b417": { "replace": ["ab057c17"], "derive": { "LOD": ["28269327"] } },
+            "8080d570": { "replace": ["e29e63d6"], "derive": { "LOD": ["bf5b4997"] } },
+            "ebe1f999": { "replace": ["9f2544e0"], "derive": { "LOD": ["ba59a51d"] } },
+            "a7fa522d": { "derive": { "LOD": ["3a8fbe39"] } },
+            "c26ba661": { "derive": { "LOD": ["a42f5c9d"] } }
         },
         "Taoqi": {
             "main_hashes": [
                 {"old": ["e2685889"], "new": "e2685889"},
                 {"old": ["9f13087a"], "new": "9f13087a"}
             ],
-            "texture_hashes": [
-                {"old": ["4d0c99e4"], "new": "7c47abf0"},
-                {"old": ["9557c49e"], "new": "b5c93936"},
-                {"old": ["33a41964"], "new": "6c4bd3dc"},
-                {"old": ["3b69e4b4"], "new": "a39f43c8"},
-                {"old": ["982bdcc5"], "new": "d5ba0088"},
-                {"old": ["dec4f75e"], "new": "4e4bbb32"},
-                {"old": ["4ba577c5"], "new": "2c5e38b6"},
-                {"old": ["b1372fdd"], "new": "b51d4fd4"},
-                {"old": ["9b47f413"], "new": "8a1d8b17"},
-                {"old": ["b0e248c5"], "new": "16d55d60"}
-            ],
-            "states": {
-                "injured": {
-                    "921c63f7": "6c4bd3dc"
-                }
-            }
+            "7c47abf0": { "replace": ["4d0c99e4"] },
+            "b5c93936": { "replace": ["9557c49e"], "derive": { "LOD": ["3459ed0e"] } },
+            "6c4bd3dc": { "replace": ["33a41964"], "derive": { "LOD": ["c5808f86"] } },
+            "a39f43c8": { "replace": ["3b69e4b4"] },
+            "d5ba0088": { "replace": ["982bdcc5"], "derive": { "LOD": ["3e481efb"] } },
+            "4e4bbb32": { "replace": ["dec4f75e"], "derive": { "LOD": ["be8e4ecd"] } },
+            "2c5e38b6": { "replace": ["4ba577c5"], "derive": { "LOD": ["84fec452"] } },
+            "b51d4fd4": { "replace": ["b1372fdd"], "derive": { "LOD": ["69a1624e"] } },
+            "8a1d8b17": { "replace": ["9b47f413"], "derive": { "LOD": ["4c7b88bd"] } },
+            "16d55d60": { "replace": ["b0e248c5"], "derive": { "LOD": ["bbea0537"] } }
         },
         "Jianxin": {
             "main_hashes": [
@@ -1004,352 +669,207 @@
                 {"old": ["affc2fc3", "82d39ecb"], "new": "29ba85c5"},
                 {"old": ["ead048c8", "068dd115"], "new": "bc9677ff"}
             ],
-            "texture_hashes": [
-                {"old": ["1d823cfb", "0862e376"], "new": "83744475"},
-                {"old": ["5f672bb2"], "new": "6b0f5c7a"},
-                {"old": ["21bc79a7"], "new": "af3ba321"},
-                {"old": ["6c077c81"], "new": "ae193e08"},
-                {"old": ["11dd8502"], "new": "329a04e7"},
-                {"old": ["6700cf35"], "new": "55023199"},
-                {"old": ["534c2615"], "new": "4c0805e1"},
-                {"old": ["3782ab1b"], "new": "837eb0d7"},
-                {"old": ["a7275cef"], "new": "55a56862"},
-                {"old": ["dab9d56b"], "new": "134a5c16"},
-                {"old": ["68c6a3a6"], "new": "a42480d2"},
-                {"old": ["f095bfbc"], "new": "be729d1a"},
-                {"old": ["09f954e5"], "new": "4701ab34"},
-                {"old": ["45f7105b"], "new": "f524ad06"}
-
-            ],
             "checksum": "1876",
-            "states": {
-                "injured": {
-                    "4bbdc3ad": "83744475",
-                    "e607b4a5": "55023199",
-                    "21604370": "4c0805e1",
-                    "1efc8bd1": "55a56862",
-                    "4080dfd4": "be729d1a"
-                }
-            }
+            "83744475": { "replace": ["1d823cfb", "0862e376"], "derive": { "LOD": ["eed7adf8"] } },
+            "6b0f5c7a": { "replace": ["5f672bb2"] },
+            "af3ba321": { "replace": ["21bc79a7"], "derive": { "LOD": ["d208a0da"] } },
+            "ae193e08": { "replace": ["6c077c81"], "derive": { "LOD": ["351808dc"] } },
+            "329a04e7": { "replace": ["11dd8502"] },
+            "55023199": { "replace": ["6700cf35"], "derive": { "LOD": ["5be78f73"] } },
+            "4c0805e1": { "replace": ["534c2615"], "derive": { "LOD": ["4f08bf99"] } },
+            "837eb0d7": { "replace": ["3782ab1b"], "derive": { "LOD": ["392e1cb0"] } },
+            "55a56862": { "replace": ["a7275cef"], "derive": { "LOD": ["8253d686"] } },
+            "134a5c16": { "replace": ["dab9d56b"], "derive": { "LOD": ["1f7569b4"] } },
+            "a42480d2": { "replace": ["68c6a3a6"], "derive": { "LOD": ["30079b94"] } },
+            "be729d1a": { "replace": ["f095bfbc"], "derive": { "LOD": ["41a31ada"] } },
+            "4701ab34": { "replace": ["09f954e5"], "derive": { "LOD": ["db7ef59c"] } },
+            "f524ad06": { "replace": ["45f7105b"], "derive": { "LOD": ["3758abb9"] } }
         },
         "Youhu": {
             "main_hashes": [{"old": ["03eea2d0"], "new": "03eea2d0"}],
-            "texture_hashes": [
-                {"old": ["9b11d340"], "new": "bf48c10e"},
-                {"old": ["a2cc097f"], "new": "a3b840f8"},
-                {"old": ["baee6fc5"], "new": "bfd993d3"},
-                {"old": ["1012570b"], "new": "5d5ee265"},
-                {"old": ["7e251226"], "new": "cf0ae3d8"},
-                {"old": ["aa28d63e"], "new": "221d712d"},
-                {"old": ["39ffdf33"], "new": "ae2fe6e9"},
-                {"old": ["450040b2"], "new": "41ced95a"},
-                {"old": ["a95def0b"], "new": "39696fc7"},
-                {"old": ["fdeae97b"], "new": "bcbd3086"},
-                {"old": ["eb5b96b2"], "new": "a0e3c5cb"},
-                {"old": ["dd54d712"], "new": "37dcbf53"},
-                {"old": ["0eb7da46"], "new": "2d7bb11f"},
-                {"old": ["c1078929"], "new": "5e0d738a"},
-                {"old": ["8b1913b4"], "new": "1079fd6f"}
-            ],
-            "states": {
-                "injured": {
-                    "6175988f": "bf48c10e",
-                    "05f67279": "cf0ae3d8",
-                    "470dc9ae": "ae2fe6e9",
-                    "f31f91ff": "a0e3c5cb",
-                    "2411e310": "bfd993d3",
-                    "ffd57c26": "5e0d738a"
-                }
-            }
+            "bf48c10e": { "replace": ["9b11d340"], "derive": { "LOD": ["62175f29", "804fb473"] } },
+            "a3b840f8": { "replace": ["a2cc097f"], "derive": { "LOD": ["319e9e35", "ac920c2b"] } },
+            "bfd993d3": { "replace": ["baee6fc5"], "derive": { "LOD": ["62860df4", "2de27e4a"] } },
+            "5d5ee265": { "replace": ["1012570b"] },
+            "cf0ae3d8": { "replace": ["7e251226"], "derive": { "LOD": ["12557dff", "d12ee1f4"] } },
+            "221d712d": { "replace": ["aa28d63e"] },
+            "ae2fe6e9": { "replace": ["39ffdf33"], "derive": { "LOD": ["737078ce", "74585798"] } },
+            "41ced95a": { "replace": ["450040b2"], "derive": { "LOD": ["9c91477d", "a52803b9"] } },
+            "39696fc7": { "replace": ["a95def0b"], "derive": { "LOD": ["ab4fb10a", "070edd1c"] } },
+            "bcbd3086": { "replace": ["fdeae97b"] },
+            "a0e3c5cb": { "replace": ["eb5b96b2"], "derive": { "LOD": ["7dbc5bec", "7bd4fd94"] } },
+            "37dcbf53": { "replace": ["dd54d712"], "derive": { "LOD": ["ea832174", "859d78e2"] } },
+            "2d7bb11f": { "replace": ["0eb7da46"], "derive": { "LOD": ["f0242f38", "9b6b0c20"] } },
+            "5e0d738a": { "replace": ["c1078929"], "derive": { "LOD": ["8352edad", "75364d6d"] } },
+            "1079fd6f": { "replace": ["8b1913b4"], "derive": { "LOD": ["cd266348", "0a65d102"] } }
         },
         "XiangliYao": {
             "main_hashes": [{"old": ["ed536543"], "new": "ed536543"}],
-            "texture_hashes": [
-                {"old": ["59f0cae9"], "new": "65f5a746"},
-                {"old": ["794bf372"], "new": "aa467d8c"},
-                {"old": ["d966cc04"], "new": "19190a12"},
-                {"old": ["580004ac"], "new": "77fc9adf"},
-                {"old": ["ab04dbfe"], "new": "df7dcbad"},
-                {"old": ["1ccddcaf"], "new": "312a23b3"},
-                {"old": ["30766750"], "new": "d3334af2"},
-                {"old": ["a6ddeb73"], "new": "847d7908"},
-                {"old": ["392cfad5"], "new": "c5e3d837"},
-                {"old": ["ae7af048"], "new": "707ddd83"},
-                {"old": ["7ce42dd7"], "new": "fcc7fe3a"},
-                {"old": ["7f1ed7f3"], "new": "ccea891f"},
-                {"old": ["3865a786"], "new": "0f2ce004"},
-                {"old": ["9af1a3b1"], "new": "12f7f3a3"},
-                {"old": ["2fed1aa0"], "new": "dfbe6069"},
-                {"old": ["7c17bb8d"], "new": "548b37ed"},
-                {"old": ["7291186a"], "new": "f0ba2ca2"}
-            ],
-            "states": {
-                "injured": {
-                    "e4fe65b0": "312a23b3",
-                    "141badb9": "19190a12",
-                    "b4a8149d": "c5e3d837",
-                    "3f81c006": "77fc9adf",
-                    "a4aceecb": "0f2ce004",
-                    "6ada1c07": "548b37ed"
-                }
-            }
+            "65f5a746": { "replace": ["59f0cae9"] },
+            "aa467d8c": { "replace": ["794bf372"], "derive": { "LOD": ["e7a163a8"] } },
+            "19190a12": { "replace": ["d966cc04"], "derive": { "LOD": ["bdfd2c86"] } },
+            "77fc9adf": { "replace": ["580004ac"], "derive": { "LOD": ["c93dd57d"] } },
+            "df7dcbad": { "replace": ["ab04dbfe"], "derive": { "LOD": ["58e7902f"] } },
+            "312a23b3": { "replace": ["1ccddcaf"], "derive": { "LOD": ["017cdc6a"] } },
+            "d3334af2": { "replace": ["30766750"] },
+            "847d7908": { "replace": ["a6ddeb73"], "derive": { "LOD": ["1fa4af5d"] } },
+            "c5e3d837": { "replace": ["392cfad5"], "derive": { "LOD": ["c853c2f9"] } },
+            "707ddd83": { "replace": ["ae7af048"], "derive": { "LOD": ["40ea27ee"] } },
+            "fcc7fe3a": { "replace": ["7ce42dd7"], "derive": { "LOD": ["9302a160"] } },
+            "ccea891f": { "replace": ["7f1ed7f3"], "derive": { "LOD": ["95ab3529"] } },
+            "0f2ce004": { "replace": ["3865a786"], "derive": { "LOD": ["3611b99f"] } },
+            "12f7f3a3": { "replace": ["9af1a3b1"], "derive": { "LOD": ["fcba854a"] } },
+            "dfbe6069": { "replace": ["2fed1aa0"], "derive": { "LOD": ["3e8036a2"] } },
+            "548b37ed": { "replace": ["7c17bb8d"], "derive": { "LOD": ["7710bf62"] } },
+            "f0ba2ca2": { "replace": ["7291186a"], "derive": { "LOD": ["232efa20"] } }
         },
         "CalcharoBody": {
             "main_hashes": [
                 {"old": ["63e02559"], "new": "63e02559"},
                 {"old": ["9c24e7eb"], "new": "9c24e7eb"}
             ],
-            "texture_hashes": [
-                {"old": ["8b43ad38"], "new": "f3e04a65"},
-                {"old": ["52197a16"], "new": "1ae38ad2"},
-                {"old": ["8a7d6de5"], "new": "3e77c6f1"},
-                {"old": ["7e87c77a"], "new": "d4a87b42"},
-                {"old": ["de0af803"], "new": "5687b335"},
-                {"old": ["0485b505"], "new": "88fc89dd"},
-                {"old": ["3320efad"], "new": "b578f66a"},
-                {"old": ["96cdca80"], "new": "790dc54b"},
-                {"old": ["e8d882a0"], "new": "0465ef39"},
-                {"old": ["feff1922"], "new": "71756a01"},
-                {"old": ["cb23f0b5"], "new": "31f8578b"},
-                {"old": ["f657b0b8"], "new": "d482f64e"}
-            ],
-            "states": {
-                "injured": {
-                    "a105f6fb": "5687b335",
-                    "fdd3e083": "b578f66a",
-                    "60628a85": "790dc54b",
-                    "7b017cc9": "71756a01",
-                    "4ead195a": "3e77c6f1"
-                }
-            }
+            "f3e04a65": { "replace": ["8b43ad38"] },
+            "1ae38ad2": { "replace": ["52197a16"] },
+            "3e77c6f1": { "replace": ["8a7d6de5"] },
+            "d4a87b42": { "replace": ["7e87c77a"] },
+            "5687b335": { "replace": ["de0af803"] },
+            "88fc89dd": { "replace": ["0485b505"] },
+            "b578f66a": { "replace": ["3320efad"] },
+            "790dc54b": { "replace": ["96cdca80"] },
+            "0465ef39": { "replace": ["e8d882a0"] },
+            "71756a01": { "replace": ["feff1922"] },
+            "31f8578b": { "replace": ["cb23f0b5"] },
+            "d482f64e": { "replace": ["f657b0b8"] }
         },
         "CalcharoTorso": {
             "main_hashes": [
                 {"old": ["908eb357"], "new": "908eb357"},
                 {"old": ["006cda67"], "new": "006cda67"}
             ],
-            "texture_hashes": [
-                {"old": ["cb23f0b5"], "new": "31f8578b"},
-                {"old": ["f657b0b8"], "new": "d482f64e"}
-            ]
+            "31f8578b": { "replace": ["cb23f0b5"] },
+            "d482f64e": { "replace": ["f657b0b8"] }
         },
         "Yuanwu": {
             "main_hashes": [
                 {"old": ["51c230c2"], "new": "51c230c2"},
                 {"old": ["0b0fecc4"], "new": "0b0fecc4"}
             ],
-            "texture_hashes": [
-                {"old": ["a59c17cb"], "new": "d6b9870f"},
-                {"old": ["ce0a295e"], "new": "7b4fd238"},
-                {"old": ["6aa8b697"], "new": "31d64d0d"},
-                {"old": ["389f5e85"], "new": "a6c496bb"},
-                {"old": ["1319b682"], "new": "53e67a3d"},
-                {"old": ["2ba57c1b"], "new": "7681bf3d"},
-                {"old": ["de05e406"], "new": "091b887c"},
-                {"old": ["8c299dbf"], "new": "7a0e2aa2"},
-                {"old": ["43799dd2"], "new": "bda4f564"},
-                {"old": ["c6025664"], "new": "7feb53b2"}
-
-            ],
-            "states": {
-                "injured": {
-                    "f5040e5a": "d6b9870f",
-                    "8c14e5f2": "a6c496bb",
-                    "bd954ba8": "7681bf3d",
-                    "44fa35d0": "7feb53b2"
-                }
-            }
+            "d6b9870f": { "replace": ["a59c17cb"] },
+            "7b4fd238": { "replace": ["ce0a295e"] },
+            "31d64d0d": { "replace": ["6aa8b697"] },
+            "a6c496bb": { "replace": ["389f5e85"] },
+            "53e67a3d": { "replace": ["1319b682"] },
+            "7681bf3d": { "replace": ["2ba57c1b"] },
+            "091b887c": { "replace": ["de05e406"] },
+            "7a0e2aa2": { "replace": ["8c299dbf"] },
+            "bda4f564": { "replace": ["43799dd2"] },
+            "7feb53b2": { "replace": ["c6025664"] }
         },
         "Mortefi": {
             "main_hashes": [
                 {"old": ["7b29fedf"], "new": "7b29fedf"},
                 {"old": ["7d919713"], "new": "7d919713"}
             ],
-            "texture_hashes": [
-                {"old": ["11b18904"], "new": "2a5da812"},
-                {"old": ["92474c68"], "new": "6a56519c"},
-                {"old": ["6d76b1cc"], "new": "0f14dc92"},
-                {"old": ["7eee35f8"], "new": "6e183bd5"},
-                {"old": ["27c4d37a"], "new": "3f6dc5cc"},
-                {"old": ["bedffbf4"], "new": "794917a4"},
-                {"old": ["18fb0f57"], "new": "1d2ca7a8"},
-                {"old": ["97ef5c1a"], "new": "800ac367"},
-                {"old": ["413c2f2e"], "new": "39144df1"},
-                {"old": ["62949a6c"], "new": "b8690bc1"},
-                {"old": ["5e6a779f"], "new": "b775a156"},
-                {"old": ["f81811a7"], "new": "fbf9f66a"},
-                {"old": ["be6d8bde"], "new": "539b81a3"}
-
-            ],
-            "states": {
-                "injured": {
-                    "162848e0": "2a5da812",
-                    "5ffe24ad": "0f14dc92",
-                    "7f428c5a": "794917a4",
-                    "052d9b73": "1d2ca7a8",
-                    "033e7f72": "39144df1",
-                    "afa20d6f": "fbf9f66a"
-                }
-            }
+            "2a5da812": { "replace": ["11b18904"] },
+            "6a56519c": { "replace": ["92474c68"] },
+            "0f14dc92": { "replace": ["6d76b1cc"] },
+            "6e183bd5": { "replace": ["7eee35f8"] },
+            "3f6dc5cc": { "replace": ["27c4d37a"] },
+            "794917a4": { "replace": ["bedffbf4"] },
+            "1d2ca7a8": { "replace": ["18fb0f57"] },
+            "800ac367": { "replace": ["97ef5c1a"] },
+            "39144df1": { "replace": ["413c2f2e"] },
+            "b8690bc1": { "replace": ["62949a6c"] },
+            "b775a156": { "replace": ["5e6a779f"] },
+            "fbf9f66a": { "replace": ["f81811a7"] },
+            "539b81a3": { "replace": ["be6d8bde"] }
         },
         "Aalto": {
             "main_hashes": [
                 {"old": ["93bbbdc0"], "new": "93bbbdc0"},
                 {"old": ["4f0a1fba"], "new": "4f0a1fba"}
             ],
-            "texture_hashes": [
-                {"old": ["3edd37c6"], "new": "4eba0ca3"},
-                {"old": ["41d712e3"], "new": "3dcf2a5e"},
-                {"old": ["83220aa9"], "new": "9f6b993d"},
-                {"old": ["78616c21"], "new": "7f4b67b2"},
-                {"old": ["b94cc7e1"], "new": "b06caa8d"},
-                {"old": ["03265d9c"], "new": "184f22fd"},
-                {"old": ["e02df19b"], "new": "98a883e4"}
-
-            ],
-            "states": {
-                "injured": {
-                    "6d8b824b": "3dcf2a5e",
-                    "05358c37": "9f6b993d",
-                    "e73a299b": "7f4b67b2",
-                    "e3ee8d85": "184f22fd"
-                }
-            }
+            "4eba0ca3": { "replace": ["3edd37c6"] },
+            "3dcf2a5e": { "replace": ["41d712e3"] },
+            "9f6b993d": { "replace": ["83220aa9"] },
+            "7f4b67b2": { "replace": ["78616c21"] },
+            "b06caa8d": { "replace": ["b94cc7e1"] },
+            "184f22fd": { "replace": ["03265d9c"] },
+            "98a883e4": { "replace": ["e02df19b"] }
         },
         "Yinlin": {
             "main_hashes": [
                 {"old": ["42702199"], "new": "42702199"},
                 {"old": ["41d656e8"], "new": "41d656e8"}
             ],
-            "texture_hashes": [
-                {"old": ["86b95122"], "new": "00120eee"},
-                {"old": ["750390fa"], "new": "584b7755"},
-                {"old": ["30053482"], "new": "87bbb0c1"},
-                {"old": ["76967821"], "new": "9ea4dc96"},
-                {"old": ["1f0f6dc8"], "new": "58b06268"},
-                {"old": ["71525c2a"], "new": "7d1b007a"},
-                {"old": ["e56f82b1"], "new": "e50849e0"},
-                {"old": ["3271530d"], "new": "5f0fbdb9"},
-                {"old": ["148a83c6"], "new": "33d00a20"},
-                {"old": ["9ebf7cad"], "new": "5065eae3"},
-                {"old": ["711af10e"], "new": "55c63039"},
-                {"old": ["8493df3e"], "new": "c425fd58"}
-            ],
-            "states": {
-                "injured": {
-                    "8191eb28": "58b06268",
-                    "9ca33205": "87bbb0c1",
-                    "7a826f6c": "00120eee",
-                    "17bd5877": "55c63039",
-                    "b5054dd5": "9ea4dc96"
-                }
-            }
+            "00120eee": { "replace": ["86b95122"], "derive": { "LOD": ["dd4d90c9", "eda46a41"] } },
+            "584b7755": { "replace": ["750390fa"], "derive": { "LOD": ["8514e972", "0f841878"] } },
+            "87bbb0c1": { "replace": ["30053482"], "derive": { "LOD": ["5ae42ee6", "39d9a575"] } },
+            "9ea4dc96": { "replace": ["76967821"], "derive": { "LOD": ["43fb42b1", "c2d8ef6c"] } },
+            "58b06268": { "replace": ["1f0f6dc8"], "derive": { "LOD": ["85effc4f", "32df6547"] } },
+            "7d1b007a": { "replace": ["71525c2a"] },
+            "e50849e0": { "replace": ["e56f82b1"], "derive": { "LOD": ["3857d7c7", "05e142f0"] } },
+            "5f0fbdb9": { "replace": ["3271530d"] },
+            "33d00a20": { "replace": ["148a83c6"] },
+            "5065eae3": { "replace": ["9ebf7cad"] },
+            "55c63039": { "replace": ["711af10e"], "derive": { "LOD": ["8899ae1e", "9f9b3272"] } },
+            "c425fd58": { "replace": ["8493df3e"], "derive": { "LOD": ["197a637f", "90127640"] } }
         },
         "Jiyan": {
             "main_hashes": [
                 {"old": ["31b50c1d"], "new": "31b50c1d"},
                 {"old": ["7759b7d3"], "new": "7759b7d3"}
             ],
-            "texture_hashes": [
-                {"old": ["b05fac63", "9631335c"], "new": "510ae939"},
-                {"old": ["1b3a68de", "7741698a"], "new": "d8621e79"},
-                {"old": ["9a8dc04e"], "new": "55f78d68"},
-                {"old": ["46f910cf"], "new": "40346675"},
-                {"old": ["8bba6141"], "new": "deab020e"},
-                {"old": ["aedc62a4"], "new": "92e1b9ce"},
-                {"old": ["70727fb3"], "new": "64d51f09"},
-                {"old": ["cbe41f58"], "new": "05fa5a06"},
-                {"old": ["781bb5d4"], "new": "18c53df4"},
-                {"old": ["919672df"], "new": "7367d0af"},
-                {"old": ["36807a81"], "new": "16662002"}
-            ],
-            "states": {
-                "injured": {
-                    "a782abc1": "510ae939"
-                }
-            }
+            "510ae939": { "replace": ["b05fac63", "9631335c"], "derive": { "LOD": ["8c55771e", "c9c00521"] } },
+            "d8621e79": { "replace": ["1b3a68de", "7741698a"], "derive": { "LOD": ["053d805e", "737bc07e"] } },
+            "55f78d68": { "replace": ["9a8dc04e"] },
+            "40346675": { "replace": ["46f910cf"], "derive": { "LOD": ["9d6bf852", "9cdc33bf"] } },
+            "deab020e": { "replace": ["8bba6141"], "derive": { "LOD": ["03f49c29", "961de72e"] } },
+            "92e1b9ce": { "replace": ["aedc62a4"], "derive": { "LOD": ["4fbe27e9", "a17b713f"] } },
+            "64d51f09": { "replace": ["70727fb3"] },
+            "05fa5a06": { "replace": ["cbe41f58"], "derive": { "LOD": ["d8a5c421", "88ae75d0"] } },
+            "18c53df4": { "replace": ["781bb5d4"], "derive": { "LOD": ["c59aa3d3", "13baeaed"] } },
+            "7367d0af": { "replace": ["919672df"] },
+            "16662002": { "replace": ["36807a81"], "derive": { "LOD": ["cb39be25", "abe0b2b8"] } },
+            "adcb548e": { "derive": { "LOD": ["3fed8a43", "6d54e1e4"] } },
+            "e82d0d1f": { "derive": { "LOD": ["7a0bd3d2", "323ca928"] } }
         },
         "Lumi": {
             "main_hashes": [{"old": ["b441b9f6"], "new": "b441b9f6"}],
-            "texture_hashes": [
-                {"old": ["0390820a"], "new": "8e28c8e7"},
-                {"old": ["a2c25060"], "new": "27308969"},
-                {"old": ["a9b2a415"], "new": "68916487"},
-                {"old": ["35c1c5cf"], "new": "43682482"},
-                {"old": ["2decd61b"], "new": "d23090a3"},
-                {"old": ["73dc0ecf"], "new": "33d29aa1"},
-                {"old": ["dda29ba9"], "new": "ac26dd3b"},
-                {"old": ["97e43063"], "new": "a614279c"},
-                {"old": ["4dba3f46"], "new": "1e238f6c"},
-                {"old": ["0249a0f6"], "new": "d2ad31db"},
-                {"old": ["2212362c"], "new": "80fdc4d8"},
-                {"old": ["4afb92ae"], "new": "801f9d6e"},
-                {"old": ["74703d44"], "new": "c38e9ebc"}
-            ],
-            "states": {
-                "injured": {
-                    "976b780e": "8e28c8e7",
-                    "395e686d": "43682482",
-                    "11dd9524": "d23090a3",
-                    "f9934a03": "ac26dd3b",
-                    "1e55dd5a": "d2ad31db"
-                }
-            }
+            "8e28c8e7": { "replace": ["0390820a"], "derive": { "LOD": ["f435435b"] } },
+            "27308969": { "replace": ["a2c25060"] },
+            "68916487": { "replace": ["a9b2a415"] },
+            "43682482": { "replace": ["35c1c5cf"], "derive": { "LOD": ["8febc8c7"] } },
+            "d23090a3": { "replace": ["2decd61b"], "derive": { "LOD": ["5298d206"] } },
+            "33d29aa1": { "replace": ["73dc0ecf"] },
+            "ac26dd3b": { "replace": ["dda29ba9"], "derive": { "LOD": ["be6db02c"] } },
+            "a614279c": { "replace": ["97e43063"], "derive": { "LOD": ["be3c0e9b"] } },
+            "1e238f6c": { "replace": ["4dba3f46"], "derive": { "LOD": ["b318f8f2"] } },
+            "d2ad31db": { "replace": ["0249a0f6"], "derive": { "LOD": ["38d20999"] } },
+            "80fdc4d8": { "replace": ["2212362c"] },
+            "801f9d6e": { "replace": ["4afb92ae"], "derive": { "LOD": ["2c94abbf"] } },
+            "c38e9ebc": { "replace": ["74703d44"] },
+            "091af072": { "derive": { "LOD": ["7f8d1f43"] } },
+            "3038f25c": { "derive": { "LOD": ["9fcc6f36"] } },
+            "cc83d4fc": { "derive": { "LOD": ["b318f8f2"] } },
+            "f515fdbd": { "derive": { "LOD": ["be3c0e9b"] } }
         },
         "Roccia": {
             "main_hashes": [{"old": ["8d97c1bd"], "new": "8d97c1bd"}],
-            "texture_hashes": [
-                {"old": ["df813937"], "new": "ea12c00e"},
-                {"old": ["87d73bf2"], "new": "21ff0f89"},
-                {"old": ["42d605d4"], "new": "98decec7"},
-                {"old": ["86f266a5"], "new": "39db08c0"},
-                {"old": ["6f2fd0ce"], "new": "48bd8b69"},
-                {"old": ["1d5ea77e"], "new": "c915f11c"},
-                {"old": ["1e5ddfd3"], "new": "7515ea2e"},
-                {"old": ["16558db2"], "new": "859f8f55"},
-                {"old": ["8c76d557"], "new": "24b44872"},
-                {"old": ["843152d9"], "new": "8759aa05"},
-                {"old": ["af77fb44"], "new": "84e10138"},
-                {"old": ["c9c9ae65"], "new": "4c151aa4"},
-                {"old": ["f10f32ad"], "new": "778a83a4"},
-                {"old": ["718589a4"], "new": "0807dcc7"}
-            ],
-            "states": {
-                "injured": {
-                    "2705d019": "21ff0f89",
-                    "723f7244": "8759aa05",
-                    "5ba0e791": "39db08c0",
-                    "59d4e7cf": "48bd8b69",
-                    "9104e80a": "859f8f55",
-                    "21bfae92": "4c151aa4"
-                }
-            }
-        },
-        "SanhuaExorcistic": {
-            "main_hashes": [{"old": ["b101dcf3"], "new": "b101dcf3"}],
-            "texture_hashes": [
-                {"old": ["f22348f0"], "new": "4478285f"},
-                {"old": ["d5a089c8", "6a10c291"], "new": "72739d6e"},
-                {"old": ["31a5f36a"], "new": "f8d5c991"},
-                {"old": ["d78ad0f5"], "new": "c74af063"},
-                {"old": ["d153e37f"], "new": "63c807fe"},
-                {"old": ["168462a9"], "new": "52f35e6d"},
-                {"old": ["9522bbc7"], "new": "11171f1c"},
-                {"old": ["a0cf932f"], "new": "9febd992"},
-                {"old": ["43dc9bdf"], "new": "1d50aa4a"},
-                {"old": ["d96aa9b8"], "new": "221b8ad6"},
-                {"old": ["fd078186"], "new": "8e5306a9"},
-                {"old": ["464256d1"], "new": "c98e83cd"}
-            ],
-            "states": {
-                "injured": {
-                    "fb72762f": "c98e83cd",
-                    "8ff044bc": "f8d5c991",
-                    "b908eb42": "11171f1c",
-                    "41d44529": "8e5306a9",
-                    "e8fdba2d": "52f35e6d"
-                }
-            }
+            "ea12c00e": { "replace": ["df813937"] },
+            "21ff0f89": { "replace": ["87d73bf2"], "derive": { "LOD": ["fca091ae", "b7c7f235"] } },
+            "98decec7": { "replace": ["42d605d4"] },
+            "39db08c0": { "replace": ["86f266a5"], "derive": { "LOD": ["e48496e7", "89ec32af"] } },
+            "48bd8b69": { "replace": ["6f2fd0ce"], "derive": { "LOD": ["95e2154e", "e1b13199"] } },
+            "c915f11c": { "replace": ["1d5ea77e"], "derive": { "LOD": ["144a6f3b", "d3cb2336"] } },
+            "7515ea2e": { "replace": ["1e5ddfd3"], "derive": { "LOD": ["e73334e3", "a2ed670f"] } },
+            "859f8f55": { "replace": ["16558db2"], "derive": { "LOD": ["58c01172", "06b9963c"] } },
+            "24b44872": { "replace": ["8c76d557"], "derive": { "LOD": ["b69296bf", "3dd4a788"] } },
+            "8759aa05": { "replace": ["843152d9"], "derive": { "LOD": ["5a063422", "c338a531"] } },
+            "84e10138": { "replace": ["af77fb44"], "derive": { "LOD": ["59be9f1f", "836f8416"] } },
+            "4c151aa4": { "replace": ["c9c9ae65"], "derive": { "LOD": ["914a8483", "47dc71ee"] } },
+            "778a83a4": { "replace": ["f10f32ad"], "derive": { "LOD": ["aad51d83", "9bfd4664"] } },
+            "0807dcc7": { "replace": ["718589a4"], "derive": { "LOD": ["d55842e0", "f0a11e9f"] } }
         },
         "Phoebe": {
             "main_hashes": [
@@ -1357,143 +877,92 @@
                 {"old": ["e304df53", "a284a970", "00b2a919"], "new": "8ba3d365"},
                 {"old": ["3f411789", "baea13f2", "ecac2cc5"], "new": "2c8f9580"}
             ],
-            "texture_hashes": [
-                {"old": ["4a30f1df", "83bc4e8a"], "new": "0758a784"},
-                {"old": ["2c8ff000"], "new": "e5034f55"},
-                {"old": ["04c4949f"], "new": "cd290e05"},
-                {"old": ["1641ec82"], "new": "eeefa6b0"},
-                {"old": ["3e216e73"], "new": "1bc4da29"},
-                {"old": ["bace929a"], "new": "cb5eca8c"},
-                {"old": ["08ee69e1"], "new": "22a9e382"},
-                {"old": ["18b491c2"], "new": "06b39fed"},
-                {"old": ["a04d2480"], "new": "620fd27a"},
-                {"old": ["0da7ba9d"], "new": "76402ba3"},
-                {"old": ["2b6e5340"], "new": "18aae516"},
-                {"old": ["cbe73490"], "new": "78fa07fc"},
-                {"old": ["99f06647"], "new": "5198cff7"},
-                {"old": ["9772a12f"], "new": "989a9b41"}
-            ],
-            "states": {
-                "injured": {
-                    "e5034f55": "0758a784",
-                    "92ab1de5": "78fa07fc",
-                    "68055536": "620fd27a",
-                    "cf6f91c1": "eeefa6b0",
-                    "c464c8d5": "06b39fed"
-                }
-            }
+            "0758a784": { "replace": ["4a30f1df", "83bc4e8a"], "derive": { "LOD": ["6dee200a"] } },
+            "e5034f55": { "replace": ["2c8ff000"] },
+            "cd290e05": { "replace": ["04c4949f"] },
+            "eeefa6b0": { "replace": ["1641ec82"], "derive": { "LOD": ["d74fe465"] } },
+            "1bc4da29": { "replace": ["3e216e73"] },
+            "cb5eca8c": { "replace": ["bace929a"], "derive": { "LOD": ["29c41c3a"] } },
+            "22a9e382": { "replace": ["08ee69e1"] },
+            "06b39fed": { "replace": ["18b491c2"], "derive": { "LOD": ["cbfea546"] } },
+            "620fd27a": { "replace": ["a04d2480"], "derive": { "LOD": ["9ee1ab38"] } },
+            "76402ba3": { "replace": ["0da7ba9d"], "derive": { "LOD": ["cd683368"] } },
+            "18aae516": { "replace": ["2b6e5340"], "derive": { "LOD": ["cd47b347"] } },
+            "78fa07fc": { "replace": ["cbe73490"], "derive": { "LOD": ["8ef8e6b9"] } },
+            "5198cff7": { "replace": ["99f06647"], "derive": { "LOD": ["69fa8530"] } },
+            "989a9b41": { "replace": ["9772a12f"], "derive": { "LOD": ["9a9f046e"] } }
         },
         "PhoebeWand": {
             "main_hashes": [{"old": ["af088a1e"], "new": "af088a1e"}],
-            "texture_hashes": [
-                {"old": ["3325c6d2"], "new": "38a8ddae"},
-                {"old": ["c3d6c485"], "new": "1fc35af1"}
-            ]
+            "38a8ddae": { "replace": ["3325c6d2"] },
+            "1fc35af1": { "replace": ["c3d6c485"] }
         },
         "Brant": {
             "main_hashes": [{"old": ["5943f99a"], "new": "5943f99a"}],
-            "texture_hashes": [
-                {"old": ["79c389b5"], "new": "10cdc735"},
-                {"old": ["93f37a93"], "new": "0f4e6e0a"},
-                {"old": ["41be688c"], "new": "ef87053b"},
-                {"old": ["567e2ab7"], "new": "92036301"},
-                {"old": ["67175ee6"], "new": "f69259fd"},
-                {"old": ["8b25adba", "c1f72669"], "new": "820515a6"},
-                {"old": ["2cf897c6"], "new": "8b117bac"},
-                {"old": ["47c4cf4b", "33a5aeec"], "new": "88535a86"},
-                {"old": ["1830304b", "9c7aac2e"], "new": "1d8fc580"},
-                {"old": ["fc28e018"], "new": "b5976b09"},
-                {"old": ["9e2806f0"], "new": "541ea4fd"},
-                {"old": ["3253c8b4"], "new": "fa002d7e"}
-            ],
-            "states": {
-                "injured": {
-                    "8a6d655d": "ef87053b",
-                    "b33059f7": "0f4e6e0a",
-                    "e096a650": "f69259fd",
-                    "d86edd42": "b5976b09"
-                }
-            }
+            "10cdc735": { "replace": ["79c389b5"] },
+            "0f4e6e0a": { "replace": ["93f37a93"], "derive": { "LOD": ["219f9382"] } },
+            "ef87053b": { "replace": ["41be688c"], "derive": { "LOD": ["f93862c6"] } },
+            "92036301": { "replace": ["567e2ab7"] },
+            "f69259fd": { "replace": ["67175ee6"], "derive": { "LOD": ["94dcf1b0"] } },
+            "820515a6": { "replace": ["8b25adba", "c1f72669"] },
+            "8b117bac": { "replace": ["2cf897c6"], "derive": { "LOD": ["fe114b02"] } },
+            "88535a86": { "replace": ["47c4cf4b", "33a5aeec"], "derive": { "LOD": ["76d9165c"] } },
+            "1d8fc580": { "replace": ["1830304b", "9c7aac2e"], "derive": { "LOD": ["a248bc79"] } },
+            "b5976b09": { "replace": ["fc28e018"], "derive": { "LOD": ["2b6a1b69"] } },
+            "541ea4fd": { "replace": ["9e2806f0"], "derive": { "LOD": ["fec86ff2"] } },
+            "fa002d7e": { "replace": ["3253c8b4"] }
         },
         "Cantarella": {
             "main_hashes": [{"old": ["5432f939"], "new": "5432f939"}],
-            "texture_hashes": [
-                {"old": ["812ba53f"], "new": "787c92b8"},
-                {"old": ["35c01267", "734ad993"], "new": "b6deb6c2"},
-                {"old": ["0fce3633", "59c7c460"], "new": "0480d129"},
-                {"old": ["01c122b3"], "new": "e3127902"},
-                {"old": ["354e8743", "801b4344", "a2f54eec"], "new": "abd93fa3"},
-                {"old": ["28105b41", "884dc2c3", "3ea27f2c"], "new": "a9b4d269"},
-                {"old": ["797bc768"], "new": "62a665e3"},
-                {"old": ["5cfb3cbc"], "new": "8f3ebd32"},
-                {"old": ["7423d5d0"], "new": "ad7c2fad"},
-                {"old": ["40e95d0b"], "new": "91bf0adb"},
-                {"old": ["d789c54e"], "new": "3ebe428b"},
-                {"old": ["2091f4e1"], "new": "87b19749"},
-                {"old": ["c93ea25b"], "new": "b8fe5f0a"},
-                {"old": ["94a9c5e1"], "new": "3cda6614"},
-                {"old": ["73360451"], "new": "b00d33d6"},
-                {"old": ["dc14e209"], "new": "9986ce50"},
-                {"old": ["5db1989d"], "new": "5bbb1f80"},
-                {"old": ["dcb62fb6"], "new": "76a3b6f4"},
-                {"old": ["5e48f2a4"], "new": "b4b8de71"},
-                {"old": ["ef3dab0e"], "new": "f6c26213"},
-                {"old": ["d67890aa"], "new": "c3902379"},
-                {"old": ["87821a93"], "new": "f7dadc16"},
-                {"old": ["a01a5acf"], "new": "d0429c4a"}
-            ],
-            "states": {
-                "injured": {
-                    "4a9b2a09": "3ebe428b",
-                    "ad7c2fad": "787c92b8",
-                    "e3127902": "b6deb6c2",
-                    "25144e25": "9986ce50",
-                    "2745d8b5": "b8fe5f0a"
-                },
-                "wet": {
-                    "b4b8de71": "3ebe428b",
-                    "8f3ebd32": "787c92b8",
-                    "abd93fa3": "b6deb6c2",
-                    "c3902379": "9986ce50",
-                    "f6c26213": "b8fe5f0a",
-                    "d0429c4a": "f7dadc16"
-                },
-                "wet_injured": {
-                    "316457f4": "3ebe428b",
-                    "62a665e3": "787c92b8",
-                    "a9b4d269": "b6deb6c2",
-                    "f9f65a14": "9986ce50",
-                    "a45cb30b": "b8fe5f0a"
-                }
-            },
-            "stable_textures": {
-                "0": {"D": "3ebe428b"}, "1": {"D": "b8fe5f0a"}, "2": {"D": "f7dadc16"}, "3": {"D": "787c92b8"}, "4": {"D": "b6deb6c2"}, "5": {"D": "9986ce50"}
-            }
+            "3ebe428b": { "meta": { "id": 0, "type": "D" }, "replace": ["d789c54e"], "derive": { "wet": ["b4b8de71", "69e74056", "ba88e9da"], "LOD": ["e3e1dcac", "b53ee9cd"] } },
+            "91bf0adb": { "meta": { "id": 0, "type": "L" }, "replace": ["40e95d0b"] },
+            "b8fe5f0a": { "meta": { "id": 1, "type": "D" }, "replace": ["c93ea25b"], "derive": { "wet": ["f6c26213", "2b9dfc34", "a97743cc"], "LOD": ["65a1c12d", "cd874f25"] } },
+            "87b19749": { "meta": { "id": 1, "type": "L" }, "replace": ["2091f4e1"] },
+            "f7dadc16": { "meta": { "id": 2, "type": "D" }, "replace": ["87821a93"], "derive": { "wet": ["d0429c4a", "0d1d026d", "f9cf36b0"] } },
+            "0c868365": { "meta": { "id": 2, "type": "L" } },
+            "787c92b8": { "meta": { "id": 3, "type": "D" }, "replace": ["812ba53f"], "derive": { "wet": ["8f3ebd32", "52612315", "411dfe13"], "LOD": ["a5230c9f", "583b6efd"] } },
+            "22ba1d3e": { "meta": { "id": 3, "type": "L" } },
+            "3cda6614": { "meta": { "id": 3, "type": "N" }, "replace": ["94a9c5e1"], "derive": { "LOD": ["e185f833", "216b2dcf"] } },
+            "b6deb6c2": { "meta": { "id": 4, "type": "D" }, "replace": ["35c01267", "734ad993"], "derive": { "wet": ["abd93fa3", "7686a184", "f068f7d9"], "LOD": ["6b8128e5", "03af6ae8"] } },
+            "89e2bbf1": { "meta": { "id": 4, "type": "L" } },
+            "0480d129": { "meta": { "id": 4, "type": "N" }, "replace": ["0fce3633", "59c7c460"], "derive": { "LOD": ["d9df4f0e", "14cb399b"] } },
+            "9986ce50": { "meta": { "id": 5, "type": "D" }, "replace": ["dc14e209"], "derive": { "wet": ["c3902379", "1ecfbd5e", "5d8ed2ab"], "LOD": ["44d95077", "fb796792"] } },
+            "8ecda31a": { "meta": { "id": 5, "type": "L" } },
+            "b00d33d6": { "meta": { "id": 5, "type": "N" }, "replace": ["73360451"], "derive": { "LOD": ["6d52adf1", "ceb2d116"] } },
+            "5bbb1f80": { "meta": { "id": 6, "type": "D" }, "replace": ["5db1989d"], "derive": { "LOD": ["86e481a7", "3c27f5d1"] } },
+            "76a3b6f4": { "meta": { "id": 7, "type": "D" }, "replace": ["dcb62fb6"], "derive": { "LOD": ["abfc28d3", "4b922cb0"] } },
+            "9a126c64": { "meta": { "id": 7, "type": "L" } },
+            "5fb46aac": { "meta": { "id": 7, "type": "N" }, "derive": { "LOD": ["82ebf48b", "951f7010"] } },
+            "e3127902": { "replace": ["01c122b3"] },
+            "abd93fa3": { "replace": ["354e8743", "801b4344", "a2f54eec"] },
+            "a9b4d269": { "replace": ["28105b41", "884dc2c3", "3ea27f2c"] },
+            "62a665e3": { "replace": ["797bc768"] },
+            "8f3ebd32": { "replace": ["5cfb3cbc"] },
+            "ad7c2fad": { "replace": ["7423d5d0"] },
+            "b4b8de71": { "replace": ["5e48f2a4"] },
+            "f6c26213": { "replace": ["ef3dab0e"] },
+            "c3902379": { "replace": ["d67890aa"] },
+            "d0429c4a": { "replace": ["a01a5acf"] }
         },
         "Cantarella_Umbrella": {
             "main_hashes": [{"old": ["2005ef51"], "new": "2005ef51"}],
-            "texture_hashes": [
-                {"old": ["093cb526"], "new": "52a54db3"},
-                {"old": ["daed0b06"], "new": "310a0a6a"}
-            ]
+            "52a54db3": { "replace": ["093cb526"] },
+            "310a0a6a": { "replace": ["daed0b06"] }
         },
         "Zani_Interface": {
             "main_hashes": [{"old": ["b9f4b0b4", "c2727ed7"], "new": "3d7098cb"}],
-            "texture_hashes": [
-                {"old": ["7f15f013"], "new": "5bcca6de"},
-                {"old": ["71f1a895"], "new": "1133b076"},
-                {"old": ["bfaa82b4"], "new": "67316edd"},
-                {"old": ["69ce5914"], "new": "de4463e0"},
-                {"old": ["6b885af9"], "new": "85371f27"},
-                {"old": ["a7869af0"], "new": "6df52af4"},
-                {"old": ["c91bc37a"], "new": "5fe6e3f5"},
-                {"old": ["988c2332"], "new": "ac687edd"},
-                {"old": ["a6006726"], "new": "2ba75c9c"},
-                {"old": ["ce1aa29a"], "new": "17d03603"},
-                {"old": ["c676996a"], "new": "18a76e47"},
-                {"old": ["73c4cc50"], "new": "726c6138"},
-                {"old": ["6118a560"], "new": "15507304"}
-            ]
+            "5bcca6de": { "replace": ["7f15f013"] },
+            "1133b076": { "replace": ["71f1a895"], "derive": { "LOD": ["cc6c2e51", "3e20f46e"] }},
+            "67316edd": { "replace": ["bfaa82b4"], "derive": { "LOD": ["ba6ef0fa", "43d63015"] }},
+            "de4463e0": { "replace": ["69ce5914"], "derive": { "LOD": ["031bfdc7", "5c656b51"] } },
+            "85371f27": { "replace": ["6b885af9"] },
+            "6df52af4": { "replace": ["a7869af0"], "derive": { "LOD": ["b0aab4d3", "97ace3a8"] }},
+            "5fe6e3f5": { "replace": ["c91bc37a"], "derive": { "LOD": ["82b97dd2", "66b7dbc4"] } },
+            "ac687edd": { "replace": ["988c2332"], "derive": { "LOD": ["7137e0fa", "9d917063"] }},
+            "2ba75c9c": { "replace": ["a6006726"] },
+            "17d03603": { "replace": ["ce1aa29a"], "derive": { "LOD": ["ca8fa824", "2879abe0"] }},
+            "726c6138": { "replace": ["73c4cc50"], "derive": { "LOD": ["af33ff1f", "57a27afe"] }},
+            "15507304": { "replace": ["6118a560"] }
         },
         "Zani_Upper": {
             "main_hashes": [
@@ -1501,108 +970,54 @@
                 {"old": ["08e242b9"], "new": "9e87c4cb"},
                 {"old": ["e88e60cb"], "new": "28add98e"}
             ],
-            "texture_hashes": [
-                {"old": ["7f15f013"], "new": "5bcca6de"},
-                {"old": ["71f1a895"], "new": "1133b076"},
-                {"old": ["bfaa82b4"], "new": "67316edd"},
-                {"old": ["69ce5914"], "new": "de4463e0"},
-                {"old": ["6b885af9"], "new": "85371f27"},
-                {"old": ["a7869af0"], "new": "6df52af4"},
-                {"old": ["66ec53c0", "612a235b"], "new": "d1c1a195"},
-                {"old": ["c91bc37a"], "new": "5fe6e3f5"},
-                {"old": ["988c2332"], "new": "ac687edd"},
-                {"old": ["a6006726"], "new": "2ba75c9c"},
-                {"old": ["ce1aa29a"], "new": "17d03603"},
-                {"old": ["c676996a", "18a76e47"], "new": "61de7097"},
-                {"old": ["73c4cc50"], "new": "726c6138"},
-                {"old": ["6118a560"], "new": "15507304"}
-            ],
-            "states": {
-                "injured": {
-                    "81693b04": "5fe6e3f5",
-                    "ab3eb291": "67316edd"
-                }
-            }
+            "d1c1a195": { "replace": ["66ec53c0", "612a235b"], "derive": { "LOD": ["0c9e3fb2", "3fc7f6ff"] }},
+            "61de7097": { "replace": ["c676996a", "18a76e47"], "derive": { "LOD": ["bc81eeb0", "e31f53c6"] }}
         },
         "Zani_Lower": {
-            "main_hashes": [{"old": ["12b90236", "07352718"], "new": "c99c5635"}],
-            "texture_hashes": [
-                {"old": ["7f15f013"], "new": "5bcca6de"},
-                {"old": ["71f1a895"], "new": "1133b076"},
-                {"old": ["bfaa82b4"], "new": "67316edd"},
-                {"old": ["69ce5914"], "new": "de4463e0"},
-                {"old": ["6b885af9"], "new": "85371f27"},
-                {"old": ["a7869af0"], "new": "6df52af4"},
-                {"old": ["c91bc37a"], "new": "5fe6e3f5"},
-                {"old": ["988c2332"], "new": "ac687edd"},
-                {"old": ["a6006726"], "new": "2ba75c9c"},
-                {"old": ["ce1aa29a"], "new": "17d03603"},
-                {"old": ["c676996a"], "new": "18a76e47"},
-                {"old": ["73c4cc50"], "new": "726c6138"},
-                {"old": ["6118a560"], "new": "15507304"}
-            ],
-            "states": {"injured": { "3cc705ad": "ac687edd"}}
+            "main_hashes": [{"old": ["12b90236", "07352718"], "new": "c99c5635"}]
         },
         "Zani_Liberupper": {
             "main_hashes": [{"old": ["dbc0a3d1"], "new": "dbc0a3d1"}],
-            "texture_hashes": [
-                {"old": ["f005294b"], "new": "eba837f6"},
-                {"old": ["4fb245db"], "new": "a5da61f8"},
-                {"old": ["ac0a77cf"], "new": "34fd8ff4"},
-                {"old": ["34774f22"], "new": "3624cd00"},
-                {"old": ["c28372b3"], "new": "a4a04996"}
-            ],
-            "states": {"injured": { "f7694bcf": "a4a04996"}}
+            "eba837f6": { "replace": ["f005294b"], "derive": { "LOD": ["36f7a9d1", "1c03233e"] } },
+            "a5da61f8": { "replace": ["4fb245db"], "derive": { "LOD": ["7885ffdf", "a85a8201"] } },
+            "34fd8ff4": { "replace": ["ac0a77cf"], "derive": { "LOD": ["dcf7abf4"] } },
+            "3624cd00": { "replace": ["34774f22"], "derive": { "LOD": ["80fc44af"] } },
+            "a4a04996": { "replace": ["c28372b3"], "derive": { "LOD": ["9b597ca5"] } },
+            "3c1567ae": { "derive": { "LOD": ["2c421000"] } },
+            "5261a986": { "derive": { "LOD": ["d0a54837"] } }
         },
         "Zani_Shield": {
             "main_hashes": [{"old": ["76834247"], "new": "76834247"}],
-            "texture_hashes": [
-                {"old": ["067e9607"], "new": "78c7ca2a"},
-                {"old": ["16f888b0"], "new": "4e718e13"}
-            ]
+            "78c7ca2a": { "replace": ["067e9607"] },
+            "4e718e13": { "replace": ["16f888b0"] }
         },
         "Ciaccona": {
             "main_hashes": [{"old": ["e57c9380"], "new": "e57c9380"}],
-            "texture_hashes": [
-                {"old": ["d79a3f55"], "new": "24af21ae"},
-                {"old": ["839d2623"], "new": "1603d6fa"},
-                {"old": ["19d3de08"], "new": "a20c032a"},
-                {"old": ["fe853fcf"], "new": "10d1aeac"},
-                {"old": ["bf7e0ab1"], "new": "e7f8bb3b"},
-                {"old": ["1e072c24"], "new": "1f746639"},
-                {"old": ["09e98e33"], "new": "0448648a"},
-                {"old": ["4e1fdf28"], "new": "ed5511fe"},
-                {"old": ["852b2b72"], "new": "342dcbc3"},
-                {"old": ["4c379f61"], "new": "6f620405"},
-                {"old": ["4358f290"], "new": "de5a0f92"},
-                {"old": ["2f590d3f"], "new": "f58c741e"},
-                {"old": ["748f8d97"], "new": "1cffa7e8"},
-                {"old": ["3b5e4a9b"], "new": "37400c45"},
-                {"old": ["cca1af56"], "new": "5a41b6fa"},
-                {"old": ["be1295ae"], "new": "7bcede78"},
-                {"old": ["1c03e88d"], "new": "952d2862"}
-            ],
-            "states": {
-                "injured": {
-                    "70a4acf0": "10d1aeac",
-                    "987a6f0e": "5a41b6fa",
-                    "064492c6": "342dcbc3",
-                    "1603d6fa": "24af21ae",
-                    "bebbf828": "f58c741e",
-                    "17a8f8fa": "6f620405",
-                    "55dfd156": "1f746639"
-                }
-            }
+            "24af21ae": { "replace": ["d79a3f55"], "derive": { "LOD": ["f9f0bf89", "29fe5a2f"] } },
+            "1603d6fa": { "replace": ["839d2623"] },
+            "a20c032a": { "replace": ["19d3de08"] },
+            "10d1aeac": { "replace": ["fe853fcf"], "derive": { "LOD": ["cd8e308b", "adf5b6f5"] } },
+            "e7f8bb3b": { "replace": ["bf7e0ab1"] },
+            "1f746639": { "replace": ["1e072c24"], "derive": { "LOD": ["c22bf81e", "0766fb39"] } },
+            "0448648a": { "replace": ["09e98e33"], "derive": { "LOD": ["d917faad", "92b84e8f"] } },
+            "ed5511fe": { "replace": ["4e1fdf28"], "derive": { "LOD": ["300a8fd9", "7278decc"] } },
+            "342dcbc3": { "replace": ["852b2b72"], "derive": { "LOD": ["e97255e4", "6292c460"] } },
+            "6f620405": { "replace": ["4c379f61"], "derive": { "LOD": ["b23d9a22", "aaba6cee"] } },
+            "de5a0f92": { "replace": ["4358f290"], "derive": { "LOD": ["030591b5", "879d4322"] } },
+            "f58c741e": { "replace": ["2f590d3f"], "derive": { "LOD": ["28d3ea39", "64d70da5"] } },
+            "1cffa7e8": { "replace": ["748f8d97"] },
+            "37400c45": { "replace": ["3b5e4a9b"], "derive": { "LOD": ["ea1f9262", "8a060c19"] } },
+            "5a41b6fa": { "replace": ["cca1af56"], "derive": { "LOD": ["871e28dd", "820a082e"] } },
+            "7bcede78": { "replace": ["be1295ae"] },
+            "952d2862": { "replace": ["1c03e88d"] }
         },
         "CiacconaCloned": {
             "main_hashes": [{"old": ["dafb1bef"], "new": "dafb1bef"}],
-            "texture_hashes": [
-                {"old": ["3e42e29e"], "new": "a6a7d785"},
-                {"old": ["5bf97cc7"], "new": "eadf0543"},
-                {"old": ["d663e999"], "new": "eeb3f88a"},
-                {"old": ["2787a344"], "new": "e371af27"},
-                {"old": ["1985a6cf"], "new": "15bfd311"}
-            ]
+            "a6a7d785": { "replace": ["3e42e29e"] },
+            "eadf0543": { "replace": ["5bf97cc7"] },
+            "eeb3f88a": { "replace": ["d663e999"] },
+            "e371af27": { "replace": ["2787a344"] },
+            "15bfd311": { "replace": ["1985a6cf"] }
         },
         "Cartethyia": {
             "main_hashes": [
@@ -1610,71 +1025,41 @@
                 {"old": ["ea95caf5"], "new": "4939c054"},
                 {"old": ["e75d5028"], "new": "131356ec"}
             ],
-             "texture_hashes": [
-                {"old": ["5ca9f916", "59d89437", "423ec9ce"], "new": "ecc1c90a"},
-                {"old": ["7ef7dba9"], "new": "f953f385"},
-                {"old": ["7f08cd4f"], "new": "a6ac08f5"},
-                {"old": ["037e710d"], "new": "51638d38"},
-                {"old": ["2a69362a", "052142b5"], "new": "a8b86995"},
-                {"old": ["b5ce9d77", "fd0268ad"], "new": "fec2f60b"},
-                {"old": ["4fbc82ca"], "new": "62306677"},
-                {"old": ["beef40ba"], "new": "75dd7f87"},
-                {"old": ["e08e17b5"], "new": "9a586aa6"},
-                {"old": ["bfd19633"], "new": "b9590b12"},
-                {"old": ["58037f6f"], "new": "5b9e0c57"},
-                {"old": ["8d9954bf"], "new": "083564da"},
-                {"old": ["64cd06f9"], "new": "d98578ec"},
-                {"old": ["fb32025d"], "new": "b8b55682"},
-                {"old": ["3ff8b56e"], "new": "5ca9b4f0"},
-                {"old": ["c17eb9f5"], "new": "5ec1f4de"},
-                {"old": ["d10e2ae1"], "new": "6b7fb28f"},
-                {"old": ["923d8c06"], "new": "803452b8"},
-                {"old": ["ae8fd5fb"], "new": "6c7cc5cc"},
-                {"old": ["f69958a2"], "new": "c3235f6a"},
-                {"old": ["b0d30838"], "new": "18228dc3"},
-                {"old": ["241a6fbe"], "new": "acfd6fe0"},
-                {"old": ["1f426e73"], "new": "b2e6f707"},
-                {"old": ["c5b7aee2"], "new": "ffbd8eee"}
-            ],
             "checksum": "3471",
             "rules": [
-                {
-                    "line_prefix": "match_first_index",
-                    "replacements": [
-                        {"old": ["129168"], "new": "130992"},
-                        {"old": ["177507"], "new": "179571"},
-                        {"old": ["191925"], "new": "193989"},
-                        {"old": ["193953"], "new": "196017"}
-                    ]
-                },
-                {
-                    "line_prefix": "match_index_count",
-                    "replacements": [
-                        {"old": ["67176"],"new": "69000"},
-                        {"old": ["48339"],"new": "48579"}
-                    ]
-                }
+                { "line_prefix": "match_first_index", "replacements": [ {"old": ["129168"], "new": "130992"}, {"old": ["177507"], "new": "179571"}, {"old": ["191925"], "new": "193989"}, {"old": ["193953"], "new": "196017"} ] },
+                { "line_prefix": "match_index_count", "replacements": [ {"old": ["67176"],"new": "69000"}, {"old": ["48339"],"new": "48579"} ] }
             ],
             "vg_remaps": [
                 {
                     "trigger_hash": ["b1213fab"],
-                    "vertex_groups": {
-                        "203": 204, "204": 203, "218": 214, "219": 215, "220": 216, "224": 220, "225": 221, "226": 222, "232": 228, "233": 229, "240": 236, "241": 237,
-                        "242": 238, "246": 242, "247": 243, "248": 244, "249": 245, "251": 247, "252": 248, "253": 249, "254": 250,
-                        "235": 231, "236": 232, "237": 233, "238": 234, "239": 235, "243": 239, "244": 240
-                    }
+                    "vertex_groups": { "203": 204, "204": 203, "218": 214, "219": 215, "220": 216, "224": 220, "225": 221, "226": 222, "232": 228, "233": 229, "240": 236, "241": 237, "242": 238, "246": 242, "247": 243, "248": 244, "249": 245, "251": 247, "252": 248, "253": 249, "254": 250, "235": 231, "236": 232, "237": 233, "238": 234, "239": 235, "243": 239, "244": 240 }
                 }
             ],
-            "states": {
-                "injured": {
-                    "62306677": "d98578ec",
-                    "b9590b12": "5ca9b4f0",
-                    "5b9e0c57": "ecc1c90a",
-                    "9a586aa6": "b2e6f707",
-                    "f12ebf02": "51638d38",
-                    "75dd7f87": "6c7cc5cc"
-                }
-            }
+            "ecc1c90a": { "replace": ["5ca9f916", "59d89437", "423ec9ce"], "derive": { "LOD": ["319e572d", "a7c10722"] } },
+            "f953f385": { "replace": ["7ef7dba9"] },
+            "a6ac08f5": { "replace": ["7f08cd4f"], "derive": { "LOD": ["7bf396d2", "e25b39a2"] } },
+            "51638d38": { "replace": ["037e710d"], "derive": { "LOD": ["8c3c131f", "16f9f4af"] } },
+            "a8b86995": { "replace": ["2a69362a", "052142b5"], "derive": { "LOD": ["75e7f7b2", "ae3a12f8"] } },
+            "fec2f60b": { "replace": ["b5ce9d77", "fd0268ad"], "derive": { "LOD": ["239d682c", "6607984f"] } },
+            "62306677": { "replace": ["4fbc82ca"] },
+            "75dd7f87": { "replace": ["beef40ba"] },
+            "9a586aa6": { "replace": ["e08e17b5"] },
+            "b9590b12": { "replace": ["bfd19633"] },
+            "5b9e0c57": { "replace": ["58037f6f"] },
+            "083564da": { "replace": ["8d9954bf"], "derive": { "LOD": ["9a13ba17", "b3d7f302"] } },
+            "d98578ec": { "replace": ["64cd06f9"], "derive": { "LOD": ["04dae6cb", "9ae571bf"] } },
+            "b8b55682": { "replace": ["fb32025d"] },
+            "5ca9b4f0": { "replace": ["3ff8b56e"], "derive": { "LOD": ["81f62ad7", "31ca3614"] } },
+            "5ec1f4de": { "replace": ["c17eb9f5"], "derive": { "LOD": ["cce72a13", "55097beb"] } },
+            "6b7fb28f": { "replace": ["d10e2ae1"] },
+            "803452b8": { "replace": ["923d8c06"], "derive": { "LOD": ["12128c75", "0e52eaaf"] } },
+            "6c7cc5cc": { "replace": ["ae8fd5fb"], "derive": { "LOD": ["b1235beb", "9ea67542"] } },
+            "c3235f6a": { "replace": ["f69958a2"], "derive": { "LOD": ["510581a7", "5fbd9a58"] } },
+            "18228dc3": { "replace": ["b0d30838"], "derive": { "LOD": ["c57d13e4", "a96dedb9"] } },
+            "acfd6fe0": { "replace": ["241a6fbe"], "derive": { "LOD": ["71a2f1c7", "263980eb"] } },
+            "b2e6f707": { "replace": ["1f426e73"], "derive": { "LOD": ["6fb96920", "487e1960"] } },
+            "ffbd8eee": { "replace": ["c5b7aee2"], "derive": { "LOD": ["22e210c9", "809051f1"] } }
         },
         "Fleurdelys": {
             "main_hashes": [
@@ -1682,281 +1067,256 @@
                 {"old": ["b1151c81"], "new": "2f1d7ffd"},
                 {"old": ["426cd36b"], "new": "2109de80"}
             ],
-            "texture_hashes": [
-                {"old": ["874ab04e", "afb0ea93"], "new": "cc3910e7"},
-                {"old": ["e385365e", "f079e2b8", "1028b6b7"], "new": "ece8436e"},
-                {"old": ["bd6bfc8f", "14e47dee"], "new": "4bac35dd"},
-                {"old": ["88f64559", "3766bc13"], "new": "b9a64e57"},
-                {"old": ["3ef0be7c", "00a2663b"], "new": "bd9cd630"},
-                {"old": ["b08d5d57", "73110195"], "new": "8160bcb0"},
-                {"old": ["f4e65f69"], "new": "c51aa8d2"},
-                {"old": ["d685d037"], "new": "c9124759"},
-                {"old": ["1f606caf"], "new": "50de5497"},
-                {"old": ["8022dc07"], "new": "5eee477c"},
-                {"old": ["48e09820"], "new": "40cd7ff6"},
-                {"old": ["858f3573"], "new": "c51948e5"},
-                {"old": ["c344d062"], "new": "1c8589de"},
-                {"old": ["54d78775"], "new": "d1534303"},
-                {"old": ["9c079580"], "new": "3bd74696"},
-                {"old": ["b471214b"], "new": "afbff73e"},
-                {"old": ["e4ea3515"], "new": "d7c318df"},
-                {"old": ["1fb03721"], "new": "19862710"},
-                {"old": ["439a22f3"], "new": "8721570a"}
-            ],
-            "states": {
-                "injured": {
-                    "3bd74696": "4bac35dd",
-                    "afbff73e": "50de5497",
-                    "d7c318df": "c51948e5",
-                    "75f9c97e": "ece8436e",
-                    "19862710": "c9124759"
-                }
-            }
+            "cc3910e7": { "replace": ["874ab04e", "afb0ea93"] },
+            "ece8436e": { "replace": ["e385365e", "f079e2b8", "1028b6b7"], "derive": { "LOD": ["31b7dd49", "e7d2e763"] } },
+            "4bac35dd": { "replace": ["bd6bfc8f", "14e47dee"], "derive": { "LOD": ["96f3abfa", "cd769404"] } },
+            "b9a64e57": { "replace": ["88f64559", "3766bc13"], "derive": { "LOD": ["64f9d070", "4b102194"] } },
+            "bd9cd630": { "replace": ["3ef0be7c", "00a2663b"], "derive": { "LOD": ["60c34817", "7c9bea85"] } },
+            "8160bcb0": { "replace": ["b08d5d57", "73110195"], "derive": { "LOD": ["5c3f2297", "ea35ebf3"] } },
+            "c51aa8d2": { "replace": ["f4e65f69"] },
+            "c9124759": { "replace": ["d685d037"], "derive": { "LOD": ["144dd97e", "af8d38bc"] } },
+            "50de5497": { "replace": ["1f606caf"], "derive": { "LOD": ["8d81cab0", "da683d1a"] } },
+            "5eee477c": { "replace": ["8022dc07"] },
+            "40cd7ff6": { "replace": ["48e09820"], "derive": { "LOD": ["9d92e1d1", "fc062edb"] } },
+            "c51948e5": { "replace": ["858f3573"], "derive": { "LOD": ["1846d6c2", "d8e90315"] } },
+            "1c8589de": { "replace": ["c344d062"], "derive": { "LOD": ["c1da17f9", "fb8a16ec"] } },
+            "d1534303": { "replace": ["54d78775"], "derive": { "LOD": ["0c0cdd24", "2295ab76"] } },
+            "3bd74696": { "replace": ["9c079580"] },
+            "afbff73e": { "replace": ["b471214b"] },
+            "d7c318df": { "replace": ["e4ea3515"] },
+            "19862710": { "replace": ["1fb03721"] },
+            "8721570a": { "replace": ["439a22f3"], "derive": { "LOD": ["5a7ec92d", "a48534cb"] } }
         },
         "FleurdelysSword": {
             "main_hashes": [{"old": ["75d9b253"], "new": "75d9b253"}],
-            "texture_hashes":[
-                {"old": ["e4951cd7"], "new": "d8fd081b"},
-                {"old": ["5fe74f52"], "new": "4caf3bfb"},
-                {"old": ["8376c2a3"], "new": "545eb465"},
-                {"old": ["57acff23"], "new": "b200ba2d"},
-                {"old": ["f488d64b"], "new": "deacf373"}
-            ]
+            "d8fd081b": { "replace": ["e4951cd7"] },
+            "4caf3bfb": { "replace": ["5fe74f52"] },
+            "545eb465": { "replace": ["8376c2a3"] },
+            "b200ba2d": { "replace": ["57acff23"] },
+            "deacf373": { "replace": ["f488d64b"] }
         },
         "Lupa": {
             "main_hashes": [{"old": ["5b33088a"], "new": "5b33088a"}],
-            "texture_hashes":[
-                {"old": ["e541ab4b"], "new": "312fc5e4"},
-                {"old": ["06c9cbd2"], "new": "20927988"},
-                {"old": ["c5d64764"], "new": "d1c82bf3"},
-                {"old": ["eb4d05bb"], "new": "3ba4af04"},
-                {"old": ["5d7d3f28"], "new": "41532ac9"},
-                {"old": ["84206d9f"], "new": "3cf552bd"},
-                {"old": ["77ba7584"], "new": "bbb18270"},
-                {"old": ["bd1bcfd8"], "new": "8f9bacd2"},
-                {"old": ["e4638507"], "new": "4c57726e"},
-                {"old": ["62ef42ef"], "new": "b7a16140"},
-                {"old": ["79b6c3f4"], "new": "9d5fe765"},
-                {"old": ["c347ca65"], "new": "1443c0c0"}
-            ],
-            "states": {
-                "injured": {
-                    "3a674c4b": "3ba4af04",
-                    "88885380": "312fc5e4",
-                    "185200a4": "3cf552bd",
-                    "cf4e8663": "bbb18270",
-                    "2559facd": "8f9bacd2",
-                    "04e5b9f5": "b7a16140"
-                }
-            }
+            "312fc5e4": { "replace": ["e541ab4b"], "derive": { "LOD": ["ec705bc3", "d5bc8a69"] } },
+            "20927988": { "replace": ["06c9cbd2"] },
+            "d1c82bf3": { "replace": ["c5d64764"] },
+            "3ba4af04": { "replace": ["eb4d05bb"], "derive": { "LOD": ["e6fb3123", "3dfeb448"] } },
+            "41532ac9": { "replace": ["5d7d3f28"] },
+            "3cf552bd": { "replace": ["84206d9f"], "derive": { "LOD": ["e1aacc9a", "9754db71"] } },
+            "bbb18270": { "replace": ["77ba7584"], "derive": { "LOD": ["66ee1c57", "9c1b55fc"] } },
+            "8f9bacd2": { "replace": ["bd1bcfd8"], "derive": { "LOD": ["52c432f5", "719a193c"] } },
+            "4c57726e": { "replace": ["e4638507"], "derive": { "LOD": ["9108ec49", "b85d7152"] } },
+            "b7a16140": { "replace": ["62ef42ef"], "derive": { "LOD": ["6afeff67", "17705954"] } },
+            "9d5fe765": { "replace": ["79b6c3f4"], "derive": { "LOD": ["40007942", "ff861bc9"] } },
+            "1443c0c0": { "replace": ["c347ca65"], "derive": { "LOD": ["c91c5ee7", "ba9de937"] } },
+            "6f70c428": { "derive": { "LOD": ["b22f5a0f", "ba21b0d3"] } }
         },
         "Lupa(NPC)": {
-            "main_hashes": [{"old": ["c5633912"], "new": "c5633912"}],
-            "texture_hashes":[
-                {"old": ["e541ab4b"], "new": "312fc5e4"},
-                {"old": ["06c9cbd2"], "new": "20927988"},
-                {"old": ["c5d64764"], "new": "d1c82bf3"},
-                {"old": ["eb4d05bb"], "new": "3ba4af04"},
-                {"old": ["5d7d3f28"], "new": "41532ac9"},
-                {"old": ["84206d9f"], "new": "3cf552bd"},
-                {"old": ["77ba7584"], "new": "bbb18270"},
-                {"old": ["bd1bcfd8"], "new": "8f9bacd2"},
-                {"old": ["e4638507"], "new": "4c57726e"},
-                {"old": ["62ef42ef"], "new": "b7a16140"},
-                {"old": ["79b6c3f4"], "new": "9d5fe765"},
-                {"old": ["c347ca65"], "new": "1443c0c0"}
-            ]
+            "main_hashes": [{"old": ["c5633912"], "new": "c5633912"}]
         },
         "LupaSpear": {
             "main_hashes": [{"old": ["3ae1074d"], "new": "3ae1074d"}],
-            "texture_hashes":[{"old": ["1b7cac73"], "new": "0ad8f0ae"}]
+            "0ad8f0ae": { "replace": ["1b7cac73"] }
         },
         "LupaTail": {
             "main_hashes": [{"old": ["f49ec658"], "new": "f49ec658"}],
-            "texture_hashes":[
-                {"old": ["0bf5cead"], "new": "7fb7147f"},
-                {"old": ["06c9cbd2"], "new": "20927988"}
-            ]
+            "7fb7147f": { "replace": ["0bf5cead"] }
         },
         "Phrolova": {
             "main_hashes": [{"old": ["2819cef7"], "new": "2819cef7"}],
-            "texture_hashes": [
-                {"old": ["9b2007f8"], "new": "d8121963"},
-                {"old": ["8592dec8"], "new": "b7d01975"},
-                {"old": ["be835337", "e6819fc8"], "new": "c9a55c1a"},
-                {"old": ["cd8fe20c"], "new": "5052ee31"},
-                {"old": ["f528fff3"], "new": "2a818c36"}
-            ],
-            "states":{
-                "injured": {
-                    "d18149e4": "584e289f",
-                    "cc94ce39": "5ef9b4d3",
-                    "6170e02a": "d8121963",
-                    "7b76485f": "dd620352",
-                    "fa6bce7b": "183fe440"
-                }
-            }
+            "d8121963": { "replace": ["9b2007f8"], "derive": { "LOD": ["054d8744", "12a61d5b"] } },
+            "b7d01975": { "replace": ["8592dec8"] },
+            "c9a55c1a": { "replace": ["be835337", "e6819fc8"], "derive": { "LOD": ["14fac23d", "84321f7d"] } },
+            "5052ee31": { "replace": ["cd8fe20c"], "derive": { "LOD": ["09ef9586"] } },
+            "2a818c36": { "replace": ["f528fff3"] },
+            "584e289f": { "derive": { "LOD": ["4563a698"] } },
+            "5ef9b4d3": { "derive": { "LOD": ["83a62af4", "25f2d74b"] } },
+            "dd620352": { "derive": { "LOD": ["003d9d75", "a16642a8"] } },
+            "183fe440": { "derive": { "LOD": ["c6cb37ba"] } },
+            "d054db9b": { "derive": { "LOD": ["0d0b45bc", "de9cf2bd"] } }
         },
         "Augusta": {
             "main_hashes": [{"old": ["c7aae00c"], "new": "c7aae00c"}],
-            "states":{
-                "injured": {
-                    "bd48a998": "36d75345",
-                    "a45da7a1": "c2492522",
-                    "bba149ae": "3153462b",
-                    "8b5c7a14": "d7d7a406",
-                    "db50c591": "c613797e"
-                }
-            }
+            "36d75345": { "derive": { "LOD": ["55acf234"] } },
+            "c2492522": { "derive": { "LOD": ["ae4ae6e7"] } },
+            "3153462b": { "derive": { "LOD": ["87698b47"] } },
+            "d7d7a406": { "derive": { "LOD": ["e6133305"] } },
+            "c613797e": { "derive": { "LOD": ["542429bb"] } },
+            "0136425d": { "derive": { "LOD": ["2d27097b"] } },
+            "8d61b0da": { "derive": { "LOD": ["db5d2f4e"] } },
+            "c596dbd6": { "derive": { "LOD": ["f967609a"] } },
+            "06299d10": { "derive": { "LOD": ["f350af57"] } },
+            "b6c382a8": { "derive": { "LOD": ["6e4b6a73"] } },
+            "2066c564": { "derive": { "LOD": ["dc4bd5c5"] } }
+        },
+        "Iuno": {
+            "058e71e8": { "derive": { "LOD": ["d8d1efcf", "7c26e7cb"] } },
+            "8390ce3a": { "derive": { "LOD": ["5ecf501d", "faa5cd9c"] } },
+            "5815b5b3": { "derive": { "LOD": ["854a2b94", "ecd9468b"] } },
+            "c70b9ab1": { "derive": { "LOD": ["1a540496", "318751d7"] } },
+            "b399ecff": { "derive": { "LOD": ["6ec672d8", "534fd6fd"] } },
+            "eb383fa1": { "derive": { "LOD": ["3667a186", "6eb6f826"] } },
+            "7143a508": { "derive": { "LOD": ["ac1c3b2f", "b3e12dcb"] } },
+            "eb65da67": { "derive": { "LOD": ["363a4440", "a74a4042"] } },
+            "8e0e454d": { "derive": { "LOD": ["5351db6a", "a8c612c4"] } },
+            "36921691": { "derive": { "LOD": ["ebcd88b6", "41340ed5"] } }
+        },
+        "Galbrena": {
+            "3c29f760": { "derive": { "LOD": ["e1766947", "0666a6b6"] } },
+            "d30b1a7a": { "derive": { "LOD": ["0e54845d", "ca596885"] } },
+            "73e396e6": { "derive": { "LOD": ["aebc08c1", "88b47415"] } },
+            "153bf11f": { "derive": { "LOD": ["c8646f38", "8217b9fc"] } },
+            "aa8d8af5": { "derive": { "LOD": ["77d214d2", "085efdd6"] } },
+            "b5e505fe": { "derive": { "LOD": ["68ba9bd9", "c5e6d3cf"] } },
+            "cad50fd9": { "derive": { "LOD": ["178a91fe", "ba558afa"] } },
+            "54d3f1fa": { "derive": { "LOD": ["898c6fdd", "dccc0a7d"] } },
+            "205adb6b": { "derive": { "LOD": ["fd05454c", "f11aa28a"] } },
+            "722aab39": { "derive": { "LOD": ["af75351e", "89a19d25"] } }
         },
         "Variation": {
             "main_hashes": [{"old": ["e048d096"], "new": "e048d096"}],
-            "texture_hashes": [
-                {"old": ["dd8be8f2"], "new": "1a108cd4"},
-                {"old": ["213f823b"], "new": "db05b110"}
-            ]
+            "1a108cd4": { "replace": ["dd8be8f2"] },
+            "db05b110": { "replace": ["213f823b"] }
         },
         "CosmicRipples": {
             "main_hashes": [{"old": ["d53ea67e"], "new": "d53ea67e"}],
-            "texture_hashes": [
-                {"old": ["23c62b79"], "new": "620ad65d"},
-                {"old": ["146320ad"], "new": "aac2561c"}
-            ]
+            "620ad65d": { "replace": ["23c62b79"] },
+            "aac2561c": { "replace": ["146320ad"] }
         },
         "StaticMist": {
             "main_hashes": [{"old": ["73715b78"], "new": "73715b78"}],
-            "texture_hashes": [
-                {"old": ["ce31201a"], "new": "93cba663"},
-                {"old": ["7cd9efa8"], "new": "cc4babc2"}
-            ]
+            "93cba663": { "replace": ["ce31201a"] },
+            "cc4babc2": { "replace": ["7cd9efa8"] }
         },
         "Overture": {
             "main_hashes": [{"old": ["adb633a1"], "new": "adb633a1"}],
-            "texture_hashes": [
-                {"old": ["e68271f1"], "new": "02f879b7"},
-                {"old": ["cccfa7fd"], "new": "8d42b4ea"}
-            ]
+            "02f879b7": { "replace": ["e68271f1"] },
+            "8d42b4ea": { "replace": ["cccfa7fd"] }
         },
         "EmeraldOfGenesis": {
             "main_hashes": [{"old": ["b1914728"], "new": "b1914728"}],
-            "texture_hashes": [
-                {"old": ["83819cda"], "new": "cb370521"},
-                {"old": ["b46d4c5a"], "new": "4cc237ca"}
-            ]
+            "cb370521": { "replace": ["83819cda"] },
+            "4cc237ca": { "replace": ["b46d4c5a"] }
         },
         "BlazingBrilliance": {
             "main_hashes": [{"old": ["1504a946"], "new": "1504a946"}],
-            "texture_hashes": [
-                {"old": ["11c6338a"], "new": "99378d4e"},
-                {"old": ["1667904f"], "new": "6c56deec"},
-                {"old": ["9a0529f4"], "new": "6f6dd255"},
-                {"old": ["c688b58f"], "new": "da907816"}
-            ]
+            "99378d4e": { "replace": ["11c6338a"] },
+            "6c56deec": { "replace": ["1667904f"] },
+            "6f6dd255": { "replace": ["9a0529f4"] },
+            "da907816": { "replace": ["c688b58f"] }
         },
         "RedSpring": {
             "main_hashes": [{"old": ["c693a1b0"], "new": "c693a1b0"}],
-            "texture_hashes": [
-                {"old": ["390455ca"], "new": "6afea497"},
-                {"old": ["8af034cf"], "new": "df2ba6d4"},
-                {"old": ["58b9505f"], "new": "b3ff5221"},
-                {"old": ["96d3cc82"], "new": "7980bf2c"}
-            ]
+            "6afea497": { "replace": ["390455ca"] },
+            "df2ba6d4": { "replace": ["8af034cf"] },
+            "b3ff5221": { "replace": ["58b9505f"] },
+            "7980bf2c": { "replace": ["96d3cc82"] }
         },
         "Bloodpact's Pledge": {
             "main_hashes": [{"old": ["42108bbf"], "new": "42108bbf"}],
-            "texture_hashes": [
-                {"old": ["1a087b2a"], "new": "6792e6ff"},
-                {"old": ["6515ef9f"], "new": "0f4dd831"}
-            ]
+            "6792e6ff": { "replace": ["1a087b2a"] },
+            "0f4dd831": { "replace": ["6515ef9f"] }
         },
         "Abyss Surges": {
             "main_hashes": [{"old": ["2f5823ab"], "new": "2f5823ab"}],
-            "texture_hashes": [
-                {"old": ["234d655c"], "new": "2332bc48"},
-                {"old": ["0f7906cc"], "new": "9d24cbfe"}
-            ]
+            "2332bc48": { "replace": ["234d655c"] },
+            "9d24cbfe": { "replace": ["0f7906cc"] }
         },
         "Helios Cleaver": {
             "main_hashes": [{"old": ["e83a5452"], "new": "e83a5452"}],
-            "texture_hashes": [
-                {"old": ["4629ae73"], "new": "5cb391c2"},
-                {"old": ["cce0bed7"], "new": "18e2c35d"}
-            ]
+            "5cb391c2": { "replace": ["4629ae73"] },
+            "18e2c35d": { "replace": ["cce0bed7"] }
         },
         "Lustrous Razor": {
             "main_hashes": [{"old": ["6c13129e"], "new": "6c13129e"}],
-            "texture_hashes": [
-                {"old": ["1accaab3"], "new": "792bab54"},
-                {"old": ["b5acb120"], "new": "9283115f"}
-            ]
+            "792bab54": { "replace": ["1accaab3"] },
+            "9283115f": { "replace": ["b5acb120"] }
         },
         "Ages of Harvest": {
             "main_hashes": [{"old": ["1408f42b"], "new": "1408f42b"}],
-            "texture_hashes": [
-                {"old": ["b549206e"], "new": "7bc9c197"},
-                {"old": ["14433fb4"], "new": "19812849"},
-                {"old": ["f2d3a758"], "new": "579982d9"}
-            ]
+            "7bc9c197": { "replace": ["b549206e"] },
+            "19812849": { "replace": ["14433fb4"] },
+            "579982d9": { "replace": ["f2d3a758"] }
         },
         "WaningRedshift": {
             "main_hashes": [{"old": ["1de81fab"], "new": "1de81fab"}],
-            "texture_hashes": [
-                {"old": ["5fdb85d6"], "new": "5517dda5"},
-                {"old": ["79068d65"], "new": "6f111a0a"}
-            ]
+            "5517dda5": { "replace": ["5fdb85d6"] },
+            "6f111a0a": { "replace": ["79068d65"] }
         },
         "SomnoireAnchor": {
             "main_hashes": [{"old": ["90554178"], "new": "90554178"}],
-            "texture_hashes": [
-                {"old": ["aaae8418"], "new": "26d963ce"},
-                {"old": ["29d61c94"], "new": "75cdd95d"}
-            ]
+            "26d963ce": { "replace": ["aaae8418"] },
+            "75cdd95d": { "replace": ["29d61c94"] }
         },
         "BlackShoreNPCBody": {
             "main_hashes": [{"old": ["1dd0746d"], "new": "1dd0746d"}],
-            "texture_hashes": [
-                {"old": ["f05e8ee8", "f9b2afbf"], "new": "7ad70584"},
-                {"old": ["00eb386c"], "new": "17e0b9b3"}
-            ]
+            "7ad70584": { "replace": ["f05e8ee8", "f9b2afbf"] },
+            "17e0b9b3": { "replace": ["00eb386c"] }
         },
         "Abby": {
             "main_hashes": [{"old": ["0b2aa467"], "new": "78803749"}],
-            "texture_hashes": [
-                {"old": ["3a269e20"], "new": "3c5e2edc"},
-                {"old": ["5d768706"], "new": "65be494c"},
-                {"old": ["b329d9eb"], "new": "ee40a431"},
-                {"old": ["6bd374bc"], "new": "8e2910e6"},
-                {"old": ["5a79b23a"], "new": "f40c6134"},
-                {"old": ["319dd9c5"], "new": "8123fe47"}
-            ]
+            "3c5e2edc": { "replace": ["3a269e20"] },
+            "65be494c": { "replace": ["5d768706"] },
+            "ee40a431": { "replace": ["b329d9eb"] },
+            "8e2910e6": { "replace": ["6bd374bc"] },
+            "f40c6134": { "replace": ["5a79b23a"] },
+            "8123fe47": { "replace": ["319dd9c5"] }
         },
         "Chisa": {
             "main_hashes": [{"old": ["afa1587c"], "new": "afa1587c"}],
-            "texture_hashes": [
-                {"old": ["0c153c12", "ffa1f581"], "new": "403595f8"},
-                {"old": ["89517d4e", "34377808"], "new": "35b4ef7f"},
-                {"old": ["118a1a1f"], "new": "a83a8906"},
-                {"old": ["c7a7ec1b"], "new": "9121c3f8"},
-                {"old": ["f869e47c"], "new": "bb49600b"},
-                {"old": ["7ff6e112"], "new": "2970cef1"},
-                {"old": ["c7beddc7"], "new": "a5da2563"},
-                {"old": ["37250244"], "new": "8348a33b"},
-                {"old": ["fee91ed9"], "new": "06ecbf72"}
-            ],
-            "states": {
-                "injured": {
-                    "2970cef1": "9121c3f8",
-                    "a5da2563": "bb49600b",
-                    "2a9050cc": "cd006f06",
-                    "412ba586": "9b396b0d",
-                    "d2bc37bc": "eca8e09b",
-                    "35b4ef7f": "403595f8"
-                }
-            },
-            "stable_textures": {
-               "0": {"D": "8348a33b", "L": "d0d2cc80"}, "1": {"D": "06ecbf72", "L": "d8ed7611"}, "2": {"D": "a620843e", "L": "f1c2e889"},"3": {"D": "9121c3f8", "N": "eca8e09b", "L": "a83a8906"}, 
-               "4": {"D": "bb49600b", "N": "9b396b0d", "L": "403595f8"}, "5": {"D": "cd006f06", "L": "cd006f06", "N": "0cc6f756"}
-            }
+            "8348a33b": { "meta": { "id": 0, "type": "D" }, "replace": ["37250244"], "derive": { "LOD": ["5e173d1c", "b9049a80"] } },
+            "d0d2cc80": { "meta": { "id": 0, "type": "L" } },
+            "06ecbf72": { "meta": { "id": 1, "type": "D" }, "replace": ["fee91ed9"], "derive": { "LOD": ["dbb32155", "7806db70"] } },
+            "d8ed7611": { "meta": { "id": 1, "type": "L" } },
+            "a620843e": { "meta": { "id": 2, "type": "D" }, "derive": { "LOD": ["7b7f1a19", "11105c28"] } },
+            "f1c2e889": { "meta": { "id": 2, "type": "L" } },
+            "9121c3f8": { "meta": { "id": 3, "type": "D" }, "replace": ["c7a7ec1b"], "derive": { "injured": ["2970cef1"], "LOD": ["4c7e5ddf", "4d9c4532"], "LOD_injured": ["f42f50d6", "a6605a4e"] } },
+            "a83a8906": { "meta": { "id": 3, "type": "L" }, "replace": ["118a1a1f"] },
+            "eca8e09b": { "meta": { "id": 3, "type": "N" }, "derive": { "injured": ["d2bc37bc"], "LOD": ["31f77ebc", "893ece88"], "LOD_injured": ["0fe3a99b", "790f2cee"] } },
+            "bb49600b": { "meta": { "id": 4, "type": "D" }, "replace": ["f869e47c"], "derive": { "injured": ["a5da2563"], "LOD": ["6616fe2c", "b4a8aefa"], "LOD_injured": ["7885bb44", "d01fdd4f"] } },
+            "403595f8": { "meta": { "id": 4, "type": "L" }, "replace": ["0c153c12", "ffa1f581"], "derive": { "injured": ["35b4ef7f"] } },
+            "9b396b0d": { "meta": { "id": 4, "type": "N" }, "derive": { "injured": ["412ba586"], "LOD": ["4666f52a", "a013489c"], "LOD_injured": ["9c743ba1", "29b60a1b"] } },
+            "cd006f06": { "meta": { "id": 5, "type": "D" }, "derive": { "injured": ["2a9050cc"], "LOD": ["105ff121", "1e8c8420"], "LOD_injured": ["f7cfceeb", "b95895cf"] } },
+            "0cc6f756": { "meta": { "id": 5, "type": "N" }, "derive": { "LOD": ["d1996971", "b07813d6"] } },
+            "1131e4c1": { "meta": { "id": 6, "type": "D" }, "derive": { "LOD": ["cc6e7ae6", "ed37d75d"] } },
+            "35b4ef7f": { "replace": ["89517d4e", "34377808"] },
+            "2970cef1": { "replace": ["7ff6e112"] },
+            "a5da2563": { "replace": ["c7beddc7"] },
+            "f85312bc": { "derive": { "LOD": ["f85312bc"] } },
+            "fadd0cd0": { "derive": { "LOD": ["278292f7", "8179eb02"] } },
+            "a84b23c1": { "derive": { "LOD": ["3a6dfd0c", "b790633a"] } }
+        },
+        "Buling": {
+            "8dee1ac6": { "derive": { "LOD": ["50b184e1", "1e562d6e"] } },
+            "40adbec5": { "derive": { "LOD": ["9df220e2", "94871d13"] } },
+            "0d688c94": { "derive": { "LOD": ["d03712b3", "39c0488d"] } },
+            "5863867a": { "derive": { "LOD": ["853c185d", "f41f978b"] } },
+            "d8a68207": { "derive": { "LOD": ["05f91c20", "cd5d36e7"] } },
+            "df9f758a": { "derive": { "LOD": ["02c0ebad", "ca1d18db"] } },
+            "01375d8e": { "derive": { "LOD": ["dc68c3a9", "1224e241"] } },
+            "23966ca8": { "derive": { "LOD": ["fec9f28f", "c19451c3"] } }
+        },
+        "Lynae": {
+            "2e60ca6c": { "derive": { "LOD": ["f33f544b", "9ca67d0a"] } },
+            "2fd59f3a": { "derive": { "LOD": ["f28a011d", "15059448"] } },
+            "23d9b128": { "derive": { "LOD": ["fe862f0f", "fef5aa79"] } },
+            "60caec0b": { "derive": { "LOD": ["bd95722c", "eb97efb9"] } },
+            "211e50f4": { "derive": { "LOD": ["fc41ced3", "b2b7ed8e"] } },
+            "391a7fde": { "derive": { "LOD": ["e445e1f9", "b2db8f52"] } },
+            "879f275e": { "derive": { "LOD": ["5ac0b979", "6247255d"] } },
+            "7065b0be": { "derive": { "LOD": ["ad3a2e99", "8e06248c"] } },
+            "a8e46264": { "derive": { "LOD": ["75bbfc43", "a8dca938"] } },
+            "b0e8646a": { "derive": { "LOD": ["6db7fa4d", "e65ea0d0"] } },
+            "cb04a3d7": { "derive": { "LOD": ["165b3df0", "e58a86de"] } },
+            "ec6b0edc": { "derive": { "LOD": ["313490fb", "e2e3ec21"] } },
+            "7aa57b2c": { "derive": { "LOD": ["a7fae50b", "8aa5b045"] } },
+            "10c8713e": { "derive": { "LOD": ["cd97ef19", "5dba0f93"] } },
+            "38686e88": { "derive": { "LOD": ["e537f0af", "7e202348"] } },
+            "dd5dceaa": { "derive": { "LOD": ["0002508d", "4053631d"] } },
+            "c5784ddf": { "derive": { "LOD": ["1827d3f8", "2949a306"] } },
+            "c49bec43": { "derive": { "LOD": ["19c47264", "607d713e"] } },
+            "6d5f71f9": { "derive": { "LOD": ["b000efde", "99b0f5d1"] } },
+            "950acc22": { "derive": { "LOD": ["48555205", "95944679"] } }
         }
     }
 }

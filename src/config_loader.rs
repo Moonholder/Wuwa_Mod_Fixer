@@ -23,7 +23,6 @@ pub struct GlobalConfig {
 #[derive(Deserialize, Clone, Default)]
 #[serde(default)]
 pub struct SettingConfig {
-    pub enable_wounded_effect: bool,
     pub state_texture_removers: Vec<String>,
     pub enable_aero_rover_fix: bool,
 }
@@ -32,13 +31,26 @@ pub struct SettingConfig {
 #[serde(default)]
 pub struct CharacterConfig {
     pub main_hashes: Vec<Replacement>,
-    pub texture_hashes: Vec<Replacement>,
-    pub shader_hashes: Vec<Replacement>,
+    #[serde(flatten)]
+    pub textures: HashMap<String, TextureNode>,
     pub checksum: Option<String>,
     pub rules: Option<Vec<ReplacementRule>>,
     pub vg_remaps: Option<Vec<VertexRemapConfig>>,
-    pub states: Option<HashMap<String, HashMap<String, String>>>,
-    pub stable_textures: Option<HashMap<String, HashMap<String, String>>>,
+}
+
+#[derive(Deserialize, Clone, Debug, Default)]
+#[serde(default)]
+pub struct TextureNode {
+    pub meta: Option<TextureMeta>,
+    pub replace: Vec<String>,
+    pub derive: HashMap<String, Vec<String>>,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct TextureMeta {
+    pub id: u32,
+    #[serde(rename = "type")]
+    pub type_: String,
 }
 
 #[derive(Deserialize, Clone, Default)]
