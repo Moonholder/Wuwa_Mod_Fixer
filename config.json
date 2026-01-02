@@ -1278,7 +1278,7 @@
             "9b396b0d": { "meta": { "id": 4, "type": "N" }, "derive": { "injured": ["412ba586"], "LOD": ["4666f52a", "a013489c"], "LOD_injured": ["9c743ba1", "29b60a1b"] } },
             "cd006f06": { "meta": { "id": 5, "type": "D" }, "derive": { "injured": ["2a9050cc"], "LOD": ["105ff121", "1e8c8420"], "LOD_injured": ["f7cfceeb", "b95895cf"] } },
             "0cc6f756": { "meta": { "id": 5, "type": "N" }, "derive": { "LOD": ["d1996971", "b07813d6"] } },
-            "1131e4c1": { "meta": { "id": 6, "type": "D" }, "derive": { "LOD": ["cc6e7ae6", "ed37d75d"] } },
+            "1131e4c1": { "derive": { "LOD": ["cc6e7ae6", "ed37d75d"] } },
             "35b4ef7f": { "replace": ["89517d4e", "34377808"] },
             "2970cef1": { "replace": ["7ff6e112"] },
             "a5da2563": { "replace": ["c7beddc7"] },
