@@ -50,8 +50,8 @@
             "en": "Enable? (default No):"
         },
         "rabbit_fx_stable_texture_note": {
-            "zh": "\n使用RabbitFX为角色设置稳定纹理(目前仅坎特蕾拉、千咲、卡提)\n只是单纯根据hash去找到对应的贴图，加到指定的Component里，但实际很多作者会使用合并贴图，\n很有可能多个部位使用同一张贴图，所以需要自行检查并修改，需安装RabbitFX_v616+",
-            "en": "\nUse RabbitFX to set stable textures for characters (currently only supports Cantarella, Chisa and Cartethyia).\nThis simply locates the corresponding texture based on its hash and adds it to the specified Component.\nHowever, since many authors use merged textures, it is very likely that multiple body parts share the same texture file.Therefore, you need to manually check and modify the settings.\nRequires RabbitFX_v616+."
+            "zh": "\n使用RabbitFX为角色设置稳定纹理(目前仅坎特蕾拉、千咲、卡提、夏空)\n只是单纯根据hash去找到对应的贴图，加到指定的Component里，但实际很多作者会使用合并贴图，\n很有可能多个部位使用同一张贴图，所以需要自行检查并修改，需安装RabbitFX_v616+",
+            "en": "\nUse RabbitFX to set stable textures for characters (currently only supports Cantarella, Chisa, Cartethyia and Ciaccona).\nThis simply locates the corresponding texture based on its hash and adds it to the specified Component.\nHowever, since many authors use merged textures, it is very likely that multiple body parts share the same texture file.Therefore, you need to manually check and modify the settings.\nRequires RabbitFX_v616+."
         },
         "rabbit_fx_stable_texture_prompt": {
             "zh": "是否启用？ （默认启用）:",
@@ -993,21 +993,23 @@
         },
         "Ciaccona": {
             "main_hashes": [{"old": ["e57c9380"], "new": "e57c9380"}],
-            "24af21ae": { "replace": ["d79a3f55"], "derive": { "LOD": ["f9f0bf89", "29fe5a2f"] } },
             "1603d6fa": { "replace": ["839d2623"] },
-            "a20c032a": { "replace": ["19d3de08"] },
             "10d1aeac": { "replace": ["fe853fcf"], "derive": { "LOD": ["cd8e308b", "adf5b6f5"] } },
-            "e7f8bb3b": { "replace": ["bf7e0ab1"] },
-            "1f746639": { "replace": ["1e072c24"], "derive": { "LOD": ["c22bf81e", "0766fb39"] } },
-            "0448648a": { "replace": ["09e98e33"], "derive": { "LOD": ["d917faad", "92b84e8f"] } },
-            "ed5511fe": { "replace": ["4e1fdf28"], "derive": { "LOD": ["300a8fd9", "7278decc"] } },
+            "a20c032a": { "replace": ["19d3de08"] },
             "342dcbc3": { "replace": ["852b2b72"], "derive": { "LOD": ["e97255e4", "6292c460"] } },
-            "6f620405": { "replace": ["4c379f61"], "derive": { "LOD": ["b23d9a22", "aaba6cee"] } },
-            "de5a0f92": { "replace": ["4358f290"], "derive": { "LOD": ["030591b5", "879d4322"] } },
-            "f58c741e": { "replace": ["2f590d3f"], "derive": { "LOD": ["28d3ea39", "64d70da5"] } },
-            "1cffa7e8": { "replace": ["748f8d97"] },
-            "37400c45": { "replace": ["3b5e4a9b"], "derive": { "LOD": ["ea1f9262", "8a060c19"] } },
-            "5a41b6fa": { "replace": ["cca1af56"], "derive": { "LOD": ["871e28dd", "820a082e"] } },
+            "6f620405": { "meta": {"id": 2, "type": "D"}, "replace": ["4c379f61"], "derive": { "LOD": ["b23d9a22", "aaba6cee"] } },
+            "32271b48": { "meta": {"id": 2, "type": "L"} },
+            "24af21ae": { "meta": {"id": 3, "type": "D"}, "replace": ["d79a3f55"], "derive": { "LOD": ["f9f0bf89", "29fe5a2f"] } },
+            "ea49c595": { "meta": {"id": 3, "type": "L"} },
+            "de5a0f92": { "meta": {"id": 3, "type": "N"}, "replace": ["4358f290"], "derive": { "LOD": ["030591b5", "879d4322"] } },
+            "f58c741e": { "meta": {"id": 4, "type": "D"}, "replace": ["2f590d3f"], "derive": { "LOD": ["28d3ea39", "64d70da5"] } },
+            "1cffa7e8": { "meta": {"id": 4, "type": "N"}, "replace": ["748f8d97"] },
+            "5a41b6fa": { "meta": {"id": 5, "type": "D"}, "replace": ["cca1af56"], "derive": { "LOD": ["871e28dd", "820a082e"] } },
+            "cf8ac68f": { "meta": {"id": 5, "type": "L"} },
+            "37400c45": { "meta": {"id": 5, "type": "N"}, "replace": ["3b5e4a9b"], "derive": { "LOD": ["ea1f9262", "8a060c19"] } },
+            "ed5511fe": { "replace": ["4e1fdf28"], "derive": { "LOD": ["300a8fd9", "7278decc"] } },
+            "1f746639": { "meta": {"id": 7, "type": "D"}, "replace": ["1e072c24"], "derive": { "LOD": ["c22bf81e", "0766fb39"] } },
+            "0448648a": { "meta": {"id": 7, "type": "N"}, "replace": ["09e98e33"], "derive": { "LOD": ["d917faad", "92b84e8f"] } },
             "7bcede78": { "replace": ["be1295ae"] },
             "952d2862": { "replace": ["1c03e88d"] }
         },
