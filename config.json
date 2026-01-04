@@ -843,7 +843,7 @@
             "d23090a3": { "replace": ["2decd61b"], "derive": { "LOD": ["5298d206"] } },
             "33d29aa1": { "replace": ["73dc0ecf"] },
             "ac26dd3b": { "replace": ["dda29ba9"], "derive": { "LOD": ["be6db02c"] } },
-            "f515fdbd": { "replace": ["a614279c", "97e43063"], "derive": { "LOD": ["be3c0e9b"] } },
+            "f515fdbd": { "replace": ["97e43063", "a614279c"], "derive": { "LOD": ["be3c0e9b"] } },
             "1e238f6c": { "replace": ["4dba3f46"], "derive": { "LOD": ["b318f8f2"] } },
             "d2ad31db": { "replace": ["0249a0f6"], "derive": { "LOD": ["38d20999"] } },
             "80fdc4d8": { "replace": ["2212362c"] },
@@ -851,8 +851,7 @@
             "c38e9ebc": { "replace": ["74703d44"] },
             "091af072": { "derive": { "LOD": ["7f8d1f43"] } },
             "3038f25c": { "derive": { "LOD": ["9fcc6f36"] } },
-            "cc83d4fc": { "derive": { "LOD": ["b318f8f2"] } },
-            "f515fdbd": { "derive": { "LOD": ["be3c0e9b"] } }
+            "cc83d4fc": { "derive": { "LOD": ["b318f8f2"] } }
         },
         "Roccia": {
             "main_hashes": [{"old": ["8d97c1bd"], "new": "8d97c1bd"}],
