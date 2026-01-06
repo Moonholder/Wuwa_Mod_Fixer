@@ -1054,7 +1054,7 @@
             "a8b86995": { "meta": {"id": 4, "type": "N"}, "replace": ["2a69362a", "052142b5"], "derive": { "LOD": ["75e7f7b2", "ae3a12f8"] } },
             "6c7cc5cc": { "meta": {"id": 5, "type": "D"}, "replace": ["ae8fd5fb"], "derive": { "LOD": ["b1235beb", "9ea67542"] } },
             "18228dc3": { "meta": {"id": 5, "type": "N"}, "replace": ["b0d30838"], "derive": { "LOD": ["c57d13e4", "a96dedb9"] } },
-            "acfd6fe0": { "meta": {"id": 6, "type": "D"}, "replace": ["241a6fbe"], "derive": { "LOD": ["71a2f1c7", "263980eb"] } },
+            "acfd6fe0": { "replace": ["241a6fbe"], "derive": { "LOD": ["71a2f1c7", "263980eb"] } },
             "b2e6f707": { "meta": {"id": 7, "type": "D"}, "replace": ["1f426e73"], "derive": { "LOD": ["6fb96920", "487e1960"] } },
             "ffbd8eee": { "meta": {"id": 7, "type": "N"}, "replace": ["c5b7aee2"], "derive": { "LOD": ["22e210c9", "809051f1"] } },
             "d98578ec": { "replace": ["64cd06f9"], "derive": { "LOD": ["04dae6cb", "9ae571bf"] } },
@@ -1319,6 +1319,22 @@
             "c49bec43": { "derive": { "LOD": ["19c47264", "607d713e"] } },
             "6d5f71f9": { "derive": { "LOD": ["b000efde", "99b0f5d1"] } },
             "950acc22": { "derive": { "LOD": ["48555205", "95944679"] } }
+        },
+        "Motorbike": {
+            "main_hashes": [{"old": ["823bcd54"], "new": "823bcd54"}],
+            "594ce1da": { "derive": {"LOD": ["3082d7a7"]} },
+            "7a324c2b": { "derive": {"LOD": ["2caeb734"]} },
+            "8a75aeee": { "derive": {"LOD": ["fc0d6055"]} },
+            "963ebc92": { "derive": {"LOD": ["99d6444f"]} },
+            "4834498b": { "derive": {"LOD": ["3dc73b85"]} },
+            "353533c0": { "derive": {"LOD": ["babaf8bf"]} },
+            "f172b42c": { "derive": {"LOD": ["89badb3b"]} },
+            "a8f6c665": { "derive": {"LOD": ["ba49ec62"]} },
+            "8ea5a837": { "derive": {"LOD": ["dd9915ac"]} },
+            "0e63b65c": { "derive": {"LOD": ["394bc15d"]} },
+            "6067f88e": { "derive": {"LOD": ["c10e348d"]} },
+            "0264c0c9": { "derive": {"LOD": ["e11aa2e5"]} },
+            "cb2225f6": { "derive": {"LOD": ["55d643e1"]} }
         }
     }
 }
