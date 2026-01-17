@@ -728,7 +728,7 @@
                 {"old": ["63e02559"], "new": "63e02559"},
                 {"old": ["9c24e7eb"], "new": "9c24e7eb"}
             ],
-            "f3e04a65": { "replace": ["8b43ad38"], "derive": { "LOD": ["2ebfd442", "107a92cf"] } },
+            "f3e04a65": { "derive": { "LOD": ["2ebfd442", "107a92cf"] } },
             "1ae38ad2": { "replace": ["52197a16"], "derive": { "LOD": ["c7bc14f5", "78c757a9"] } },
             "3e77c6f1": { "replace": ["8a7d6de5"], "derive": { "LOD": ["e32858d6", "e7a576a3"] } },
             "d4a87b42": { "replace": ["7e87c77a"] },
