@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "3.0.0",
-        "current_version": "3.0.1",
+        "current_version": "3.0.2",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
