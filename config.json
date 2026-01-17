@@ -553,18 +553,18 @@
         },
         "SanhuaExorcistic": {
             "main_hashes": [{"old": ["b101dcf3"], "new": "b101dcf3"}],
-            "4478285f": { "replace": ["f22348f0"] },
-            "72739d6e": { "replace": ["d5a089c8", "6a10c291"] },
-            "f8d5c991": { "replace": ["31a5f36a"] },
-            "c74af063": { "replace": ["d78ad0f5"] },
+            "4478285f": { "replace": ["f22348f0"], "derive": { "LOD": ["9927b678", "05a76db7"] } },
+            "72739d6e": { "replace": ["d5a089c8", "6a10c291"], "derive": { "LOD": ["af2c0349", "fa144165"] } },
+            "f8d5c991": { "replace": ["31a5f36a"], "derive": { "LOD": ["258a57b6", "811967db"] } },
+            "c74af063": { "replace": ["d78ad0f5"], "derive": { "LOD": ["d33aebaa", "b3606aef"] } },
             "63c807fe": { "replace": ["d153e37f"] },
-            "52f35e6d": { "replace": ["168462a9"] },
-            "11171f1c": { "replace": ["9522bbc7"] },
+            "52f35e6d": { "replace": ["168462a9"], "derive": { "LOD": ["8facc04a", "0b11cf2a"] } },
+            "11171f1c": { "replace": ["9522bbc7"], "derive": { "LOD": ["cc48813b", "95ec8dc2"] } },
             "9febd992": { "replace": ["a0cf932f"] },
-            "1d50aa4a": { "replace": ["43dc9bdf"] },
-            "221b8ad6": { "replace": ["d96aa9b8"] },
-            "8e5306a9": { "replace": ["fd078186"] },
-            "c98e83cd": { "replace": ["464256d1"] }
+            "1d50aa4a": { "replace": ["43dc9bdf"], "derive": { "LOD": ["0920b183", "0e10dcc6"] } },
+            "221b8ad6": { "replace": ["d96aa9b8"], "derive": { "LOD": ["ff4414f1", "04c50018"] } },
+            "8e5306a9": { "replace": ["fd078186"], "derive": { "LOD": ["530c988e", "50ca9dd6"] } },
+            "c98e83cd": { "replace": ["464256d1"], "derive": { "LOD": ["14d11dea", "7a523a66"] } }
         },
         "Verina": {
             "main_hashes": [
@@ -728,26 +728,26 @@
                 {"old": ["63e02559"], "new": "63e02559"},
                 {"old": ["9c24e7eb"], "new": "9c24e7eb"}
             ],
-            "f3e04a65": { "replace": ["8b43ad38"] },
-            "1ae38ad2": { "replace": ["52197a16"] },
-            "3e77c6f1": { "replace": ["8a7d6de5"] },
+            "f3e04a65": { "replace": ["8b43ad38"], "derive": { "LOD": ["2ebfd442", "107a92cf"] } },
+            "1ae38ad2": { "replace": ["52197a16"], "derive": { "LOD": ["c7bc14f5", "78c757a9"] } },
+            "3e77c6f1": { "replace": ["8a7d6de5"], "derive": { "LOD": ["e32858d6", "e7a576a3"] } },
             "d4a87b42": { "replace": ["7e87c77a"] },
-            "5687b335": { "replace": ["de0af803"] },
+            "5687b335": { "replace": ["de0af803"], "derive": { "LOD": ["8bd82d12", "493cf798"] } },
             "88fc89dd": { "replace": ["0485b505"] },
-            "b578f66a": { "replace": ["3320efad"] },
-            "790dc54b": { "replace": ["96cdca80"] },
-            "0465ef39": { "replace": ["e8d882a0"] },
-            "71756a01": { "replace": ["feff1922"] },
-            "31f8578b": { "replace": ["cb23f0b5"] },
-            "d482f64e": { "replace": ["f657b0b8"] }
+            "b578f66a": { "replace": ["3320efad"], "derive": { "LOD": ["6827684d", "aba928d9"] } },
+            "790dc54b": { "replace": ["96cdca80"], "derive": { "LOD": ["a4525b6c", "c49d1d97"] } },
+            "0465ef39": { "replace": ["e8d882a0"], "derive": { "LOD": ["d93a711e", "c60b16ee"] } },
+            "71756a01": { "replace": ["feff1922"], "derive": { "LOD": ["ac2af426", "06d6ea30"] } },
+            "31f8578b": { "replace": ["cb23f0b5"], "derive": { "LOD": ["eca7c9ac", "c64b31f8"] } },
+            "d482f64e": { "replace": ["f657b0b8"], "derive": { "LOD": ["09dd6869", "ac9bf8b7"] } }
         },
         "CalcharoTorso": {
             "main_hashes": [
                 {"old": ["908eb357"], "new": "908eb357"},
                 {"old": ["006cda67"], "new": "006cda67"}
             ],
-            "31f8578b": { "replace": ["cb23f0b5"] },
-            "d482f64e": { "replace": ["f657b0b8"] }
+            "31f8578b": { "replace": ["cb23f0b5"], "derive": { "LOD": ["eca7c9ac", "c64b31f8"] } },
+            "d482f64e": { "replace": ["f657b0b8"], "derive": { "LOD": ["09dd6869", "ac9bf8b7"] } }
         },
         "Yuanwu": {
             "main_hashes": [
@@ -1335,6 +1335,30 @@
             "6067f88e": { "derive": {"LOD": ["c10e348d"]} },
             "0264c0c9": { "derive": {"LOD": ["e11aa2e5"]} },
             "cb2225f6": { "derive": {"LOD": ["55d643e1"]} }
+        },
+        "Mornye": {
+            "1b14a741": { "derive": { "LOD": ["c64b3966", "2273776c"] } },
+            "5bd6d2d0": { "derive": { "LOD": ["86894cf7", "afbe6b7a"] } },
+            "7b258721": { "derive": { "LOD": ["a67a1906", "dbea596f"] } },
+            "f46e3fe6": { "derive": { "LOD": ["2931a1c1", "ec6993a9"] } },
+            "7968d921": { "derive": { "LOD": ["4d069274", "8c58128c"] } },
+            "4b7131f7": { "derive": { "LOD": ["962eafd0", "71c9bb23"] } },
+            "4979c5b0": { "derive": { "LOD": ["94265b97", "ab186b85"] } },
+            "078d4b06": { "derive": { "LOD": ["dad2d521", "da119917"] } },
+            "69fb6d9d": { "derive": { "LOD": ["b4a4f3ba", "45b27638"] } },
+            "84a341b4": { "derive": { "LOD": ["59fcdf93", "d735508a"] } },
+            "350db74d": { "derive": { "LOD": ["e852296a", "3beab950"] } },
+            "2a6aa36b": { "derive": { "LOD": ["f7353d4c", "5ab694f3"] } },
+            "3ea68ef7": { "derive": { "LOD": ["e3f910d0", "7c855cd9"] } },
+            "4d520209": { "derive": { "LOD": ["900d9c2e", "8465bc71"] } },
+            "61d64305": { "derive": { "LOD": ["bc89dd22", "30d78e31"] } },
+            "e9ec3443": { "derive": { "LOD": ["6fbaf147", "66c31743"] } },
+            "f2768109": { "derive": { "LOD": ["2f291f2e", "2e1b20c3"] } },
+            "05ad6976": { "derive": { "LOD": ["d8f2f751", "169fb56c"] } },
+            "75ce0c21": { "derive": { "LOD": ["a8919206", "b0692024"] } },
+            "37971681": { "derive": { "LOD": ["eac888a6", "141f5f1d"] } },
+            "d4b685ff": { "derive": { "LOD": ["09e91bd8", "10235ed6"] } },
+            "fb7a0fd2": { "derive": { "LOD": ["262591f5", "1596428b"] } }
         }
     }
 }
