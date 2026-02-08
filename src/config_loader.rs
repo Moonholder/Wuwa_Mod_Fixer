@@ -36,6 +36,13 @@ pub struct CharacterConfig {
     pub checksum: Option<String>,
     pub rules: Option<Vec<ReplacementRule>>,
     pub vg_remaps: Option<Vec<VertexRemapConfig>>,
+    pub stride_fix: Option<StrideFix>,
+}
+
+#[derive(Deserialize, Clone, Default)]
+#[serde(default)]
+pub struct StrideFix {
+    pub trigger_hash: Vec<String>,
 }
 
 #[derive(Deserialize, Clone, Debug, Default)]

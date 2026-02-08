@@ -213,8 +213,11 @@ impl ModFixer {
             return Ok(false);
         }
 
-        for char_name in potential_chars {
-            let config = self.characters.get(&char_name).unwrap();
+        let mut all_aggregated_states: HashMap<String, HashMap<String, String>> = HashMap::new();
+        let mut should_process_derive = false;
+
+        for char_name in &potential_chars {
+            let config = self.characters.get(char_name).unwrap();
 
             if char_name == "RoverMale" && content.contains("FixAeroRoverFemale") {
                 continue;
@@ -232,31 +235,21 @@ impl ModFixer {
                 }
             }
 
-            // --- 状态重定向 (Derive Logic) ---
-            if self.enable_texture_override || settings.state_texture_removers.contains(&char_name)
+            // --- (Derive Logic - Collect Phase) ---
+            if self.enable_texture_override || settings.state_texture_removers.contains(char_name)
             {
-                let mut aggregated_states: HashMap<String, HashMap<String, String>> =
-                    HashMap::new();
-
+                should_process_derive = true;
                 for (base_hash, node) in &config.textures {
                     for (state_name, target_hashes) in &node.derive {
-                        let entry = aggregated_states.entry(state_name.clone()).or_default();
+                        let entry = all_aggregated_states.entry(state_name.clone()).or_default();
                         for target in target_hashes {
                             entry.insert(target.clone(), base_hash.clone());
                         }
                     }
                 }
-
-                for (state_name, state_map) in aggregated_states {
-                    ini_modified |= self.texture_override_redirection(
-                        &mut new_content,
-                        &state_map,
-                        &state_name,
-                    )?;
-                }
             }
 
-            if self.is_character_match(&content, &char_name, config) {
+            if self.is_character_match(&content, char_name, config) {
                 // Checksum
                 if let Some(checksum) = &config.checksum {
                     let new_content_replaced = self
@@ -301,38 +294,77 @@ impl ModFixer {
                     info!("{}", t!(aero_rover_female_eyes_fixed));
                 }
 
-                // ... Fleurdelys Fix logic ...
-                if char_name == "Fleurdelys" && content.contains("618a230e") {
-                    let replaced_content =
-                        self.blend_block_re
-                            .replace_all(&new_content, |cap: &regex::Captures| {
-                                let original_block = cap[0].to_string();
-                                self.stride_re
-                                    .replace_all(&original_block, "stride = 16")
-                                    .to_string()
-                            });
+                // ... Stride Fix logic (driven by config.stride_fix) ...
+                if let Some(stride_fix) = &config.stride_fix {
+                    let should_apply = stride_fix.trigger_hash.iter().any(|h| content.contains(h));
+                    
+                    if should_apply {
+                        let replaced_content =
+                            self.blend_block_re
+                                .replace_all(&new_content, |cap: &regex::Captures| {
+                                    let original_block = cap[0].to_string();
+                                    self.stride_re
+                                        .replace_all(&original_block, "stride = 16")
+                                        .to_string()
+                                });
 
-                    if replaced_content != new_content {
-                        ini_modified = true;
-                        new_content = replaced_content.into_owned();
+                        if replaced_content != new_content {
+                            ini_modified = true;
+                            new_content = replaced_content.into_owned();
 
-                        let blend_buf_matches = collector::parse_resouce_buffer_path(
-                            &content,
-                            collector::BufferType::Blend,
-                            &path,
-                        );
+                            let blend_buf_matches = collector::parse_resouce_buffer_path(
+                                &content,
+                                collector::BufferType::Blend,
+                                &path,
+                            );
 
-                        for (blend_path, _) in blend_buf_matches {
-                            if !blend_path.exists() {
-                                continue;
+                            for (blend_path, _) in blend_buf_matches {
+                                if !blend_path.exists() {
+                                    continue;
+                                }
+                                let blend_data = fs::read(&blend_path)?;
+                                let expanded_data = self.expand_blend_stride_to_16(&blend_data);
+                                self.create_backup(&blend_path)?;
+                                fs::write(&blend_path, expanded_data)?;
+                                buf_files_modified = true;
                             }
-                            let blend_data = fs::read(&blend_path)?;
-                            let expanded_data = self.expand_blend_stride_to_16(&blend_data);
-                            self.create_backup(&blend_path)?;
-                            fs::write(&blend_path, expanded_data)?;
-                            buf_files_modified = true;
                         }
                     }
+                }
+            }
+        }
+
+        // --- 状态重定向 (Derive Logic - Process Phase) ---
+        if should_process_derive && !all_aggregated_states.is_empty() {
+            let state_suffixes: Vec<&str> = all_aggregated_states.keys().map(|s| s.as_str()).collect();
+            
+            let required_hashes: std::collections::HashSet<String> = all_aggregated_states
+                .values()
+                .flat_map(|state_map| state_map.keys().cloned())
+                .collect();
+            
+            let (existing_count, existing_hashes) = self.collect_existing_derive_hashes(&new_content, &state_suffixes);
+            
+            let needs_remove: Vec<_> = existing_hashes.difference(&required_hashes).collect();
+            
+            if !needs_remove.is_empty() {
+                debug!("Found {} outdated hashes to remove: {:?}", needs_remove.len(), needs_remove);
+                self.remove_outdated_derive_sections(&mut new_content, &state_suffixes);
+                
+                for (state_name, state_map) in all_aggregated_states {
+                    ini_modified |= self.texture_override_redirection(
+                        &mut new_content,
+                        &state_map,
+                        &state_name,
+                    )?;
+                }
+            } else if existing_count == 0 {
+                for (state_name, state_map) in all_aggregated_states {
+                    ini_modified |= self.texture_override_redirection(
+                        &mut new_content,
+                        &state_map,
+                        &state_name,
+                    )?;
                 }
             }
         }
@@ -433,6 +465,181 @@ impl ModFixer {
         modified
     }
 
+    /// 收集文件末尾派生节中的所有 hash
+    /// 返回 (需要检查的派生节数量, hash 集合)
+    fn collect_existing_derive_hashes(
+        &self,
+        content: &str,
+        state_suffixes: &[&str],
+    ) -> (usize, std::collections::HashSet<String>) {
+        let lines: Vec<&str> = content.lines().collect();
+        let mut existing_hashes = std::collections::HashSet::new();
+        let mut derive_section_count = 0;
+
+        if lines.is_empty() {
+            return (0, existing_hashes);
+        }
+
+        // 找到所有节的起始位置
+        let mut section_starts: Vec<usize> = Vec::new();
+        for (i, line) in lines.iter().enumerate() {
+            let trimmed = line.trim();
+            if trimmed.starts_with('[') && trimmed.ends_with(']') {
+                section_starts.push(i);
+            }
+        }
+
+        if section_starts.is_empty() {
+            return (0, existing_hashes);
+        }
+
+        // 从最后一个节开始，向前收集派生节的 hash
+        for &section_start in section_starts.iter().rev() {
+            let header_line = lines[section_start].trim();
+            let header = &header_line[1..header_line.len() - 1];
+            
+            // 检查是否是派生节
+            let is_derive_header = state_suffixes.iter().any(|suffix| {
+                header.contains(&format!("_{}", suffix))
+            });
+
+            if !is_derive_header {
+                break;
+            }
+
+            // 检查该节是否包含 match_priority = 0
+            let section_end = section_starts
+                .iter()
+                .find(|&&s| s > section_start)
+                .copied()
+                .unwrap_or(lines.len());
+            
+            let mut has_match_priority_zero = false;
+            let mut section_hash: Option<String> = None;
+            
+            for i in (section_start + 1)..section_end {
+                let line = lines[i].trim();
+                if line.starts_with("match_priority") && line.contains("=") && line.contains("0") {
+                    has_match_priority_zero = true;
+                }
+                if line.starts_with("hash") && line.contains("=") {
+                    if let Some(hash_val) = line.split('=').nth(1) {
+                        let hash = hash_val.split(';').next().unwrap_or("").trim();
+                        if !hash.is_empty() {
+                            section_hash = Some(hash.to_string());
+                        }
+                    }
+                }
+            }
+
+            if has_match_priority_zero {
+                derive_section_count += 1;
+                if let Some(h) = section_hash {
+                    existing_hashes.insert(h);
+                }
+            } else {
+                break;
+            }
+        }
+
+        (derive_section_count, existing_hashes)
+    }
+
+    /// 删除由本工具生成的旧派生节（状态重定向节）
+    /// 安全策略：只从文件末尾向前扫描，删除末尾连续的派生节
+    /// 一旦遇到非派生节就停止   
+    /// 识别特征：节头包含状态后缀（如 _LOD, _wet 等）且包含 match_priority = 0
+    fn remove_outdated_derive_sections(
+        &self,
+        content: &mut String,
+        state_suffixes: &[&str],
+    ) -> bool {
+        let lines: Vec<&str> = content.lines().collect();
+        if lines.is_empty() {
+            return false;
+        }
+
+        // 从末尾向前找到所有节的起始位置
+        let mut section_starts: Vec<usize> = Vec::new();
+        for (i, line) in lines.iter().enumerate() {
+            let trimmed = line.trim();
+            if trimmed.starts_with('[') && trimmed.ends_with(']') {
+                section_starts.push(i);
+            }
+        }
+
+        if section_starts.is_empty() {
+            return false;
+        }
+
+        // 从最后一个节开始，向前检查哪些是需要删除的派生节
+        let mut sections_to_remove: Vec<usize> = Vec::new();
+        
+        for &section_start in section_starts.iter().rev() {
+            let header_line = lines[section_start].trim();
+            let header = &header_line[1..header_line.len() - 1];
+            
+            // 检查是否是派生节（节头包含状态后缀，如 _LOD, _LOD_0, _wet 等）
+            let is_derive_header = state_suffixes.iter().any(|suffix| {
+                header.contains(&format!("_{}", suffix))
+            });
+
+            if !is_derive_header {
+                break;
+            }
+
+            // 检查该节是否包含 match_priority = 0
+            let section_end = section_starts
+                .iter()
+                .find(|&&s| s > section_start)
+                .copied()
+                .unwrap_or(lines.len());
+            
+            let mut has_match_priority_zero = false;
+            for i in (section_start + 1)..section_end {
+                let line = lines[i].trim();
+                if line.starts_with("match_priority") 
+                    && line.contains("=") 
+                    && line.contains("0") 
+                {
+                    has_match_priority_zero = true;
+                    break;
+                }
+            }
+
+            if has_match_priority_zero {
+                sections_to_remove.push(section_start);
+                info!("Removing outdated derive section: {}", header);
+            } else {
+                break;
+            }
+        }
+
+        if sections_to_remove.is_empty() {
+            return false;
+        }
+
+        // 找到最早需要删除的节的起始位置，截断文件
+        let first_remove_line = *sections_to_remove.iter().min().unwrap();
+        
+        // 向前跳过空行，找到真正的截断点
+        let mut truncate_line = first_remove_line;
+        while truncate_line > 0 && lines[truncate_line - 1].trim().is_empty() {
+            truncate_line -= 1;
+        }
+
+        // 构建新内容
+        let new_lines: Vec<&str> = lines[..truncate_line].to_vec();
+        
+        *content = new_lines.join("\n");
+        if !content.ends_with('\n') && !content.is_empty() {
+            content.push('\n');
+        }
+        
+        info!("Removed {} outdated derive section(s) from end of file", sections_to_remove.len());
+        true
+    }
+
     fn texture_override_redirection(
         &self,
         content: &mut String,
@@ -462,10 +669,6 @@ impl ModFixer {
         }
 
         for (original_hash, changed_hashes) in grouped_map {
-            if !content.contains(original_hash) {
-                continue;
-            }
-
             let mut needed_hashes: Vec<&String> = changed_hashes
                 .iter()
                 .filter(|&&h| !content.contains(h))
@@ -482,19 +685,16 @@ impl ModFixer {
 
             if let Ok(match_data) = match_res {
                 let clone_content = match_data.content.trim();
+                
                 if clone_content.is_empty() {
                     continue;
                 }
 
-                let mut base_header = match_data.section_header.trim();
-                if let Some(stripped) = base_header
-                    .strip_prefix('[')
-                    .and_then(|s| s.strip_suffix(']'))
-                {
-                    base_header = stripped;
-                } else {
-                    continue;
-                }
+                let base_header = match_data.section_header.trim()
+                    .trim_start_matches('[')
+                    .trim_end_matches(']');
+                
+                if base_header.is_empty() { continue; }
 
                 for changed_hash in needed_hashes {
                     let mut candidate_header = format!("{}_{}", base_header, header_suffix);
@@ -535,67 +735,81 @@ impl ModFixer {
         original_hash: &str,
         content: &str,
     ) -> Result<MatchTextureOverrideContent> {
-        let lines = content.lines();
+        let mut current_header = String::new();
+        let mut current_body_lines: Vec<&str> = Vec::new();
+        let mut found_target_hash_in_section = false;
+        let mut in_texture_override_section = false;
 
-        let mut found_section = false;
-        let mut match_priority_found = false;
-        let mut section_header = String::new();
-        let mut collected_content = Vec::new();
+        let finalize_content = |lines: &[&str]| -> String {
+            lines.join("\n")
+        };
 
-        for line in lines {
-            let trimmed_line = line.trim();
+        for line in content.lines() {
+            let trimmed = line.trim();
 
-            // 检查是否是以 [TextureOverride 开头的节
-            if !match_priority_found && trimmed_line.starts_with("[TextureOverride") {
-                section_header = trimmed_line.to_string();
-                found_section = false; // 每次新节开始，重置标记
-                match_priority_found = false;
-                collected_content.clear();
+            if trimmed.is_empty() || trimmed.starts_with(';') {
+                if trimmed.starts_with(';') {
+                    continue; 
+                }
             }
 
-            // 如果找到了对应的节
-            if found_section {
-                // 如果找到match_priority则可以开始提取内容
-                if trimmed_line.starts_with("match_priority") {
-                    match_priority_found = true;
+            if trimmed.starts_with('[') && trimmed.ends_with(']') {
+                if in_texture_override_section && found_target_hash_in_section {
+                    return Ok(MatchTextureOverrideContent {
+                        section_header: current_header,
+                        content: finalize_content(&current_body_lines),
+                    });
+                }
+
+                // --- 新节开始，重置状态 ---
+                current_header = trimmed.to_string();
+                current_body_lines.clear();
+                found_target_hash_in_section = false;
+                
+                in_texture_override_section = current_header.starts_with("[TextureOverride");
+                continue;
+            }
+
+            if !in_texture_override_section {
+                continue;
+            }
+
+            if let Some((key, value)) = trimmed.split_once('=') {
+                let key = key.trim();
+                let value = value.trim();
+
+                if key.eq_ignore_ascii_case("hash") {
+                    let clean_value = value.split(';').next().unwrap_or("").trim();
+                    
+                    if clean_value == original_hash {
+                        found_target_hash_in_section = true;
+                    }
+                    continue; 
+                }
+
+                if key.eq_ignore_ascii_case("match_priority") {
                     continue;
                 }
-
-                // 一旦找到了match_priority后，继续收集内容
-                if match_priority_found {
-                    // 如果找到新的节，则结束收集
-                    if trimmed_line.starts_with('[') {
-                        break;
-                    }
-                    if !trimmed_line.starts_with(";") {
-                        collected_content.push(line.to_string());
-                    }
-                }
             }
 
-            if trimmed_line.contains(original_hash) {
-                // 如果当前行中包含所需的hash，表示在相应的节中
-                found_section = true;
-            }
+            current_body_lines.push(trimmed); 
         }
 
-        let after_content = collected_content.join("\n").trim_end().to_string();
-
-        if after_content.is_empty() {
-            return Err(Error::msg(format!(
-                "No content found after match_priority for hash: {}",
-                original_hash
-            )));
+        if in_texture_override_section && found_target_hash_in_section {
+            return Ok(MatchTextureOverrideContent {
+                section_header: current_header,
+                content: finalize_content(&current_body_lines),
+            });
         }
 
-        Ok(MatchTextureOverrideContent {
-            section_header,
-            content: after_content,
-        })
+        Err(Error::msg(format!(
+            "No suitable content found for hash: {}",
+            original_hash
+        )))
     }
 
     fn create_backup(&self, path: &Path) -> Result<PathBuf, Error> {
-        let datetime = chrono::Local::now().format("%Y-%m-%d %H-%M-%S").to_string();
+        let datetime = chrono::Local::now().format("%Y-%m-%d %H-%M-%S%.3f").to_string();
         if let Some(file_name) = path.file_name() {
             if let Some(name) = file_name.to_str() {
                 let backup_name = format!("{}_{}.BAK", name, datetime);
