@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "3.1.0",
-        "current_version": "3.1.0",
+        "current_version": "3.1.1",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -26,8 +26,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.1: 更新您的XXMI至最新版本\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 的贴图错误\n\n修复3.0: \n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n...\n\n",
-            "en": "Fix 3.1: Update your XXMI to the latest version.\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye and Lumi.\n\nFix 3.0: \n* Fixed Female Rover.\n* Fixed texture errors for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n..."
+            "zh": "修复3.1: 更新您的XXMI至最新版本\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误\n\n修复3.0: \n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n...\n\n",
+            "en": "Fix 3.1: Update your XXMI to the latest version.\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani.\n\nFix 3.0: \n* Fixed Female Rover.\n* Fixed texture errors for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n..."
         },
         "intro_note": {
             "zh": "确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错",
@@ -186,14 +186,14 @@
             "756ab255": { "replace": ["13bc29e0"], "derive": { "LOD": ["a8352c72", "9bc4cdc9"] } },
             "5606456f": { "replace": ["db7ba06b"], "derive": { "LOD": ["8b59db48", "18a5098b"] } },
             "6913dea1": { "replace": ["56343b28"], "derive": { "LOD": ["b44c4086", "564607b9"] } },
-            "stride_fix": { "trigger_hash": ["d53c2cc7", "c9db8418", "e18ca2cc", "b22dacf9"] },
+            "stride_fix": { "trigger_hash": ["d53c2cc7", "c9db8418", "e18ca2cc", "b22dacf9", "ec747460"] },
             "rules": [
                 { "line_prefix": "match_first_index", "replacements": [ {"old": ["42495"], "new": "52713"}, {"old": ["52533"], "new": "67467"}, {"old": ["102237"], "new": "120789"}, {"old": ["140157"], "new": "172107"}, {"old": ["141693"], "new": "173643"} ] },
                 { "line_prefix": "match_index_count", "replacements": [ {"old": ["42495"], "new": "52713"}, {"old": ["10038"], "new": "14754"}, {"old": ["49704"], "new": "53322"}, {"old": ["37920"], "new": "51318"} ] }
             ],
             "vg_remaps": [
                 {
-                    "trigger_hash": ["d53c2cc7", "c9db8418", "e18ca2cc", "b22dacf9"],
+                    "trigger_hash": ["d53c2cc7", "c9db8418", "e18ca2cc", "b22dacf9", "ec747460"],
                     "vertex_groups": { "11": 13, "12": 11, "13": 12, "23": 24, "24": 23, "76": 77, "77": 76, "89": 90, "90": 89, "131": 136, "132": 131, "133": 132, "135": 133,"136": 135, "137": 156, "138": 157, "139": 137, "140": 154, "141": 155, "142": 147, "143": 145, "144": 152, "145": 153, "146": 151, "147": 149, "148": 138, "149": 139, "150": 140, "151": 141, "152": 142, "153": 143, "154": 146, "155": 144, "156": 148, "157": 150 },
                     "component_remap": [
                         { "component_index": 0, "indices": { "11": 13, "12": 11, "13": 12, "23": 24, "24": 23 } },
@@ -214,10 +214,10 @@
                 { "line_prefix": "match_first_index", "replacements": [ {"old": ["13164"], "new": "18831"}, {"old": ["30399"], "new": "41706"}, {"old": ["40548"], "new": "56382"}, {"old": ["83781"], "new": "120117"}, {"old": ["113172"], "new": "172419"}, {"old": ["114894"], "new": "173961"} ] },
                 { "line_prefix": "match_index_count", "replacements": [ {"old": ["13164"], "new": "18831"}, {"old": ["17235"], "new": "22875"}, {"old": ["10149"], "new": "14676"}, {"old": ["43233"], "new": "63735"}, {"old": ["29391"], "new": "52302"}, {"old": ["1722"], "new": "1542"}, {"old": ["48"], "new": "129"} ] }
             ],
-            "stride_fix": { "trigger_hash": ["be84b775", "e8b5a730", "3533a957", "bd26f515", "06482222"] },
+            "stride_fix": { "trigger_hash": ["be84b775", "e8b5a730", "3533a957", "bd26f515", "06482222", "ac681fc1"] },
             "vg_remaps": [
                 {
-                    "trigger_hash": ["be84b775", "e8b5a730", "3533a957", "bd26f515", "06482222"],
+                    "trigger_hash": ["be84b775", "e8b5a730", "3533a957", "bd26f515", "06482222", "ac681fc1"],
                     "vertex_groups": { "2": 19, "3": 2, "4": 3, "5": 4, "6": 5, "7": 6, "8": 7, "9": 8, "10": 9, "11": 10,
                         "12": 11, "13": 12, "14": 13, "15": 14, "16": 15, "17": 16, "18": 17, "19": 18, "24": 25, "25": 24,
                         "29": 33, "31": 34, "33": 29, "34": 31, "35": 36, "36": 37, "37": 35, "39": 38, "40": 39, "41": 40,
@@ -1023,8 +1023,8 @@
                 {"old": ["08e242b9"], "new": "9e87c4cb"},
                 {"old": ["e88e60cb"], "new": "28add98e"}
             ],
-            "d1c1a195": { "replace": ["66ec53c0", "612a235b"], "derive": { "LOD": ["0c9e3fb2", "3fc7f6ff"] }},
-            "61de7097": { "replace": ["c676996a", "18a76e47"], "derive": { "LOD": ["bc81eeb0", "e31f53c6"] }}
+            "eba80d04": { "replace": ["66ec53c0", "612a235b", "d1c1a195"], "derive": { "LOD": ["0c9e3fb2", "3fc7f6ff"] }},
+            "eec46ff3": { "replace": ["c676996a", "18a76e47", "61de7097"], "derive": { "LOD": ["bc81eeb0", "e31f53c6"] }}
         },
         "Zani_Lower": {
             "main_hashes": [{"old": ["12b90236", "07352718"], "new": "c99c5635"}]
