@@ -1331,7 +1331,7 @@
             "a83a8906": { "meta": { "id": 3, "type": "L" }, "replace": ["118a1a1f"] },
             "eca8e09b": { "meta": { "id": 3, "type": "N" }, "derive": { "injured": ["d2bc37bc"], "LOD": ["31f77ebc", "893ece88"], "LOD_injured": ["0fe3a99b", "790f2cee"] } },
             "e783ca72": { "meta": { "id": 4, "type": "D" }, "replace": ["f869e47c", "bb49600b"], "derive": { "injured": ["a5da2563"], "LOD": ["3adc5455", "bc141952"], "LOD_injured": ["7885bb44", "d01fdd4f"] } },
-            "35b4ef7f": { "meta": { "id": 4, "type": "L" }, "replace": ["0c153c12", "ffa1f581", "89517d4e", "34377808", "35b4ef7f"], "derive": { "injured": ["403595f8"] } },
+            "403595f8": { "meta": { "id": 4, "type": "L" }, "replace": ["0c153c12", "ffa1f581", "89517d4e", "34377808"], "derive": { "injured": ["35b4ef7f"] } },
             "9b396b0d": { "meta": { "id": 4, "type": "N" }, "derive": { "injured": ["412ba586"], "LOD": ["4666f52a", "a013489c"], "LOD_injured": ["9c743ba1", "29b60a1b"] } },
             "cd006f06": { "meta": { "id": 5, "type": "D" }, "derive": { "injured": ["2a9050cc"], "LOD": ["105ff121", "1e8c8420"], "LOD_injured": ["f7cfceeb", "b95895cf"] } },
             "0cc6f756": { "meta": { "id": 5, "type": "N" }, "derive": { "LOD": ["d1996971", "b07813d6"] } },
