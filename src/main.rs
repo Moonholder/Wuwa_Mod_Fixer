@@ -1,11 +1,15 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 #[macro_use]
 extern crate log;
 
 #[macro_use]
 mod localization;
 mod config_loader;
-use config_loader::{CharacterConfig, Replacement, ReplacementRule, VertexRemapConfig};
+use config_loader::{CharacterConfig, Replacement, ReplacementRule, VertexRemapConfig, TextureNode};
 mod collector;
+mod rollback;
+mod gui;
 
 use anyhow::{Error, Result, anyhow};
 use backtrace::Backtrace;
@@ -13,7 +17,6 @@ use inquire::{Confirm, Text};
 use log::LevelFilter;
 use regex::Regex;
 use std::borrow::Cow;
-use std::io::Write;
 use std::panic;
 use std::{
     collections::HashMap,
@@ -45,18 +48,33 @@ const EARLY_CHARACTERS: [&str; 20] = [
     "Changli",
 ];
 
-struct ModFixer {
+pub struct ModFixer {
     characters: HashMap<String, CharacterConfig>,
     hash_to_character: HashMap<String, String>,
     enable_texture_override: bool,
+    enable_stable_texture: bool,
+    headless: bool,
+    /// 0 = disabled, 1 = TexCoord override, 2 = Texture mirror flip
+    aero_fix_mode: u8,
     checksum_regex: Regex,
     hash_re: Regex,
     blend_block_re: Regex,
     stride_re: Regex,
+    re_t17: Regex,
+    re_t18: Regex,
+    run_cmd_re: Regex,
+    handling_skip_re: Regex,
+    resource_regexes: HashMap<&'static str, Regex>,
 }
 
 impl ModFixer {
-    fn new(characters: &HashMap<String, CharacterConfig>, enable_texture_override: bool) -> Self {
+    pub fn new(
+        characters: &HashMap<String, CharacterConfig>,
+        enable_texture_override: bool,
+        enable_stable_texture: bool,
+        headless: bool,
+        aero_fix_mode: u8,
+    ) -> Self {
         let mut hash_to_character = HashMap::new();
 
         for (char_name, config) in characters.iter() {
@@ -83,14 +101,27 @@ impl ModFixer {
             }
         }
 
+        let mut resource_regexes = HashMap::new();
+                resource_regexes.insert("Diffuse", Regex::new(r"(?i)Resource\\RabbitFX\\Diffuse\s*=").unwrap());
+                resource_regexes.insert("Normalmap", Regex::new(r"(?i)Resource\\RabbitFX\\Normalmap\s*=").unwrap());
+                resource_regexes.insert("Lightmap", Regex::new(r"(?i)Resource\\RabbitFX\\Lightmap\s*=").unwrap());
+
         Self {
             characters: characters.clone(),
             hash_to_character,
             enable_texture_override,
+            enable_stable_texture,
+            headless,
+            aero_fix_mode,
             checksum_regex: Regex::new(r"(checksum\s*=\s*)\d+").unwrap(),
             hash_re: Regex::new(r"hash\s*=\s*([0-9a-fA-F]{8,16})\b").unwrap(),
-            blend_block_re: Regex::new(r"\[ResourceBlendBuffer\][^\[]+").unwrap(),
+            blend_block_re: Regex::new(r"\[ResourceBlendBuffer[^\]]*\][^\[]+").unwrap(),
             stride_re: Regex::new(r"stride\s*=\s*8").unwrap(),
+            re_t17: Regex::new(r#"(?m)^(\s*)ps-t17\s*=\s*(Resource\S*)"#).unwrap(),
+            re_t18: Regex::new(r#"(?m)^(\s*)ps-t18\s*=\s*(Resource\S*)"#).unwrap(),
+            run_cmd_re: Regex::new(r"(?im)^\s*run\s*=\s*Commandlist\\RabbitFX\\SetTextures").unwrap(),
+            handling_skip_re: Regex::new(r"(?im)^\s*handling\s*=\s*skip").unwrap(),
+            resource_regexes,
         }
     }
 
@@ -119,7 +150,7 @@ impl ModFixer {
         }
     }
 
-    fn process_directory(&self, path: &Path) -> Result<()> {
+    pub fn process_directory(&self, path: &Path) -> Result<()> {
         if !path.is_dir() {
             error!("{}", t!(path_not_a_directory, path = path.display()));
             return Ok(());
@@ -133,9 +164,18 @@ impl ModFixer {
 
         info!("{}", t!(start_processing, mod_folder_path = path.display()));
 
+        // Pre-scan: count target files for progress reporting
+        let total_files: usize = WalkDir::new(path)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|e| e.path().is_file() && self.is_target_file(e.path()))
+            .count();
+        PROGRESS_TOTAL.store(total_files, std::sync::atomic::Ordering::Relaxed);
+
         let mut success = 0;
         let mut skipped = 0;
         let mut errors = 0;
+        let mut processed = 0usize;
 
         for entry in WalkDir::new(path) {
             let path = match entry {
@@ -157,6 +197,10 @@ impl ModFixer {
             if !path.is_file() || !self.is_target_file(&path) {
                 continue;
             }
+
+            processed += 1;
+            // Update atomic progress counters (read by GUI, no log pollution)
+            PROGRESS_CURRENT.store(processed, std::sync::atomic::Ordering::Relaxed);
 
             match self.process_file(&path) {
                 Ok(true) => {
@@ -198,6 +242,7 @@ impl ModFixer {
         let mut ini_modified = false;
         let mut buf_files_modified = false;
         let mut new_content = content.clone();
+        let mut backed_up: std::collections::HashSet<PathBuf> = std::collections::HashSet::new();
         info!("{}", t!(process_file_start, file_path = path.display()));
         let settings = config_loader::settings();
 
@@ -235,7 +280,7 @@ impl ModFixer {
                 }
             }
 
-            // --- (Derive Logic - Collect Phase) ---
+            // --- (Derive Logic - Collect Phase)
             if self.enable_texture_override || settings.state_texture_removers.contains(char_name)
             {
                 should_process_derive = true;
@@ -266,31 +311,51 @@ impl ModFixer {
                 // Rules
                 ini_modified |= self.replace_index_offset_count(&mut new_content, &config.rules);
 
+                // RabbitFX / Stable Textures (Meta Logic)
+                if self.enable_stable_texture {
+                    ini_modified |= self.replace_rabbit_fx_resources(&mut new_content);
+
+                    ini_modified |= self.rabbit_fx_set_texture_override(&mut new_content, &config.textures)?;
+                }
+
                 // --- VGs Remaps ---
                 if let Some(vg_maps) = &config.vg_remaps {
-                    buf_files_modified |= self.remaps(&content, path, vg_maps)?;
+                    buf_files_modified |= self.remaps(&content, path, vg_maps, &mut backed_up)?;
                 }
 
                 // ... Aero Rover Fix logic ...
-                let enable_aero_rover_fix =
-                    if settings.enable_aero_rover_fix && char_name == "RoverFemale" {
-                        println!();
-                        Confirm::new(t!(aero_rover_female_eyes_prompt))
-                            .with_default(false)
-                            .prompt()?
+                let aero_mode: u8 =
+                    if char_name == "RoverFemale" {
+                        if self.headless {
+                            // GUI mode: use the selected fix mode directly
+                            self.aero_fix_mode
+                        } else {
+                            // CLI mode: prompt user
+                            println!();
+                            let enabled = Confirm::new(t!(aero_rover_female_eyes_prompt))
+                                .with_default(false)
+                                .prompt()?;
+                            if enabled { 1 } else { 0 }  // CLI defaults to TexCoord mode
+                        }
                     } else {
-                        false
+                        0
                     };
 
-                if enable_aero_rover_fix {
+                if aero_mode == 1 {
+                    // TexCoord override
                     let texcoord_modified =
-                        self.fix_aero_rover_female_eyes_with_texcoord(path, &content)?;
-                    if !texcoord_modified {
-                        let texture_section_added =
-                            self.fix_aero_rover_female_eyes_with_texture(path, &mut new_content)?;
-                        ini_modified |= texture_section_added;
-                    }
+                        self.fix_aero_rover_female_eyes_with_texcoord(path, &content, &mut backed_up)?;
                     buf_files_modified |= texcoord_modified;
+                    if texcoord_modified {
+                        info!("{}", t!(aero_rover_female_eyes_fixed));
+                    } else {
+                        info!("TexCoord fix did not apply (component 5 not found)");
+                    }
+                } else if aero_mode == 2 {
+                    // Texture mirror flip
+                    let texture_section_added =
+                        self.fix_aero_rover_female_eyes_with_texture(path, &mut new_content)?;
+                    ini_modified |= texture_section_added;
                     info!("{}", t!(aero_rover_female_eyes_fixed));
                 }
 
@@ -318,13 +383,13 @@ impl ModFixer {
                                 &path,
                             );
 
-                            for (blend_path, _) in blend_buf_matches {
-                                if !blend_path.exists() {
+                            for (blend_path, stride) in blend_buf_matches {
+                                if !blend_path.exists() || stride != 8 {
                                     continue;
                                 }
                                 let blend_data = fs::read(&blend_path)?;
                                 let expanded_data = self.expand_blend_stride_to_16(&blend_data);
-                                self.create_backup(&blend_path)?;
+                                self.create_backup_once(&blend_path, &mut backed_up)?;
                                 fs::write(&blend_path, expanded_data)?;
                                 buf_files_modified = true;
                             }
@@ -343,34 +408,24 @@ impl ModFixer {
                 .flat_map(|state_map| state_map.keys().cloned())
                 .collect();
             
-            let (existing_count, existing_hashes) = self.collect_existing_derive_hashes(&new_content, &state_suffixes);
+            let (_, existing_hashes) = self.collect_existing_derive_hashes(&new_content, &state_suffixes);
             
-            let needs_remove: Vec<_> = existing_hashes.difference(&required_hashes).collect();
-            
-            if !needs_remove.is_empty() {
-                debug!("Found {} outdated hashes to remove: {:?}", needs_remove.len(), needs_remove);
+            if existing_hashes.difference(&required_hashes).count() > 0 {
+                debug!("Found outdated derive hashes, removing all derive sections for regeneration");
                 self.remove_outdated_derive_sections(&mut new_content, &state_suffixes);
-                
-                for (state_name, state_map) in all_aggregated_states {
-                    ini_modified |= self.texture_override_redirection(
-                        &mut new_content,
-                        &state_map,
-                        &state_name,
-                    )?;
-                }
-            } else if existing_count == 0 {
-                for (state_name, state_map) in all_aggregated_states {
-                    ini_modified |= self.texture_override_redirection(
-                        &mut new_content,
-                        &state_map,
-                        &state_name,
-                    )?;
-                }
+            }
+
+            for (state_name, state_map) in all_aggregated_states {
+                ini_modified |= self.texture_override_redirection(
+                    &mut new_content,
+                    &state_map,
+                    &state_name,
+                )?;
             }
         }
 
         if ini_modified {
-            self.create_backup(path)?;
+            self.create_backup_once(path, &mut backed_up)?;
             fs::write(path, new_content)?;
             info!("{}", t!(process_file_done, file_path = path.display()));
         }
@@ -808,6 +863,190 @@ impl ModFixer {
         )))
     }
 
+    fn rabbit_fx_set_texture_override(
+        &self,
+        content: &mut String,
+        textures: &HashMap<String, TextureNode>,
+    ) -> Result<bool> {
+        let mut modified = false;
+        let mut comp_map: HashMap<String, String> = HashMap::new();
+        
+        for (hash, node) in textures {
+            if let Some(meta) = &node.meta {
+                let comp_char = std::char::from_digit(meta.id, 10).unwrap_or('?');
+                if comp_char == '?' { continue; }
+                
+                let mat_type = match meta.type_.as_str() {
+                    "D" => "Diffuse",
+                    "N" => "Normalmap",
+                    "L" => "Lightmap",
+                    _ => continue,
+                };
+
+
+                let target_header = format!("[TextureOverrideComponent{}]", comp_char);
+                            
+                // 定位该 Component 节的开始
+                let start_idx = match content.find(&target_header) {
+                    Some(idx) => idx,
+                    None => continue,
+                };
+
+                // 确定节的结束位置
+                let rest = &content[start_idx + target_header.len()..];
+                let end_offset = rest.find("\n[").map(|i| i + 1).unwrap_or(rest.len());
+                let section_slice = &content[start_idx .. start_idx + target_header.len() + end_offset];
+
+                if let Some(re) = self.resource_regexes.get(mat_type) {
+                    if re.is_match(section_slice) {
+                        continue;
+                    }
+                }
+                // ------------------------------------------------
+
+                // 查找该 Hash 对应的资源定义
+                if let Ok(match_data) = self.get_texture_override_content_after_match_priority(hash, &content) {
+                    let res_line = self.convert_shader_condition(&match_data.content, mat_type);
+                    if !res_line.is_empty() {
+                        let entry = comp_map.entry(comp_char.to_string()).or_default();
+                        if !entry.contains(&res_line) {
+                            entry.push_str(&res_line);
+                            entry.push('\n');
+                        }
+                    }
+                }
+            }
+        }
+
+        // 批量应用插入
+        for (comp_no_str, insert_data) in comp_map {
+            if let Some(c) = comp_no_str.chars().next() {
+                modified |= self.insert_into_component(content, c, &insert_data);
+            }
+        }
+
+        Ok(modified)
+    }
+
+    fn convert_shader_condition(&self, input: &str, material_type: &str) -> String {
+        input
+            .lines()
+            .map(|line| {
+                let trimmed = line.trim_start();
+
+                if trimmed.starts_with("this") {
+                    let after_this = &trimmed[4..].trim_start();
+
+                    // 检查等号是否存在
+                    if let Some(equals_pos) = after_this.find('=') {
+                        let after_equals = &after_this[equals_pos + 1..].trim_start();
+
+                        // 提取资源名称
+                        if let Some(resource_name) = after_equals.split_whitespace().next() {
+                            let indent = line
+                                .chars()
+                                .take_while(|c| c.is_whitespace())
+                                .collect::<String>();
+
+                            return format!(
+                                "\t\t{}Resource\\RabbitFX\\{} = ref {}",
+                                indent, material_type, resource_name
+                            );
+                        }
+                    }
+                }
+                format!("\t\t{}", line.to_string())
+            })
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
+    fn insert_into_component(
+        &self,
+        content: &mut String,
+        component_no: char,
+        insert_content: &str,
+    ) -> bool {
+        let target_header = format!("[TextureOverrideComponent{}]", component_no);
+        let run_cmd = "run = Commandlist\\RabbitFX\\SetTextures";
+
+        // 1. 定位目标节
+        let start_idx = match content.find(&target_header) {
+            Some(i) => i,
+            None => return false,
+        };
+
+        // 定位节结束 (下一个 [ 的开始，或文件末尾)
+        let rest_of_content = &content[start_idx + target_header.len()..];
+        let end_offset = rest_of_content.find("\n[").map(|i| i + 1).unwrap_or(rest_of_content.len());
+        let section_end_idx = start_idx + target_header.len() + end_offset;
+        let section_slice = &content[start_idx..section_end_idx];
+
+        // 2. 检查 run 命令是否存在
+        let run_match = self.run_cmd_re.find(section_slice);
+
+        // 3. 确定插入点
+        let insert_pos_abs;
+        let mut append_run = false;
+
+        if let Some(m) = run_match {
+            // 情况 A: run 已存在 -> 插在 run 之前
+            insert_pos_abs = start_idx + m.start();
+        } else {
+            // 情况 B: run 不存在 -> 插在 handling = skip 之后，或节末尾
+            if let Some(m) = self.handling_skip_re.find(section_slice) {
+                let after_skip = m.end();
+                let next_newline = section_slice[after_skip..].find('\n').map(|i| i + 1).unwrap_or(0);
+                insert_pos_abs = start_idx + after_skip + next_newline;
+            } else {
+                insert_pos_abs = start_idx + target_header.len();
+            }
+            append_run = true;
+        }
+
+        // 4. 构建插入内容
+        let mut final_block = String::new();
+        
+        // 确保插入点前有换行
+        if insert_pos_abs > 0 && !content[..insert_pos_abs].ends_with('\n') {
+            final_block.push('\n');
+        }
+
+        // 插入资源定义
+        if !insert_content.trim().is_empty() {
+            final_block.push_str(insert_content);
+            if !insert_content.ends_with('\n') {
+                final_block.push('\n');
+            }
+        }
+
+        // 追加 run 命令 (如果之前没有)
+        if append_run {
+            final_block.push_str(&format!("\t\t{}\n", run_cmd));
+        }
+
+        // 执行插入
+        content.insert_str(insert_pos_abs, &final_block);
+        
+        info!("RabbitFX Update: Component {}, inserted logic block.", component_no);
+        true
+    }
+
+    fn replace_rabbit_fx_resources(&self, content: &mut String) -> bool {
+        let original_len: usize = content.len();
+        // 替换 ps-t17 -> GlowMap
+        let c1 = self.re_t17.replace_all(content, "${1}Resource\\RabbitFX\\GlowMap = ref ${2}");
+        // 替换 ps-t18 -> FXMap
+        let c2 = self.re_t18.replace_all(&c1, "${1}Resource\\RabbitFX\\FXMap = ref ${2}");
+
+        if c2.len() != original_len || c2 != *content {
+            *content = c2.into_owned();
+            info!("RabbitFX legacy resources updated.");
+            return true;
+        }
+        false
+    }
+
     fn create_backup(&self, path: &Path) -> Result<PathBuf, Error> {
         let datetime = chrono::Local::now().format("%Y-%m-%d %H-%M-%S%.3f").to_string();
         if let Some(file_name) = path.file_name() {
@@ -823,6 +1062,24 @@ impl ModFixer {
             }
         }
         Err(Error::msg(t!(backup_failed, file_path = path.display())))
+    }
+
+    /// Like `create_backup`, but skips if `path` was already backed up in this run.
+    /// This prevents backing up intermediate (already-modified) states when
+    /// multiple fix stages (VGs remap, stride fix) modify the same .buf file.
+    fn create_backup_once(
+        &self,
+        path: &Path,
+        backed_up: &mut std::collections::HashSet<PathBuf>,
+    ) -> Result<PathBuf, Error> {
+        let canonical = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
+        if backed_up.contains(&canonical) {
+            debug!("Skipping duplicate backup for: {}", path.display());
+            return Ok(path.to_path_buf()); // already backed up, skip
+        }
+        let result = self.create_backup(path)?;
+        backed_up.insert(canonical);
+        Ok(result)
     }
 
     fn is_target_file(&self, path: &Path) -> bool {
@@ -895,6 +1152,7 @@ impl ModFixer {
         content: &String,
         file_path: &Path,
         vg_remaps: &[VertexRemapConfig],
+        backed_up: &mut std::collections::HashSet<PathBuf>,
     ) -> Result<bool> {
         let mut modified = false;
         let blend_buf_matches =
@@ -952,7 +1210,7 @@ impl ModFixer {
 
             if apply_flag {
                 info!("{}", t!(remapped_successfully));
-                self.create_backup(&blend_path)?;
+                self.create_backup_once(&blend_path, backed_up)?;
                 fs::write(&blend_path, &blend_data)?;
                 modified = true;
             }
@@ -964,6 +1222,7 @@ impl ModFixer {
         &self,
         ini_path: &Path,
         content: &str,
+        backed_up: &mut std::collections::HashSet<PathBuf>,
     ) -> Result<bool> {
         let component_indices = collector::parse_component_indices(&content);
         if !component_indices.contains_key(&5) {
@@ -1071,7 +1330,7 @@ impl ModFixer {
                 tex_coord_data[dst_start..dst_end].copy_from_slice(&fixed_data[src_start..src_end]);
             }
 
-            self.create_backup(&tex_coord_path)?;
+            self.create_backup_once(&tex_coord_path, backed_up)?;
             fs::write(&tex_coord_path, &tex_coord_data)?;
             ret = true;
         }
@@ -1092,39 +1351,52 @@ impl ModFixer {
         let file_name = "FixAeroRoverFemaleChargedEyesMap.dds";
         fs::write(texture_path.join(file_name), fixed_data)?;
 
+        // Ensure $object_detected = 1 exists in [TextureOverrideComponent5]
+        if let Some(comp5_start) = new_content.find("[TextureOverrideComponent5]") {
+            // Check if $object_detected already exists within this section
+            let section_content = &new_content[comp5_start..];
+            let section_end = section_content[1..].find('[')
+                .map(|i| comp5_start + 1 + i)
+                .unwrap_or(new_content.len());
+            let section_slice = &new_content[comp5_start..section_end];
+
+            if !section_slice.contains("$object_detected") {
+                // Find the last match_ line position in this section
+                let mut insert_after_end = None;
+                let line_ending = if section_slice.contains("\r\n") { "\r\n" } else { "\n" };
+
+                for keyword in &["match_first_index", "match_index_count"] {
+                    let mut search_from = 0usize;
+                    while let Some(pos) = section_slice[search_from..].find(keyword) {
+                        let abs = search_from + pos;
+                        // Find end of this line
+                        if let Some(eol) = section_slice[abs..].find(line_ending) {
+                            let line_end = abs + eol + line_ending.len();
+                            if insert_after_end.is_none() || line_end > insert_after_end.unwrap() {
+                                insert_after_end = Some(line_end);
+                            }
+                        }
+                        search_from = abs + keyword.len();
+                    }
+                }
+
+                if let Some(offset) = insert_after_end {
+                    let insert_str = format!("$object_detected = 1{}", line_ending);
+                    new_content.insert_str(comp5_start + offset, &insert_str);
+                    info!("Injected $object_detected = 1 into [TextureOverrideComponent5]");
+                }
+            }
+        }
+
         let new_section_content = format!(
             r#"
-        [Constants]
-        global $charged = 0
-        global $rf_state = 0
-
-        [TextureOverride_Normal]
-        hash = 52c18227
-        $charged = 0
-
-        [TextureOverride_Charged]
-        hash = 70d7428b
-        $charged = 1
-
-        [TextureOverride_RoverMale]
-        if $charged == 1
-        hash = b22dacf9
-        $rf_state = 0
-        endif
-
-        [TextureOverride_RoverFemale]
-        if $charged == 1
-        hash = 06482222
-        $rf_state = 1
-        endif
-
         [ResourceTexture_AeroRoverFemaleEyes]
         filename = Textures/{}
 
         [TextureOverrideTexture_AeroRoverFemaleEyes]
-        if $charged == 1 && $rf_state == 1
         hash = {}
         match_priority = 0
+        if $object_detected
         this = ResourceTexture_AeroRoverFemaleEyes
         endif
         "#,
@@ -1154,39 +1426,112 @@ struct MatchTextureOverrideContent {
     content: String,
 }
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     init_logger();
     init_panic_hook();
 
-    config_loader::init_config().await;
-
-    if !check_version() {
-        let _ = std::io::stdin().read_line(&mut String::new());
-        return Ok(());
+    let args: Vec<String> = std::env::args().collect();
+    let dev = args.iter().any(|a| a == "--dev");
+    if dev {
+        DEV_MODE.store(true, std::sync::atomic::Ordering::Relaxed);
+        eprintln!("[DEV] Dev mode: using local config only, remote fetch disabled");
     }
-
-    show_intro();
-    run_interactive();
+    if args.iter().any(|a| a == "--cli") {
+        // CLI mode: use a tokio runtime for async config loading
+        let rt = tokio::runtime::Runtime::new()?;
+        rt.block_on(config_loader::init_config());
+        // Runtime stays alive during CLI interaction (no conflict with iced)
+        if !check_version() {
+            let _ = std::io::stdin().read_line(&mut String::new());
+            return Ok(());
+        }
+        show_intro();
+        run_interactive();
+        drop(rt);
+    } else {
+        // GUI mode: create a temporary runtime ONLY for local config init,
+        // then drop it before starting the GUI. Iced manages its own async
+        // executor internally (with the `tokio` feature), and having two
+        // tokio runtimes causes a panic on shutdown.
+        {
+            let rt = tokio::runtime::Runtime::new()?;
+            rt.block_on(config_loader::init_config_local());
+        } // runtime dropped here
+        gui::run_gui().map_err(|e| anyhow!("GUI error: {:?}", e))?;
+    }
 
     Ok(())
 }
 
-/// 初始化日志
-fn init_logger() {
-    env_logger::Builder::new()
-        .filter_level(LevelFilter::Info)
-        .format(|buf, record| {
-            let level_style = buf.default_level_style(record.level());
-            writeln!(
-                buf,
-                "[{}] {}",
-                level_style.value(record.level()),
-                record.args()
-            )
-        })
-        .init();
+// ---------------------------------------------------------------------------
+// Progress tracking — atomic counters read by GUI, avoids log pollution
+// ---------------------------------------------------------------------------
+use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
+
+pub static PROGRESS_CURRENT: AtomicUsize = AtomicUsize::new(0);
+pub static PROGRESS_TOTAL: AtomicUsize = AtomicUsize::new(0);
+
+static DEV_MODE: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+pub fn is_dev_mode() -> bool {
+    DEV_MODE.load(AtomicOrdering::Relaxed)
 }
+
+pub fn reset_progress() {
+    PROGRESS_CURRENT.store(0, AtomicOrdering::Relaxed);
+    PROGRESS_TOTAL.store(0, AtomicOrdering::Relaxed);
+}
+
+// ---------------------------------------------------------------------------
+// Dual-output logger: stderr + optional GUI channel
+// ---------------------------------------------------------------------------
+lazy_static::lazy_static! {
+    static ref GUI_LOG_TX: std::sync::Mutex<Option<std::sync::mpsc::Sender<String>>> =
+        std::sync::Mutex::new(None);
+}
+
+/// Set the GUI log sender. Call before starting a fix in GUI mode.
+pub fn set_gui_log_sender(tx: Option<std::sync::mpsc::Sender<String>>) {
+    if let Ok(mut guard) = GUI_LOG_TX.lock() {
+        *guard = tx;
+    }
+}
+
+struct DualLogger;
+
+impl log::Log for DualLogger {
+    fn enabled(&self, metadata: &log::Metadata) -> bool {
+        metadata.level() <= log::Level::Debug
+    }
+
+    fn log(&self, record: &log::Record) {
+        if !self.enabled(record.metadata()) {
+            return;
+        }
+
+        let msg = format!("[{}] {}", record.level(), record.args());
+
+        // Always write to stderr
+        eprintln!("{}", msg);
+
+        // Forward to GUI if channel is set
+        if let Ok(guard) = GUI_LOG_TX.lock() {
+            if let Some(ref tx) = *guard {
+                tx.send(msg).ok();
+            }
+        }
+    }
+
+    fn flush(&self) {}
+}
+
+fn init_logger() {
+    log::set_logger(&DUAL_LOGGER)
+        .map(|()| log::set_max_level(LevelFilter::Info))
+        .ok();
+}
+
+static DUAL_LOGGER: DualLogger = DualLogger;
 
 /// 全局 panic 处理
 fn init_panic_hook() {
@@ -1234,7 +1579,7 @@ fn run_interactive() {
         .prompt()
         .unwrap();
 
-    let fixer = ModFixer::new(config_loader::characters(), enable_texture_override);
+    let fixer = ModFixer::new(config_loader::characters(), enable_texture_override, false, false, 0);
     let result = panic::catch_unwind(|| {
         let _ = fixer.process_directory(Path::new(&input_path));
         info!("{}", t!(all_done));

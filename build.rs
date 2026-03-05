@@ -1,8 +1,7 @@
-extern crate winres;
-
 fn main() {
     #[cfg(target_os = "windows")]
     {
+        extern crate winres;
         let mut res = winres::WindowsResource::new();
 
         res.set_icon("icon.ico");
@@ -26,7 +25,7 @@ fn main() {
             .set("FileDescription", "WWMI Mods Fix Tool")
             .set("LegalCopyright", "© Moonholder. All rights reserved.")
             .set("OriginalFilename", "Wuwa_Mod_Fixer.exe")
-            .set("CompanyName", "t.me/WutheringWavesMods");
+            .set("CompanyName", "t.me/WuwaMods2");
 
         res.compile().expect("Failed to compile Windows resources");
     }

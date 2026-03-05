@@ -3,8 +3,6 @@ use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::collections::HashMap;
 
-static LANG_PACK: Lazy<&LangPack> = Lazy::new(|| config_loader::lang());
-
 #[derive(Deserialize, Default)]
 #[serde(transparent)]
 pub struct LangItem {
@@ -65,11 +63,20 @@ impl LangItem {
 }
 
 pub fn get_lang() -> &'static str {
-    static LANG: Lazy<String> =
-        Lazy::new(|| sys_locale::get_locale().unwrap_or_else(|| "en-US".into()));
-    LANG.split('-').next().unwrap_or("en")
+    static LANG: Lazy<String> = Lazy::new(|| {
+        let raw = sys_locale::get_locale().unwrap_or_else(|| "en-US".into());
+        // Handle both BCP-47 ("zh-CN") and POSIX ("zh_CN") formats
+        raw.split(|c| c == '-' || c == '_')
+            .next()
+            .unwrap_or("en")
+            .to_lowercase()
+    });
+    LANG.as_str()
 }
 
+/// Always reads from the live CONFIG_PTR so translations update
+/// when the remote config is loaded after startup.
 pub fn get_pack() -> &'static LangPack {
-    &LANG_PACK
+    config_loader::lang()
 }
+

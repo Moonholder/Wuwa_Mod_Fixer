@@ -15,27 +15,26 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: 检出代码
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 安装 Rust
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
 
-      - name: 获取版本号
+      - name: Get version
         id: get_version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: 构建 Windows 版本
+      - name: Build Windows
         run: |
           cargo build --release --target x86_64-pc-windows-msvc
-          strip ./target/x86_64-pc-windows-msvc/release/Wuwa_Mod_Fixer.exe
           mv ./target/x86_64-pc-windows-msvc/release/Wuwa_Mod_Fixer.exe ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}.exe
           powershell -Command "Compress-Archive -Path './Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}.exe' -DestinationPath './Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-pc-windows-msvc.zip' -Force"
 
-      - name: 创建发布并上传 Windows 版本
+      - name: Upload Windows release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -48,41 +47,170 @@ jobs:
 
   build-linux:
     needs: build-windows
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
     steps:
-      - name: 检出代码
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 安装 Rust
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
 
-      - name: 获取版本号
+      - name: Get version
         id: get_version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: 构建 Linux 版本
+      - name: Install Linux build dependencies
         run: |
-          cargo build --release
-          strip ./target/release/Wuwa_Mod_Fixer
-          mv ./target/release/Wuwa_Mod_Fixer ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-unknown-linux-gnu
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libx11-dev libasound2-dev libudev-dev \
+            libwayland-dev libxkbcommon-dev libgtk-3-dev libfuse2 imagemagick
 
-      - name: 设置可执行权限
-        run: chmod +x ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-unknown-linux-gnu
+      - name: Build Linux
+        run: cargo build --release
 
-      - name: 打包 Linux 版本
+      - name: Prepare icons
         run: |
-          tar -czf ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-unknown-linux-gnu.tar.gz ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-unknown-linux-gnu
+          # List all layers in the ICO to find the largest
+          identify icon.ico || true
 
-      - name: 上传 Linux 版本
+          # Extract ALL layers as individual PNGs, then pick the largest
+          convert icon.ico icon_layer.png
+
+          # Find the largest extracted layer by pixel dimensions
+          BEST=""
+          BEST_SIZE=0
+          for f in icon_layer*.png; do
+            SIZE=$(identify -format '%w' "$f" 2>/dev/null || echo 0)
+            if [ "$SIZE" -gt "$BEST_SIZE" ]; then
+              BEST="$f"
+              BEST_SIZE="$SIZE"
+            fi
+          done
+
+          echo "Best icon layer: $BEST (${BEST_SIZE}x${BEST_SIZE})"
+
+          # Generate multiple sizes from the best source for HiDPI support
+          if [ -n "$BEST" ]; then
+            convert "$BEST" -resize 512x512 icon_512.png
+            convert "$BEST" -resize 256x256 icon_256.png
+            convert "$BEST" -resize 128x128 icon_128.png
+            convert "$BEST" -resize 64x64   icon_64.png
+            convert "$BEST" -resize 48x48   icon_48.png
+            convert "$BEST" -resize 32x32   icon_32.png
+          else
+            # Fallback: just use the raw ico conversion
+            convert icon.ico -resize 512x512 icon_512.png
+            convert icon.ico -resize 256x256 icon_256.png
+            convert icon.ico -resize 128x128 icon_128.png
+            convert icon.ico -resize 64x64   icon_64.png
+            convert icon.ico -resize 48x48   icon_48.png
+            convert icon.ico -resize 32x32   icon_32.png
+          fi
+
+      - name: Create .desktop file
+        run: |
+          cat > wuwa-mod-fixer.desktop << 'EOF'
+          [Desktop Entry]
+          Name=WWMI Mod Fixer
+          Comment=WWMI Mod Fix Tool
+          Exec=Wuwa_Mod_Fixer
+          Icon=wuwa-mod-fixer
+          Terminal=false
+          Type=Application
+          Categories=Utility;Game;
+          StartupWMClass=Wuwa_Mod_Fixer
+          EOF
+
+      - name: Build AppImage
+        run: |
+          # Download linuxdeploy
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage
+
+          # Create AppDir structure with multiple icon sizes
+          mkdir -p AppDir/usr/bin
+          for SIZE in 32 48 64 128 256 512; do
+            ICON_DIR="AppDir/usr/share/icons/hicolor/${SIZE}x${SIZE}/apps"
+            mkdir -p "$ICON_DIR"
+            cp "icon_${SIZE}.png" "$ICON_DIR/wuwa-mod-fixer.png"
+          done
+          mkdir -p AppDir/usr/share/applications
+
+          cp ./target/release/Wuwa_Mod_Fixer AppDir/usr/bin/Wuwa_Mod_Fixer
+          cp wuwa-mod-fixer.desktop AppDir/usr/share/applications/wuwa-mod-fixer.desktop
+
+          # Build the AppImage (use --appimage-extract-and-run so linuxdeploy itself works on newer distros)
+          export OUTPUT=Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64.AppImage
+          ./linuxdeploy-x86_64.AppImage --appimage-extract-and-run \
+            --appdir AppDir \
+            --desktop-file wuwa-mod-fixer.desktop \
+            --icon-file icon_256.png \
+            --output appimage
+
+      - name: Build portable tar.gz
+        run: |
+          VERSION=${{ steps.get_version.outputs.version }}
+          mkdir -p release_linux
+          cp ./target/release/Wuwa_Mod_Fixer release_linux/Wuwa_Mod_Fixer
+          chmod +x release_linux/Wuwa_Mod_Fixer
+          cp icon_512.png release_linux/icon.png
+
+          # Write the desktop icon installer script line by line to avoid YAML escaping issues
+          SCRIPT=release_linux/add_desktop_icon.sh
+          echo '#!/bin/bash' > "$SCRIPT"
+          echo 'DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"' >> "$SCRIPT"
+          echo 'DESKTOP_FILE="$HOME/.local/share/applications/wuwa-mod-fixer.desktop"' >> "$SCRIPT"
+          echo 'mkdir -p "$HOME/.local/share/applications"' >> "$SCRIPT"
+          echo '' >> "$SCRIPT"
+          echo '# Install icon at multiple sizes for crisp display' >> "$SCRIPT"
+          echo 'for SIZE in 32 48 64 128 256 512; do' >> "$SCRIPT"
+          echo '  ICON_DIR="$HOME/.local/share/icons/hicolor/${SIZE}x${SIZE}/apps"' >> "$SCRIPT"
+          echo '  mkdir -p "$ICON_DIR"' >> "$SCRIPT"
+          echo '  if command -v convert &> /dev/null; then' >> "$SCRIPT"
+          echo '    convert "$DIR/icon.png" -resize "${SIZE}x${SIZE}" "$ICON_DIR/wuwa-mod-fixer.png"' >> "$SCRIPT"
+          echo '  else' >> "$SCRIPT"
+          echo '    cp "$DIR/icon.png" "$ICON_DIR/wuwa-mod-fixer.png"' >> "$SCRIPT"
+          echo '  fi' >> "$SCRIPT"
+          echo 'done' >> "$SCRIPT"
+          echo '' >> "$SCRIPT"
+          echo '# Update icon cache if possible' >> "$SCRIPT"
+          echo 'gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" 2>/dev/null || true' >> "$SCRIPT"
+          echo '' >> "$SCRIPT"
+          echo 'cat > "$DESKTOP_FILE" << INNEOF' >> "$SCRIPT"
+          echo '[Desktop Entry]' >> "$SCRIPT"
+          echo 'Name=WWMI Mod Fixer' >> "$SCRIPT"
+          echo 'Comment=WWMI Mod Fix Tool' >> "$SCRIPT"
+          echo 'Exec="$DIR/Wuwa_Mod_Fixer"' >> "$SCRIPT"
+          echo 'Icon=wuwa-mod-fixer' >> "$SCRIPT"
+          echo 'Terminal=false' >> "$SCRIPT"
+          echo 'Type=Application' >> "$SCRIPT"
+          echo 'Categories=Utility;Game;' >> "$SCRIPT"
+          echo 'StartupWMClass=Wuwa_Mod_Fixer' >> "$SCRIPT"
+          echo 'INNEOF' >> "$SCRIPT"
+          echo '' >> "$SCRIPT"
+          echo 'chmod +x "$DESKTOP_FILE"' >> "$SCRIPT"
+          echo 'echo "================================================="' >> "$SCRIPT"
+          echo 'echo " Successfully added WWMI Mod Fixer to system menu!"' >> "$SCRIPT"
+          echo 'echo " You can now press the Super/Windows key to search"' >> "$SCRIPT"
+          echo 'echo " for the app and launch it directly."' >> "$SCRIPT"
+          echo 'echo " (Shortcut saved to: $DESKTOP_FILE)"' >> "$SCRIPT"
+          echo 'echo "================================================="' >> "$SCRIPT"
+          echo 'read -p "Press Enter to exit..."' >> "$SCRIPT"
+          chmod +x "$SCRIPT"
+
+          tar -czf ./Wuwa_Mod_Fixer_v${VERSION}_x86_64-unknown-linux-gnu.tar.gz -C release_linux .
+
+      - name: Upload Linux release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
           files: |
+            ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64.AppImage
             ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-unknown-linux-gnu.tar.gz

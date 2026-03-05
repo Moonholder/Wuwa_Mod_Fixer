@@ -1,7 +1,8 @@
 {
     "version" : {
-        "min_required_version": "3.1.0",
+        "min_required_version": "3.1.1",
         "current_version": "3.1.2",
+        "latest_program_version": "3.1.1",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -26,8 +27,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.1: 更新您的XXMI至最新版本\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误\n\n修复3.0: \n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n...\n\n",
-            "en": "Fix 3.1: Update your XXMI to the latest version.\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani.\n\nFix 3.0: \n* Fixed Female Rover.\n* Fixed texture errors for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n..."
+            "zh": "修复3.1: 更新您的XXMI至最新版本\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误\n\n修复3.0: \n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n...\n\n",
+            "en": "Fix 3.1: Update your XXMI to the latest version.\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani.\n\nFix 3.0: \n* Fixed Female Rover.\n* Fixed texture errors for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n..."
         },
         "intro_note": {
             "zh": "确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错",
@@ -42,16 +43,16 @@
             "en": "Starting from version 2.0, different graphics presets may have different hash values, which may cause mod texture errors. Please set the graphics quality preset to Balanced/Quality."
         },
         "texture_override_note": {
-            "zh": "\n通过纹理重定向，使角色模组能在不添加r.Streaming.UseAllMips的情况下，在画面细节高/中下运行（部分角色未更新）",
-            "en": "\nVia Texture Redirection, allows character mods to work on High/Medium LOD Bias settings without adding r.Streaming.UseAllMips (some characters are not updated)."
+            "zh": "\n为模组添加派生Hash，使角色模组贴图能在不添加 UseAllMips 的情况下在画面细节高/中下正常显示 (部分角色未更新)",
+            "en": "\nAdd derived hashes to the mod to allow character mods textures to display normally on High/Medium LOD Bias settings without adding UseAllMips (some characters not updated)."
         },
         "texture_override_prompt": {
             "zh": "是否启用？ （默认否）:",
             "en": "Enable? (default No):"
         },
         "rabbit_fx_stable_texture_note": {
-            "zh": "\n使用RabbitFX为角色设置稳定纹理(目前仅坎特蕾拉、千咲、卡提、夏空)\n只是单纯根据hash去找到对应的贴图，加到指定的Component里，但实际很多作者会使用合并贴图，\n很有可能多个部位使用同一张贴图，所以需要自行检查并修改，需安装RabbitFX_v618+",
-            "en": "\nUse RabbitFX to set stable textures for characters (currently only supports Cantarella, Chisa, Cartethyia and Ciaccona).\nThis simply locates the corresponding texture based on its hash and adds it to the specified Component.\nHowever, since many authors use merged textures, it is very likely that multiple body parts share the same texture file.Therefore, you need to manually check and modify the settings.\nRequires RabbitFX_v618+."
+            "zh": "\n使用RabbitFX为角色设置稳定纹理(目前仅坎特蕾拉、千咲、卡提、夏空)\n只是单纯根据hash去找到对应的贴图，加到指定的Component里，但实际很多作者会使用合并贴图，\n很有可能多个部位使用同一张贴图，所以需要自行检查并修改，需安装最新的RabbitFX",
+            "en": "\nUse RabbitFX to set stable textures for characters (currently only supports Cantarella, Chisa, Cartethyia and Ciaccona).\nThis simply locates the corresponding texture based on its hash and adds it to the specified Component.\nHowever, since many authors use merged textures, it is very likely that multiple body parts share the same texture file.Therefore, you need to manually check and modify the settings.\nRequires latest RabbitFX."
         },
         "rabbit_fx_stable_texture_prompt": {
             "zh": "是否启用？ （默认启用）:",
@@ -897,15 +898,15 @@
             "d23090a3": { "replace": ["2decd61b"], "derive": { "LOD": ["5298d206"] } },
             "33d29aa1": { "replace": ["73dc0ecf"] },
             "ac26dd3b": { "replace": ["dda29ba9"], "derive": { "LOD": ["be6db02c"] } },
-            "cb79c2db": { "replace": ["97e43063", "a614279c", "f515fdbd"], "derive": { "LOD": ["be3c0e9b"] } },
+            "cb79c2db": { "replace": ["97e43063", "a614279c", "f515fdbd"], "derive": { "LOD": ["868f7cad"] } },
             "1e238f6c": { "replace": ["4dba3f46"], "derive": { "LOD": ["b318f8f2"] } },
             "d2ad31db": { "replace": ["0249a0f6"], "derive": { "LOD": ["38d20999"] } },
             "80fdc4d8": { "replace": ["2212362c"] },
             "801f9d6e": { "replace": ["4afb92ae"], "derive": { "LOD": ["2c94abbf"] } },
             "c38e9ebc": { "replace": ["74703d44"] },
-            "091af072": { "derive": { "LOD": ["7f8d1f43"] } },
-            "3038f25c": { "derive": { "LOD": ["9fcc6f36"] } },
-            "53037e57": { "replace": ["cc83d4fc"], "derive": { "LOD": ["b318f8f2"] } }
+            "091af072": { "derive": { "LOD": ["199ac912"] } },
+            "3038f25c": { "derive": { "LOD": ["5754039c"] } },
+            "53037e57": { "replace": ["cc83d4fc"], "derive": { "LOD": ["8d4e40cf"] } }
         },
         "Roccia": {
             "main_hashes": [{"old": ["8d97c1bd"], "new": "8d97c1bd"}],
@@ -959,8 +960,8 @@
             "f69259fd": { "replace": ["67175ee6"], "derive": { "LOD": ["94dcf1b0"] } },
             "820515a6": { "replace": ["8b25adba", "c1f72669"] },
             "8b117bac": { "replace": ["2cf897c6"], "derive": { "LOD": ["fe114b02"] } },
-            "88535a86": { "replace": ["47c4cf4b", "33a5aeec"], "derive": { "LOD": ["76d9165c"] } },
-            "1d8fc580": { "replace": ["1830304b", "9c7aac2e"], "derive": { "LOD": ["a248bc79"] } },
+            "88535a86": { "replace": ["47c4cf4b", "33a5aeec"], "derive": { "LOD": ["77ab8bbd"] } },
+            "1d8fc580": { "replace": ["1830304b", "9c7aac2e"], "derive": { "LOD": ["342e5ab3"] } },
             "b5976b09": { "replace": ["fc28e018"], "derive": { "LOD": ["2b6a1b69"] } },
             "541ea4fd": { "replace": ["9e2806f0"], "derive": { "LOD": ["fec86ff2"] } },
             "fa002d7e": { "replace": ["3253c8b4"] }
@@ -1429,11 +1430,11 @@
             "afacbd93": { "replace": ["1e7c100d"] }
         },
         "Aemeath": {
-            "0eb70c8f": { "derive": { "LOD": ["d3e892a8", "3bf81dfc"] } },
+            "157217af": { "replace": ["0eb70c8f"], "derive": { "LOD": ["c82d8988", "603341e7"] } },
             "1d31d19d": { "derive": { "LOD": ["c06e4fba", "4e258e03"] } },
             "2d9235e9": { "derive": { "LOD": ["f0cdabce", "e26a1cea"] } },
             "2e5607c2": { "derive": { "LOD": ["f30999e5", "9143d11b"] } },
-            "3a5a08ac": { "derive": { "LOD": ["e705968b", "511eb4b1"] } },
+            "3a5a08ac": { "derive": { "LOD": ["e705968b", "511eb4b1"], "Forte": ["a4a79abf"]} },
             "9c0c016b": { "derive": { "LOD": ["41539f4c", "4e0b21a2"] } },
             "34d0acfd": { "derive": { "LOD": ["e98f32da", "0777afff"] } },
             "182fc550": { "derive": { "LOD": ["9e790054", "972b84bf"] } },
@@ -1446,10 +1447,28 @@
             "e341a037": { "derive": { "LOD": ["3e1e3e10", "2fafc4cb"] } },
             "ec96a652": { "derive": { "LOD": ["31c93875", "c7d7ad44"] } },
             "ef5edd1b": { "derive": { "LOD": ["3201433c", "1cff0950"] } },
-            "f58624fb": { "derive": { "LOD": ["28d9badc", "1284c977"] } },
+            "f58624fb": { "derive": { "LOD": ["28d9badc", "1284c977"], "Forte": ["cf137770"] } },
             "fda934b4": { "derive": { "LOD": ["20f6aa93", "8ca059b1"] } },
             "6cf0c8eb": { "derive": { "LOD": ["b1af56cc", "b57793cd"] } },
-            "898230f4": { "derive": { "LOD": ["54ddaed3", "4e8c6aa3"] } }
+            "898230f4": { "derive": { "LOD": ["54ddaed3", "4e8c6aa3"] } },
+            "1944212c": { "derive": { "LOD": ["c41bbf0b", "c5673dfc"] } }
+        },
+        "AemeathMecha": {
+            "3d0413b6": { "derive": { "LOD": ["e05b8d91", "a69a0a57"] } },
+            "5c469503": { "derive": { "LOD": ["81190b24", "761ead80"] } },
+            "08cbd7b6": { "derive": { "LOD": ["9c0ed78d"] } },
+            "8d82b70f": { "derive": { "LOD": ["50dd2928", "82253f52"] } },
+            "93c37d33": { "derive": { "LOD": ["4e9ce314", "ef13b200"] } },
+            "58602994": { "derive": { "LOD": ["853fb7b3", "e5fdaede"] } },
+            "b5d87476": { "derive": { "LOD": ["6887ea51", "001708a2"] } },
+            "bdcfd041": { "derive": { "LOD": ["60904e66" ,"c33c322b"] } },
+            "d3a3850e": { "derive": { "LOD": ["0efc1b29", "97c9f69a"] } },
+            "d69f8b70": { "derive": { "LOD": ["0bc01557", "0aa05a59"] } },
+            "d95ba1d3": { "derive": { "LOD": ["04043ff4", "a3bf8960"] } },
+            "e444e470": { "derive": { "LOD": ["391b7a57", "9718ce41"] } },
+            "e5914e49": { "derive": { "LOD": ["38ced06e", "cbf1af36"] } },
+            "e741396c": { "derive": { "LOD": ["3a1ea74b", "3a9191dc"] } },
+            "f3517b3f": { "derive": { "LOD": ["6177a5f2", "979fdac5"] } }
         }
     }
 }

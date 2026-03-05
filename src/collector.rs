@@ -32,7 +32,7 @@ pub fn parse_resouce_buffer_path(
     ini_path: &Path,
 ) -> Vec<(PathBuf, usize)> {
     let section_re = match Regex::new(&format!(
-        r"(?i)\[Resource{}Buffer(?:_\d+)?\][\s\S]*?([^\[]*)",
+        r"(?i)\[Resource{}Buffer[^\]]*\][\s\S]*?([^\[]*)",
         buf_type
     )) {
         Ok(re) => re,

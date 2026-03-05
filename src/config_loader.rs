@@ -4,12 +4,12 @@ use semver::Version;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicPtr, Ordering};
+use std::sync::OnceLock;
 use std::time::{Duration, Instant};
-use tokio::sync::OnceCell as AsyncOnceCell;
-use ureq::Agent;
 use inquire::Confirm;
-
-static CONFIG: AsyncOnceCell<GlobalConfig> = AsyncOnceCell::const_new();
+use ureq::Agent;
+static CONFIG_PTR: AtomicPtr<GlobalConfig> = AtomicPtr::new(std::ptr::null_mut());
 
 #[derive(Deserialize, Default)]
 #[serde(default)]
@@ -127,7 +127,7 @@ impl VertexRemapConfig {
                 collector::combile_buf_path(&blend_path, &collector::BufferType::Index);
 
             let buf_index_opt = collector::get_buf_path_index(&blend_path);
-            let component_indices = if multiple || buf_index_opt.is_some() {
+            let mut component_indices = if multiple || buf_index_opt.is_some() {
                 collector::parse_component_indices_with_multiple(
                     content,
                     buf_index_opt.unwrap_or("0"),
@@ -135,6 +135,10 @@ impl VertexRemapConfig {
             } else {
                 collector::parse_component_indices(content)
             };
+
+            if component_indices.is_empty() {
+                component_indices = collector::parse_component_indices(content);
+            }
 
             debug!("index_path={}: ", index_path.display());
 
@@ -221,6 +225,7 @@ pub struct VersionConfig {
     pub min_required_version: String,
     pub current_version: String,
     pub update_url: String,
+    pub latest_program_version: Option<String>,
 }
 
 #[derive(Debug)]
@@ -273,46 +278,66 @@ impl std::fmt::Display for ConfigError {
 impl std::error::Error for ConfigError {}
 
 pub async fn init_config() -> &'static GlobalConfig {
-    CONFIG
-        .get_or_init(|| async {
+    init_config_inner(true, false).await
+}
 
-            let should_load_remote = should_load_remote();
-            println!(
-                "🔄 {}...",
-                if get_lang() == "zh" {
-                    "正在加载配置..."
-                } else {
-                    "Loading config..."
-                }
-            );
+/// GUI mode: load local config directly to avoid startup delay
+pub async fn init_config_local() -> &'static GlobalConfig {
+    init_config_inner(false, true).await
+}
 
-            let load_start = Instant::now();
+async fn init_config_inner(prompt: bool, force_local: bool) -> &'static GlobalConfig {
+    let current_ptr = CONFIG_PTR.load(Ordering::SeqCst);
+    if !current_ptr.is_null() {
+        return unsafe { &*current_ptr };
+    }
 
-            let data = if should_load_remote {
-            load_config("config.json")
-                .await
-                .map_err(|_| ())
-                .unwrap_or_else(|_| load_local("config.json"))
-            } else {
-                load_local("config.json")
-            };
+    let should_load_remote_fetch = if force_local { false } else if prompt { should_load_remote() } else { true };
+    println!("Loading config...");
 
-            let config: GlobalConfig = serde_json::from_str(&data).unwrap();
+    let load_start = Instant::now();
 
-            let duration = load_start.elapsed();
-            println!(
-                "✅ {}: {:.2?}",
-                if get_lang() == "zh" {
-                    "所有配置加载完成，耗时"
-                } else {
-                    "Config loaded, took"
-                },
-                duration
-            );
+    let data = if should_load_remote_fetch {
+        load_config("config.json")
+            .await
+            .map_err(|_| ())
+            .unwrap_or_else(|_| load_local("config.json"))
+    } else {
+        load_local("config.json")
+    };
 
-            config
-        })
-        .await
+    let config: GlobalConfig = serde_json::from_str(&data).unwrap();
+
+    let duration = load_start.elapsed();
+    println!("Config loaded in {:.2?}", duration);
+
+    let leaked = Box::into_raw(Box::new(config));
+    match CONFIG_PTR.compare_exchange(std::ptr::null_mut(), leaked, Ordering::SeqCst, Ordering::SeqCst) {
+        Ok(_) => unsafe { &*leaked },
+        Err(actual) => {
+            unsafe { drop(Box::from_raw(leaked)); }
+            unsafe { &*actual }
+        }
+    }
+}
+
+/// Force fetch config from internet and update global state
+pub async fn force_reload_remote_config() -> Result<(), ConfigError> {
+    let data = load_config("config.json").await?;
+        
+    let new_config: GlobalConfig = serde_json::from_str(&data).map_err(ConfigError::SerdeError)?;
+    
+    // Ensure initialized
+    init_config_local().await;
+    
+    let leaked = Box::into_raw(Box::new(new_config));
+    // NOTE: We intentionally leak the old config. Functions like characters(),
+    // lang(), settings() return &'static references into the config, and
+    // LANG_PACK caches a &'static LangPack from the first config.
+    // Dropping the old allocation would create dangling references (UB).
+    CONFIG_PTR.store(leaked, Ordering::SeqCst);
+    
+    Ok(())
 }
 
 async fn load_config(file_name: &str) -> Result<String, ConfigError> {
@@ -340,13 +365,20 @@ async fn load_config(file_name: &str) -> Result<String, ConfigError> {
 
     let mut tasks = Vec::new();
 
-    let agent = build_agent();
+    let agent_ref = build_agent();
 
     for url in &remotes {
         let url = url.clone();
-        let agent = agent.clone();
         tasks.push(tokio::spawn(async move {
-            tokio::task::spawn_blocking(move || agent.get(&url).call()).await
+            tokio::task::spawn_blocking(move || {
+                match agent_ref.get(&url).call() {
+                    Ok(resp) => {
+                        resp.into_body().read_to_string().map_err(|e| e.to_string())
+                    }
+                    Err(ureq::Error::StatusCode(code)) => Err(format!("StatusCode: {}", code)),
+                    Err(e) => Err(e.to_string())
+                }
+            }).await
         }));
     }
 
@@ -355,16 +387,16 @@ async fn load_config(file_name: &str) -> Result<String, ConfigError> {
         tasks = remaining;
 
         match result {
-            Ok(Ok(Ok(resp))) => {
-                let content = resp.into_body().read_to_string()?;
+            Ok(Ok(Ok(content))) => {
                 println!("🌐 {}: {}", success_msg, file_name);
                 return Ok(content);
             }
-            Ok(Ok(Err(ureq::Error::StatusCode(code)))) => {
-                eprintln!("⚠️ {}: {}", status_code_msg, code);
-            }
             Ok(Ok(Err(e))) => {
-                eprintln!("⚠️ {}: {}", connection_failed_msg, e);
+                if e.starts_with("StatusCode") {
+                    eprintln!("⚠️ {}: {}", status_code_msg, e);
+                } else {
+                    eprintln!("⚠️ {}: {}", connection_failed_msg, e);
+                }
             }
             Ok(Err(join_err)) => eprintln!("⚠️ Task failed: {}", join_err),
             Err(join_err) => eprintln!("⚠️ Task join failed: {}", join_err),
@@ -400,33 +432,45 @@ fn should_load_remote() -> bool {
     }
 }
 
-fn build_agent() -> Agent {
-    let config_builder = Agent::config_builder()
-        .timeout_connect(Some(Duration::from_secs(2)))
-        .timeout_global(Some(Duration::from_secs(3)));
+static GLOBAL_AGENT: OnceLock<Agent> = OnceLock::new();
 
-    Agent::new_with_config(config_builder.build())
+fn build_agent() -> &'static Agent {
+    GLOBAL_AGENT.get_or_init(|| {
+        let config_builder = Agent::config_builder()
+            .timeout_connect(Some(Duration::from_secs(2)))
+            .timeout_global(Some(Duration::from_secs(3)));
+
+        Agent::new_with_config(config_builder.build())
+    })
+}
+
+fn get_config() -> &'static GlobalConfig {
+    let ptr = CONFIG_PTR.load(Ordering::SeqCst);
+    if ptr.is_null() {
+        panic!("Config not initialized");
+    }
+    unsafe { &*ptr }
 }
 
 pub fn lang() -> &'static LangPack {
-    &CONFIG.get().unwrap().lang
+    &get_config().lang
 }
 
 pub fn settings() -> &'static SettingConfig {
-    &CONFIG.get().unwrap().settings
+    &get_config().settings
 }
 
 pub fn characters() -> &'static HashMap<String, CharacterConfig> {
-    &CONFIG.get().unwrap().characters
+    &get_config().characters
 }
 
 pub fn version() -> &'static VersionConfig {
-    &CONFIG.get().unwrap().version
+    &get_config().version
 }
 
 pub fn check_version() -> Result<String, ConfigError> {
     let current_ver = Version::parse(env!("CARGO_PKG_VERSION"))?;
-    let config: &VersionConfig = version();
+    let config = version();
     let min_ver = Version::parse(&config.min_required_version)?;
 
     if current_ver < min_ver {
@@ -438,4 +482,32 @@ pub fn check_version() -> Result<String, ConfigError> {
         )));
     }
     Ok(t!(current_version, version = config.current_version))
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum UpdateStatus {
+    NoUpdate,
+    OptionalUpdate(String, String),
+    MandatoryUpdate(String, String),
+}
+
+pub fn check_update_status() -> UpdateStatus {
+    let config = version();
+    if let Ok(current) = Version::parse(env!("CARGO_PKG_VERSION")) {
+        if let Ok(min_req) = Version::parse(&config.min_required_version) {
+            if current < min_req {
+                let target_ver = config.latest_program_version.clone().unwrap_or_else(|| config.min_required_version.clone());
+                return UpdateStatus::MandatoryUpdate(target_ver, config.update_url.clone());
+            }
+        }
+        
+        if let Some(latest_str) = &config.latest_program_version {
+            if let Ok(latest) = Version::parse(latest_str) {
+                if latest > current {
+                    return UpdateStatus::OptionalUpdate(latest_str.clone(), config.update_url.clone());
+                }
+            }
+        }
+    }
+    UpdateStatus::NoUpdate
 }
