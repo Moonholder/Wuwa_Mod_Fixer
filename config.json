@@ -1344,9 +1344,7 @@
             "a84b23c1": { "derive": { "LOD": ["3a6dfd0c", "b790633a"] } },
             "2694816c": { "replace": ["fbcb1f4b"] },
             "bb708c4d": { "replace": ["4c7e5ddf"] },
-            "f42f50d6": { "replace": ["4d9c4532"] },
-            "0fe3a99b": { "replace": ["790f2cee"] },
-            "9c743ba1": { "replace": ["29b60a1b"] }
+            "f42f50d6": { "replace": ["4d9c4532"] }
         },
         "Buling": {
             "8dee1ac6": { "derive": { "LOD": ["50b184e1", "1e562d6e"] } },
