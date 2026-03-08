@@ -191,6 +191,16 @@ pub fn run_gui() -> iced::Result {
         }
     }
 
+    #[cfg(target_os = "windows")]
+    {
+        // Force DX12/DX11 backends on Windows to avoid OpenGL driver bugs (e.g. LoadLibrary Error 126 on AMD)
+        if std::env::var("WGPU_BACKEND").is_err() {
+            unsafe {
+                std::env::set_var("WGPU_BACKEND", "dx12,dx11");
+            }
+        }
+    }
+
     fn app_theme(state: &WuwaModFixerApp) -> Theme {
         state.theme.clone()
     }
@@ -849,7 +859,7 @@ impl WuwaModFixerApp {
         let version_text = text(format!("{}  v{}   |   {} v{}   |   ", tr("WWMI模组修复工具", "WWMI Mod Fix Tool"), env!("CARGO_PKG_VERSION"), tr("配置版本", "Config"), config_ver))
             .size(14)
             .color(get_text_dim(&self.theme))
-            .font(Font { weight: Weight::Medium, ..Font::DEFAULT });
+            .font(Font::DEFAULT);
 
         let author_link = button(text("by Moonholder").size(14).font(Font { weight: Weight::Bold, ..Font::DEFAULT }))
             .padding(0)
