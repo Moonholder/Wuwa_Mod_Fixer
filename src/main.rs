@@ -1439,7 +1439,11 @@ fn main() -> Result<()> {
     if args.iter().any(|a| a == "--cli") {
         // CLI mode: use a tokio runtime for async config loading
         let rt = tokio::runtime::Runtime::new()?;
-        rt.block_on(config_loader::init_config());
+        if dev {
+            rt.block_on(config_loader::init_config_local());
+        } else {
+            rt.block_on(config_loader::init_config());
+        }
         // Runtime stays alive during CLI interaction (no conflict with iced)
         if !check_version() {
             let _ = std::io::stdin().read_line(&mut String::new());
