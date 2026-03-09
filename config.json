@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "3.1.1",
-        "current_version": "3.1.2",
+        "current_version": "3.1.3",
         "latest_program_version": "3.1.1",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
@@ -27,8 +27,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.1: 更新您的XXMI至最新版本\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误\n\n修复3.0: \n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n...\n\n",
-            "en": "Fix 3.1: Update your XXMI to the latest version.\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani.\n\nFix 3.0: \n* Fixed Female Rover.\n* Fixed texture errors for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n..."
+            "zh": "修复3.1: 更新您的XXMI至最新版本\n* 更新秧秧的LoD贴图hash\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误\n\n修复3.0: \n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n...\n\n",
+            "en": "Fix 3.1: Update your XXMI to the latest version.\n* Updated Yangyang's LoD texture hash\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani.\n\nFix 3.0: \n* Fixed Female Rover.\n* Fixed texture errors for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n..."
         },
         "intro_note": {
             "zh": "确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错",
@@ -283,21 +283,21 @@
                     ]
                 }
             ],
-            "d25b9648": { "replace": ["77fe24ce"], "derive": { "LOD": ["5c420830"] } },
-            "3bd37212": { "replace": ["edf438d9"], "derive": { "LOD": ["75744c96"] } },
+            "d25b9648": { "replace": ["77fe24ce"], "derive": { "LOD": ["0f04086f", "5c420830"] } },
+            "3bd37212": { "replace": ["edf438d9"], "derive": { "LOD": ["e68cec35", "75744c96"] } },
             "fba3de34": { "replace": ["123bcc8e"] },
-            "c3b2a42e": { "replace": ["bd8fff82"], "derive": { "LOD": ["8f252131"] } },
+            "c3b2a42e": { "replace": ["bd8fff82"], "derive": { "LOD": ["1eed3a09", "8f252131"] } },
             "8e27c9a2": { "replace": ["f42c4870"] },
-            "1a9b9391": { "replace": ["69c48be0"], "derive": { "LOD": ["7056f9e3"] } },
-            "49b790e0": { "replace": ["92d4ad47"], "derive": { "LOD": ["dd6494d1"] } },
-            "ae886086": { "replace": ["16f9802d"], "derive": { "LOD": ["2fa1eb71"] } },
-            "250c59b6": { "replace": ["fc40048f"], "derive": { "LOD": ["2f0f3415"] } },
+            "1a9b9391": { "replace": ["69c48be0"], "derive": { "LOD": ["c7c40db6", "7056f9e3"] } },
+            "49b790e0": { "replace": ["92d4ad47"], "derive": { "LOD": ["94e80ec7", "dd6494d1"] } },
+            "ae886086": { "replace": ["16f9802d"], "derive": { "LOD": ["73d7fea1", "2fa1eb71"] } },
+            "250c59b6": { "replace": ["fc40048f"], "derive": { "LOD": ["f853c791", "2f0f3415"] } },
             "2da427ff": { "replace": ["6905a9bd"] },
-            "02e9009d": { "replace": ["1607589b"], "derive": { "LOD": ["bfc63c64"] } },
-            "a871413a": { "replace": ["1e9a1fb8"], "derive": { "LOD": ["bc76221b"] } },
-            "29942440": { "replace": ["cc7a443c"], "derive": { "LOD": ["44030476"] } },
-            "0e3eb7d9": { "derive": { "LOD": ["bfc63c64"] } },
-            "95caeb91c": { "derive": { "LOD": ["60662e92"] } }
+            "02e9009d": { "replace": ["1607589b"], "derive": { "LOD": ["dfb69eba", "c934a272"] } },
+            "a871413a": { "replace": ["1e9a1fb8"], "derive": { "LOD": ["752edf1d", "bc76221b"] } },
+            "29942440": { "replace": ["cc7a443c"], "derive": { "LOD": ["f4cbba67", "44030476"] } },
+            "0e3eb7d9": { "derive": { "LOD": ["9c186914", "bfc63c64", "49b9d512"] } },
+            "95caeb91c": { "derive": { "LOD": ["07ec3551", "60662e92", "c1a3ff90"] } }
         },
         "Lingyang": {
             "main_hashes": [
