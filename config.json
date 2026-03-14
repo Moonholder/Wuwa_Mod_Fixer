@@ -1,8 +1,8 @@
 {
     "version" : {
         "min_required_version": "3.1.1",
-        "current_version": "3.1.3",
-        "latest_program_version": "3.1.1",
+        "current_version": "3.1.4",
+        "latest_program_version": "3.1.2",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
     "lang": {
@@ -27,8 +27,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.1: 更新您的XXMI至最新版本\n* 更新秧秧的LoD贴图hash\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误\n\n修复3.0: \n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n...\n\n",
-            "en": "Fix 3.1: Update your XXMI to the latest version.\n* Updated Yangyang's LoD texture hash\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani.\n\nFix 3.0: \n* Fixed Female Rover.\n* Fixed texture errors for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n..."
+            "zh": "修复3.1: 更新您的XXMI至最新版本\n* 修复了陆且添加了他的LoD贴图hash\n* 更新秧秧的LoD贴图hash\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误\n\n修复3.0: \n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n...\n\n",
+            "en": "Fix 3.1: Update your XXMI to the latest version.\n* Fixed Luuk and added his LoD texture hash\n* Updated Yangyang's LoD texture hash\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani.\n\nFix 3.0: \n* Fixed Female Rover.\n* Fixed texture errors for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n..."
         },
         "intro_note": {
             "zh": "确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错",
@@ -1467,6 +1467,34 @@
             "e5914e49": { "derive": { "LOD": ["38ced06e", "cbf1af36"] } },
             "e741396c": { "derive": { "LOD": ["3a1ea74b", "3a9191dc"] } },
             "f3517b3f": { "derive": { "LOD": ["6177a5f2", "979fdac5"] } }
+        },
+        "Luuk": {
+            "main_hashes": [{"old": ["3bbfa5a0"], "new": "f16f00ed"}],
+            "1aab24c3": { "derive": { "LOD": ["c7f4bae4", "20aa0f18"] } },
+            "9b6c0a01": { "derive": { "LOD": ["46339426", "29cbe246"] } },
+            "44a7d030": { "derive": { "LOD": ["99f84e17", "bbee91dd"] } },
+            "51e24364": { "derive": { "LOD": ["8cbddd43", "a27e260c"] } },
+            "55d1429f": { "derive": { "LOD": ["888edcb8", "8fa945ae"] } },
+            "205a6c11": { "derive": { "LOD": ["fd05f236", "9cd23722"] } },
+            "372dae54": { "derive": { "LOD": ["9565242e"] } },
+            "887c3b32": { "derive": { "LOD": ["9fc8af77"] } },
+            "7769baf5": { "derive": { "LOD": ["aa3624d2", "138fe85e"] } },
+            "20682b3f": { "derive": { "LOD": ["fd37b518", "513f8b01"] } },
+            "75044bfc": { "derive": { "LOD": ["a85bd5db", "9fb2c53e"] } },
+            "0474775e": { "derive": { "LOD": ["d92be979", "310f7090"] } },
+            "824080cb": { "derive": { "LOD": ["5f1f1eec", "961e0832"] } },
+            "6946794b": { "derive": { "LOD": ["b419e76c", "8e7265cf"] } },
+            "71659245": { "derive": { "LOD": ["ac3a0c62", "da651c72"] } },
+            "b17ad082": { "derive": { "LOD": ["6c254ea5", "923d0a86"] } },
+            "c53088e7": { "derive": { "LOD": ["186f16c0", "cdff8e24"] } },
+            "cbef30ae": { "derive": { "LOD": ["16b0ae89", "a03b6e72"] } },
+            "dba27b64": { "derive": { "LOD": ["06fde543", "51f0c0f3"] } },
+            "dc3785f8": { "derive": { "LOD": ["01681bdf", "cd2fb13d"] } },
+            "ee87d588": { "derive": { "LOD": ["33d84baf", "bc6b08aa"] } },
+            "b1ed5893": { "derive": { "LOD": ["6cb2c6b4", "7fa978b6"] } },
+            "9e5a4789": { "derive": { "LOD": ["4305d9ae", "ad470f49"] } },
+            "3ad28d2a": { "derive": { "LOD": ["a8f453e7", "a56ee0a8"] } },
+            "7bfb22a5": { "derive": { "LOD": ["fdade7a1", "29e08e63"] } }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿use iced::widget::{
+use iced::widget::{
     button, checkbox, column, container, radio, row, rule, scrollable,
     text, Column, Space,
 };
@@ -138,6 +138,10 @@ static LOG_SCROLL_ID: Lazy<iced::widget::Id> = Lazy::new(|| iced::widget::Id::ne
 struct UserSettings {
     last_folder: Option<String>,
     light_theme: Option<bool>,
+    window_width: Option<f32>,
+    window_height: Option<f32>,
+    window_x: Option<i32>,
+    window_y: Option<i32>,
 }
 
 fn settings_path() -> PathBuf {
@@ -172,6 +176,8 @@ fn tr(zh: &str, en: &str) -> String {
 // Public entry — iced 0.14 functional API
 // ---------------------------------------------------------------------------
 pub fn run_gui() -> iced::Result {
+    let settings = load_settings();
+
     fn app_title(_state: &WuwaModFixerApp) -> String {
         let base = format!("Wuwa Mod Fixer v{}", env!("CARGO_PKG_VERSION"));
         if crate::is_dev_mode() {
@@ -205,18 +211,33 @@ pub fn run_gui() -> iced::Result {
         state.theme.clone()
     }
 
+    let window_size = iced::Size::new(
+        settings.window_width.unwrap_or(880.0).max(480.0),
+        settings.window_height.unwrap_or(720.0).max(580.0),
+    );
+
+    let window_pos = if let (Some(x), Some(y)) = (settings.window_x, settings.window_y) {
+        if x.abs() > 4000 || y.abs() > 4000 {
+            window::Position::Centered
+        } else {
+            window::Position::Specific(iced::Point::new(x as f32, y as f32))
+        }
+    } else {
+        window::Position::Centered
+    };
+
     // application(boot, update, view) — boot is Fn() -> (State, Task)
     iced::application(WuwaModFixerApp::new, WuwaModFixerApp::update, WuwaModFixerApp::view)
         .title(app_title)
         .theme(app_theme)
         .subscription(WuwaModFixerApp::subscription)
         .window(window::Settings {
-            size: iced::Size::new(880.0, 720.0),
+            size: window_size,
+            position: window_pos,
             icon: load_app_icon(),
             ..Default::default()
         })
         .antialiasing(false)
-        .default_font(Font::DEFAULT)
         .run()
 }
 
@@ -373,10 +394,10 @@ impl WuwaModFixerApp {
                         tr("已选择", "Selected"),
                         p.display()
                     ));
-                    save_settings(&UserSettings {
-                        last_folder: Some(p.to_string_lossy().to_string()),
-                        light_theme: Some(self.theme == Theme::Light),
-                    });
+                    let mut settings = load_settings();
+                    settings.last_folder = Some(p.to_string_lossy().to_string());
+                    settings.light_theme = Some(self.theme == Theme::Light);
+                    save_settings(&settings);
                 }
                 self.mod_path = path;
             }
@@ -549,34 +570,42 @@ impl WuwaModFixerApp {
                     );
                 }
             }
-            Message::RollbackFinished(result) => match result {
-                Ok(_) => {
-                    self.logs.push(tr("[OK] 回滚完成!", "[OK] Rollback completed!"));
-                    return self.refresh_backups_cmd();
+            Message::RollbackFinished(result) => {
+                match result {
+                    Ok(_) => {
+                        self.logs.push(tr("[OK] 回滚完成!", "[OK] Rollback completed!"));
+                    }
+                    Err(e) => {
+                        self.logs.push(format!(
+                            "[ERR] {}: {}",
+                            tr("回滚失败", "Rollback failed"),
+                            e
+                        ));
+                    }
                 }
-                Err(e) => {
-                    self.logs.push(format!(
-                        "[ERR] {}: {}",
-                        tr("回滚失败", "Rollback failed"),
-                e
-                    ));
-                }
-            },
+                return Task::batch([
+                    self.refresh_backups_cmd(),
+                    snap_to(LOG_SCROLL_ID.clone(), scrollable::RelativeOffset { x: 0.0, y: 1.0 })
+                ]);
+            }
 
             Message::RefreshConfig => {
                 self.logs.push(tr(
                     "正在从远程获取最新配置...",
                     "Fetching latest config from remote...",
                 ));
-                return Task::perform(
-                    async {
-                        match crate::config_loader::force_reload_remote_config().await {
-                            Ok(_) => Ok(tr("[OK] 数据配置已最新", "[OK] Config updated")),
-                            Err(e) => Err(format!("{:?}", e)),
-                        }
-                    },
-                    Message::ConfigRefreshed,
-                );
+                return Task::batch([
+                    Task::perform(
+                        async {
+                            match crate::config_loader::force_reload_remote_config().await {
+                                Ok(_) => Ok(tr("[OK] 数据配置已最新", "[OK] Config updated")),
+                                Err(e) => Err(format!("{:?}", e)),
+                            }
+                        },
+                        Message::ConfigRefreshed,
+                    ),
+                    snap_to(LOG_SCROLL_ID.clone(), scrollable::RelativeOffset { x: 0.0, y: 1.0 })
+                ]);
             }
             Message::ConfigRefreshed(result) => {
                 match result {
@@ -587,6 +616,10 @@ impl WuwaModFixerApp {
                         e
                     )),
                 }
+                return snap_to(
+                    LOG_SCROLL_ID.clone(),
+                    scrollable::RelativeOffset { x: 0.0, y: 1.0 },
+                );
             }
 
             Message::StartupCheckDone(status) => {
@@ -652,16 +685,33 @@ impl WuwaModFixerApp {
             }
             Message::ToggleTheme => {
                 self.theme = if self.theme == Theme::Dark { Theme::Light } else { Theme::Dark };
-                save_settings(&UserSettings {
-                    last_folder: self.mod_path.as_ref().map(|p| p.to_string_lossy().to_string()),
-                    light_theme: Some(self.theme == Theme::Light),
-                });
+                let mut settings = load_settings();
+                settings.last_folder = self.mod_path.as_ref().map(|p| p.to_string_lossy().to_string());
+                settings.light_theme = Some(self.theme == Theme::Light);
+                save_settings(&settings);
             }
             Message::EventOccurred(event) => {
-                if let iced::Event::Window(iced::window::Event::FileDropped(path)) = event {
-                    if path.is_dir() {
-                        return Task::done(Message::FolderSelected(Some(path)));
+                match event {
+                    iced::Event::Window(iced::window::Event::FileDropped(path)) => {
+                        if path.is_dir() {
+                            return Task::done(Message::FolderSelected(Some(path)));
+                        }
                     }
+                    iced::Event::Window(iced::window::Event::Resized(size)) => {
+                        let mut settings = load_settings();
+                        settings.window_width = Some(size.width);
+                        settings.window_height = Some(size.height);
+                        save_settings(&settings);
+                    }
+                    iced::Event::Window(iced::window::Event::Moved(point)) => {
+                        if point.x.abs() < 10000.0 && point.y.abs() < 10000.0 {
+                            let mut settings = load_settings();
+                            settings.window_x = Some(point.x as i32);
+                            settings.window_y = Some(point.y as i32);
+                            save_settings(&settings);
+                        }
+                    }
+                    _ => {}
                 }
             }
             Message::OpenGithubUrl => {
@@ -710,7 +760,12 @@ fn main_container_style(theme: &Theme) -> container::Style {
         background: Some(iced::Background::Color(get_surface(theme))),
         text_color: Some(get_text_color(theme)),
         border: iced::Border {
-            radius: 12.0.into(),
+            radius: iced::border::Radius {
+                top_left: 0.0,
+                top_right: 0.0,
+                bottom_right: 10.0,
+                bottom_left: 10.0,
+            },
             color: get_border_color(theme),
             width: 1.0,
         },
@@ -734,7 +789,12 @@ fn update_banner_style(theme: &Theme) -> container::Style {
         background: Some(iced::Background::Color(bg)),
         text_color: Some(get_text_color(theme)),
         border: iced::Border {
-            radius: 10.0.into(),
+            radius: iced::border::Radius {
+                top_left: 0.0,
+                top_right: 0.0,
+                bottom_right: 12.0,
+                bottom_left: 12.0,
+            },
             color: border_color,
             width: 1.0,
         },
@@ -746,7 +806,35 @@ fn inner_card_style(theme: &Theme) -> container::Style {
     container::Style {
         background: Some(iced::Background::Color(get_surface_light(theme))),
         border: iced::Border {
-            radius: 8.0.into(),
+            radius: iced::border::Radius {
+                top_left: 0.0,
+                top_right: 0.0,
+                bottom_right: 12.0,
+                bottom_left: 12.0,
+            },
+            color: get_border_color(theme),
+            width: 1.0,
+        },
+        ..Default::default()
+    }
+}
+
+fn log_container_style(theme: &Theme) -> container::Style {
+    let bg = if theme == &Theme::Light {
+        Color::from_rgba(0.05, 0.07, 0.1, 0.04)
+    } else {
+        Color::from_rgba(0.0, 0.0, 0.0, 0.25)
+    };
+    
+    container::Style {
+        background: Some(iced::Background::Color(bg)),
+        border: iced::Border {
+            radius: iced::border::Radius {
+                top_left: 0.0,
+                top_right: 0.0,
+                bottom_right: 10.0,
+                bottom_left: 10.0,
+            },
             color: get_border_color(theme),
             width: 1.0,
         },
@@ -1203,8 +1291,10 @@ impl WuwaModFixerApp {
 
     fn build_log_view(&self) -> Element<'_, Message> {
         let log_lines: Vec<Element<Message>> = self.logs.iter().map(|l| {
-            let color = if l.contains("[OK]") || l.contains("[INFO]") || l.contains("✅") {
+            let color = if l.contains("[OK]") || l.contains("✅") {
                 SUCCESS
+            } else if l.contains("[INFO]") || l.starts_with("[*]") {
+                ACCENT
             } else if l.contains("[ERR]") || l.contains("[ERROR]") || l.contains("❌") {
                 DANGER
             } else if l.contains("[WARN]") || l.contains("⚠️") {
@@ -1212,19 +1302,28 @@ impl WuwaModFixerApp {
             } else if l.contains("[DEBUG]") {
                 Color::from_rgb(0.50, 0.52, 0.56)
             } else if l.starts_with("───") || l.starts_with("─") {
-                ACCENT
-            } else if l.starts_with("[*]") {
-                SUCCESS
-            } else {
                 get_text_dim(&self.theme)
+            } else {
+                get_text_color(&self.theme)
             };
-            text(l).size(12).color(color).into()
+            
+            text(l)
+                .size(12)
+                .color(color)
+                .font(Font::DEFAULT)
+                .into()
         }).collect();
 
-        scrollable(Column::with_children(log_lines).spacing(2))
-            .id(LOG_SCROLL_ID.clone())
-            .height(Length::FillPortion(3))
-            .into()
+        container(
+            scrollable(Column::with_children(log_lines).spacing(4))
+                .id(LOG_SCROLL_ID.clone())
+                .width(Length::Fill)
+        )
+        .padding(iced::Padding { top: 12.0, right: 6.0, bottom: 12.0, left: 12.0 })
+        .style(log_container_style)
+        .height(Length::FillPortion(3))
+        .width(Length::Fill)
+        .into()
     }
 }
 

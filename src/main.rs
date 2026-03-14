@@ -1,4 +1,8 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+// NOTE: We intentionally do NOT use #![windows_subsystem = "windows"] here.
+// That attribute removes the console at compile time, which breaks --cli mode
+// in release builds on Windows (no stdout/stderr/stdin available).
+// Instead, we dynamically detach the console at runtime in GUI mode.
+// See `detach_console()` in `main()`.
 
 #[macro_use]
 extern crate log;
@@ -880,6 +884,7 @@ impl ModFixer {
                     "D" => "Diffuse",
                     "N" => "Normalmap",
                     "L" => "Lightmap",
+                    "S" => "Shadowmap",
                     _ => continue,
                 };
 
@@ -1426,7 +1431,28 @@ struct MatchTextureOverrideContent {
     content: String,
 }
 
+/// On Windows, detach the console window so the GUI doesn't spawn an extra
+/// black terminal window. This is called at runtime instead of using the
+/// compile-time `#![windows_subsystem = "windows"]` attribute, which would
+/// break `--cli` mode in release builds.
+#[cfg(target_os = "windows")]
+fn detach_console() {
+    use std::os::raw::c_int;
+    unsafe extern "system" {
+        fn FreeConsole() -> c_int;
+    }
+    unsafe {
+        FreeConsole();
+    }
+}
+
 fn main() -> Result<()> {
+    let is_cli = std::env::args().any(|a| a == "--cli");
+    #[cfg(target_os = "windows")]
+    if !is_cli {
+        detach_console();
+    }
+
     init_logger();
     init_panic_hook();
 
@@ -1436,7 +1462,7 @@ fn main() -> Result<()> {
         DEV_MODE.store(true, std::sync::atomic::Ordering::Relaxed);
         eprintln!("[DEV] Dev mode: using local config only, remote fetch disabled");
     }
-    if args.iter().any(|a| a == "--cli") {
+    if is_cli {
         // CLI mode: use a tokio runtime for async config loading
         let rt = tokio::runtime::Runtime::new()?;
         if dev {
