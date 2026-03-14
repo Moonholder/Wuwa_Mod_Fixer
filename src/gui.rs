@@ -763,8 +763,8 @@ fn main_container_style(theme: &Theme) -> container::Style {
             radius: iced::border::Radius {
                 top_left: 0.0,
                 top_right: 0.0,
-                bottom_right: 10.0,
-                bottom_left: 10.0,
+                bottom_right: 8.0,
+                bottom_left: 8.0,
             },
             color: get_border_color(theme),
             width: 1.0,
@@ -789,12 +789,7 @@ fn update_banner_style(theme: &Theme) -> container::Style {
         background: Some(iced::Background::Color(bg)),
         text_color: Some(get_text_color(theme)),
         border: iced::Border {
-            radius: iced::border::Radius {
-                top_left: 0.0,
-                top_right: 0.0,
-                bottom_right: 12.0,
-                bottom_left: 12.0,
-            },
+            radius: 10.0.into(),
             color: border_color,
             width: 1.0,
         },
@@ -806,12 +801,7 @@ fn inner_card_style(theme: &Theme) -> container::Style {
     container::Style {
         background: Some(iced::Background::Color(get_surface_light(theme))),
         border: iced::Border {
-            radius: iced::border::Radius {
-                top_left: 0.0,
-                top_right: 0.0,
-                bottom_right: 12.0,
-                bottom_left: 12.0,
-            },
+            radius: 8.0.into(),
             color: get_border_color(theme),
             width: 1.0,
         },
