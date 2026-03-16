@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "3.1.1",
-        "current_version": "3.1.4",
+        "current_version": "3.1.5",
         "latest_program_version": "3.1.2",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
@@ -27,8 +27,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.1: 更新您的XXMI至最新版本\n* 修复了陆且添加了他的LoD贴图hash\n* 更新秧秧的LoD贴图hash\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误\n\n修复3.0: \n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n...\n\n",
-            "en": "Fix 3.1: Update your XXMI to the latest version.\n* Fixed Luuk and added his LoD texture hash\n* Updated Yangyang's LoD texture hash\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani.\n\nFix 3.0: \n* Fixed Female Rover.\n* Fixed texture errors for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n..."
+            "zh": "修复3.1: 更新您的XXMI至最新版本\n* 补全爱弥斯满能量时的贴图hash、修复摩托默认涂装\n* 修复了陆且添加了他的LoD贴图hash\n* 更新秧秧的LoD贴图hash\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误\n\n修复3.0: \n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n...\n\n",
+            "en": "Fix 3.1: Update your XXMI to the latest version.\n* Fixed Aemeath's charged state texture hash, fixed default motorbike livery.\n* Fixed Luuk and added his LoD texture hash\n* Updated Yangyang's LoD texture hash\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani.\n\nFix 3.0: \n* Fixed Female Rover.\n* Fixed texture errors for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n..."
         },
         "intro_note": {
             "zh": "确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错",
@@ -43,8 +43,8 @@
             "en": "Starting from version 2.0, different graphics presets may have different hash values, which may cause mod texture errors. Please set the graphics quality preset to Balanced/Quality."
         },
         "texture_override_note": {
-            "zh": "\n为模组添加派生Hash，使角色模组贴图能在不添加 UseAllMips 的情况下在画面细节高/中下正常显示 (部分角色未更新)",
-            "en": "\nAdd derived hashes to the mod to allow character mods textures to display normally on High/Medium LOD Bias settings without adding UseAllMips (some characters not updated)."
+            "zh": "\n为模组补全缺失的贴图状态Hash (如画面细节LOD高/中、坎特蕾拉湿身、千咲强化E、爱弥斯满充能等)，使角色模组贴图在各种渲染状态下正常显示 (部分角色未更新)",
+            "en": "\nAdd missing texture state hashes (e.g. LOD Bias High/Medium, Cantarella wet, Chisa Enhanced E, Aemeath Charged) so character mod textures display correctly across all rendering states (some characters not updated)."
         },
         "texture_override_prompt": {
             "zh": "是否启用？ （默认否）:",
@@ -156,7 +156,7 @@
         }
     },
     "settings": {
-        "state_texture_removers": ["Cantarella", "Chisa"],
+        "state_texture_removers": [],
         "enable_aero_rover_fix": false
     },
     "characters": {
@@ -975,7 +975,7 @@
             "f7dadc16": { "meta": { "id": 2, "type": "D" }, "replace": ["87821a93"], "derive": { "wet": ["d0429c4a", "0d1d026d", "f9cf36b0"] } },
             "0c868365": { "meta": { "id": 2, "type": "L" } },
             "787c92b8": { "meta": { "id": 3, "type": "D" }, "replace": ["812ba53f"], "derive": { "wet": ["8f3ebd32", "52612315", "411dfe13"], "LOD": ["a5230c9f", "583b6efd"] } },
-            "22ba1d3e": { "meta": { "id": 3, "type": "L" } },
+            "22ba1d3e": { "meta": { "id": 3, "type": "L" }, "derive": { "LOD": ["ffe58319", "d6b8c7c3"] } },
             "3cda6614": { "meta": { "id": 3, "type": "N" }, "replace": ["94a9c5e1"], "derive": { "LOD": ["e185f833", "216b2dcf"] } },
             "b6deb6c2": { "meta": { "id": 4, "type": "D" }, "replace": ["35c01267", "734ad993"], "derive": { "wet": ["abd93fa3", "7686a184", "f068f7d9"], "LOD": ["6b8128e5", "03af6ae8"] } },
             "89e2bbf1": { "meta": { "id": 4, "type": "L" } },
@@ -1384,19 +1384,19 @@
         },
         "Motorbike": {
             "main_hashes": [{"old": ["823bcd54"], "new": "823bcd54"}],
-            "594ce1da": { "derive": {"LOD": ["3082d7a7"]} },
-            "7a324c2b": { "derive": {"LOD": ["2caeb734"]} },
-            "8a75aeee": { "derive": {"LOD": ["fc0d6055"]} },
+            "8008e616": { "replace": ["594ce1da"], "derive": {"LOD": ["3082d7a7"]} },
+            "26c9f0df": { "replace": ["7a324c2b"], "derive": {"LOD": ["2caeb734"]} },
+            "a04afca2": { "replace": ["8a75aeee"], "derive": {"LOD": ["fc0d6055"]} },
             "963ebc92": { "derive": {"LOD": ["99d6444f"]} },
-            "4834498b": { "derive": {"LOD": ["3dc73b85"]} },
+            "2d5357d7": { "replace": ["4834498b"], "derive": {"LOD": ["3dc73b85"]} },
             "353533c0": { "derive": {"LOD": ["babaf8bf"]} },
             "f172b42c": { "derive": {"LOD": ["89badb3b"]} },
             "a8f6c665": { "derive": {"LOD": ["ba49ec62"]} },
-            "8ea5a837": { "derive": {"LOD": ["dd9915ac"]} },
+            "7c7f4a71": { "replace": ["8ea5a837"], "derive": {"LOD": ["dd9915ac"]} },
             "0e63b65c": { "derive": {"LOD": ["394bc15d"]} },
             "6067f88e": { "derive": {"LOD": ["c10e348d"]} },
-            "0264c0c9": { "derive": {"LOD": ["e11aa2e5"]} },
-            "cb2225f6": { "derive": {"LOD": ["55d643e1"]} }
+            "b2119f20": { "replace": ["0264c0c9"], "derive": {"LOD": ["e11aa2e5"]} },
+            "c23a9b43": { "replace": ["cb2225f6"], "derive": {"LOD": ["55d643e1"]} }
         },
         "Mornye": {
             "21da94eb": { "replace": ["1b14a741"], "derive": { "LOD": ["fc850acc", "5fc86ae3"] } },
@@ -1432,7 +1432,7 @@
             "1d31d19d": { "derive": { "LOD": ["c06e4fba", "4e258e03"] } },
             "2d9235e9": { "derive": { "LOD": ["f0cdabce", "e26a1cea"] } },
             "2e5607c2": { "derive": { "LOD": ["f30999e5", "9143d11b"] } },
-            "3a5a08ac": { "derive": { "LOD": ["e705968b", "511eb4b1"], "Forte": ["a4a79abf"]} },
+            "3a5a08ac": { "derive": { "LOD": ["e705968b", "511eb4b1"], "Charged": ["b944ac35", "a4a79abf"] } },
             "9c0c016b": { "derive": { "LOD": ["41539f4c", "4e0b21a2"] } },
             "34d0acfd": { "derive": { "LOD": ["e98f32da", "0777afff"] } },
             "182fc550": { "derive": { "LOD": ["9e790054", "972b84bf"] } },
@@ -1445,7 +1445,7 @@
             "e341a037": { "derive": { "LOD": ["3e1e3e10", "2fafc4cb"] } },
             "ec96a652": { "derive": { "LOD": ["31c93875", "c7d7ad44"] } },
             "ef5edd1b": { "derive": { "LOD": ["3201433c", "1cff0950"] } },
-            "f58624fb": { "derive": { "LOD": ["28d9badc", "1284c977"], "Forte": ["cf137770"] } },
+            "f58624fb": { "derive": { "LOD": ["28d9badc", "1284c977"], "Charged": ["f857b2b4", "cf137770"] } },
             "fda934b4": { "derive": { "LOD": ["20f6aa93", "8ca059b1"] } },
             "6cf0c8eb": { "derive": { "LOD": ["b1af56cc", "b57793cd"] } },
             "898230f4": { "derive": { "LOD": ["54ddaed3", "4e8c6aa3"] } },

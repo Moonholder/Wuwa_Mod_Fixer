@@ -978,12 +978,12 @@ impl WuwaModFixerApp {
 
         // Settings
         let tex_cb = checkbox(self.enable_texture_override)
-            .label(tr("添加派生Hash", "Add Derived Hashes"))
+            .label(tr("补全贴图状态", "Complete Texture States"))
             .on_toggle(Message::ToggleTextureOverride)
             .size(16);
         let tex_desc = text(tr(
-            "    为模组添加派生Hash，使角色模组贴图能在不添加 UseAllMips 的情况下在画面细节高/中下正常显示 (部分角色未更新)",
-            "    Add derived hashes to the mod to allow character mods textures to display normally on High/Medium LOD Bias settings without adding UseAllMips (some characters not updated)",
+            "    为模组补全缺失的贴图状态Hash (如画面细节LOD高/中、坎特蕾拉湿身、千咲强化E、爱弥斯满充能等)，使角色模组贴图在各种渲染状态下正常显示 (部分角色未更新)",
+            "    Add missing texture state hashes (e.g. LOD Bias High/Medium, Cantarella wet, Chisa Enhanced E, Aemeath Charged) so character mod textures display correctly across all rendering states (some characters not updated)",
         ))
         .size(11).color(get_text_dim(&self.theme));
 
