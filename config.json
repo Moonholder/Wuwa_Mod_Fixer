@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "3.1.1",
-        "current_version": "3.1.5",
+        "current_version": "3.2.0",
         "latest_program_version": "3.1.2",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
     },
@@ -27,8 +27,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.1: 更新您的XXMI至最新版本\n* 补全爱弥斯满能量时的贴图hash、修复摩托默认涂装\n* 修复了陆且添加了他的LoD贴图hash\n* 更新秧秧的LoD贴图hash\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误\n\n修复3.0: \n* 修复了女漂\n* 修复了赞妮 布兰特的贴图错误\n* 更新了千咲的头发hash\n* 修复了男漂的面部问题\n...\n\n",
-            "en": "Fix 3.1: Update your XXMI to the latest version.\n* Fixed Aemeath's charged state texture hash, fixed default motorbike livery.\n* Fixed Luuk and added his LoD texture hash\n* Updated Yangyang's LoD texture hash\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani.\n\nFix 3.0: \n* Fixed Female Rover.\n* Fixed texture errors for Zani and Brant.\n* Updated hair textures hashes for Chisa.\n* Fixed facial issues for Male Rover.\n..."
+            "zh": "修复3.2: 请耐心等待XXMI/WWMI的更新，这需要一定的时间\n* 更新西格莉卡的hash值(03/24)\n\n* 修复3.1:\n* 补全爱弥斯满能量时的贴图hash、修复摩托默认涂装\n* 修复了陆且添加了他的LoD贴图hash\n* 更新秧秧的LoD贴图hash\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误...\n\n",
+            "en": "Fix 3.2: Please wait patiently for the update of XXMI/WWMI, which takes some time.\n* Update Sigrika's hash value (03/24)\n\n* Fix 3.1:\n* Fixed Aemeath's charged state texture hash, fixed default motorbike livery.\n* Fixed Luuk and added his LoD texture hash\n* Updated Yangyang's LoD texture hash\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani...\n\n"
         },
         "intro_note": {
             "zh": "确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错",
@@ -1495,6 +1495,14 @@
             "9e5a4789": { "derive": { "LOD": ["4305d9ae", "ad470f49"] } },
             "3ad28d2a": { "derive": { "LOD": ["a8f453e7", "a56ee0a8"] } },
             "7bfb22a5": { "derive": { "LOD": ["fdade7a1", "29e08e63"] } }
+        },
+        "Sigrika": {
+            "main_hashes": [
+                {"old": ["77cbdd03"], "new": "3ddf792b"},
+                {"old": ["a39dc2e6"], "new": "0f11bc88"},
+                {"old": ["14ab944b"], "new": "d4882d0e"},
+                {"old": ["396815f6"], "new": "fcef2b51"}
+            ]
         }
     }
 }
