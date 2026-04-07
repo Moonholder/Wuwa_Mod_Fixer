@@ -7,7 +7,7 @@ A tool designed for fixing textures, hashes, and vertex groups in modified asset
 ---
 
 <a name="chinese-version"></a>
-## 🇨🇳 中文说明
+## 中文说明
 
 ### ✨ 主要功能
 - **自动化修复**：自动识别资源哈希变动并进行替换。
@@ -55,7 +55,7 @@ cargo run -- --dev
 ---
 
 <a name="english-version"></a>
-## 🇺🇸 English Version
+## English
 
 ### ✨ Features
 - **Automated Fixes**: Automatically detects and replaces asset hash changes.
@@ -65,7 +65,7 @@ cargo run -- --dev
 - **Dual Mode**: Supports both Graphical User Interface and classic Terminal mode.
 
 ### 🛠️ Build & Packaging
-Ensure you have Rust installed.
+Ensure you have [Rust](https://rustup.rs/) installed.
 
 #### Run Locally
 ```bash
@@ -99,5 +99,11 @@ cargo run -- --dev
 # Run in console mode
 ./Mod_Fixer --cli
 ```
+## ❤️ 赞助支持 / Support
 
+如果这个修复工具拯救了你的 Mod，欢迎请我喝杯咖啡！你的支持是我持续维护更新的最大动力。  
+If this tool saved your mods, consider buying me a coffee! Your support is my biggest motivation to keep updating.
+
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/moonholder)
+[![Afdian](https://img.shields.io/badge/Afdian-946CE6?style=for-the-badge&logo=electron&logoColor=white)](https://ifdian.net/a/moonholder)
 ---
