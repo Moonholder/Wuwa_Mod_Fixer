@@ -3,62 +3,34 @@ use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::collections::HashMap;
 
-#[derive(Deserialize, Default)]
+#[derive(Deserialize, Default, Clone)]
 #[serde(transparent)]
 pub struct LangItem {
     pub translations: HashMap<String, String>,
-}
-
-#[derive(Deserialize, Default)]
-#[serde(default)]
-pub struct LangPack {
-    pub version_mismatch: LangItem,
-    pub current_version: LangItem,
-    pub version_check_passed: LangItem,
-    pub version_check_failed: LangItem,
-    pub title: LangItem,
-    pub intro: LangItem,
-    pub intro_note: LangItem,
-    pub compatibility_note: LangItem,
-    pub graphics_setting_note: LangItem,
-    pub graphics_quality_note: LangItem,
-    pub texture_override_note: LangItem,
-    pub found_old_mod: LangItem,
-    pub texture_override_prompt: LangItem,
-    pub match_character_prompt: LangItem,
-    pub remapped_successfully: LangItem,
-    pub process_file_start: LangItem,
-    pub process_file_done: LangItem,
-    pub backup_created: LangItem,
-    pub backup_failed: LangItem,
-    pub no_need_fix: LangItem,
-    pub process_file_error: LangItem,
-    pub process_folder_done: LangItem,
-    pub input_folder_prompt: LangItem,
-    pub start_processing: LangItem,
-    pub all_done: LangItem,
-    pub error_occurred: LangItem,
-    pub error_prompt: LangItem,
-    pub aero_rover_female_eyes_prompt: LangItem,
-    pub aero_rover_female_eyes_fixed: LangItem,
-    pub path_not_a_directory: LangItem,
-    pub permission_check_remove_failed: LangItem,
-    pub permission_check_create_failed: LangItem,
-    pub admin_prompt_suggestion: LangItem,
-    pub traversal_error: LangItem,
 }
 
 impl LangItem {
     pub fn get_translation(&self, lang: &str) -> &str {
         self.translations
             .get(lang)
+            .or_else(|| self.translations.get("en"))
             .map(|s| s.as_str())
-            .unwrap_or_else(|| {
-                self.translations
-                    .get("en")
-                    .map(|s| s.as_str())
-                    .unwrap_or("")
-            })
+            .unwrap_or("")
+    }
+}
+
+#[derive(Deserialize, Default)]
+#[serde(transparent)]
+pub struct LangPack {
+    pub items: HashMap<String, LangItem>,
+}
+
+impl LangPack {
+    pub fn get_text<'a>(&'a self, key: &'a str, lang: &str) -> &'a str {
+        self.items
+            .get(key)
+            .map(|item| item.get_translation(lang))
+            .unwrap_or(key)
     }
 }
 
@@ -72,6 +44,13 @@ pub fn get_lang() -> &'static str {
             .to_lowercase()
     });
     LANG.as_str()
+}
+
+pub fn is_chinese_mainland() -> bool {
+    let raw = sys_locale::get_locale().unwrap_or_default().to_uppercase();
+    // Simplified Chinese usually implies Mainland China (CN) or Singapore (SG)
+    // But Afdian is specifically for CN.
+    raw.contains("CN") || raw == "ZH"
 }
 
 /// Always reads from the live CONFIG_PTR so translations update

@@ -7,6 +7,7 @@ pub enum BufferType {
     Blend,
     TexCoord,
     Index,
+    BlendRemapForward
 }
 
 impl std::fmt::Display for BufferType {
@@ -15,6 +16,7 @@ impl std::fmt::Display for BufferType {
             BufferType::Blend => write!(f, "Blend"),
             BufferType::TexCoord => write!(f, "TexCoord"),
             BufferType::Index => write!(f, "Index"),
+            BufferType::BlendRemapForward => write!(f, "BlendRemapForward"),
         }
     }
 }
@@ -53,6 +55,16 @@ pub fn parse_resouce_buffer_path(
             }
         };
 
+        // Skip proxy/runtime sections (no backing file)
+        let header_end = section_content.find(']').unwrap_or(0);
+        let section_header = &section_content[..=header_end];
+        if section_header.contains("Override")
+            || section_header.ends_with("RW]")
+            || section_header.contains("ResourceBlendBufferNoStride")
+        {
+            continue;
+        }
+
         let filename = match FILENAME_RE
             .captures(section_content)
             .and_then(|cap| cap.get(1))
@@ -60,7 +72,7 @@ pub fn parse_resouce_buffer_path(
         {
             Some(name) => name,
             None => {
-                warn!("Missing filename in section");
+                warn!("Missing filename in section: {}", section_header);
                 continue;
             }
         };

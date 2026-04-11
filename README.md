@@ -1,8 +1,24 @@
-# 🌊 Wuwa Mod Fixer
+<h1 align="center">🌊 Wuwa Mod Fixer</h1>
 
-A tool designed for fixing textures, hashes, and vertex groups in modified assets caused by version updates or model changes.
+<p align="center">
+  <b>A tool designed for fixing textures, hashes, and vertex groups in modified assets caused by version updates.</b>
+</p>
 
-[English](#english-version) | [中文说明](#chinese-version)
+<p align="center">
+  <a href="https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"><img src="https://img.shields.io/github/v/release/Moonholder/Wuwa_Mod_Fixer?color=blue&label=Latest" alt="Release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL_3.0-blue.svg" alt="License"></a>
+  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey" alt="Platform">
+  <img src="https://img.shields.io/badge/Rust-2024%20Edition-orange?logo=rust&logoColor=white" alt="Rust">
+</p>
+
+<p align="center">
+  <a href="#chinese-version">中文说明</a> · <a href="#english-version">English</a>
+</p>
+
+<p align="center">
+  <a href="https://ko-fi.com/moonholder"><img src="https://img.shields.io/badge/Ko--fi-Support-F16061?logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
+  <a href="https://support.jix.de5.net"><img src="https://img.shields.io/badge/WeChat-赞助支持-07C160?logo=wechat&logoColor=white" alt="WeChat Pay"></a>
+</p>
 
 ---
 
@@ -40,16 +56,38 @@ cargo build --release
 
 | 参数 | 说明 |
 | :--- | :--- |
-| `--cli` | **进入旧版控制台模式**。 |
+| `--cli` | **进入控制台模式**（交互式菜单）。 |
+| `--path <DIR>` | **指定 Mod 文件夹路径**，启用非交互直接修复模式。需搭配 `--cli` 使用。 |
+| `--derived-hashes` | 启用「补全贴图状态」（与 `--stable-texture` 互斥）。 |
+| `--stable-texture` | 启用「应用稳定纹理」（与 `--derived-hashes` 互斥）。 |
+| `--aemeath-mech` | 启用「修复爱弥斯机兵形态」。 |
+| `--aero-fix <1\|2>` | 启用「女漂-风主形态眼部修复」。`1` = TexCoord 覆盖, `2` = 贴图镜像反转。 |
+| `--rollback` | **回滚最近一次修复**（仅撤销上一次操作，与修复选项互斥）。 |
+| `--online` | 联网获取最新配置（非交互模式默认使用本地配置）。 |
 | `--dev` | **开发者模式**。强制加载本地配置文件，禁用远程获取逻辑。 |
 
 **示例：**
 ```bash
+# 以控制台交互模式运行
+./Mod_Fixer --cli
+
+# 一键修复（仅基础 hash 替换）
+./Mod_Fixer --cli --path "D:\Mods\MyMod"
+
+# 一键修复 + 补全贴图状态 + 联网获取最新配置
+./Mod_Fixer --cli --path "D:\Mods\MyMod" --derived-hashes --online
+
+# 一键修复 + 应用稳定纹理 + 爱弥斯机兵修复
+./Mod_Fixer --cli --path "D:\Mods\MyMod" --stable-texture --aemeath-mech
+
+# 一键修复 + 风主眼部修复 (TexCoord 模式)
+./Mod_Fixer --cli --path "D:\Mods\MyMod" --aero-fix 1
+
+# 回滚最近一次修复
+./Mod_Fixer --cli --path "D:\Mods\MyMod" --rollback
+
 # 以开发者模式运行
 cargo run -- --dev
-
-# 以控制台模式运行
-./Mod_Fixer --cli
 ```
 
 ---
@@ -88,22 +126,36 @@ The application supports the following startup arguments:
 
 | Argument | Description |
 | :--- | :--- |
-| `--cli` | **Enter Legacy Console Mode**. |
+| `--cli` | **Enter Console Mode** (interactive menu). |
+| `--path <DIR>` | **Specify Mod folder path** for non-interactive direct fix mode. Must be used with `--cli`. |
+| `--derived-hashes` | Enable "Add Derived Hashes" (mutually exclusive with `--stable-texture`). |
+| `--stable-texture` | Enable "Apply Stable Texture" (mutually exclusive with `--derived-hashes`). |
+| `--aemeath-mech` | Enable "Fix Aemeath's mech form model error". |
+| `--aero-fix <1\|2>` | Enable "Aero FemaleRover Eye Fix". `1` = TexCoord Override, `2` = Texture Mirror Flip. |
+| `--rollback` | **Rollback the most recent fix** (only undoes the last operation; mutually exclusive with fix options). |
+| `--online` | Fetch latest config from network (non-interactive mode uses local config by default). |
 | `--dev` | **Developer Mode**. Forces loading local configuration and disables remote fetch. |
 
 **Example:**
 ```bash
+# Run in interactive console mode
+./Mod_Fixer --cli
+
+# One-click fix (basic hash replacement only)
+./Mod_Fixer --cli --path "D:\Mods\MyMod"
+
+# One-click fix + derived hashes + fetch latest config online
+./Mod_Fixer --cli --path "D:\Mods\MyMod" --derived-hashes --online
+
+# One-click fix + stable texture + Aemeath mech fix
+./Mod_Fixer --cli --path "D:\Mods\MyMod" --stable-texture --aemeath-mech
+
+# One-click fix + Aero eye fix (TexCoord mode)
+./Mod_Fixer --cli --path "D:\Mods\MyMod" --aero-fix 1
+
+# Rollback the most recent fix
+./Mod_Fixer --cli --path "D:\Mods\MyMod" --rollback
+
 # Run in dev mode
 cargo run -- --dev
-
-# Run in console mode
-./Mod_Fixer --cli
 ```
-## ❤️ 赞助支持 / Support
-
-如果这个修复工具拯救了你的 Mod，欢迎请我喝杯咖啡！你的支持是我持续维护更新的最大动力。  
-If this tool saved your mods, consider buying me a coffee! Your support is my biggest motivation to keep updating.
-
-[![Ko-fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/moonholder)
-[![Afdian](https://img.shields.io/badge/Afdian-946CE6?style=for-the-badge&logo=electron&logoColor=white)](https://ifdian.net/a/moonholder)
----

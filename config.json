@@ -1,9 +1,11 @@
 {
     "version" : {
-        "min_required_version": "3.1.1",
+        "min_required_version": "3.2.0",
         "current_version": "3.2.0",
-        "latest_program_version": "3.1.2",
-        "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest"
+        "latest_program_version": "3.2.0",
+        "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest",
+        "support_url_cn": "https://support.jix.de5.net",
+        "support_url_intl": "https://ko-fi.com/moonholder"
     },
     "lang": {
         "version_mismatch": {
@@ -27,8 +29,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.2: 请耐心等待XXMI/WWMI的更新，这需要一定的时间\n* 更新西格莉卡的hash值(03/24)\n\n* 修复3.1:\n* 补全爱弥斯满能量时的贴图hash、修复摩托默认涂装\n* 修复了陆且添加了他的LoD贴图hash\n* 更新秧秧的LoD贴图hash\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误...\n\n",
-            "en": "Fix 3.2: Please wait patiently for the update of XXMI/WWMI, which takes some time.\n* Update Sigrika's hash value (03/24)\n\n* Fix 3.1:\n* Fixed Aemeath's charged state texture hash, fixed default motorbike livery.\n* Fixed Luuk and added his LoD texture hash\n* Updated Yangyang's LoD texture hash\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani...\n\n"
+            "zh": "修复3.2: 请将XXMI更新至最新版本\n* 修复爱弥斯机兵形态的模型异常\n* 添加女漂皮肤、西格莉卡的画面细节高/中贴图hash\n* 更新赞妮的画面细节高/中贴图hash\n* 修复长离皮肤的贴图错误\n* 更新西格莉卡的hash值(03/24)\n\n* 修复3.1:\n* 补全爱弥斯满能量时的贴图hash、修复摩托默认涂装\n* 修复了陆且添加了他的LoD贴图hash\n* 更新秧秧的LoD贴图hash\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误...\n\n",
+            "en": "Fix 3.2: Please update XXMI to the latest version.\n* Fixed Aemeath's mech form model error.\n*  Added High/Medium LOD Bias texture hashes for the FRoverSkin1 and Sigrika, updated Zani's texture hash for High/Medium LOD Bias.\n* Fix Changli's skin texture error.\n* Update Sigrika's hash value (03/24)\n\n* Fix 3.1:\n* Fixed Aemeath's charged state texture hash, fixed default motorbike livery.\n* Fixed Luuk and added his LoD texture hash\n* Updated Yangyang's LoD texture hash\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani...\n\n"
         },
         "intro_note": {
             "zh": "确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错",
@@ -115,16 +117,16 @@
             "en": "Start processing mod ini files in folder {mod_folder_path}"
         },
         "all_done": {
-            "zh": "所有文件处理完成，按回车键关闭窗口...",
-            "en": "All files processed, press Enter to exit..."
+            "zh": "所有文件处理完成...",
+            "en": "All files processed..."
         },
         "error_occurred": {
             "zh": "程序出现异常: {error}",
             "en": "An error occurred: {error}"
         },
         "error_prompt": {
-            "zh": "程序出现异常，请查看上述错误信息，按任意键关闭窗口...",
-            "en": "An error occurred. Please check the error message above and press any key to exit..."
+            "zh": "程序出现异常，请查看上述错误信息...",
+            "en": "An error occurred. Please check the error message above..."
         },
         "aero_rover_female_eyes_prompt": {
             "zh": "是否修复女漂-风主形态满共鸣能量时眼睛异常？确保你的mod存在此问题，否则不要开启! （默认否）:",
@@ -260,6 +262,22 @@
             "f85b1b15": { "replace": ["cccc4663"], "derive": { "LOD": ["25048532", "d9282cd3"] } },
             "29304593": { "replace": ["fa3f84a8"], "derive": { "LOD": ["f46fdbb4", "85700b55"] } },
             "e02f1a3f": { "derive": { "LOD": ["7209c4f2", "28093edf"] } }
+        },
+        "FRoverSkin1": {
+            "main_hashes": [{"old": ["e8b0d332"], "new": "e8b0d332"}],
+            "0a136c79": {"derive": {"LOD": ["d74cf25e", "92f99f5c"]}},
+            "4a5502b1": {"derive": {"LOD": ["970a9c96", "20bd2886"]}},
+            "4fca3f55": {"derive": {"LOD": ["9295a172", "1f243c59"]}},
+            "6d4a87ef": {"derive": {"LOD": ["b01519c8", "8b25c1be"]}},
+            "47e8b051": {"derive": {"LOD": ["9ab72e76", "a8b8ac1f"]}},
+            "129f1dd8": {"derive": {"LOD": ["cfc083ff", "6577061c"]}},
+            "82837e0d": {"derive": {"LOD": ["5fdce02a", "9d202311"]}},
+            "a8a08519": {"derive": {"LOD": ["75ff1b3e", "389187ea"]}},
+            "ac811d4b": {"derive": {"LOD": ["71de836c", "e21a6804"]}},
+            "c9bbe473": {"derive": {"LOD": ["14e47a54", "100b31ef"]}},
+            "c917c0f0": {"derive": {"LOD": ["14485ed7", "434d0b75"]}},
+            "dbfb288a": {"derive": {"LOD": ["06a4b6ad", "65eeadbc"]}},
+            "f73250e5": {"derive": {"LOD": ["2a6dcec2", "7d264809"]}}
         },
         "Yangyang": {
             "main_hashes": [
@@ -555,6 +573,7 @@
             "0a785985": { "replace": ["91eab4e8"] },
             "e5a02d0a": { "replace": ["bfc103ef"], "derive": { "LOD": ["38ffb32d", "b9e3da02"] } },
             "8c983968": { "replace": ["6804b3ae"], "derive": { "LOD": ["51c7a74f", "4877e1a4"] } },
+            "04bb4ef1": { "replace": ["c4daa4c2"] },
             "12638aa6": { "derive": { "LOD": ["cf3c1481", "50dafda2"] } },
             "014b4c3f": { "derive": { "LOD": ["dc14d218", "a6749f20"] } },
             "97de9831": { "derive": { "LOD": ["4a810616", "5d44d305"] } },
@@ -1024,8 +1043,8 @@
                 {"old": ["08e242b9"], "new": "9e87c4cb"},
                 {"old": ["e88e60cb"], "new": "28add98e"}
             ],
-            "eba80d04": { "replace": ["66ec53c0", "612a235b", "d1c1a195"], "derive": { "LOD": ["0c9e3fb2", "3fc7f6ff"] }},
-            "eec46ff3": { "replace": ["c676996a", "18a76e47", "61de7097"], "derive": { "LOD": ["bc81eeb0", "e31f53c6"] }}
+            "eba80d04": { "replace": ["66ec53c0", "612a235b", "d1c1a195"], "derive": { "LOD": ["36f79323", "83fca446"] }},
+            "eec46ff3": { "replace": ["c676996a", "18a76e47", "61de7097"], "derive": { "LOD": ["339bf1d4", "d30b835d"] }}
         },
         "Zani_Lower": {
             "main_hashes": [{"old": ["12b90236", "07352718"], "new": "c99c5635"}]
@@ -1428,6 +1447,7 @@
             "afacbd93": { "replace": ["1e7c100d"] }
         },
         "Aemeath": {
+            "main_hashes": [{"old": ["2738a0f0"], "new":"2738a0f0"}],
             "157217af": { "replace": ["0eb70c8f"], "derive": { "LOD": ["c82d8988", "603341e7"] } },
             "1d31d19d": { "derive": { "LOD": ["c06e4fba", "4e258e03"] } },
             "2d9235e9": { "derive": { "LOD": ["f0cdabce", "e26a1cea"] } },
@@ -1452,6 +1472,7 @@
             "1944212c": { "derive": { "LOD": ["c41bbf0b", "c5673dfc"] } }
         },
         "AemeathMecha": {
+            "main_hashes": [{"old": ["ddc1947c"], "new":"ddc1947c"}],
             "3d0413b6": { "derive": { "LOD": ["e05b8d91", "a69a0a57"] } },
             "5c469503": { "derive": { "LOD": ["81190b24", "761ead80"] } },
             "08cbd7b6": { "derive": { "LOD": ["9c0ed78d"] } },
@@ -1466,7 +1487,13 @@
             "e444e470": { "derive": { "LOD": ["391b7a57", "9718ce41"] } },
             "e5914e49": { "derive": { "LOD": ["38ced06e", "cbf1af36"] } },
             "e741396c": { "derive": { "LOD": ["3a1ea74b", "3a9191dc"] } },
-            "f3517b3f": { "derive": { "LOD": ["6177a5f2", "979fdac5"] } }
+            "f3517b3f": { "derive": { "LOD": ["6177a5f2", "979fdac5"] } },
+            "vg_remaps": [
+                {
+                    "trigger_hash": ["ddc1947c"],
+                    "vertex_groups": { "184": 186, "185": 184, "186": 185, "193": 195, "194": 193, "195": 194 }
+                }
+            ]
         },
         "Luuk": {
             "main_hashes": [{"old": ["3bbfa5a0"], "new": "f16f00ed"}],
@@ -1502,7 +1529,27 @@
                 {"old": ["a39dc2e6"], "new": "0f11bc88"},
                 {"old": ["14ab944b"], "new": "d4882d0e"},
                 {"old": ["396815f6"], "new": "fcef2b51"}
-            ]
+            ],
+            "004dd4be": {"derive": { "LOD": ["926b0a73", "c8e0f8e9"] }},
+            "71edc230": {"derive": { "LOD": ["acb25c17", "aabd519c"] }},
+            "1009bd09": {"derive": { "LOD": ["cd56232e", "18553911"] }},
+            "034c514f": {"derive": { "LOD": ["de13cf68", "9f84a023"] }},
+            "47e08c7f": {"derive": { "LOD": ["9abf1258", "907fd8b1"] }},
+            "a7523097": {"derive": { "LOD": ["7a0daeb0", "ebfc8363"] }},
+            "d5b783a6": {"derive": { "LOD": ["53e146a2", "5372b79b"] }},
+            "eff5b6e2": {"derive": { "LOD": ["32aa28c5", "00e420cf"] }},
+            "f9af9096": {"derive": { "LOD": ["24f00eb1", "1cf8fc2d"] }},
+            "fee5ce8e": {"derive": { "LOD": ["23ba50a9", "739ce7f8"] }},
+            "e7456f68": {"derive": { "LOD": ["3a1af14f", "ddc3b658"] }},
+            "be3d8dad": {"derive": { "LOD": ["6362138a", "5a4eb68c"] }},
+            "0e64cea9": {"derive": { "LOD": ["d33b508e", "15e64f3f"] }},
+            "2a156241": {"derive": { "LOD": ["f74afc66", "68a00407"] }},
+            "73ed8fea": {"derive": { "LOD": ["aeb211cd", "864dda65"] }},
+            "76cbd17e": {"derive": { "LOD": ["ab944f59", "a23b0f33"] }},
+            "5085890f": {"derive": { "LOD": ["8dda1728", "811ebea6"] }},
+            "d3215f32": {"derive": { "LOD": ["0e7ec115", "13126d15"] }},
+            "d53e86d6": {"derive": { "LOD": ["086118f1", "da44f032"] }},
+            "ea53123d": {"derive": { "LOD": ["370c8c1a", "4c8bd0d2"] }}
         }
     }
 }

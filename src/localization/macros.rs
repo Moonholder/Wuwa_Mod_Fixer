@@ -1,14 +1,26 @@
 #[macro_export]
 macro_rules! t {
     ($item:ident) => {{
-        use $crate::localization::config::{get_lang, get_pack};
-        get_pack().$item.get_translation(get_lang())
+        $crate::localization::config::get_pack()
+            .get_text(stringify!($item), $crate::localization::config::get_lang())
     }};
 
     ($item:ident, $($key:ident = $value:expr),*) => {{
-        use $crate::localization::config::{get_lang, get_pack};
-        let mut template = get_pack().$item.get_translation(get_lang()).to_string();
+        let mut template = $crate::localization::config::get_pack()
+            .get_text(stringify!($item), $crate::localization::config::get_lang())
+            .to_string();
         $(template = template.replace(concat!("{", stringify!($key), "}"), &$value.to_string());)*
         template
+    }};
+}
+
+#[macro_export]
+macro_rules! tr {
+    ($zh:expr, $en:expr $(,)?) => {{
+        if $crate::localization::config::get_lang() == "zh" {
+            $zh
+        } else {
+            $en
+        }
     }};
 }

@@ -14,10 +14,9 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
 use crate::config_loader;
-use crate::localization::config::get_lang;
 use crate::rollback;
 use crate::ModFixer;
-
+use crate::settings::{load_settings, save_settings};
 // ---------------------------------------------------------------------------
 // Log channel: worker thread -> GUI
 // ---------------------------------------------------------------------------
@@ -132,47 +131,6 @@ const MAX_LOG_LINES: usize = 2000;
 static LOG_SCROLL_ID: Lazy<iced::widget::Id> = Lazy::new(|| iced::widget::Id::new("log_scroll"));
 
 // ---------------------------------------------------------------------------
-// User settings — persisted to settings.json next to the executable
-// ---------------------------------------------------------------------------
-#[derive(serde::Serialize, serde::Deserialize, Default)]
-struct UserSettings {
-    last_folder: Option<String>,
-    light_theme: Option<bool>,
-    window_width: Option<f32>,
-    window_height: Option<f32>,
-    window_x: Option<i32>,
-    window_y: Option<i32>,
-}
-
-fn settings_path() -> PathBuf {
-    std::env::current_exe()
-        .ok()
-        .and_then(|p| p.parent().map(|d| d.to_path_buf()))
-        .unwrap_or_else(|| PathBuf::from("."))
-        .join("settings.json")
-}
-
-fn load_settings() -> UserSettings {
-    std::fs::read_to_string(settings_path())
-        .ok()
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
-}
-
-fn save_settings(settings: &UserSettings) {
-    if let Ok(json) = serde_json::to_string_pretty(settings) {
-        let _ = std::fs::write(settings_path(), json);
-    }
-}
-
-// ---------------------------------------------------------------------------
-// Bilingual helper
-// ---------------------------------------------------------------------------
-fn tr(zh: &str, en: &str) -> String {
-    if get_lang() == "zh" { zh.to_string() } else { en.to_string() }
-}
-
-// ---------------------------------------------------------------------------
 // Public entry — iced 0.14 functional API
 // ---------------------------------------------------------------------------
 pub fn run_gui() -> iced::Result {
@@ -260,6 +218,7 @@ pub enum Message {
     ToggleTextureOverride(bool),
     ToggleStableTexture(bool),
     SetAeroFixMode(u8),
+    ToggleFixAemeathMech(bool),
     ToggleDebugLogs(bool),
     ClearLogs,
     ExportLogs,
@@ -281,6 +240,8 @@ pub enum Message {
     ToggleTheme,
     EventOccurred(iced::Event),
     OpenGithubUrl,
+    OpenSupportIntl,
+    OpenSupportCn,
 }
 
 // ---------------------------------------------------------------------------
@@ -290,6 +251,7 @@ struct WuwaModFixerApp {
     mod_path: Option<PathBuf>,
     enable_texture_override: bool,
     enable_stable_texture: bool,
+    enable_fix_aemeath_mech: bool,
     aero_fix_mode: u8,
     logs: Vec<String>,
     is_processing: bool,
@@ -308,6 +270,10 @@ struct WuwaModFixerApp {
 }
 
 impl WuwaModFixerApp {
+    fn add_log(&mut self, msg: impl Into<String>) {
+        self.logs.push(msg.into());
+    }
+    
     fn new() -> (Self, Task<Message>) {
         let settings = load_settings();
         let last_folder = settings.last_folder
@@ -315,22 +281,22 @@ impl WuwaModFixerApp {
             .filter(|p| p.is_dir());
 
         let mut init_logs = vec![
-            tr("=================================", "================================="),
+            tr!("=================================", "=================================").to_string(),
             t!(intro).to_string(),
             t!(intro_note).to_string(),
             t!(compatibility_note).to_string(),
             t!(graphics_setting_note).to_string(),
-            tr("=================================", "================================="),
+            tr!("=================================", "=================================").to_string(),
         ];
 
         if let Some(ref p) = last_folder {
             init_logs.push(format!(
                 "[*] {}: {}",
-                tr("已加载上次使用的文件夹", "Loaded last used folder"),
+                tr!("已加载上次使用的文件夹", "Loaded last used folder"),
                 p.display()
             ));
         }
-        init_logs.push(tr("准备就绪...", "Ready..."));
+        init_logs.push(tr!("准备就绪...", "Ready...").to_string());
 
         let intro_end_index = init_logs.len();
 
@@ -338,6 +304,7 @@ impl WuwaModFixerApp {
             mod_path: last_folder,
             enable_texture_override: false,
             enable_stable_texture: false,
+            enable_fix_aemeath_mech: false,
             aero_fix_mode: 0,
             logs: init_logs,
             is_processing: false,
@@ -389,9 +356,9 @@ impl WuwaModFixerApp {
             }
             Message::FolderSelected(path) => {
                 if let Some(ref p) = path {
-                    self.logs.push(format!(
+                    self.add_log(format!(
                         "{}: {}",
-                        tr("已选择", "Selected"),
+                        tr!("已选择", "Selected"),
                         p.display()
                     ));
                     let mut settings = load_settings();
@@ -413,9 +380,12 @@ impl WuwaModFixerApp {
             Message::SetAeroFixMode(mode) => {
                 self.aero_fix_mode = mode;
             }
+            Message::ToggleFixAemeathMech(v) => {
+                self.enable_fix_aemeath_mech = v;
+            }
 
             Message::StartFix => {
-                if let Some(ref path) = self.mod_path {
+                if let Some(path) = self.mod_path.clone() {
                     self.is_processing = true;
                     self.fix_just_completed = false;
                     self.files_processed = 0;
@@ -423,32 +393,33 @@ impl WuwaModFixerApp {
                     crate::reset_progress();
 
                     if !self.config_ready {
-                        self.logs.push(tr(
+                        self.add_log(tr!(
                             "[WARN] 远程配置尚未加载完成，将使用本地配置",
                             "[WARN] Remote config not loaded yet, using local config",
                         ));
                     }
 
-                    self.logs.push("─── START ───".to_string());
+                    self.add_log("─── START ───".to_string());
 
                     let (tx, rx) = std::sync::mpsc::channel::<String>();
                     self.log_rx = Some(Arc::new(Mutex::new(rx)));
                     crate::set_gui_log_sender(Some(tx));
 
-                    let path = path.clone();
                     let enable_tex = self.enable_texture_override;
                     let enable_stable = self.enable_stable_texture;
+                    let enable_fix_aemeath_mech = self.enable_fix_aemeath_mech;
                     let aero_mode = self.aero_fix_mode;
 
                     return Task::perform(
                         async move {
                             tokio::task::spawn_blocking(move || {
                                 let characters = config_loader::characters();
-                                let fixer = ModFixer::new(characters, enable_tex, enable_stable, true, aero_mode);
+                                let fixer = ModFixer::new(characters, enable_tex, enable_stable, enable_fix_aemeath_mech, aero_mode);
 
                                 let mut opts = Vec::new();
                                 if enable_tex { opts.push("TextureOverride"); }
                                 if enable_stable { opts.push("StableTexture"); }
+                                if enable_fix_aemeath_mech { opts.push("FixAemeathMech"); }
                                 match aero_mode {
                                     1 => opts.push("AeroFix:TexCoord"),
                                     2 => opts.push("AeroFix:TextureMirror"),
@@ -459,10 +430,10 @@ impl WuwaModFixerApp {
 
                                 match fixer.process_directory(&path) {
                                     Ok(_) => {
-                                        info!("{}", tr("[OK] 修复完成!", "[OK] Fix completed!"));
+                                        info!("{}", tr!("[OK] 修复完成!", "[OK] Fix completed!"));
                                     }
                                     Err(e) => {
-                                        error!("[ERR] {}: {}", tr("修复出错", "Fix error"), e);
+                                        error!("[ERR] {}: {}", tr!("修复出错", "Fix error"), e);
                                     }
                                 }
                             })
@@ -474,29 +445,31 @@ impl WuwaModFixerApp {
                 }
             }
             Message::FixFinished => {
-                if let Some(ref rx) = self.log_rx {
-                    if let Ok(rx) = rx.lock() {
-                        while let Ok(msg) = rx.try_recv() {
-                            self.logs.push(msg);
+                let rx_arc = self.log_rx.clone();
+                if let Some(rx) = rx_arc {
+                    if let Ok(rx_lock) = rx.lock() {
+                        while let Ok(msg) = rx_lock.try_recv() {
+                            self.add_log(msg);
                         }
                     }
                 }
                 self.is_processing = false;
                 self.fix_just_completed = true;
-                self.logs.push("─── DONE ───".to_string());
+                self.add_log("─── DONE ───");
                 crate::set_gui_log_sender(None);
-                return snap_to(
+                return iced::widget::operation::snap_to(
                     LOG_SCROLL_ID.clone(),
-                    scrollable::RelativeOffset { x: 0.0, y: 1.0 },
+                    iced::widget::scrollable::RelativeOffset { x: 0.0, y: 1.0 },
                 );
             }
 
             Message::LogTick => {
                 let mut new_msgs = false;
-                if let Some(ref rx) = self.log_rx {
-                    if let Ok(rx) = rx.lock() {
-                        while let Ok(msg) = rx.try_recv() {
-                            self.logs.push(msg);
+                let rx_arc = self.log_rx.clone();
+                if let Some(rx) = rx_arc {
+                    if let Ok(rx_lock) = rx.lock() {
+                        while let Ok(msg) = rx_lock.try_recv() {
+                            self.add_log(msg);
                             new_msgs = true;
                         }
                     }
@@ -545,16 +518,16 @@ impl WuwaModFixerApp {
                         match self.backup_groups.last() {
                             Some(g) => g.group_key.clone(),
                             None => {
-                                self.logs.push(tr("[WARN] 没有可回滚的备份", "[WARN] No backups to restore"));
+                                self.add_log(tr!("[WARN] 没有可回滚的备份", "[WARN] No backups to restore"));
                                 return Task::none();
                             }
                         }
                     } else {
                         group_key.clone()
                     };
-                    self.logs.push(format!(
+                    self.add_log(format!(
                         "<< {} {} ...",
-                        tr("正在回滚到", "Rolling back to"),
+                        tr!("正在回滚到", "Rolling back to"),
                         actual_key
                     ));
                     return Task::perform(
@@ -573,12 +546,12 @@ impl WuwaModFixerApp {
             Message::RollbackFinished(result) => {
                 match result {
                     Ok(_) => {
-                        self.logs.push(tr("[OK] 回滚完成!", "[OK] Rollback completed!"));
+                        self.add_log(tr!("[OK] 回滚完成!", "[OK] Rollback completed!"));
                     }
                     Err(e) => {
-                        self.logs.push(format!(
+                        self.add_log(format!(
                             "[ERR] {}: {}",
-                            tr("回滚失败", "Rollback failed"),
+                            tr!("回滚失败", "Rollback failed"),
                             e
                         ));
                     }
@@ -590,7 +563,7 @@ impl WuwaModFixerApp {
             }
 
             Message::RefreshConfig => {
-                self.logs.push(tr(
+                self.add_log(tr!(
                     "正在从远程获取最新配置...",
                     "Fetching latest config from remote...",
                 ));
@@ -598,7 +571,7 @@ impl WuwaModFixerApp {
                     Task::perform(
                         async {
                             match crate::config_loader::force_reload_remote_config().await {
-                                Ok(_) => Ok(tr("[OK] 数据配置已最新", "[OK] Config updated")),
+                                Ok(_) => Ok(tr!("[OK] 数据配置已最新", "[OK] Config updated").to_string()), // 加 .to_string()
                                 Err(e) => Err(format!("{:?}", e)),
                             }
                         },
@@ -609,10 +582,10 @@ impl WuwaModFixerApp {
             }
             Message::ConfigRefreshed(result) => {
                 match result {
-                    Ok(msg) => { self.logs.push(msg); }
-                    Err(e) => self.logs.push(format!(
+                    Ok(msg) => { self.add_log(msg); }
+                    Err(e) => self.add_log(format!(
                         "[ERR] {}: {}",
-                        tr("配置刷新失败", "Config refresh failed"),
+                        tr!("配置刷新失败", "Config refresh failed"),
                         e
                     )),
                 }
@@ -626,12 +599,12 @@ impl WuwaModFixerApp {
                 self.update_info = status;
                 self.config_ready = true;
                 let new_intro = vec![
-                    tr("=================================", "================================="),
+                    tr!("=================================", "=================================").to_string(),
                     t!(intro).to_string(),
                     t!(intro_note).to_string(),
                     t!(compatibility_note).to_string(),
                     t!(graphics_setting_note).to_string(),
-                    tr("=================================", "================================="),
+                    tr!("=================================", "=================================").to_string(),
                 ];
                 let new_end = new_intro.len();
                 self.logs.splice(0..self.intro_end_index.min(self.logs.len()), new_intro);
@@ -648,15 +621,15 @@ impl WuwaModFixerApp {
                 self.show_debug_logs = enabled;
                 if enabled {
                     log::set_max_level(log::LevelFilter::Debug);
-                    self.logs.push(tr("[INFO] 已启用调试日志", "[INFO] Debug logging enabled"));
+                    self.add_log(tr!("[INFO] 已启用调试日志", "[INFO] Debug logging enabled"));
                 } else {
                     log::set_max_level(log::LevelFilter::Info);
-                    self.logs.push(tr("[INFO] 已关闭调试日志", "[INFO] Debug logging disabled"));
+                    self.add_log(tr!("[INFO] 已关闭调试日志", "[INFO] Debug logging disabled"));
                 }
             }
             Message::ClearLogs => {
                 self.logs.clear();
-                self.logs.push(tr("日志已清空", "Logs cleared"));
+                self.add_log(tr!("日志已清空", "Logs cleared"));
             }
             Message::ExportLogs => {
                 let export_start = self.intro_end_index.min(self.logs.len());
@@ -671,14 +644,14 @@ impl WuwaModFixerApp {
                     .and_then(|p| p.parent().map(|d| d.join(&filename)))
                     .unwrap_or_else(|| PathBuf::from(&filename));
                 match std::fs::write(&path, &content) {
-                    Ok(_) => self.logs.push(format!(
+                    Ok(_) => self.add_log(format!(
                         "[OK] {}: {}",
-                        tr("日志已导出", "Logs exported to"),
+                        tr!("日志已导出", "Logs exported to"),
                         path.display()
                     )),
-                    Err(e) => self.logs.push(format!(
+                    Err(e) => self.add_log(format!(
                         "[ERROR] {}: {}",
-                        tr("导出失败", "Export failed"),
+                        tr!("导出失败", "Export failed"),
                         e
                     )),
                 }
@@ -716,6 +689,14 @@ impl WuwaModFixerApp {
             }
             Message::OpenGithubUrl => {
                 let _ = open::that("https://github.com/Moonholder/Wuwa_Mod_Fixer");
+            }
+            Message::OpenSupportIntl => {
+                let url = config_loader::version().support_url_intl.as_deref().unwrap_or("https://ko-fi.com/moonholder");
+                let _ = open::that(url);
+            }
+            Message::OpenSupportCn => {
+                let url = config_loader::version().support_url_cn.as_deref().unwrap_or("https://support.jix.de5.net");
+                let _ = open::that(url);
             }
         }
         Task::none()
@@ -881,6 +862,39 @@ fn text_link_style(_theme: &Theme, status: iced::widget::button::Status) -> iced
     }
 }
 
+fn sponsor_button_style(theme: &Theme, status: button::Status) -> button::Style {
+    let pink = Color::from_rgb(0.92, 0.36, 0.49);
+    
+    match status {
+        button::Status::Hovered | button::Status::Pressed => button::Style {
+            background: Some(iced::Background::Color(pink)),
+            text_color: Color::WHITE,
+            border: iced::Border { radius: 20.0.into(), color: pink, width: 1.0 },
+            ..Default::default()
+        },
+        _ => {
+            let bg = if theme == &Theme::Light {
+                Color::from_rgba(0.92, 0.36, 0.49, 0.05)
+            } else {
+                Color::from_rgba(0.92, 0.36, 0.49, 0.12)
+            };
+            let border_color = if theme == &Theme::Light {
+                Color::from_rgba(0.92, 0.36, 0.49, 0.3)
+            } else {
+                Color::from_rgba(0.92, 0.36, 0.49, 0.4)
+            };
+            
+            button::Style {
+                background: Some(iced::Background::Color(bg)),
+                text_color: pink,
+                border: iced::Border { radius: 20.0.into(), color: border_color, width: 1.0 },
+                ..Default::default()
+            }
+        }
+    }
+}
+
+
 // ---------------------------------------------------------------------------
 // Helper methods
 // ---------------------------------------------------------------------------
@@ -904,20 +918,20 @@ impl WuwaModFixerApp {
     }
 
     fn view_mandatory_update(&self) -> Element<'_, Message> {
-        let title = text(tr("⚠️ 需要更新程序", "⚠️ Update Required"))
+        let title = text(tr!("⚠️ 需要更新程序", "⚠️ Update Required"))
             .size(30)
             .color(DANGER);
 
         let msg = match &self.update_info {
             crate::config_loader::UpdateStatus::MandatoryUpdate(ver, _) => {
-                format!("{}: v{}\n{}", tr("当前配置要求的最低版本", "Minimum required version"), ver, tr("点击下载最新版本以继续使用。", "Click download to continue using the tool."))
+                format!("{}: v{}\n{}", tr!("当前配置要求的最低版本", "Minimum required version"), ver, tr!("点击下载最新版本以继续使用。", "Click download to continue using the tool."))
             },
             _ => String::new(),
         };
 
         let desc = text(msg).size(15).color(get_text_color(&self.theme));
 
-        let download_btn = styled_button(tr("🚀 前往下载发版页面", "🚀 Go to Download Page"), ACCENT)
+        let download_btn = styled_button(tr!("🚀 前往下载发版页面", "🚀 Go to Download Page"), ACCENT)
             .on_press(Message::OpenUpdateUrl);
 
         let content = column![title, desc, download_btn]
@@ -934,7 +948,7 @@ impl WuwaModFixerApp {
 
     fn view_main(&self) -> Element<'_, Message> {
         let config_ver = config_loader::version().current_version.as_str();
-        let version_text = text(format!("{}  v{}   |   {} v{}   |   ", tr("WWMI模组修复工具", "WWMI Mod Fix Tool"), env!("CARGO_PKG_VERSION"), tr("配置版本", "Config"), config_ver))
+        let version_text = text(format!("{}  v{}   |   {} v{}   |   ", tr!("WWMI模组修复工具", "WWMI Mod Fix Tool"), env!("CARGO_PKG_VERSION"), tr!("配置版本", "Config"), config_ver))
             .size(14)
             .color(get_text_dim(&self.theme))
             .font(Font::DEFAULT);
@@ -944,20 +958,31 @@ impl WuwaModFixerApp {
             .style(text_link_style)
             .on_press(Message::OpenGithubUrl);
 
-        let header = row![version_text, author_link].align_y(Alignment::Center);
+        let is_zh = crate::localization::config::get_lang() == "zh";
+        let is_chinese_mainland = crate::localization::config::is_chinese_mainland();
+        let support_btn = button(
+                text(if is_zh { "❤️ 赞助支持" } else { "❤️ Support" })
+                    .size(13)
+                    .font(Font { weight: Weight::Bold, ..Font::DEFAULT })
+            )
+            .padding([4, 12])
+            .style(sponsor_button_style)
+            .on_press(if is_chinese_mainland { Message::OpenSupportCn } else { Message::OpenSupportIntl });
+
+        let header = row![version_text, author_link, Space::new().width(Length::Fill), support_btn].align_y(Alignment::Center);
 
         // Folder selection
         let path_text = self.mod_path
             .as_ref()
             .map(|p| p.display().to_string())
-            .unwrap_or_else(|| tr("未选择文件夹", "No folder selected"));
+            .unwrap_or_else(|| tr!("未选择文件夹", "No folder selected").to_string());
 
         let path_label = text(path_text)
             .size(14)
             .color(if self.mod_path.is_some() { get_text_color(&self.theme) } else { get_text_dim(&self.theme) });
 
         let select_btn = styled_button(
-            tr("[+] 选择 Mod 文件夹", "[+] Select Mod Folder"),
+            tr!("[+] 选择 Mod 文件夹", "[+] Select Mod Folder"),
             ACCENT,
         )
         .on_press(Message::SelectFolder);
@@ -970,7 +995,7 @@ impl WuwaModFixerApp {
         .style(inner_card_style);
 
         let folder_section = column![
-            text(tr("-- 目标文件夹 --", "-- Target Folder --"))
+            text(tr!("-- 目标文件夹 --", "-- Target Folder --"))
                 .size(13).color(get_text_dim(&self.theme)).font(Font { weight: Weight::Bold, ..Font::DEFAULT }),
             folder_inner,
         ]
@@ -978,20 +1003,20 @@ impl WuwaModFixerApp {
 
         // Settings
         let tex_cb = checkbox(self.enable_texture_override)
-            .label(tr("补全贴图状态", "Complete Texture States"))
+            .label(tr!("补全贴图状态", "Add Derived Hashes"))
             .on_toggle(Message::ToggleTextureOverride)
             .size(16);
-        let tex_desc = text(tr(
-            "    为模组补全缺失的贴图状态Hash (如画面细节LOD高/中、坎特蕾拉湿身、千咲强化E、爱弥斯满充能等)，使角色模组贴图在各种渲染状态下正常显示 (部分角色未更新)",
-            "    Add missing texture state hashes (e.g. LOD Bias High/Medium, Cantarella wet, Chisa Enhanced E, Aemeath Charged) so character mod textures display correctly across all rendering states (some characters not updated)",
+        let tex_desc = text(tr!(
+            "    为模组补全缺失的贴图状态Hash (如画面细节高/中、坎特蕾拉湿身、千咲强化E、爱弥斯满充能等) (部分角色未添加)",
+            "    Add missing texture state hashes (e.g. LOD Bias High/Medium, Cantarella wet, Chisa Enhanced E, Aemeath Charged) so character mod textures display correctly (some characters not added)",
         ))
         .size(11).color(get_text_dim(&self.theme));
 
         let stable_cb = checkbox(self.enable_stable_texture)
-            .label(tr("应用稳定纹理", "Stable Texture"))
+            .label(tr!("应用稳定纹理", "Apply Stable Texture"))
             .on_toggle(Message::ToggleStableTexture)
             .size(16);
-        let stable_desc = text(tr(
+        let stable_desc = text(tr!(
             "    使用 RabbitFX 为角色设置稳定纹理 (目前仅坎特蕾拉、千咲、卡提、夏空...)，需安装最新的RabbitFX",
             "    Use RabbitFX to set stable textures for characters (currently Cantarella, Chisa, Cartethyia, Ciaccona...). Requires latest RabbitFX",
         ))
@@ -999,7 +1024,7 @@ impl WuwaModFixerApp {
 
         let aero_enabled = self.aero_fix_mode > 0;
         let aero_cb = checkbox(aero_enabled)
-            .label(tr(
+            .label(tr!(
                 "女漂-风主形态眼部修复",
                 "Aero FemaleRover Eye Fix (eyes glitch when resonance energy is full)",
             ))
@@ -1008,6 +1033,16 @@ impl WuwaModFixerApp {
             })
             .size(18);
 
+        let fix_aemeath_mech_cb = checkbox(self.enable_fix_aemeath_mech)
+            .label(tr!("修复爱弥斯机兵形态的模型异常", "Fix Aemeath's mech form model error"))
+            .on_toggle(Message::ToggleFixAemeathMech)
+            .size(16);
+        let fix_aemeath_mech_desc = text(tr!(
+            "    不要对正常的爱弥斯机兵模组启用此功能，不要重复修复",
+            "    Do not enable this function for Aemeath mech mods that are already normal, do not repeat the fix",
+        ))
+        .size(11).color(get_text_dim(&self.theme));
+
         let mut settings_col = column![
             tex_cb, tex_desc,
             Space::new().height(4),
@@ -1015,27 +1050,29 @@ impl WuwaModFixerApp {
             Space::new().height(4),
             rule::horizontal(1),
             Space::new().height(4),
+            fix_aemeath_mech_cb, fix_aemeath_mech_desc,
+            Space::new().height(4),
             aero_cb,
         ]
         .spacing(6);
 
         if aero_enabled {
-            let aero_warn = text(tr(
+            let aero_warn = text(tr!(
                 "  [!] 确保你的 mod 存在此问题，否则不要开启!",
                 "  [!] Make sure your mod has this problem, otherwise don't enable!",
             )).size(11).color(DANGER);
 
             let aero_texcoord = radio(
-                tr("TexCoord 覆盖", "TexCoord Override"),
+                tr!("TexCoord 覆盖", "TexCoord Override"),
                 1u8, Some(self.aero_fix_mode), Message::SetAeroFixMode,
             ).size(14);
 
             let aero_mirror = radio(
-                tr("贴图镜像反转", "Texture Mirror Flip"),
+                tr!("贴图镜像反转", "Texture Mirror Flip"),
                 2u8, Some(self.aero_fix_mode), Message::SetAeroFixMode,
             ).size(14);
 
-            let aero_tip = text(tr(
+            let aero_tip = text(tr!(
                 "  如果一种方式修复后仍有问题，请先回滚再换另一种方式尝试",
                 "  If one method still has issues, rollback first then try the other",
             )).size(11).color(get_text_dim(&self.theme));
@@ -1052,7 +1089,7 @@ impl WuwaModFixerApp {
             .style(inner_card_style);
 
         let settings_section = column![
-            text(tr("-- 修复选项 --", "-- Fix Options --"))
+            text(tr!("-- 修复选项 --", "-- Fix Options --"))
                 .size(13).color(get_text_dim(&self.theme)).font(Font { weight: Weight::Bold, ..Font::DEFAULT }),
             settings_inner,
         ].spacing(8);
@@ -1060,14 +1097,14 @@ impl WuwaModFixerApp {
         // Action buttons
         let (fix_label, fix_color) = if self.is_processing {
             if self.files_total > 0 {
-                (format!("[...] {} ({}/{})", tr("修复中", "Fixing"), self.files_processed, self.files_total), ACCENT)
+                (format!("[...] {} ({}/{})", tr!("修复中", "Fixing"), self.files_processed, self.files_total), ACCENT)
             } else {
-                (tr("[...] 修复中", "[...] Fixing..."), ACCENT)
+                (tr!("[...] 修复中", "[...] Fixing...").to_string(), ACCENT)
             }
         } else if self.fix_just_completed {
-            (tr("[OK] 修复完成", "[OK] Fix Done!"), SUCCESS)
+            (tr!("[OK] 修复完成", "[OK] Fix Done!").to_string(), SUCCESS)
         } else {
-            (tr("[>] 一键修复", "[>] Fix Mod"), SUCCESS)
+            (tr!("[>] 一键修复", "[>] Fix Mod").to_string(), SUCCESS)
         };
 
         let mut fix_btn = styled_button(fix_label, fix_color);
@@ -1075,7 +1112,7 @@ impl WuwaModFixerApp {
             fix_btn = fix_btn.on_press(Message::StartFix);
         }
 
-        let rollback_btn = styled_button(tr("[<<] 回滚管理", "[<<] Rollback"), ACCENT_DARK)
+        let rollback_btn = styled_button(tr!("[<<] 回滚管理", "[<<] Rollback"), ACCENT_DARK)
             .on_press(Message::SwitchView(View::Rollback));
 
         let actions = row![fix_btn, rollback_btn].spacing(10);
@@ -1083,23 +1120,23 @@ impl WuwaModFixerApp {
         // Bottom toolbar
         let theme_btn = mini_button(if self.theme == Theme::Light { "🌙".to_string() } else { "☀️".to_string() }, &self.theme)
             .on_press(Message::ToggleTheme);
-        let config_btn = mini_button(tr("刷新数据配置", "Refresh Config Data"), &self.theme)
+        let config_btn = mini_button(tr!("刷新数据配置", "Refresh Config Data"), &self.theme)
             .on_press(Message::RefreshConfig);
         let debug_cb = checkbox(self.show_debug_logs)
-            .label(tr("调试日志", "Debug Logs"))
+            .label(tr!("调试日志", "Debug Logs"))
             .on_toggle(Message::ToggleDebugLogs)
             .size(14)
             .text_size(11);
-        let clear_btn = mini_button(tr("清空日志", "Clear Logs"), &self.theme)
+        let clear_btn = mini_button(tr!("清空日志", "Clear Logs"), &self.theme)
             .on_press(Message::ClearLogs);
-        let export_btn = mini_button(tr("导出日志", "Export Logs"), &self.theme)
+        let export_btn = mini_button(tr!("导出日志", "Export Logs"), &self.theme)
             .on_press(Message::ExportLogs);
 
         let toolbar = row![theme_btn, config_btn, Space::new().width(Length::Fill), export_btn, clear_btn, debug_cb]
             .spacing(8).align_y(Alignment::Center);
 
         // Log area
-        let log_label = text(tr("-- 日志 --", "-- Log --")).size(12).color(get_text_dim(&self.theme));
+        let log_label = text(tr!("-- 日志 --", "-- Log --")).size(12).color(get_text_dim(&self.theme));
         let log_content = self.build_log_view();
 
         let mut main_col = column![header].spacing(10);
@@ -1107,11 +1144,11 @@ impl WuwaModFixerApp {
         // Update banner
         if let crate::config_loader::UpdateStatus::OptionalUpdate(ref new_ver, _) = self.update_info {
             let banner_text = text(format!(
-                "{}  v{}", tr("🎉 发现新版本", "🎉 New version available"), new_ver,
+                "{}  v{}", tr!("🎉 发现新版本", "🎉 New version available"), new_ver,
             )).size(14).font(Font { weight: Weight::Bold, ..Font::DEFAULT }).color(get_text_color(&self.theme));
 
             let download_btn = styled_button(
-                tr("🚀 前往下载", "🚀 Download"),
+                tr!("🚀 前往下载", "🚀 Download"),
                 Color::from_rgb(0.85, 0.55, 0.15),
             ).on_press(Message::OpenUpdateUrl);
 
@@ -1140,10 +1177,10 @@ impl WuwaModFixerApp {
     }
 
     fn view_rollback(&self) -> Element<'_, Message> {
-        let title = text(tr("⏪ 回滚管理器", "⏪ Rollback Manager"))
+        let title = text(tr!("⏪ 回滚管理器", "⏪ Rollback Manager"))
             .size(28)
             .font(Font { weight: Weight::Bold, ..Font::DEFAULT });
-        let back_btn = styled_button_with_text(tr("< 返回", "< Back"), get_surface_light(&self.theme), get_text_color(&self.theme))
+        let back_btn = styled_button_with_text(tr!("< 返回", "< Back"), get_surface_light(&self.theme), get_text_color(&self.theme))
             .on_press(Message::SwitchView(View::Main));
         let header = row![title, Space::new().width(Length::Fill), back_btn].align_y(Alignment::Center);
 
@@ -1151,7 +1188,7 @@ impl WuwaModFixerApp {
             return column![
                 header,
                 rule::horizontal(1),
-                text(tr("请先在主页选择 Mod 文件夹", "Please select a Mod folder first")).size(16),
+                text(tr!("请先在主页选择 Mod 文件夹", "Please select a Mod folder first")).size(16),
             ].spacing(20).into();
         }
 
@@ -1159,7 +1196,7 @@ impl WuwaModFixerApp {
 
         if self.backup_groups.is_empty() {
             items = items.push(
-                text(tr("当前目录下没有找到备份文件 (.BAK)", "No backup files (.BAK) found"))
+                text(tr!("当前目录下没有找到备份文件 (.BAK)", "No backup files (.BAK) found"))
                     .size(13).color(get_text_dim(&self.theme)),
             );
         } else {
@@ -1184,7 +1221,7 @@ impl WuwaModFixerApp {
                     by_dir.entry(parent).or_default().push(fname);
                 }
 
-                let header_text = text(format!("[{}]  {} {}", display_time, group.files.len(), tr("个文件", "file(s)")))
+                let header_text = text(format!("[{}]  {} {}", display_time, group.files.len(), tr!("个文件", "file(s)")))
                     .size(13).color(get_text_color(&self.theme)).font(Font { weight: Weight::Bold, ..Font::DEFAULT });
 
                 let mut detail_col = Column::new().spacing(1);
@@ -1200,18 +1237,18 @@ impl WuwaModFixerApp {
                 let action_row = if is_pending {
                     let newer_count = idx;
                     let mut scope_parts = vec![
-                        tr("将恢复这些文件到修复前的状态", "Will restore these files to pre-fix state"),
+                        tr!("将恢复这些文件到修复前的状态", "Will restore these files to pre-fix state").to_string(),
                     ];
                     if newer_count > 0 {
                         scope_parts.push(format!("+ {} {}", newer_count,
-                            tr("组更新的备份也将被清理", "newer backup group(s) will also be cleaned up")));
+                            tr!("组更新的备份也将被清理", "newer backup group(s) will also be cleaned up")));
                     }
                     let scope_warning = text(scope_parts.join("\n"))
                         .size(11).color(Color::from_rgb(0.95, 0.75, 0.30));
 
-                    let confirm_btn = styled_button(tr("确认回滚", "Confirm"), DANGER)
+                    let confirm_btn = styled_button(tr!("确认回滚", "Confirm"), DANGER)
                         .on_press(Message::ExecuteRollback(group.group_key.clone()));
-                    let cancel_btn = mini_button(tr("取消", "Cancel"), &self.theme)
+                    let cancel_btn = mini_button(tr!("取消", "Cancel"), &self.theme)
                         .on_press(Message::CancelRollback);
 
                     column![
@@ -1220,7 +1257,7 @@ impl WuwaModFixerApp {
                         scope_warning,
                     ].spacing(4)
                 } else {
-                    let restore_btn = mini_button(tr("恢复", "Restore"), &self.theme)
+                    let restore_btn = mini_button(tr!("恢复", "Restore"), &self.theme)
                         .on_press(Message::ConfirmRollback(group.group_key.clone()));
                     column![
                         row![header_text, Space::new().width(Length::Fill), restore_btn].spacing(8).align_y(Alignment::Center),
@@ -1237,7 +1274,7 @@ impl WuwaModFixerApp {
             }
         }
 
-        let refresh_btn = styled_button_with_text(tr("🔄 刷新", "🔄 Refresh"), get_surface_light(&self.theme), get_text_color(&self.theme))
+        let refresh_btn = styled_button_with_text(tr!("🔄 刷新", "🔄 Refresh"), get_surface_light(&self.theme), get_text_color(&self.theme))
             .on_press(Message::RefreshBackups);
 
         let is_restore_all_pending = self.pending_rollback.as_deref() == Some("__RESTORE_ALL__");
@@ -1247,19 +1284,19 @@ impl WuwaModFixerApp {
             let total_files: usize = self.backup_groups.iter().map(|g| g.files.len()).sum();
             let warning = text(format!(
                 "{} {} {} {} {}",
-                tr("将还原所有文件到最早的备份状态，并删除全部", "Restore all files to earliest backup and delete all"),
+                tr!("将还原所有文件到最早的备份状态，并删除全部", "Restore all files to earliest backup and delete all"),
                 total_files,
-                tr("个 .BAK 文件 (", "BAK files ("),
+                tr!("个 .BAK 文件 (", "BAK files ("),
                 self.backup_groups.len(),
-                tr("组)", "group(s))"),
+                tr!("组)", "group(s))"),
             )).size(12).color(Color::from_rgb(0.95, 0.75, 0.30));
-            let confirm_btn = styled_button(tr("确认全部还原", "Confirm Restore All"), DANGER)
+            let confirm_btn = styled_button(tr!("确认全部还原", "Confirm Restore All"), DANGER)
                 .on_press(Message::ExecuteRollback("__RESTORE_ALL__".to_string()));
-            let cancel_btn = mini_button(tr("取消", "Cancel"), &self.theme)
+            let cancel_btn = mini_button(tr!("取消", "Cancel"), &self.theme)
                 .on_press(Message::CancelRollback);
             column![warning, row![confirm_btn, cancel_btn].spacing(8)].spacing(6).into()
         } else {
-            styled_button(tr("🚨 全部还原", "🚨 Restore All"), DANGER)
+            styled_button(tr!("🚨 全部还原", "🚨 Restore All"), DANGER)
                 .on_press(Message::ConfirmRestoreAll).into()
         };
 
@@ -1274,7 +1311,7 @@ impl WuwaModFixerApp {
             toolbar,
             scrollable(items).height(Length::FillPortion(2)),
             rule::horizontal(1),
-            text(tr("-- 日志 --", "-- Log --")).size(12).color(get_text_dim(&self.theme)),
+            text(tr!("-- 日志 --", "-- Log --")).size(12).color(get_text_dim(&self.theme)),
             log_content,
         ].spacing(8).into()
     }
@@ -1320,20 +1357,20 @@ impl WuwaModFixerApp {
 // ---------------------------------------------------------------------------
 // Styled button helpers
 // ---------------------------------------------------------------------------
-fn styled_button(label: String, color: Color) -> iced::widget::Button<'static, Message> {
-    button(text(label).size(14))
+fn styled_button(label: impl Into<String>, color: Color) -> iced::widget::Button<'static, Message> {
+    button(text(label.into()).size(14))
         .padding([8, 18])
         .style(accent_button_style(color, Color::WHITE))
 }
 
-fn styled_button_with_text(label: String, color: Color, txt_color: Color) -> iced::widget::Button<'static, Message> {
-    button(text(label).size(14))
+fn styled_button_with_text(label: impl Into<String>, color: Color, txt_color: Color) -> iced::widget::Button<'static, Message> {
+    button(text(label.into()).size(14))
         .padding([8, 18])
         .style(accent_button_style(color, txt_color))
 }
 
-fn mini_button<'a>(label: String, theme: &Theme) -> iced::widget::Button<'a, Message> {
-    button(text(label).size(12))
+fn mini_button<'a>(label: impl Into<String>, theme: &Theme) -> iced::widget::Button<'a, Message> {
+    button(text(label.into()).size(12))
         .padding([4, 10])
         .style(accent_button_style(get_surface_light(theme), get_text_color(theme)))
 }
