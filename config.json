@@ -1,8 +1,8 @@
 {
     "version" : {
         "min_required_version": "3.2.0",
-        "current_version": "3.2.0",
-        "latest_program_version": "3.2.0",
+        "current_version": "3.2.1",
+        "latest_program_version": "3.2.1",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest",
         "support_url_cn": "https://support.jix.de5.net",
         "support_url_intl": "https://ko-fi.com/moonholder"
@@ -29,8 +29,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.2: 请将XXMI更新至最新版本\n* 修复爱弥斯机兵形态的模型异常\n* 添加女漂皮肤、西格莉卡的画面细节高/中贴图hash\n* 更新赞妮的画面细节高/中贴图hash\n* 修复长离皮肤的贴图错误\n* 更新西格莉卡的hash值(03/24)\n\n* 修复3.1:\n* 补全爱弥斯满能量时的贴图hash、修复摩托默认涂装\n* 修复了陆且添加了他的LoD贴图hash\n* 更新秧秧的LoD贴图hash\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误...\n\n",
-            "en": "Fix 3.2: Please update XXMI to the latest version.\n* Fixed Aemeath's mech form model error.\n*  Added High/Medium LOD Bias texture hashes for the FRoverSkin1 and Sigrika, updated Zani's texture hash for High/Medium LOD Bias.\n* Fix Changli's skin texture error.\n* Update Sigrika's hash value (03/24)\n\n* Fix 3.1:\n* Fixed Aemeath's charged state texture hash, fixed default motorbike livery.\n* Fixed Luuk and added his LoD texture hash\n* Updated Yangyang's LoD texture hash\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani...\n\n"
+            "zh": "修复3.2: 请将XXMI更新至最新版本\n* 更新修复以下武器的贴图错误：奇幻变奏、漪澜浮录、千古洑流、赫奕流明、裁春、擎渊怒涛、浩境粼光、时和岁稔、凋亡频率、异响空灵、苍鳞千嶂\n* 添加卜灵(Buling)的稳定纹理配置，以及添加琳奈(Lynae)唤取动画时的贴图hash\n* 修复爱弥斯机兵形态的模型异常\n* 添加女漂皮肤、西格莉卡的画面细节高/中贴图hash\n* 更新赞妮的画面细节高/中贴图hash\n* 修复长离皮肤的贴图错误\n\n* 修复3.1:\n* 补全爱弥斯满能量时的贴图hash、修复摩托默认涂装\n* 修复了陆且添加了他的LoD贴图hash\n* 更新秧秧的LoD贴图hash\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误...\n\n",
+            "en": "Fix 3.2: Please update XXMI to the latest version.\n* Updated and fixed texture errors for the following weapons: Variation, Cosmic Ripples, Emerald of Genesis, Blazing Brilliance, Red Spring, Abyss Surges, Lustrous Razor, Ages of Harvest, Waning Redshift, Discord, and Verdant Summit.\n* Added stable texture configuration for Buling, and added texture hashes for Lynae's summon animation.\n* Fixed Aemeath's mech form model error.\n*  Added High/Medium LOD Bias texture hashes for the FRoverSkin1 and Sigrika, updated Zani's texture hash for High/Medium LOD Bias.\n* Fix Changli's skin texture error.\n\n* Fix 3.1:\n* Fixed Aemeath's charged state texture hash, fixed default motorbike livery.\n* Fixed Luuk and added his LoD texture hash\n* Updated Yangyang's LoD texture hash\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani...\n\n"
         },
         "intro_note": {
             "zh": "确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错",
@@ -1252,13 +1252,14 @@
         },
         "Variation": {
             "main_hashes": [{"old": ["e048d096"], "new": "e048d096"}],
-            "1a108cd4": { "replace": ["dd8be8f2"] },
-            "db05b110": { "replace": ["213f823b"] }
+            "dd8be8f2": { "replace": ["1a108cd4"] },
+            "213f823b": { "replace": ["db05b110"] }
         },
         "CosmicRipples": {
             "main_hashes": [{"old": ["d53ea67e"], "new": "d53ea67e"}],
-            "620ad65d": { "replace": ["23c62b79"] },
-            "aac2561c": { "replace": ["146320ad"] }
+            "23c62b79": { "replace": ["620ad65d"] },
+            "674503ea": { "derive": {"lvMax": ["146320ad"]} },
+            "146320ad": { "replace": ["aac2561c"], "derive": {"lvMIN": ["674503ea"]} }
         },
         "StaticMist": {
             "main_hashes": [{"old": ["73715b78"], "new": "73715b78"}],
@@ -1272,22 +1273,23 @@
         },
         "EmeraldOfGenesis": {
             "main_hashes": [{"old": ["b1914728"], "new": "b1914728"}],
-            "cb370521": { "replace": ["83819cda"] },
-            "4cc237ca": { "replace": ["b46d4c5a"] }
+            "83819cda": { "replace": ["cb370521"] },
+            "d83f496b": { "derive": {"lvMAX": ["b46d4c5a"]} },
+            "b46d4c5a": { "replace": ["4cc237ca"], "derive": {"lvMIN": ["d83f496b"]} }
         },
         "BlazingBrilliance": {
             "main_hashes": [{"old": ["1504a946"], "new": "1504a946"}],
-            "99378d4e": { "replace": ["11c6338a"] },
+            "11c6338a": { "replace": ["99378d4e"] },
             "6c56deec": { "replace": ["1667904f"] },
-            "6f6dd255": { "replace": ["9a0529f4"] },
+            "9a0529f4": { "replace": ["6f6dd255"] },
             "da907816": { "replace": ["c688b58f"] }
         },
         "RedSpring": {
             "main_hashes": [{"old": ["c693a1b0"], "new": "c693a1b0"}],
-            "6afea497": { "replace": ["390455ca"] },
-            "df2ba6d4": { "replace": ["8af034cf"] },
-            "b3ff5221": { "replace": ["58b9505f"] },
-            "7980bf2c": { "replace": ["96d3cc82"] }
+            "390455ca": { "replace": ["6afea497"] },
+            "8af034cf": { "replace": ["df2ba6d4"] },
+            "58b9505f": { "replace": ["b3ff5221"] },
+            "96d3cc82": { "replace": ["7980bf2c"] }
         },
         "Bloodpact's Pledge": {
             "main_hashes": [{"old": ["42108bbf"], "new": "42108bbf"}],
@@ -1296,8 +1298,9 @@
         },
         "Abyss Surges": {
             "main_hashes": [{"old": ["2f5823ab"], "new": "2f5823ab"}],
-            "2332bc48": { "replace": ["234d655c"] },
-            "9d24cbfe": { "replace": ["0f7906cc"] }
+            "234d655c": { "replace": ["2332bc48"], "derive": {"lvMIN": ["3c059fab"]} },
+            "3c059fab": { "derive": {"lvMax": ["234d655c"]} } ,
+            "0f7906cc": { "replace": ["9d24cbfe"] }
         },
         "Helios Cleaver": {
             "main_hashes": [{"old": ["e83a5452"], "new": "e83a5452"}],
@@ -1306,24 +1309,32 @@
         },
         "Lustrous Razor": {
             "main_hashes": [{"old": ["6c13129e"], "new": "6c13129e"}],
-            "792bab54": { "replace": ["1accaab3"] },
-            "9283115f": { "replace": ["b5acb120"] }
+            "1accaab3": { "replace": ["792bab54"] },
+            "b5acb120": { "replace": ["9283115f"] }
         },
         "Ages of Harvest": {
             "main_hashes": [{"old": ["1408f42b"], "new": "1408f42b"}],
             "7bc9c197": { "replace": ["b549206e"] },
-            "19812849": { "replace": ["14433fb4"] },
-            "579982d9": { "replace": ["f2d3a758"] }
+            "14433fb4": { "replace": ["19812849"], "derive": {"lvMAX": ["f2d3a758"]}},
+            "f2d3a758": { "replace": ["579982d9"], "derive": {"lvMIN": ["14433fb4"]} }
         },
         "WaningRedshift": {
             "main_hashes": [{"old": ["1de81fab"], "new": "1de81fab"}],
-            "5517dda5": { "replace": ["5fdb85d6"] },
-            "6f111a0a": { "replace": ["79068d65"] }
+            "5fdb85d6": { "replace": ["5517dda5"] },
+            "79068d65": { "replace": ["6f111a0a"] }
         },
         "SomnoireAnchor": {
             "main_hashes": [{"old": ["90554178"], "new": "90554178"}],
             "26d963ce": { "replace": ["aaae8418"] },
             "75cdd95d": { "replace": ["29d61c94"] }
+        },
+        "Discord": {
+            "0a28b7ee": { "replace": ["f55bdb86"] },
+            "f8dd7bb3": { "replace": ["6ea48506"] }
+        },
+        "VerdantSummit": {
+            "4ea65e5f": { "replace": ["a2eda43b"], "derive": {"lvMIN": ["01360bf4"]} },
+            "01360bf4": { "derive": {"lvMAX": ["4ea65e5f"]} }
         },
         "BlackShoreNPCBody": {
             "main_hashes": [{"old": ["1dd0746d"], "new": "1dd0746d"}],
@@ -1366,40 +1377,46 @@
             "f42f50d6": { "replace": ["4d9c4532"] }
         },
         "Buling": {
-            "8dee1ac6": { "derive": { "LOD": ["50b184e1", "1e562d6e"] } },
-            "40adbec5": { "derive": { "LOD": ["9df220e2", "94871d13"] } },
-            "0d688c94": { "derive": { "LOD": ["d03712b3", "39c0488d"] } },
-            "5863867a": { "derive": { "LOD": ["853c185d", "f41f978b"] } },
-            "d8a68207": { "derive": { "LOD": ["05f91c20", "cd5d36e7"] } },
-            "df9f758a": { "derive": { "LOD": ["02c0ebad", "ca1d18db"] } },
-            "01375d8e": { "derive": { "LOD": ["dc68c3a9", "1224e241"] } },
-            "23966ca8": { "derive": { "LOD": ["fec9f28f", "c19451c3"] } }
+            "main_hashes": [{"old": ["3acffb93"], "new": "3acffb93"}],
+            "8dee1ac6": { "meta": { "id": 0, "type": "D" }, "derive": { "LOD": ["50b184e1", "1e562d6e"] } },
+            "84912b43": { "meta": { "id": 0, "type": "L" }},
+            "40adbec5": { "meta": { "id": 1, "type": "D"}, "derive": { "LOD": ["9df220e2", "94871d13"] } },
+            "a982c93c": { "meta": { "id": 1, "type": "L" }},
+            "0d688c94": { "meta": { "id": 2, "type": "D"}, "derive": { "LOD": ["d03712b3", "39c0488d"] } },
+            "d9d80742": { "meta": { "id": 2, "type": "L" }},
+            "d8a68207": { "meta": { "id": 3, "type": "D"}, "derive": { "LOD": ["05f91c20", "cd5d36e7"] } },
+            "a24f738d": { "meta": { "id": 3, "type": "L" }},
+            "df9f758a": { "meta": { "id": 3, "type": "N" }, "derive": { "LOD": ["02c0ebad", "ca1d18db"] } },
+            "23966ca8": { "meta": { "id": 4, "type": "D" }, "derive": { "LOD": ["fec9f28f", "c19451c3"] } },
+            "2c292a15": { "meta": { "id": 4, "type": "L" }},
+            "01375d8e": { "meta": { "id": 4, "type": "N" }, "derive": { "LOD": ["dc68c3a9", "1224e241"] } },
+            "5863867a": { "meta": { "id": 5, "type": "D" }, "derive": { "LOD": ["853c185d", "f41f978b"] } }
         },
         "Lynae": {
-            "2e60ca6c": { "derive": { "LOD": ["f33f544b", "9ca67d0a"] } },
-            "2fd59f3a": { "derive": { "LOD": ["f28a011d", "15059448"] } },
-            "23d9b128": { "derive": { "LOD": ["fe862f0f", "fef5aa79"] } },
-            "60caec0b": { "derive": { "LOD": ["bd95722c", "eb97efb9"] } },
-            "37cdf366": { "replace": ["211e50f4"], "derive": { "LOD": ["ea926d41", "a2391240"] } },
-            "ba2b09a1": { "replace": ["391a7fde"], "derive": { "LOD": ["67749786", "00bbd968"] } },
-            "70ee685f": { "replace": ["879f275e"], "derive": { "LOD": ["adb1f678", "06292c74"] } },
-            "7065b0be": { "derive": { "LOD": ["ad3a2e99", "8e06248c"] } },
-            "358f8d1e": { "replace": ["a8e46264"], "derive": { "LOD": ["e8d01339", "927bb0b1"] } },
-            "b0e8646a": { "derive": { "LOD": ["6db7fa4d", "e65ea0d0"] } },
-            "c84b599c": { "replace": ["cb04a3d7"], "derive": { "LOD": ["1514c7bb", "9aae7fdb"] } },
-            "6c09d0d7": { "replace": ["ec6b0edc"], "derive": { "LOD": ["b1564ef0", "179dcb60"] } },
+            "2e60ca6c": { "derive": { "LOD": ["f33f544b", "9ca67d0a"], "Gacha": ["5d97825c"]} },
+            "2fd59f3a": { "derive": { "LOD": ["f28a011d", "15059448"], "Gacha": ["37acf629"]} },
+            "23d9b128": { "derive": { "LOD": ["fe862f0f", "fef5aa79"], "Gacha": ["b70b45ae", "7039ca55", "e5c22e95", "bae1b5ea"]} },
+            "60caec0b": { "derive": { "LOD": ["bd95722c", "eb97efb9"], "Gacha": ["4f2812cc", "51e80eed"]} },
+            "37cdf366": { "replace": ["211e50f4"], "derive": { "LOD": ["ea926d41", "a2391240"], "Gacha": ["09105c98", "28025e54"] } },
+            "ba2b09a1": { "replace": ["391a7fde"], "derive": { "LOD": ["67749786", "00bbd968"], "Gacha": ["28ae13d3"] } },
+            "70ee685f": { "replace": ["879f275e"], "derive": { "LOD": ["adb1f678", "06292c74"], "Gacha": ["0d8bd0a7"] } },
+            "7065b0be": { "derive": { "LOD": ["ad3a2e99", "8e06248c"], "Gacha": ["196a084f"] } },
+            "358f8d1e": { "replace": ["a8e46264"], "derive": { "LOD": ["e8d01339", "927bb0b1"], "Gacha": ["055dbe4c"] } },
+            "b0e8646a": { "derive": { "LOD": ["6db7fa4d", "e65ea0d0"], "Gacha": ["aa39082d"] } },
+            "c84b599c": { "replace": ["cb04a3d7"], "derive": { "LOD": ["1514c7bb", "9aae7fdb"], "Gacha": ["be16f064"] } },
+            "6c09d0d7": { "replace": ["ec6b0edc"], "derive": { "LOD": ["b1564ef0", "179dcb60"], "Gacha": ["dee612b2"] } },
             "7aa57b2c": { "derive": { "LOD": ["a7fae50b", "8aa5b045"] } },
             "10c8713e": { "derive": { "LOD": ["cd97ef19", "5dba0f93"] } },
-            "38686e88": { "derive": { "LOD": ["e537f0af", "7e202348"] } },
-            "dd5dceaa": { "derive": { "LOD": ["0002508d", "4053631d"] } },
+            "38686e88": { "derive": { "LOD": ["e537f0af", "7e202348"], "Gacha": ["91b7fedc"] } },
+            "dd5dceaa": { "derive": { "LOD": ["0002508d", "4053631d"], "Gacha": ["4feb8f2c"] } },
             "c5784ddf": { "derive": { "LOD": ["1827d3f8", "2949a306"] } },
-            "c49bec43": { "derive": { "LOD": ["19c47264", "607d713e"] } },
+            "c49bec43": { "derive": { "LOD": ["19c47264", "607d713e"], "Gacha": ["607d713e"] } },
             "6d5f71f9": { "derive": { "LOD": ["b000efde", "99b0f5d1"] } },
             "950acc22": { "derive": { "LOD": ["48555205", "95944679"] } },
             "1261dcbc": { "replace": ["513eace9"] },
-            "8e20c909": { "replace": ["347a41a2"] },
+            "8e20c909": { "replace": ["347a41a2"], "derive": { "LOD": ["2d50f344"] } },
             "b5453395": { "replace": ["17372a89"] },
-            "47df9d42": { "replace": ["f45cea79"] }
+            "47df9d42": { "replace": ["f45cea79"], "derive": { "LOD": ["eccd0754"] } }
         },
         "Motorbike": {
             "main_hashes": [{"old": ["823bcd54"], "new": "823bcd54"}],
