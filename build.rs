@@ -25,7 +25,7 @@ fn main() {
             .set("FileDescription", "WWMI Mods Fix Tool")
             .set("LegalCopyright", "© Moonholder. All rights reserved.")
             .set("OriginalFilename", "Wuwa_Mod_Fixer.exe")
-            .set("CompanyName", "t.me/WuwaMods2");
+            .set("CompanyName", "t.me/REWUWACHATS");
 
         res.compile().expect("Failed to compile Windows resources");
     }

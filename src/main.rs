@@ -54,6 +54,54 @@ const EARLY_CHARACTERS: [&str; 20] = [
     "Changli",
 ];
 
+/// Parse the section name from an INI header line.
+/// Handles:
+///   `[SectionName]`          → Some("SectionName")
+///   `[SectionName] ;comment` → Some("SectionName")
+///   `[SectionName`           → Some("SectionName")  (missing closing bracket)
+///   `not a section`          → None
+fn parse_section_name(line: &str) -> Option<&str> {
+    let trimmed = line.trim();
+    if !trimmed.starts_with('[') {
+        return None;
+    }
+    let after_bracket = &trimmed[1..];
+    if let Some(end) = after_bracket.find(']') {
+        let name = after_bracket[..end].trim();
+        if !name.is_empty() { Some(name) } else { None }
+    } else {
+        // No closing bracket — take up to first `;` or end of line
+        let name = after_bracket.split(';').next().unwrap_or("").trim();
+        if !name.is_empty() { Some(name) } else { None }
+    }
+}
+
+/// Find the byte range `(start, end)` of a named INI section in `content`.
+///
+/// Uses `parse_section_name` for robust matching (tolerates comments,
+/// missing brackets, whitespace variations).  Returns the byte range from
+/// the first character of the header line to the first character of the
+/// next section header (or end-of-string).
+fn find_section_byte_range(content: &str, target_name: &str) -> Option<(usize, usize)> {
+    let mut section_start: Option<usize> = None;
+    let base_ptr = content.as_ptr() as usize;
+
+    for line in content.lines() {
+        if let Some(name) = parse_section_name(line) {
+            let byte_offset = line.as_ptr() as usize - base_ptr;
+            if section_start.is_some() {
+                return section_start.map(|s| (s, byte_offset));
+            }
+            if name.eq_ignore_ascii_case(target_name) {
+                section_start = Some(byte_offset);
+            }
+        }
+    }
+
+    // Target section extends to end of content
+    section_start.map(|s| (s, content.len()))
+}
+
 pub struct ModFixer {
     characters: HashMap<String, CharacterConfig>,
     hash_to_character: HashMap<String, String>,
@@ -64,7 +112,6 @@ pub struct ModFixer {
     aero_fix_mode: u8,
     checksum_regex: Regex,
     hash_re: Regex,
-    blend_block_re: Regex,
     stride_re: Regex,
     re_t17: Regex,
     re_t18: Regex,
@@ -121,7 +168,6 @@ impl ModFixer {
             aero_fix_mode,
             checksum_regex: Regex::new(r"(checksum\s*=\s*)\d+").unwrap(),
             hash_re: Regex::new(r"hash\s*=\s*([0-9a-fA-F]{8,16})\b").unwrap(),
-            blend_block_re: Regex::new(r"\[ResourceBlendBuffer[^\]]*\][^\[]+").unwrap(),
             stride_re: Regex::new(r"stride\s*=\s*8").unwrap(),
             re_t17: Regex::new(r#"(?m)^(\s*)ps-t17\s*=\s*(Resource\S*)"#).unwrap(),
             re_t18: Regex::new(r#"(?m)^(\s*)ps-t18\s*=\s*(Resource\S*)"#).unwrap(),
@@ -172,6 +218,7 @@ impl ModFixer {
 
         // Pre-scan: count target files for progress reporting
         let total_files: usize = WalkDir::new(path)
+            .follow_links(true)
             .into_iter()
             .filter_map(|e| e.ok())
             .filter(|e| e.path().is_file() && self.is_target_file(e.path()))
@@ -183,7 +230,7 @@ impl ModFixer {
         let mut errors = 0;
         let mut processed = 0usize;
 
-        for entry in WalkDir::new(path) {
+        for entry in WalkDir::new(path).follow_links(true) {
             let path = match entry {
                 Ok(entry) => entry.into_path(),
                 Err(e) => {
@@ -243,7 +290,8 @@ impl ModFixer {
     }
 
     fn process_file(&self, path: &Path) -> Result<bool> {
-        let content = fs::read_to_string(path)?;
+        let bytes = fs::read(path)?;
+        let content = String::from_utf8_lossy(&bytes).into_owned();
         let mut new_content = content.clone();
         let mut backed_up = HashSet::new();
         info!("{}", t!(process_file_start, file_path = path.display()));
@@ -272,10 +320,19 @@ impl ModFixer {
             if char_name == "RoverMale" && content.contains("FixAeroRoverFemale") { continue; }
             info!("{}", t!(match_character_prompt, character = char_name));
 
-            // [Phase 1] 文本哈希与基础属性替换
+            // [Phase 1] 文本哈希替换
             ini_modified |= self.run_text_replacements(&mut new_content, config);
 
             if self.is_character_match(&content, char_name, config) {
+                if let Some(checksum) = &config.checksum {
+                    let replaced = self.checksum_regex.replace_all(&new_content, format!("checksum = {}", checksum).as_str());
+                    if replaced.as_ref() != new_content { 
+                        new_content = replaced.into_owned(); 
+                        ini_modified = true; 
+                    }
+                }
+                ini_modified |= self.replace_index_offset_count(&mut new_content, &config.rules);
+
                 // [Phase 2] 材质扩展 (RabbitFX)
                 if self.enable_stable_texture {
                     ini_modified |= self.replace_rabbit_fx_resources(&mut new_content);
@@ -327,34 +384,51 @@ impl ModFixer {
     }
 
     fn is_character_match(&self, content: &str, char_name: &str, config: &CharacterConfig) -> bool {
-        // Rule 1: Check for vb0 hash in [TextureOverrideComponent...]
+        let check_shape_key = EARLY_CHARACTERS.contains(&char_name);
+
+        let mut vb0_hashes: HashSet<&str> = HashSet::new();
+        let mut sk_hashes: HashSet<&str> = HashSet::new();
+
         if let Some(vb0) = config.main_hashes.first() {
-            for hash in vb0.old.iter().chain(std::iter::once(&vb0.new)) {
-                let re = Regex::new(&format!(
-                    r"\[TextureOverrideComponent\w*\][^\[]*?hash\s*=\s*{}",
-                    hash
-                ))
-                .unwrap();
-                if re.is_match(content) {
-                    return true;
+            for h in vb0.old.iter().chain(std::iter::once(&vb0.new)) {
+                vb0_hashes.insert(h.as_str());
+            }
+        }
+        if check_shape_key {
+            if let Some(sk) = config.main_hashes.get(1) {
+                for h in sk.old.iter().chain(std::iter::once(&sk.new)) {
+                    sk_hashes.insert(h.as_str());
                 }
             }
         }
 
-        // Rule 2: For EARLY_CHARACTERS, also check for shape_key_hashes in [TextureOverrideShapeKey...]
-        if EARLY_CHARACTERS.contains(&char_name) {
-            if let Some(shape_key_hashes) = config.main_hashes.get(1) {
-                for hash in shape_key_hashes
-                    .old
-                    .iter()
-                    .chain(std::iter::once(&shape_key_hashes.new))
-                {
-                    let re = Regex::new(&format!(
-                        r"\[TextureOverrideShapeKey\w*\][^\[]*?hash\s*=\s*{}",
-                        hash
-                    ))
-                    .unwrap();
-                    if re.is_match(content) {
+        if vb0_hashes.is_empty() && sk_hashes.is_empty() {
+            return false;
+        }
+
+        let mut in_component_section = false;
+        let mut in_shape_key_section = false;
+
+        for line in content.lines() {
+            let trimmed = line.trim();
+
+            if let Some(name) = parse_section_name(trimmed) {
+                in_component_section = name.starts_with("TextureOverrideComponent");
+                in_shape_key_section = check_shape_key && name.starts_with("TextureOverrideShapeKey");
+                continue;
+            }
+
+            if !in_component_section && !in_shape_key_section {
+                continue;
+            }
+
+            if let Some((key, value)) = trimmed.split_once('=') {
+                if key.trim().eq_ignore_ascii_case("hash") {
+                    let clean = value.split(';').next().unwrap_or("").trim();
+                    if in_component_section && vb0_hashes.contains(clean) {
+                        return true;
+                    }
+                    if in_shape_key_section && sk_hashes.contains(clean) {
                         info!("{}", t!(found_old_mod));
                         return true;
                     }
@@ -369,15 +443,16 @@ impl ModFixer {
         let mut modified = false;
         for hr in hashes {
             for old_hash in hr.old.iter().rev() {
-                if old_hash != &hr.new && content.contains(&format!("hash = {}", &old_hash)) {
+                if old_hash != &hr.new && content.contains(old_hash) {
                     let re = Regex::new(&format!(r"\bhash\s*=\s*{}\b", regex::escape(old_hash)))
                         .unwrap();
-                    *content = re
-                        .replace_all(content, &format!("hash = {}", hr.new))
-                        .to_string();
-                    modified = true;
-                    info!("{} -> {}", old_hash, hr.new);
-                    break;
+                    let replaced = re.replace_all(content, &format!("hash = {}", hr.new));
+                    if replaced != *content {
+                        *content = replaced.to_string();
+                        modified = true;
+                        info!("{} -> {}", old_hash, hr.new);
+                        break;
+                    }
                 }
             }
         }
@@ -392,54 +467,55 @@ impl ModFixer {
     ) -> bool {
         let mut modified = false;
         for old_hash in old_hashes.iter().rev() {
-            if old_hash != new_hash && content.contains(&format!("hash = {}", &old_hash)) {
+            if old_hash != new_hash && content.contains(old_hash) {
                 let re =
                     Regex::new(&format!(r"\bhash\s*=\s*{}\b", regex::escape(old_hash))).unwrap();
-                *content = re
-                    .replace_all(content, &format!("hash = {}", new_hash))
-                    .to_string();
-                modified = true;
-                info!("{} -> {}", old_hash, new_hash);
-                break;
+                let replaced = re.replace_all(content, &format!("hash = {}", new_hash));
+                if replaced != *content {
+                    *content = replaced.to_string();
+                    modified = true;
+                    info!("{} -> {}", old_hash, new_hash);
+                    break;
+                }
             }
         }
         modified
     }
 
-    /// 收集文件末尾派生节中的所有 hash
-    /// 返回 (需要检查的派生节数量, hash 集合)
-    fn collect_existing_derive_hashes(
+    /// 单趟扫描文件末尾的派生节（状态重定向节）。
+    ///
+    /// 从文件末尾向前扫描连续的派生节（节头包含状态后缀且含 match_priority），
+    /// 收集其 hash 集合。如果 `should_remove` 为 true，则同时执行截断删除。
+    fn analyze_and_remove_trailing_derive_sections(
         &self,
-        content: &str,
+        content: &mut String,
         state_suffixes: &[&str],
-    ) -> (usize, std::collections::HashSet<String>) {
+        should_remove: bool,
+    ) -> std::collections::HashSet<String> {
         let lines: Vec<&str> = content.lines().collect();
         let mut existing_hashes = std::collections::HashSet::new();
-        let mut derive_section_count = 0;
 
         if lines.is_empty() {
-            return (0, existing_hashes);
+            return existing_hashes;
         }
 
-        // 找到所有节的起始位置
-        let mut section_starts: Vec<usize> = Vec::new();
+        let mut section_starts: Vec<(usize, String)> = Vec::new();
         for (i, line) in lines.iter().enumerate() {
-            let trimmed = line.trim();
-            if trimmed.starts_with('[') && trimmed.ends_with(']') {
-                section_starts.push(i);
+            if let Some(name) = parse_section_name(line) {
+                section_starts.push((i, name.to_string()));
             }
         }
 
         if section_starts.is_empty() {
-            return (0, existing_hashes);
+            return existing_hashes;
         }
 
-        // 从最后一个节开始，向前收集派生节的 hash
-        for &section_start in section_starts.iter().rev() {
-            let header_line = lines[section_start].trim();
-            let header = &header_line[1..header_line.len() - 1];
-            
-            // 检查是否是派生节
+        let mut first_remove_line: Option<usize> = None;
+        let mut remove_count = 0;
+
+        for (section_start, header) in section_starts.iter().rev() {
+            let section_start = *section_start;
+
             let is_derive_header = state_suffixes.iter().any(|suffix| {
                 header.contains(&format!("_{}", suffix))
             });
@@ -448,20 +524,19 @@ impl ModFixer {
                 break;
             }
 
-            // 检查该节是否包含 match_priority = 0
             let section_end = section_starts
                 .iter()
-                .find(|&&s| s > section_start)
-                .copied()
+                .find(|(s, _)| *s > section_start)
+                .map(|(s, _)| *s)
                 .unwrap_or(lines.len());
-            
-            let mut has_match_priority_zero = false;
+
+            let mut has_match_priority = false;
             let mut section_hash: Option<String> = None;
-            
+
             for i in (section_start + 1)..section_end {
                 let line = lines[i].trim();
                 if line.starts_with("match_priority") && line.contains("=") && line.contains("0") {
-                    has_match_priority_zero = true;
+                    has_match_priority = true;
                 }
                 if line.starts_with("hash") && line.contains("=") {
                     if let Some(hash_val) = line.split('=').nth(1) {
@@ -473,112 +548,38 @@ impl ModFixer {
                 }
             }
 
-            if has_match_priority_zero {
-                derive_section_count += 1;
+            if has_match_priority {
+                remove_count += 1;
+                first_remove_line = Some(section_start);
                 if let Some(h) = section_hash {
                     existing_hashes.insert(h);
                 }
-            } else {
-                break;
-            }
-        }
-
-        (derive_section_count, existing_hashes)
-    }
-
-    /// 删除由本工具生成的旧派生节（状态重定向节）
-    /// 安全策略：只从文件末尾向前扫描，删除末尾连续的派生节
-    /// 一旦遇到非派生节就停止   
-    /// 识别特征：节头包含状态后缀（如 _LOD, _wet 等）且包含 match_priority = 0
-    fn remove_outdated_derive_sections(
-        &self,
-        content: &mut String,
-        state_suffixes: &[&str],
-    ) -> bool {
-        let lines: Vec<&str> = content.lines().collect();
-        if lines.is_empty() {
-            return false;
-        }
-
-        // 从末尾向前找到所有节的起始位置
-        let mut section_starts: Vec<usize> = Vec::new();
-        for (i, line) in lines.iter().enumerate() {
-            let trimmed = line.trim();
-            if trimmed.starts_with('[') && trimmed.ends_with(']') {
-                section_starts.push(i);
-            }
-        }
-
-        if section_starts.is_empty() {
-            return false;
-        }
-
-        // 从最后一个节开始，向前检查哪些是需要删除的派生节
-        let mut sections_to_remove: Vec<usize> = Vec::new();
-        
-        for &section_start in section_starts.iter().rev() {
-            let header_line = lines[section_start].trim();
-            let header = &header_line[1..header_line.len() - 1];
-            
-            // 检查是否是派生节（节头包含状态后缀，如 _LOD, _LOD_0, _wet 等）
-            let is_derive_header = state_suffixes.iter().any(|suffix| {
-                header.contains(&format!("_{}", suffix))
-            });
-
-            if !is_derive_header {
-                break;
-            }
-
-            // 检查该节是否包含 match_priority = 0
-            let section_end = section_starts
-                .iter()
-                .find(|&&s| s > section_start)
-                .copied()
-                .unwrap_or(lines.len());
-            
-            let mut has_match_priority_zero = false;
-            for i in (section_start + 1)..section_end {
-                let line = lines[i].trim();
-                if line.starts_with("match_priority") 
-                    && line.contains("=") 
-                    && line.contains("0") 
-                {
-                    has_match_priority_zero = true;
-                    break;
+                if should_remove {
+                    info!("Removing outdated derive section: {}", header);
                 }
-            }
-
-            if has_match_priority_zero {
-                sections_to_remove.push(section_start);
-                info!("Removing outdated derive section: {}", header);
             } else {
                 break;
             }
         }
 
-        if sections_to_remove.is_empty() {
-            return false;
+        if should_remove && remove_count > 0 {
+            if let Some(first_line) = first_remove_line {
+                let mut truncate_line = first_line;
+                while truncate_line > 0 && lines[truncate_line - 1].trim().is_empty() {
+                    truncate_line -= 1;
+                }
+
+                let new_lines: Vec<&str> = lines[..truncate_line].to_vec();
+                *content = new_lines.join("\n");
+                if !content.ends_with('\n') && !content.is_empty() {
+                    content.push('\n');
+                }
+
+                info!("Removed {} outdated derive section(s) from end of file", remove_count);
+            }
         }
 
-        // 找到最早需要删除的节的起始位置，截断文件
-        let first_remove_line = *sections_to_remove.iter().min().unwrap();
-        
-        // 向前跳过空行，找到真正的截断点
-        let mut truncate_line = first_remove_line;
-        while truncate_line > 0 && lines[truncate_line - 1].trim().is_empty() {
-            truncate_line -= 1;
-        }
-
-        // 构建新内容
-        let new_lines: Vec<&str> = lines[..truncate_line].to_vec();
-        
-        *content = new_lines.join("\n");
-        if !content.ends_with('\n') && !content.is_empty() {
-            content.push('\n');
-        }
-        
-        info!("Removed {} outdated derive section(s) from end of file", sections_to_remove.len());
-        true
+        existing_hashes
     }
 
     fn texture_override_redirection(
@@ -591,14 +592,7 @@ impl ModFixer {
 
         let mut existing_headers: std::collections::HashSet<String> = content
             .lines()
-            .filter_map(|line| {
-                let trimmed = line.trim();
-                if trimmed.starts_with('[') && trimmed.ends_with(']') {
-                    Some(trimmed[1..trimmed.len() - 1].to_string())
-                } else {
-                    None
-                }
-            })
+            .filter_map(|line| parse_section_name(line).map(|n| n.to_string()))
             .collect();
 
         let mut grouped_map: HashMap<&String, Vec<&String>> = HashMap::new();
@@ -694,7 +688,7 @@ impl ModFixer {
                 }
             }
 
-            if trimmed.starts_with('[') && trimmed.ends_with(']') {
+            if let Some(section_name) = parse_section_name(trimmed) {
                 if in_texture_override_section && found_target_hash_in_section {
                     return Ok(MatchTextureOverrideContent {
                         section_header: current_header,
@@ -703,11 +697,11 @@ impl ModFixer {
                 }
 
                 // --- 新节开始，重置状态 ---
-                current_header = trimmed.to_string();
+                current_header = format!("[{}]", section_name);
                 current_body_lines.clear();
                 found_target_hash_in_section = false;
                 
-                in_texture_override_section = current_header.starts_with("[TextureOverride");
+                in_texture_override_section = section_name.starts_with("TextureOverride");
                 continue;
             }
 
@@ -756,7 +750,6 @@ impl ModFixer {
     ) -> Result<bool> {
         let mut modified = false;
         let mut comp_map: HashMap<String, String> = HashMap::new();
-        
         for (hash, node) in textures {
             if let Some(meta) = &node.meta {
                 let comp_char = std::char::from_digit(meta.id, 10).unwrap_or('?');
@@ -771,18 +764,14 @@ impl ModFixer {
                 };
 
 
-                let target_header = format!("[TextureOverrideComponent{}]", comp_char);
-                            
-                // 定位该 Component 节的开始
-                let start_idx = match content.find(&target_header) {
-                    Some(idx) => idx,
+                let target_section_name = format!("TextureOverrideComponent{}", comp_char);
+
+                // 定位该 Component 节
+                let (start_idx, section_end_idx) = match find_section_byte_range(content, &target_section_name) {
+                    Some(range) => range,
                     None => continue,
                 };
-
-                // 确定节的结束位置
-                let rest = &content[start_idx + target_header.len()..];
-                let end_offset = rest.find("\n[").map(|i| i + 1).unwrap_or(rest.len());
-                let section_slice = &content[start_idx .. start_idx + target_header.len() + end_offset];
+                let section_slice = &content[start_idx..section_end_idx];
 
                 if let Some(re) = self.resource_regexes.get(mat_type) {
                     if re.is_match(section_slice) {
@@ -854,20 +843,18 @@ impl ModFixer {
         component_no: char,
         insert_content: &str,
     ) -> bool {
-        let target_header = format!("[TextureOverrideComponent{}]", component_no);
+        let target_section_name = format!("TextureOverrideComponent{}", component_no);
         let run_cmd = "run = Commandlist\\RabbitFX\\SetTextures";
 
         // 1. 定位目标节
-        let start_idx = match content.find(&target_header) {
-            Some(i) => i,
+        let (start_idx, section_end_idx) = match find_section_byte_range(content, &target_section_name) {
+            Some(range) => range,
             None => return false,
         };
-
-        // 定位节结束 (下一个 [ 的开始，或文件末尾)
-        let rest_of_content = &content[start_idx + target_header.len()..];
-        let end_offset = rest_of_content.find("\n[").map(|i| i + 1).unwrap_or(rest_of_content.len());
-        let section_end_idx = start_idx + target_header.len() + end_offset;
         let section_slice = &content[start_idx..section_end_idx];
+
+        // 找到 header 行的结尾位置
+        let header_end = section_slice.find('\n').map(|i| i + 1).unwrap_or(section_slice.len());
 
         // 2. 检查 run 命令是否存在
         let run_match = self.run_cmd_re.find(section_slice);
@@ -886,7 +873,7 @@ impl ModFixer {
                 let next_newline = section_slice[after_skip..].find('\n').map(|i| i + 1).unwrap_or(0);
                 insert_pos_abs = start_idx + after_skip + next_newline;
             } else {
-                insert_pos_abs = start_idx + target_header.len();
+                insert_pos_abs = start_idx + header_end;
             }
             append_run = true;
         }
@@ -988,8 +975,9 @@ impl ModFixer {
     ) -> bool {
         let mut modified = false;
         let mut new_content = String::with_capacity(content.len());
+        
         if let Some(rules) = rules_option {
-            for (line_num, line) in content.lines().enumerate() {
+            for (line_num, line) in content.split_inclusive('\n').enumerate() {
                 let mut cow_line = Cow::Borrowed(line);
                 let mut log_message = None;
 
@@ -1025,13 +1013,12 @@ impl ModFixer {
                     modified = true;
                 }
                 new_content.push_str(&cow_line);
-                new_content.push('\n');
             }
             if modified {
                 *content = new_content;
             }
-        };
-        return modified;
+        }
+        modified
     }
 
     fn run_base_remaps(
@@ -1043,8 +1030,36 @@ impl ModFixer {
     ) -> Result<bool> {
         let mut modified = false;
         let blend_matches = crate::collector::parse_resouce_buffer_path(content, crate::collector::BufferType::Blend, file_path);
-        let use_merged = content.contains("[ResourceMergedSkeleton]");
+        if blend_matches.is_empty() { return Ok(false); }
+
+        let use_merged = content.lines().any(|line| {
+            parse_section_name(line).unwrap_or("").eq_ignore_ascii_case("ResourceMergedSkeleton")
+        });
         let multiple = blend_matches.len() > 1;
+
+        let mut file_hashes = std::collections::HashSet::new();
+        for cap in self.hash_re.captures_iter(content) {
+            file_hashes.insert(cap[1].to_string());
+        }
+
+        let mut start_idx = None;
+        for (i, vg) in vg_remaps.iter().enumerate() {
+            if vg.trigger_hash.iter().any(|h| file_hashes.contains(h)) {
+                start_idx = Some(i);
+                break; 
+            }
+        }
+
+        let start_idx = match start_idx {
+            Some(idx) => idx,
+            None => return Ok(false),
+        };
+
+        let temp_config = VertexRemapConfig::build_composite_remap(vg_remaps[start_idx..].iter());
+        let has_vg = temp_config.vertex_groups.is_some();
+        let has_comp = temp_config.component_remap.is_some();
+        if !has_vg && !has_comp { return Ok(false); }
+
         let mut seen = std::collections::HashSet::new();
         for (b_path, stride) in blend_matches {
             let canon = b_path.canonicalize().unwrap_or_else(|_| b_path.clone());
@@ -1053,48 +1068,31 @@ impl ModFixer {
             let fwd_path = crate::collector::combile_buf_path(&b_path, &crate::collector::BufferType::BlendRemapForward);
             let has_remap = fwd_path.exists();
 
-            let mut start_idx = None;
-            for (i, vg) in vg_remaps.iter().enumerate() {
-                if vg.trigger_hash.iter().any(|h| content.contains(&format!("hash = {}", h))) {
-                    start_idx = Some(i);
-                    break; 
-                }
+            let mut b_data = fs::read(&b_path)?;
+            let res = if use_merged { 
+                temp_config.apply_remap_merged(&mut b_data, stride) 
+            } else { 
+                temp_config.apply_remap_component(&mut b_data, &b_path, content, multiple, stride) 
+            };
+            
+            if let Ok(true) = res { 
+                self.create_backup_once(&b_path, backed_up)?; 
+                fs::write(&b_path, &b_data)?; 
+                modified = true; 
+                info!("{}", t!(remapped_successfully));
             }
 
-            if let Some(idx) = start_idx {
-                let active_chain = vg_remaps[idx..].iter();
-                let temp_config = VertexRemapConfig::build_composite_remap(active_chain);
-
-                let has_vg = temp_config.vertex_groups.is_some();
-                let has_comp = temp_config.component_remap.is_some();
-                if has_vg || has_comp {
-                    let mut b_data = fs::read(&b_path)?;
-                    let res = if use_merged { 
-                        temp_config.apply_remap_merged(&mut b_data, stride) 
-                    } else { 
-                        temp_config.apply_remap_component(&mut b_data, &b_path, content, multiple, stride) 
-                    };
+            if has_remap {
+                if let Some(vg_map) = &temp_config.vertex_groups {
+                    let mut fwd = fs::read(&fwd_path)?; 
                     
-                    if let Ok(true) = res { 
-                        self.create_backup_once(&b_path, backed_up)?; 
-                        fs::write(&b_path, &b_data)?; 
-                        modified = true; 
-                        info!("{}", t!(remapped_successfully));
-                    }
-
-                    if has_remap {
-                        if let Some(vg_map) = &temp_config.vertex_groups {
-                            let mut fwd = fs::read(&fwd_path)?; 
-                            
-                            VertexRemapConfig::remap_blend_remap_forward(&mut fwd, vg_map);
-                            
-                            self.create_backup_once(&fwd_path, backed_up)?; 
-                            fs::write(&fwd_path, &fwd)?; 
-                            
-                            info!("WWMI BlendRemapForward chained-remapped successfully");
-                            modified = true;
-                        }
-                    }
+                    VertexRemapConfig::remap_blend_remap_forward(&mut fwd, vg_map);
+                    
+                    self.create_backup_once(&fwd_path, backed_up)?; 
+                    fs::write(&fwd_path, &fwd)?; 
+                    
+                    info!("WWMI BlendRemapForward chained-remapped successfully");
+                    modified = true;
                 }
             }
         }
@@ -1105,10 +1103,10 @@ impl ModFixer {
         let mut modified = false;
         let state_suffixes: Vec<&str> = all_aggregated_states.keys().map(|s| s.as_str()).collect();
         let required_hashes: HashSet<String> = all_aggregated_states.values().flat_map(|m| m.keys().cloned()).collect();
-        let (_, existing_hashes) = self.collect_existing_derive_hashes(content, &state_suffixes);
+        let existing_hashes = self.analyze_and_remove_trailing_derive_sections(content, &state_suffixes, false);
         if existing_hashes.difference(&required_hashes).count() > 0 {
             debug!("Removing outdated derive sections");
-            self.remove_outdated_derive_sections(content, &state_suffixes);
+            self.analyze_and_remove_trailing_derive_sections(content, &state_suffixes, true);
         }
         for (state_name, state_map) in all_aggregated_states {
             if let Ok(res) = self.texture_override_redirection(content, state_map, state_name) { modified |= res; }
@@ -1153,13 +1151,10 @@ impl ModFixer {
         let mut modified = false;
         modified |= self.replace_hashes_list(content, &config.main_hashes);
         for (base_hash, node) in &config.textures {
-            if !node.replace.is_empty() { modified |= self.replace_hash_single_target(content, &node.replace, base_hash); }
+            if !node.replace.is_empty() { 
+                modified |= self.replace_hash_single_target(content, &node.replace, base_hash); 
+            }
         }
-        if let Some(checksum) = &config.checksum {
-            let replaced = self.checksum_regex.replace_all(content, &format!("checksum = {}", checksum));
-            if replaced.as_ref() != content { *content = replaced.into_owned(); modified = true; }
-        }
-        modified |= self.replace_index_offset_count(content, &config.rules);
         modified
     }
 
@@ -1167,16 +1162,41 @@ impl ModFixer {
         let mut ini_mod = false; let mut buf_mod = false;
         if let Some(stride_fix) = &config.stride_fix {
             if stride_fix.trigger_hash.iter().any(|h| content.contains(h)) {
-                let replaced = self.blend_block_re.replace_all(new_content, |cap: &regex::Captures| {
-                    self.stride_re.replace_all(&cap[0], "stride = 16").to_string()
-                });
-                if replaced != *new_content {
-                    *new_content = replaced.into_owned();
-                    ini_mod = true;
+                let lines = new_content.lines();
+                let mut in_target_section = false;
+                let mut modified_content = String::with_capacity(new_content.len());
+
+                for line in lines {
+                    if let Some(name) = parse_section_name(line) {
+                        in_target_section = name.starts_with("ResourceBlendBuffer") 
+                            && !name.contains("Override") 
+                            && !name.ends_with("RW") 
+                            && !name.contains("ResourceBlendBufferNoStride");
+                    }
+
+                    let mut current_line = Cow::Borrowed(line);
+                    if in_target_section {
+                        let replaced = self.stride_re.replace_all(&current_line, "stride = 16");
+                        if replaced != current_line {
+                            ini_mod = true;
+                            current_line = Cow::Owned(replaced.into_owned());
+                        }
+                    }
+
+                    modified_content.push_str(&current_line);
+                    modified_content.push('\n');
+                }
+
+                if ini_mod {
+                    if !new_content.ends_with('\n') && modified_content.ends_with('\n') {
+                        modified_content.pop();
+                    }
+                    *new_content = modified_content;
                     let blend_matches = crate::collector::parse_resouce_buffer_path(content, crate::collector::BufferType::Blend, path);
                     for (blend_path, stride) in blend_matches {
                         if !blend_path.exists() || stride != 8 { continue; }
                         let blend_data = fs::read(&blend_path)?;
+                        info!("Fixing blend buffer stride for {}", blend_path.display());
                         let expanded_data = self.expand_blend_stride_to_16(&blend_data);
                         self.create_backup_once(&blend_path, backed_up)?;
                         fs::write(&blend_path, expanded_data)?;
@@ -1323,16 +1343,13 @@ impl ModFixer {
 
         // Ensure global $object_detected exists in [Constants]
         let line_ending = if new_content.contains("\r\n") { "\r\n" } else { "\n" };
-        if let Some(const_start) = new_content.find("[Constants]") {
-            let section_content = &new_content[const_start..];
-            let section_end = section_content[1..].find('[')
-                .map(|i| const_start + 1 + i)
-                .unwrap_or(new_content.len());
-            let section_slice = &new_content[const_start..section_end];
+        if let Some((const_start, const_end)) = find_section_byte_range(new_content, "Constants") {
+            let section_slice = &new_content[const_start..const_end];
+            let header_end = section_slice.find('\n').map(|i| i + 1).unwrap_or(section_slice.len());
 
             if !section_slice.contains("$object_detected") {
-                let insert_pos = const_start + "[Constants]".len();
-                new_content.insert_str(insert_pos, &format!("{}global $object_detected = 0", line_ending));
+                let insert_pos = const_start + header_end;
+                new_content.insert_str(insert_pos, &format!("global $object_detected = 0{}", line_ending));
                 info!("Injected global $object_detected = 0 into [Constants]");
             }
         } else {
@@ -1341,13 +1358,8 @@ impl ModFixer {
         }
 
         // Ensure $object_detected = 1 exists in [TextureOverrideComponent5]
-        if let Some(comp5_start) = new_content.find("[TextureOverrideComponent5]") {
-            // Check if $object_detected already exists within this section
-            let section_content = &new_content[comp5_start..];
-            let section_end = section_content[1..].find('[')
-                .map(|i| comp5_start + 1 + i)
-                .unwrap_or(new_content.len());
-            let section_slice = &new_content[comp5_start..section_end];
+        if let Some((comp5_start, comp5_end)) = find_section_byte_range(new_content, "TextureOverrideComponent5") {
+            let section_slice = &new_content[comp5_start..comp5_end];
 
             if !section_slice.contains("$object_detected") {
                 // Find the last match_ line position in this section
@@ -1357,7 +1369,6 @@ impl ModFixer {
                     let mut search_from = 0usize;
                     while let Some(pos) = section_slice[search_from..].find(keyword) {
                         let abs = search_from + pos;
-                        // Find end of this line
                         if let Some(eol) = section_slice[abs..].find(line_ending) {
                             let line_end = abs + eol + line_ending.len();
                             if insert_after_end.is_none() || line_end > insert_after_end.unwrap() {

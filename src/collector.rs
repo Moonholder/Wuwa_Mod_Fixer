@@ -24,7 +24,7 @@ impl std::fmt::Display for BufferType {
 lazy_static::lazy_static! {
     static ref FILENAME_RE: Regex = Regex::new(r"(?i)filename\s*=\s*([^\s]+?\.buf)").unwrap();
     static ref STRIDE_RE: Regex = Regex::new(r"(?i)stride\s*=\s*(\d+)").unwrap();
-    static ref COMPONENT_RE: Regex = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)\]([^\[]*)").unwrap();
+    static ref COMPONENT_RE: Regex = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)[^\]\n]*\]?([^\[]*)").unwrap();
     static ref DRAWINDEXED_RE: Regex = Regex::new(r"drawindexed\s*=\s*(\d+),\s*(\d+),").unwrap();
 }
 
@@ -34,7 +34,7 @@ pub fn parse_resouce_buffer_path(
     ini_path: &Path,
 ) -> Vec<(PathBuf, usize)> {
     let section_re = match Regex::new(&format!(
-        r"(?i)\[Resource{}Buffer[^\]]*\][\s\S]*?([^\[]*)",
+        r"(?im)^\[Resource{}Buffer[^\]\n]*\]?([^\[]*)",
         buf_type
     )) {
         Ok(re) => re,
@@ -56,8 +56,8 @@ pub fn parse_resouce_buffer_path(
         };
 
         // Skip proxy/runtime sections (no backing file)
-        let header_end = section_content.find(']').unwrap_or(0);
-        let section_header = &section_content[..=header_end];
+        let header_end = section_content.find('\n').unwrap_or(section_content.len());
+        let section_header = &section_content[..header_end];
         if section_header.contains("Override")
             || section_header.ends_with("RW]")
             || section_header.contains("ResourceBlendBufferNoStride")

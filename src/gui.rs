@@ -343,12 +343,15 @@ impl WuwaModFixerApp {
     fn update(&mut self, message: Message) -> Task<Message> {
         match message {
             Message::SelectFolder => {
+                let initial_dir = self.mod_path.clone();
                 return Task::perform(
-                    async {
-                        let handle = rfd::AsyncFileDialog::new()
-                            .set_title("Select Mod Folder")
-                            .pick_folder()
-                            .await;
+                    async move {
+                        let mut dialog = rfd::AsyncFileDialog::new()
+                            .set_title("Select Mod Folder");
+                        if let Some(dir) = initial_dir.as_deref() {
+                            dialog = dialog.set_directory(dir);
+                        }
+                        let handle = dialog.pick_folder().await;
                         handle.map(|h| h.path().to_path_buf())
                     },
                     Message::FolderSelected,
@@ -479,6 +482,7 @@ impl WuwaModFixerApp {
                 if self.logs.len() > MAX_LOG_LINES {
                     let drain_count = self.logs.len() - MAX_LOG_LINES;
                     self.logs.drain(0..drain_count);
+                    self.intro_end_index = self.intro_end_index.saturating_sub(drain_count);
                 }
                 if new_msgs {
                     return snap_to(
@@ -629,31 +633,80 @@ impl WuwaModFixerApp {
             }
             Message::ClearLogs => {
                 self.logs.clear();
+                self.intro_end_index = 0;
                 self.add_log(tr!("日志已清空", "Logs cleared"));
             }
             Message::ExportLogs => {
+                // Skip intro lines — export only runtime logs
                 let export_start = self.intro_end_index.min(self.logs.len());
-                let content = self.logs[export_start..].join("\n");
-                let timestamp = std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap_or_default()
-                    .as_secs();
-                let filename = format!("wwmi_fix_log_{}.txt", timestamp);
-                let path = std::env::current_exe()
-                    .ok()
-                    .and_then(|p| p.parent().map(|d| d.join(&filename)))
-                    .unwrap_or_else(|| PathBuf::from(&filename));
-                match std::fs::write(&path, &content) {
-                    Ok(_) => self.add_log(format!(
-                        "[OK] {}: {}",
-                        tr!("日志已导出", "Logs exported to"),
-                        path.display()
-                    )),
-                    Err(e) => self.add_log(format!(
-                        "[ERROR] {}: {}",
-                        tr!("导出失败", "Export failed"),
-                        e
-                    )),
+                let log_body = self.logs[export_start..].join("\n");
+
+                if log_body.trim().is_empty() {
+                    self.add_log(tr!(
+                        "[WARN] 没有可导出的运行日志",
+                        "[WARN] No runtime logs to export"
+                    ));
+                } else {
+                    // Build metadata header
+                    let now = chrono::Local::now();
+                    let config_ver = config_loader::version().current_version.clone();
+                    let mod_path_str = self.mod_path
+                        .as_ref()
+                        .map(|p| p.display().to_string())
+                        .unwrap_or_else(|| "N/A".to_string());
+                    let header = format!(
+                        "WWMI Mod Fixer v{}\nConfig Version: {}\nExport Time: {}\nMod Path: {}\n\
+                         Options: TextureOverride={}, StableTexture={}, AeroFixMode={}, FixAemeathMech={}\n\
+                         =================================\n",
+                        env!("CARGO_PKG_VERSION"),
+                        config_ver,
+                        now.format("%Y-%m-%d %H:%M:%S"),
+                        mod_path_str,
+                        self.enable_texture_override,
+                        self.enable_stable_texture,
+                        self.aero_fix_mode,
+                        self.enable_fix_aemeath_mech,
+                    );
+                    let content = format!("{}\n{}", header, log_body);
+
+                    // File name with human-readable timestamp
+                    let filename = format!("wwmi_fix_log_{}.txt", now.format("%Y%m%d_%H%M%S"));
+
+                    // Try exe dir first, fallback to Desktop, then current dir
+                    let path = std::env::current_exe()
+                        .ok()
+                        .and_then(|p| p.parent().map(|d| d.join(&filename)))
+                        .filter(|p| {
+                            p.parent().map_or(false, |d| {
+                                // Quick writability probe
+                                let probe = d.join(".wwmi_probe");
+                                std::fs::write(&probe, b"").map(|_| { let _ = std::fs::remove_file(&probe); }).is_ok()
+                            })
+                        })
+                        .or_else(|| {
+                            std::env::var_os("USERPROFILE")
+                                .map(|home| PathBuf::from(home).join("Desktop").join(&filename))
+                        })
+                        .unwrap_or_else(|| PathBuf::from(&filename));
+
+                    match std::fs::write(&path, &content) {
+                        Ok(_) => {
+                            self.add_log(format!(
+                                "[OK] {}: {}",
+                                tr!("日志已导出", "Logs exported to"),
+                                path.display()
+                            ));
+                            // Open the containing folder for convenience
+                            if let Some(dir) = path.parent() {
+                                let _ = open::that(dir);
+                            }
+                        }
+                        Err(e) => self.add_log(format!(
+                            "[ERROR] {}: {}",
+                            tr!("导出失败", "Export failed"),
+                            e
+                        )),
+                    }
                 }
             }
             Message::ToggleTheme => {
