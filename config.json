@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "3.2.0",
-        "current_version": "3.2.1",
+        "current_version": "3.2.2",
         "latest_program_version": "3.2.1",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest",
         "support_url_cn": "https://support.jix.de5.net",
@@ -1358,7 +1358,7 @@
             "d8ed7611": { "meta": { "id": 1, "type": "L" } },
             "a620843e": { "meta": { "id": 2, "type": "D" }, "derive": { "LOD": ["7b7f1a19", "11105c28"] } },
             "f1c2e889": { "meta": { "id": 2, "type": "L" } },
-            "662f126a": { "meta": { "id": 3, "type": "D" }, "replace": ["c7a7ec1b", "9121c3f8"], "derive": { "injured": ["2970cef1"], "LOD": ["bb708c4d", "f42f50d6"], "LOD_injured": ["f42f50d6", "a6605a4e"] } },
+            "662f126a": { "meta": { "id": 3, "type": "D" }, "replace": ["c7a7ec1b", "9121c3f8"], "derive": { "injured": ["2970cef1"], "LOD": ["bb708c4d", "99a3f0df"], "LOD_injured": ["f42f50d6", "a6605a4e"] } },
             "a83a8906": { "meta": { "id": 3, "type": "L" }, "replace": ["118a1a1f"] },
             "eca8e09b": { "meta": { "id": 3, "type": "N" }, "derive": { "injured": ["d2bc37bc"], "LOD": ["31f77ebc", "893ece88"], "LOD_injured": ["0fe3a99b", "790f2cee"] } },
             "e783ca72": { "meta": { "id": 4, "type": "D" }, "replace": ["f869e47c", "bb49600b"], "derive": { "injured": ["a5da2563"], "LOD": ["3adc5455", "bc141952"], "LOD_injured": ["7885bb44", "d01fdd4f"] } },
@@ -1370,11 +1370,11 @@
             "2970cef1": { "replace": ["7ff6e112"] },
             "a5da2563": { "replace": ["c7beddc7"] },
             "f85312bc": { "derive": { "LOD": ["f85312bc"] } },
-            "0aaef5a6": { "replace": ["fadd0cd0"], "derive": { "LOD": ["278292f7", "8179eb02"] } },
+            "0aaef5a6": { "replace": ["fadd0cd0"], "derive": { "LOD": ["278292f7", "8179eb02", "3354627c"] } },
             "a84b23c1": { "derive": { "LOD": ["3a6dfd0c", "b790633a"] } },
             "2694816c": { "replace": ["fbcb1f4b"] },
             "bb708c4d": { "replace": ["4c7e5ddf"] },
-            "f42f50d6": { "replace": ["4d9c4532"] }
+            "130a3d58": { "derive": { "LOD": ["571a2f4c"] } }
         },
         "Buling": {
             "main_hashes": [{"old": ["3acffb93"], "new": "3acffb93"}],
