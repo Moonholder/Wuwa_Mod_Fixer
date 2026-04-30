@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "3.2.0",
-        "current_version": "3.3.1",
+        "current_version": "3.3.2",
         "latest_program_version": "3.3.0",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest",
         "support_url_cn": "https://support.jix.de5.net",
@@ -177,8 +177,8 @@
         "RoverMale": {
             "main_hashes": [
                 {"old": ["d53c2cc7", "c9db8418", "e18ca2cc", "b22dacf9", "8b386efa"], "new": "1e003b5a"},
-                {"old": ["3ab7c4d1", "f8375eb4"], "new": "ec747460"},
-                {"old": ["a4be44e5", "6e2f48ba"], "new": "89e3b104"}
+                {"old": ["3ab7c4d1", "f8375eb4", "ec747460"], "new": "67650e1c"},
+                {"old": ["a4be44e5", "6e2f48ba", "89e3b104"], "new": "49c00841"}
             ],
             "checksum": "1718",
             "a1c0d97c": { "replace": ["f16d5dae"] },
