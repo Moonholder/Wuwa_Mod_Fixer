@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "3.2.0",
-        "current_version": "3.3.0",
+        "current_version": "3.3.1",
         "latest_program_version": "3.3.0",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest",
         "support_url_cn": "https://support.jix.de5.net",
@@ -207,7 +207,11 @@
             ]
         },
         "MRoverSkin1": {
-            "main_hashes": [{"old": ["f1f5aa2a"], "new": "c698c02f"}],
+            "main_hashes": [
+                {"old": ["f1f5aa2a"], "new": "c698c02f"},
+                {"old": ["5c3a5000"], "new": "38840111"},
+                {"old": ["0e54d7d2"], "new": "a93b8d36"}
+            ],
             "rules": [
                 { "line_prefix": "match_first_index", "replacements": [ {"old": ["68025"], "new": "68013"}, {"old": ["119691"], "new": "119679"}, {"old": ["185079"], "new": "185067"} ] },
                 { "line_prefix": "match_index_count", "replacements": [ {"old": ["14766"], "new": "14754"} ] }
@@ -216,10 +220,10 @@
         "RoverFemale": {
             "main_hashes": [
                 {"old": ["be84b775", "e8b5a730", "3533a957", "bd26f515", "06482222", "4d3d06a6"], "new": "25a5716a"},
-                {"old": ["ac681fc1"], "new": "a0a808af"},
-                {"old": ["972c1750"], "new": "bb67ac16"}
+                {"old": ["ac681fc1", "a0a808af"], "new": "3877f0da"},
+                {"old": ["972c1750", "bb67ac16"], "new": "feef1128"}
             ],
-            "checksum": "2736",
+            "checksum": "2742",
             "rules": [
                 { "line_prefix": "match_first_index", "replacements": [ {"old": ["13164"], "new": "18831"}, {"old": ["30399"], "new": "41706"}, {"old": ["40548"], "new": "56382"}, {"old": ["83781"], "new": "120117"}, {"old": ["113172"], "new": "172419"}, {"old": ["114894"], "new": "173961"} ] },
                 { "line_prefix": "match_index_count", "replacements": [ {"old": ["13164"], "new": "18831"}, {"old": ["17235"], "new": "22875"}, {"old": ["10149"], "new": "14676"}, {"old": ["43233"], "new": "63735"}, {"old": ["29391"], "new": "52302"}, {"old": ["1722"], "new": "1542"}, {"old": ["48"], "new": "129"} ] }
@@ -271,7 +275,12 @@
             "e02f1a3f": { "derive": { "LOD": ["7209c4f2", "28093edf"] } }
         },
         "FRoverSkin1": {
-            "main_hashes": [{"old": ["e8b0d332"], "new": "aa9d9edb"}],
+            "main_hashes": [
+                {"old": ["e8b0d332"], "new": "aa9d9edb"},
+                {"old": ["55089a35"], "new": "82ed6a64"},
+                {"old": ["c2dc3697"], "new": "02ff8fd2"}
+            ],
+            "checksum": "2742",
             "0a136c79": {"derive": {"LOD": ["d74cf25e", "92f99f5c"]}},
             "4a5502b1": {"derive": {"LOD": ["970a9c96", "20bd2886"]}},
             "4fca3f55": {"derive": {"LOD": ["9295a172", "1f243c59"]}},
