@@ -61,6 +61,7 @@ cargo build --release
 | `--derived-hashes` | 启用「补全贴图状态」（与 `--stable-texture` 互斥）。 |
 | `--stable-texture` | 启用「应用稳定纹理」（与 `--derived-hashes` 互斥）。 |
 | `--aemeath-mech` | 启用「修复爱弥斯机兵形态」。 |
+| `--texcoord-color` | 启用「修复 TexCoord COLOR1 数据」（修复3.3版本角色部分模组某些部位不显示的问题）。 |
 | `--aero-fix <1\|2>` | 启用「女漂-风主形态眼部修复」。`1` = TexCoord 覆盖, `2` = 贴图镜像反转。 |
 | `--rollback` | **回滚最近一次修复**（仅撤销上一次操作，与修复选项互斥）。 |
 | `--online` | 联网获取最新配置（非交互模式默认使用本地配置）。 |
@@ -131,6 +132,7 @@ The application supports the following startup arguments:
 | `--derived-hashes` | Enable "Add Derived Hashes" (mutually exclusive with `--stable-texture`). |
 | `--stable-texture` | Enable "Apply Stable Texture" (mutually exclusive with `--derived-hashes`). |
 | `--aemeath-mech` | Enable "Fix Aemeath's mech form model error". |
+| `--texcoord-color` | Enable "Fix TexCoord COLOR1 Data" (Fixes the issue where some parts of mods are not rendering for some characters in version 3.3). |
 | `--aero-fix <1\|2>` | Enable "Aero FemaleRover Eye Fix". `1` = TexCoord Override, `2` = Texture Mirror Flip. |
 | `--rollback` | **Rollback the most recent fix** (only undoes the last operation; mutually exclusive with fix options). |
 | `--online` | Fetch latest config from network (non-interactive mode uses local config by default). |

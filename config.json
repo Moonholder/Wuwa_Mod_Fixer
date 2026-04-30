@@ -1,8 +1,8 @@
 {
     "version" : {
         "min_required_version": "3.2.0",
-        "current_version": "3.2.2",
-        "latest_program_version": "3.2.1",
+        "current_version": "3.3.0",
+        "latest_program_version": "3.3.0",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest",
         "support_url_cn": "https://support.jix.de5.net",
         "support_url_intl": "https://ko-fi.com/moonholder"
@@ -29,8 +29,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.2: 请将XXMI更新至最新版本\n* 更新修复以下武器的贴图错误：奇幻变奏、漪澜浮录、千古洑流、赫奕流明、裁春、擎渊怒涛、浩境粼光、时和岁稔、凋亡频率、异响空灵、苍鳞千嶂\n* 添加卜灵(Buling)的稳定纹理配置，以及添加琳奈(Lynae)唤取动画时的贴图hash\n* 修复爱弥斯机兵形态的模型异常\n* 添加女漂皮肤、西格莉卡的画面细节高/中贴图hash\n* 更新赞妮的画面细节高/中贴图hash\n* 修复长离皮肤的贴图错误\n\n* 修复3.1:\n* 补全爱弥斯满能量时的贴图hash、修复摩托默认涂装\n* 修复了陆且添加了他的LoD贴图hash\n* 更新秧秧的LoD贴图hash\n* 更新爱弥斯的法线贴图hash, 添加机兵的LoD贴图hash\n* 修复漂泊者的模型错误\n* 更新忌炎 吟霖 的vb hash\n* 修复千咲 琳奈 莫宁 灯灯 赞妮 的贴图错误...\n\n",
-            "en": "Fix 3.2: Please update XXMI to the latest version.\n* Updated and fixed texture errors for the following weapons: Variation, Cosmic Ripples, Emerald of Genesis, Blazing Brilliance, Red Spring, Abyss Surges, Lustrous Razor, Ages of Harvest, Waning Redshift, Discord, and Verdant Summit.\n* Added stable texture configuration for Buling, and added texture hashes for Lynae's summon animation.\n* Fixed Aemeath's mech form model error.\n*  Added High/Medium LOD Bias texture hashes for the FRoverSkin1 and Sigrika, updated Zani's texture hash for High/Medium LOD Bias.\n* Fix Changli's skin texture error.\n\n* Fix 3.1:\n* Fixed Aemeath's charged state texture hash, fixed default motorbike livery.\n* Fixed Luuk and added his LoD texture hash\n* Updated Yangyang's LoD texture hash\n* Updated texture hashes for Aemeath, add mech LoD texture hashes\n* Fixed Rover's model error.\n* Updated vb hash for Jiyan and Yinlin.\n* Updated texture hashes for Chisa, Lynae, Mornye, Lumi and Zani...\n\n"
+            "zh": "修复3.3: 请将XXMI更新至最新版本\n* 修复主角及主角的皮肤\n* 修复爱弥斯 莫宁 琳奈等部分模组某些部位不显示的问题\n\n修复3.2:\n* 更新修复以下武器的贴图错误：奇幻变奏、漪澜浮录、千古洑流、赫奕流明、裁春、擎渊怒涛、浩境粼光、时和岁稔、凋亡频率、异响空灵、苍鳞千嶂\n* 添加卜灵(Buling)的稳定纹理配置，以及添加琳奈(Lynae)唤取动画时的贴图hash\n* 修复爱弥斯机兵形态的模型异常\n* 添加女漂皮肤、西格莉卡的画面细节高/中贴图hash\n* 更新赞妮的画面细节高/中贴图hash\n* 修复长离皮肤的贴图错误\n\n",
+            "en": "Fix 3.3: Please update XXMI to the latest version.\n* Fix Rover and Rover skins.\n* Fix some parts of mod not rendering for characters like Aemeath, Mornye, Lynae etc.\n\nFix 3.2:\n* Updated and fixed texture errors for the following weapons: Variation, Cosmic Ripples, Emerald of Genesis, Blazing Brilliance, Red Spring, Abyss Surges, Lustrous Razor, Ages of Harvest, Waning Redshift, Discord, and Verdant Summit.\n* Added stable texture configuration for Buling, and added texture hashes for Lynae's summon animation.\n* Fixed Aemeath's mech form model error.\n*  Added High/Medium LOD Bias texture hashes for the FRoverSkin1 and Sigrika, updated Zani's texture hash for High/Medium LOD Bias.\n* Fix Changli's skin texture error.\n\n"
         },
         "intro_note": {
             "zh": "确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错",
@@ -176,7 +176,7 @@
         },
         "RoverMale": {
             "main_hashes": [
-                {"old": ["d53c2cc7", "c9db8418", "e18ca2cc", "b22dacf9"], "new": "8b386efa"},
+                {"old": ["d53c2cc7", "c9db8418", "e18ca2cc", "b22dacf9", "8b386efa"], "new": "1e003b5a"},
                 {"old": ["3ab7c4d1", "f8375eb4"], "new": "ec747460"},
                 {"old": ["a4be44e5", "6e2f48ba"], "new": "89e3b104"}
             ],
@@ -206,9 +206,16 @@
                 }
             ]
         },
+        "MRoverSkin1": {
+            "main_hashes": [{"old": ["f1f5aa2a"], "new": "c698c02f"}],
+            "rules": [
+                { "line_prefix": "match_first_index", "replacements": [ {"old": ["68025"], "new": "68013"}, {"old": ["119691"], "new": "119679"}, {"old": ["185079"], "new": "185067"} ] },
+                { "line_prefix": "match_index_count", "replacements": [ {"old": ["14766"], "new": "14754"} ] }
+            ]
+        },
         "RoverFemale": {
             "main_hashes": [
-                {"old": ["be84b775", "e8b5a730", "3533a957", "bd26f515", "06482222"], "new": "4d3d06a6"},
+                {"old": ["be84b775", "e8b5a730", "3533a957", "bd26f515", "06482222", "4d3d06a6"], "new": "25a5716a"},
                 {"old": ["ac681fc1"], "new": "a0a808af"},
                 {"old": ["972c1750"], "new": "bb67ac16"}
             ],
@@ -264,7 +271,7 @@
             "e02f1a3f": { "derive": { "LOD": ["7209c4f2", "28093edf"] } }
         },
         "FRoverSkin1": {
-            "main_hashes": [{"old": ["e8b0d332"], "new": "e8b0d332"}],
+            "main_hashes": [{"old": ["e8b0d332"], "new": "aa9d9edb"}],
             "0a136c79": {"derive": {"LOD": ["d74cf25e", "92f99f5c"]}},
             "4a5502b1": {"derive": {"LOD": ["970a9c96", "20bd2886"]}},
             "4fca3f55": {"derive": {"LOD": ["9295a172", "1f243c59"]}},
@@ -1393,6 +1400,7 @@
             "5863867a": { "meta": { "id": 5, "type": "D" }, "derive": { "LOD": ["853c185d", "f41f978b"] } }
         },
         "Lynae": {
+            "main_hashes": [{"old": ["0c33d628"], "new": "0c33d628"}],
             "2e60ca6c": { "derive": { "LOD": ["f33f544b", "9ca67d0a"], "Gacha": ["9564c78b", "5d97825c", "483b59ac"]} },
             "2fd59f3a": { "derive": { "LOD": ["f28a011d", "15059448"], "Gacha": ["4bdeea88", "37acf629", "968174af"]} },
             "23d9b128": { "derive": { "LOD": ["fe862f0f", "fef5aa79"], "Gacha": ["497a35aa", "b70b45ae", "9ec7d908", "7039ca55", "ceb3fee5", "e5c22e95", "6c1c688a", "bae1b5ea", "4398472f", "b143f6ad", "9425ab8d", "13ec60c2"]} },
@@ -1435,6 +1443,7 @@
             "c23a9b43": { "replace": ["cb2225f6"], "derive": {"LOD": ["55d643e1"]} }
         },
         "Mornye": {
+            "main_hashes": [{"old": ["691e4f5f"], "new": "691e4f5f"}],
             "21da94eb": { "replace": ["1b14a741"], "derive": { "LOD": ["fc850acc", "5fc86ae3"] } },
             "5bd6d2d0": { "derive": { "LOD": ["86894cf7", "afbe6b7a"] } },
             "45658d90": { "replace": ["7b258721"], "derive": { "LOD": ["983a13b7", "9081fb54"] } },
@@ -1464,7 +1473,7 @@
             "afacbd93": { "replace": ["1e7c100d"] }
         },
         "Aemeath": {
-            "main_hashes": [{"old": ["2738a0f0"], "new":"2738a0f0"}],
+            "main_hashes": [{"old": ["2738a0f0"], "new":"8d8097bc"}],
             "157217af": { "replace": ["0eb70c8f"], "derive": { "LOD": ["c82d8988", "603341e7"] } },
             "1d31d19d": { "derive": { "LOD": ["c06e4fba", "4e258e03"] } },
             "2d9235e9": { "derive": { "LOD": ["f0cdabce", "e26a1cea"] } },
@@ -1567,6 +1576,20 @@
             "d3215f32": {"derive": { "LOD": ["0e7ec115", "13126d15"] }},
             "d53e86d6": {"derive": { "LOD": ["086118f1", "da44f032"] }},
             "ea53123d": {"derive": { "LOD": ["370c8c1a", "4c8bd0d2"] }}
+        },
+        "Lucilla": {
+            "main_hashes": [{"old": ["8d09b023"], "new": "8d09b023"}],
+            "19078184": {"meta": {"id": 4, "type": "D"}, "derive": { "LOD": ["2fb420a7"] }},
+            "8e811014": {"meta": {"id": 4, "type": "N"}, "derive": { "LOD": ["bb310787"] }},
+            "ba745280": {"meta": {"id": 4, "type": "L"}, "derive": { "LOD": ["89e3b6f2"] }},
+            "5f3998bf": {"meta": {"id": 4, "type": "S"}, "derive": { "LOD": ["b09e0c66"] }}
+        },
+        "Denia": {
+            "main_hashes": [{"old": ["077c8876"], "new": "077c8876"}],
+            "f90b012b": {"meta": {"id": 3, "type": "D"}, "derive": { "LOD": ["b3bc2651"] }},
+            "9b21cc30": {"meta": {"id": 3, "type": "N"}, "derive": { "LOD": ["31433c16"] }},
+            "1b9e356e": {"meta": {"id": 3, "type": "L"}, "derive": { "LOD": ["7a799a83"] }},
+            "fb9f8591": {"meta": {"id": 3, "type": "S"}, "derive": { "LOD": ["034c4ff9"] }}
         }
     }
 }

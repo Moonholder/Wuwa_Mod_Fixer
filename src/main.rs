@@ -108,6 +108,7 @@ pub struct ModFixer {
     enable_texture_override: bool,
     enable_stable_texture: bool,
     enable_fix_aemeath_mech: bool,
+    enable_fix_texcoord_color: bool,
     /// 0 = disabled, 1 = TexCoord override, 2 = Texture mirror flip
     aero_fix_mode: u8,
     checksum_regex: Regex,
@@ -126,6 +127,7 @@ impl ModFixer {
         enable_texture_override: bool,
         enable_stable_texture: bool,
         enable_fix_aemeath_mech: bool,
+        enable_fix_texcoord_color: bool,
         aero_fix_mode: u8,
     ) -> Self {
         let mut hash_to_character = HashMap::new();
@@ -165,6 +167,7 @@ impl ModFixer {
             enable_texture_override,
             enable_stable_texture,
             enable_fix_aemeath_mech,
+            enable_fix_texcoord_color,
             aero_fix_mode,
             checksum_regex: Regex::new(r"(checksum\s*=\s*)\d+").unwrap(),
             hash_re: Regex::new(r"hash\s*=\s*([0-9a-fA-F]{8,16})\b").unwrap(),
@@ -344,6 +347,10 @@ impl ModFixer {
                     if char_name != "AemeathMecha" || self.enable_fix_aemeath_mech {
                         buf_modified |= self.run_base_remaps(&content, path, vg_maps, &mut backed_up)?;
                     }
+                }
+
+                if self.enable_fix_texcoord_color {
+                    buf_modified |= self.fix_color1_in_texcoord(&content, path, &mut backed_up)?;
                 }
 
                 // [Phase 4] 缓冲格式归一化 (Stride Fix)
@@ -1405,6 +1412,54 @@ impl ModFixer {
 
         new_content.push_str(&new_section_content);
         return Ok(true);
+    }
+
+    /// Fix issue where some components are not rendered in version 3.3
+    fn fix_color1_in_texcoord(
+        &self,
+        content: &str,
+        file_path: &Path,
+        backed_up: &mut std::collections::HashSet<PathBuf>,
+    ) -> Result<bool> {
+        let mut modified = false;
+        
+        let texcoord_buf_matches = collector::parse_resouce_buffer_path(
+            content, 
+            collector::BufferType::TexCoord, 
+            file_path
+        );
+
+        for (buf_path, stride) in texcoord_buf_matches {
+            if !buf_path.exists() {
+                continue;
+            }
+
+            if stride != 16 {
+                continue;
+            }
+
+            let mut data = fs::read(&buf_path)?;
+            let mut changed = false;
+
+            for chunk in data.chunks_exact_mut(16) {
+                if chunk[4] != 0 || chunk[5] != 0 || chunk[6] != 0 || chunk[7] != 0 {
+                    chunk[4] = 0;
+                    chunk[5] = 0;
+                    chunk[6] = 0;
+                    chunk[7] = 0;
+                    changed = true;
+                }
+            }
+
+            if changed {
+                self.create_backup_once(&buf_path, backed_up)?;
+                fs::write(&buf_path, &data)?;
+                modified = true;
+                info!("COLOR1 fix applied: Zeroed out bytes 4-7 in {}", buf_path.display());
+            }
+        }
+        
+        Ok(modified)
     }
 
     fn expand_blend_stride_to_16(&self, blend_data: &[u8]) -> Vec<u8> {

@@ -13,6 +13,7 @@ pub struct CliArgs {
     pub derived_hashes: bool,
     pub stable_texture: bool,
     pub aemeath_mech: bool,
+    pub texcoord_color: bool,
     pub aero_fix: u8, // 0 = disabled, 1 = TexCoord, 2 = Mirror
     pub online: bool,
     pub rollback: bool,
@@ -25,6 +26,7 @@ pub fn parse_cli_args() -> CliArgs {
         derived_hashes: false,
         stable_texture: false,
         aemeath_mech: false,
+        texcoord_color: false,
         aero_fix: 0,
         online: false,
         rollback: false,
@@ -55,6 +57,10 @@ pub fn parse_cli_args() -> CliArgs {
             }
             "--aemeath-mech" => {
                 result.aemeath_mech = true;
+                i += 1;
+            }
+            "--texcoord-color" => {
+                result.texcoord_color = true;
                 i += 1;
             }
             "--aero-fix" => {
@@ -162,6 +168,11 @@ pub fn run_direct_fix(args: &CliArgs) {
     );
     println!(
         "  {}: {}",
+        tr!("修复 TexCoord COLOR1", "TexCoord COLOR1 Fix"),
+        if args.texcoord_color { "✓" } else { "✗" }
+    );
+    println!(
+        "  {}: {}",
         tr!("风主眼部修复", "Aero Eye Fix"),
         match args.aero_fix {
             1 => tr!("TexCoord 覆盖", "TexCoord Override"),
@@ -181,6 +192,7 @@ pub fn run_direct_fix(args: &CliArgs) {
         args.derived_hashes,
         args.stable_texture,
         args.aemeath_mech,
+        args.texcoord_color,
         args.aero_fix,
     );
 
@@ -215,7 +227,7 @@ pub fn run_direct_rollback(args: &CliArgs) {
         std::process::exit(1);
     }
 
-    let has_fix_options = args.derived_hashes || args.stable_texture || args.aemeath_mech || args.aero_fix > 0;
+    let has_fix_options = args.derived_hashes || args.stable_texture || args.aemeath_mech || args.texcoord_color || args.aero_fix > 0;
     if has_fix_options {
         eprintln!(
             "\x1b[31m{}\x1b[0m",
@@ -352,17 +364,22 @@ fn run_fix_flow(settings: &mut UserSettings) {
     println!("    \x1b[90m{}\x1b[0m", tr!("不要对正常的爱弥斯机兵模组启用此功能，不要重复修复", "Do not enable this function for Aemeath mech mods that are already normal, do not repeat the fix"));
     
     println!("  \x1b[1m{}\x1b[0m", tr!("女漂-风主形态眼部修复", "Aero FemaleRover Eye Fix (eyes glitch when resonance energy is full)"));
-    println!("    \x1b[90m{}\x1b[0m\n", tr!("确保你的 mod 存在此问题，否则不要开启!", "Make sure your mod has this problem, otherwise don't enable!"));
+    println!("    \x1b[90m{}\x1b[0m", tr!("确保你的 mod 存在此问题，否则不要开启!", "Make sure your mod has this problem, otherwise don't enable!"));
+
+    println!("  \x1b[1m{}\x1b[0m", tr!("修复3.3版本爱弥斯 莫宁 琳奈等角色部分模组某些部位不显示的问题", "Fix some parts of mods for Aemeath&Mornye etc. characters not rendering in 3.3"));
+    println!("    \x1b[90m{}\x1b[0m\n", tr!("不建议对正常模组启用此选项，以避免可能的副作用", "Do not enable this option for normal mods to avoid possible side effects)"));
 
     let opt_tex = tr!("补全贴图状态", "Added Derived Hashes").to_string();
     let opt_stable = tr!("应用稳定纹理", "Apply Stable Texture").to_string();
     let opt_aemeath = tr!("修复爱弥斯机兵形态的模型异常", "Fix Aemeath's mech form model error").to_string();
     let opt_aero = tr!("女漂-风主形态眼部修复", "Aero FemaleRover Eye Fix (eyes glitch when resonance energy is full)").to_string();
+    let opt_texcoord_color = tr!("修复3.3版本爱弥斯 莫宁 琳奈等角色部分模组某些部位不显示的问题", "Fix some parts of mods for Aemeath&Mornye etc. characters not rendering in 3.3").to_string();
     
     let options = vec![
         opt_tex.clone(),
         opt_stable.clone(),
         opt_aemeath.clone(),
+        opt_texcoord_color.clone(),
         opt_aero.clone(),
     ];
 
@@ -393,6 +410,7 @@ fn run_fix_flow(settings: &mut UserSettings) {
     let enable_tex = ext_ans.contains(&opt_tex);
     let enable_stable = ext_ans.contains(&opt_stable);
     let enable_aemeath = ext_ans.contains(&opt_aemeath);
+    let enable_texcoord_color = ext_ans.contains(&opt_texcoord_color);
     let enable_aero = ext_ans.contains(&opt_aero);
 
     let mut aero_mode = 0;
@@ -412,7 +430,7 @@ fn run_fix_flow(settings: &mut UserSettings) {
     println!("\n\x1b[90m{}\x1b[0m", tr!("处理中...", "Processing..."));
     let fixer = ModFixer::new(
         crate::config_loader::characters(),
-        enable_tex, enable_stable, enable_aemeath, aero_mode
+        enable_tex, enable_stable, enable_aemeath, enable_texcoord_color, aero_mode
     );
 
     crate::reset_progress();
