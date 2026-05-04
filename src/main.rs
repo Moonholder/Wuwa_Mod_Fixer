@@ -108,7 +108,6 @@ pub struct ModFixer {
     enable_texture_override: bool,
     enable_stable_texture: bool,
     enable_fix_aemeath_mech: bool,
-    enable_fix_texcoord_color: bool,
     /// 0 = disabled, 1 = TexCoord override, 2 = Texture mirror flip
     aero_fix_mode: u8,
     checksum_regex: Regex,
@@ -127,7 +126,6 @@ impl ModFixer {
         enable_texture_override: bool,
         enable_stable_texture: bool,
         enable_fix_aemeath_mech: bool,
-        enable_fix_texcoord_color: bool,
         aero_fix_mode: u8,
     ) -> Self {
         let mut hash_to_character = HashMap::new();
@@ -167,7 +165,6 @@ impl ModFixer {
             enable_texture_override,
             enable_stable_texture,
             enable_fix_aemeath_mech,
-            enable_fix_texcoord_color,
             aero_fix_mode,
             checksum_regex: Regex::new(r"(checksum\s*=\s*)\d+").unwrap(),
             hash_re: Regex::new(r"hash\s*=\s*([0-9a-fA-F]{8,16})\b").unwrap(),
@@ -334,7 +331,7 @@ impl ModFixer {
                         ini_modified = true; 
                     }
                 }
-                ini_modified |= self.replace_index_offset_count(&mut new_content, &config.rules);
+                ini_modified |= self.replace_by_rules(&mut new_content, &config.rules);
 
                 // [Phase 2] 材质扩展 (RabbitFX)
                 if self.enable_stable_texture {
@@ -349,9 +346,7 @@ impl ModFixer {
                     }
                 }
 
-                if self.enable_fix_texcoord_color {
-                    buf_modified |= self.fix_color1_in_texcoord(&content, path, &mut backed_up)?;
-                }
+                buf_modified |= self.fix_wuwa_3_3_rendering(&content, path, &mut backed_up)?;
 
                 // [Phase 4] 缓冲格式归一化 (Stride Fix)
                 let (i_mod, b_mod) = self.run_stride_fix(&content, &mut new_content, path, config, &mut backed_up)?;
@@ -975,7 +970,7 @@ impl ModFixer {
         false
     }
 
-    fn replace_index_offset_count(
+    fn replace_by_rules(
         &self,
         content: &mut String,
         rules_option: &Option<Vec<ReplacementRule>>,
@@ -1414,15 +1409,44 @@ impl ModFixer {
         return Ok(true);
     }
 
-    /// Fix issue where some components are not rendered in version 3.3
-    fn fix_color1_in_texcoord(
+    fn fix_wuwa_3_3_rendering(
         &self,
         content: &str,
         file_path: &Path,
         backed_up: &mut std::collections::HashSet<PathBuf>,
     ) -> Result<bool> {
         let mut modified = false;
-        
+
+        let color_buf_matches = collector::parse_resouce_buffer_path(
+            content, 
+            collector::BufferType::Color, 
+            file_path
+        );
+
+        for (buf_path, stride) in color_buf_matches {
+            if !buf_path.exists() || stride != 4 { continue; }
+
+            let mut data = fs::read(&buf_path)?;
+            let mut changed = false;
+
+            for chunk in data.chunks_exact_mut(4) {
+                if chunk[0] == 255 && chunk[1] == 255 && chunk[2] == 255 && chunk[3] == 255 {
+                    chunk[0] = 0xFF; // 255
+                    chunk[1] = 0xBC; // 188
+                    chunk[2] = 0xBC; // 188
+                    chunk[3] = 0x33; // 51
+                    changed = true;
+                }
+            }
+
+            if changed {
+                self.create_backup_once(&buf_path, backed_up)?;
+                fs::write(&buf_path, &data)?;
+                modified = true;
+                info!("Wuwa 3.3 Fix: Updated default Color values in {}", buf_path.display());
+            }
+        }
+
         let texcoord_buf_matches = collector::parse_resouce_buffer_path(
             content, 
             collector::BufferType::TexCoord, 
@@ -1430,19 +1454,13 @@ impl ModFixer {
         );
 
         for (buf_path, stride) in texcoord_buf_matches {
-            if !buf_path.exists() {
-                continue;
-            }
-
-            if stride != 16 {
-                continue;
-            }
+            if !buf_path.exists() || stride != 16 { continue; }
 
             let mut data = fs::read(&buf_path)?;
             let mut changed = false;
 
             for chunk in data.chunks_exact_mut(16) {
-                if chunk[4] != 0 || chunk[5] != 0 || chunk[6] != 0 || chunk[7] != 0 {
+                if chunk[4] == 255 && chunk[5] == 255 && chunk[6] == 255 && chunk[7] == 255 {
                     chunk[4] = 0;
                     chunk[5] = 0;
                     chunk[6] = 0;
@@ -1455,10 +1473,10 @@ impl ModFixer {
                 self.create_backup_once(&buf_path, backed_up)?;
                 fs::write(&buf_path, &data)?;
                 modified = true;
-                info!("COLOR1 fix applied: Zeroed out bytes 4-7 in {}", buf_path.display());
+                info!("Wuwa 3.3 Fix: Wiped garbage COLOR1 mask in {}", buf_path.display());
             }
         }
-        
+
         Ok(modified)
     }
 

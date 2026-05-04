@@ -219,7 +219,6 @@ pub enum Message {
     ToggleStableTexture(bool),
     SetAeroFixMode(u8),
     ToggleFixAemeathMech(bool),
-    ToggleFixTexcoordColor(bool),
     ToggleDebugLogs(bool),
     ClearLogs,
     ExportLogs,
@@ -253,7 +252,6 @@ struct WuwaModFixerApp {
     enable_texture_override: bool,
     enable_stable_texture: bool,
     enable_fix_aemeath_mech: bool,
-    enable_fix_texcoord_color: bool,
     aero_fix_mode: u8,
     logs: Vec<String>,
     is_processing: bool,
@@ -307,7 +305,6 @@ impl WuwaModFixerApp {
             enable_texture_override: false,
             enable_stable_texture: false,
             enable_fix_aemeath_mech: false,
-            enable_fix_texcoord_color: false,
             aero_fix_mode: 0,
             logs: init_logs,
             is_processing: false,
@@ -389,9 +386,6 @@ impl WuwaModFixerApp {
             Message::ToggleFixAemeathMech(v) => {
                 self.enable_fix_aemeath_mech = v;
             }
-            Message::ToggleFixTexcoordColor(v) => {
-                self.enable_fix_texcoord_color = v;
-            }
 
             Message::StartFix => {
                 if let Some(path) = self.mod_path.clone() {
@@ -417,20 +411,18 @@ impl WuwaModFixerApp {
                     let enable_tex = self.enable_texture_override;
                     let enable_stable = self.enable_stable_texture;
                     let enable_fix_aemeath_mech = self.enable_fix_aemeath_mech;
-                    let enable_fix_texcoord_color = self.enable_fix_texcoord_color;
                     let aero_mode = self.aero_fix_mode;
 
                     return Task::perform(
                         async move {
                             tokio::task::spawn_blocking(move || {
                                 let characters = config_loader::characters();
-                                let fixer = ModFixer::new(characters, enable_tex, enable_stable, enable_fix_aemeath_mech, enable_fix_texcoord_color, aero_mode);
+                                let fixer = ModFixer::new(characters, enable_tex, enable_stable, enable_fix_aemeath_mech, aero_mode);
 
                                 let mut opts = Vec::new();
                                 if enable_tex { opts.push("TextureOverride"); }
                                 if enable_stable { opts.push("StableTexture"); }
                                 if enable_fix_aemeath_mech { opts.push("FixAemeathMech"); }
-                                if enable_fix_texcoord_color { opts.push("FixTexcoordColor"); }
                                 match aero_mode {
                                     1 => opts.push("AeroFix:TexCoord"),
                                     2 => opts.push("AeroFix:TextureMirror"),
@@ -664,7 +656,7 @@ impl WuwaModFixerApp {
                         .unwrap_or_else(|| "N/A".to_string());
                     let header = format!(
                         "WWMI Mod Fixer v{}\nConfig Version: {}\nExport Time: {}\nMod Path: {}\n\
-                         Options: TextureOverride={}, StableTexture={}, AeroFixMode={}, FixAemeathMech={}, FixTexcoordColor={}\n\
+                         Options: TextureOverride={}, StableTexture={}, AeroFixMode={}, FixAemeathMech={}\n\
                          =================================\n",
                         env!("CARGO_PKG_VERSION"),
                         config_ver,
@@ -674,7 +666,6 @@ impl WuwaModFixerApp {
                         self.enable_stable_texture,
                         self.aero_fix_mode,
                         self.enable_fix_aemeath_mech,
-                        self.enable_fix_texcoord_color,
                     );
                     let content = format!("{}\n{}", header, log_body);
 
@@ -1105,16 +1096,6 @@ impl WuwaModFixerApp {
         ))
         .size(11).color(get_text_dim(&self.theme));
 
-        let fix_texcoord_color_cb = checkbox(self.enable_fix_texcoord_color)
-            .label(tr!("修复3.3版本爱弥斯 莫宁 琳奈等角色部分模组某些部位不显示的问题", "Fix some parts of mods for Aemeath&Mornye etc. characters not rendering in 3.3"))
-            .on_toggle(Message::ToggleFixTexcoordColor)
-            .size(16);
-        let fix_texcoord_color_desc = text(tr!(
-            "    不建议对正常模组启用此选项，以避免可能的副作用",
-            "    Do not enable this option for normal mods to avoid possible side effects",
-        ))
-        .size(11).color(get_text_dim(&self.theme));
-
         let mut settings_col = column![
             tex_cb, tex_desc,
             Space::new().height(4),
@@ -1123,8 +1104,6 @@ impl WuwaModFixerApp {
             rule::horizontal(1),
             Space::new().height(4),
             fix_aemeath_mech_cb, fix_aemeath_mech_desc,
-            Space::new().height(4),
-            fix_texcoord_color_cb, fix_texcoord_color_desc,
             Space::new().height(4),
             aero_cb,
         ]

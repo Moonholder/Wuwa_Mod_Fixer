@@ -7,7 +7,8 @@ pub enum BufferType {
     Blend,
     TexCoord,
     Index,
-    BlendRemapForward
+    BlendRemapForward,
+    Color,
 }
 
 impl std::fmt::Display for BufferType {
@@ -17,6 +18,7 @@ impl std::fmt::Display for BufferType {
             BufferType::TexCoord => write!(f, "TexCoord"),
             BufferType::Index => write!(f, "Index"),
             BufferType::BlendRemapForward => write!(f, "BlendRemapForward"),
+            BufferType::Color => write!(f, "Color"),
         }
     }
 }
@@ -24,7 +26,7 @@ impl std::fmt::Display for BufferType {
 lazy_static::lazy_static! {
     static ref FILENAME_RE: Regex = Regex::new(r"(?i)filename\s*=\s*([^\s]+?\.buf)").unwrap();
     static ref STRIDE_RE: Regex = Regex::new(r"(?i)stride\s*=\s*(\d+)").unwrap();
-    static ref COMPONENT_RE: Regex = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)[^\]\n]*\]?([^\[]*)").unwrap();
+    static ref COMPONENT_RE: Regex = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
     static ref DRAWINDEXED_RE: Regex = Regex::new(r"drawindexed\s*=\s*(\d+),\s*(\d+),").unwrap();
 }
 
@@ -34,7 +36,7 @@ pub fn parse_resouce_buffer_path(
     ini_path: &Path,
 ) -> Vec<(PathBuf, usize)> {
     let section_re = match Regex::new(&format!(
-        r"(?im)^\[Resource{}Buffer[^\]\n]*\]?([^\[]*)",
+        r"(?im)^\[Resource{}Buffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)",
         buf_type
     )) {
         Ok(re) => re,
