@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "3.3.1",
-        "current_version": "3.3.3",
+        "current_version": "3.3.4",
         "latest_program_version": "3.3.1",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest",
         "support_url_cn": "https://support.jix.de5.net",
@@ -29,8 +29,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.3: 请将XXMI更新至最新版本\n* 修复主角及主角的皮肤\n* 修复部分模组某些部位不显示的问题\n* 修复洛瑟菈（NPC）的模型显示\n* 更新绯雪的 VB0 hash，为其添加画面细节高/中下的贴图 hash\n* 更新琳奈的脸部贴图 hash\n\n修复3.2:\n* 更新修复以下武器的贴图错误：奇幻变奏、漪澜浮录、千古洑流、赫奕流明、裁春、擎渊怒涛、浩境粼光、时和岁稔、凋亡频率、异响空灵、苍鳞千嶂\n* 添加卜灵(Buling)的稳定纹理配置，以及添加琳奈(Lynae)唤取动画时的贴图hash\n* 修复爱弥斯机兵形态的模型异常\n* 添加女漂皮肤、西格莉卡的画面细节高/中贴图hash\n* 更新赞妮的画面细节高/中贴图hash\n* 修复长离皮肤的贴图错误\n\n",
-            "en": "Fix 3.3: Please update XXMI to the latest version.\n* Fix Rover and Rover skins.\n* Fix some parts of mod not rendering for characters.\n* Fixed the model display for the NPC Lucilla.\n* Updated VB0 hash for Hiyuki and added texture hashes for High/Medium LOD Bias.\n* Update Lynae's face texture hash.\n\nFix 3.2:\n* Updated and fixed texture errors for the following weapons: Variation, Cosmic Ripples, Emerald of Genesis, Blazing Brilliance, Red Spring, Abyss Surges, Lustrous Razor, Ages of Harvest, Waning Redshift, Discord, and Verdant Summit.\n* Added stable texture configuration for Buling, and added texture hashes for Lynae's summon animation.\n* Fixed Aemeath's mech form model error.\n*  Added High/Medium LOD Bias texture hashes for the FRoverSkin1 and Sigrika, updated Zani's texture hash for High/Medium LOD Bias.\n* Fix Changli's skin texture error.\n\n"
+            "zh": "修复3.3: 请将XXMI更新至最新版本\n* 修复西格莉卡和莫宁的贴图错误\n* 修复主角及主角的皮肤\n* 修复部分模组某些部位不显示的问题\n* 修复洛瑟菈（NPC）的模型显示\n* 更新绯雪的 VB0 hash，为其添加画面细节高/中下的贴图 hash\n* 更新琳奈的脸部贴图 hash\n\n修复3.2:\n* 更新修复以下武器的贴图错误：奇幻变奏、漪澜浮录、千古洑流、赫奕流明、裁春、擎渊怒涛、浩境粼光、时和岁稔、凋亡频率、异响空灵、苍鳞千嶂\n* 添加卜灵(Buling)的稳定纹理配置，以及添加琳奈(Lynae)唤取动画时的贴图hash\n* 修复爱弥斯机兵形态的模型异常\n* 添加女漂皮肤、西格莉卡的画面细节高/中贴图hash\n* 更新赞妮的画面细节高/中贴图hash\n* 修复长离皮肤的贴图错误\n\n",
+            "en": "Fix 3.3: Please update XXMI to the latest version.\n* Fix the texture errors for Sigrika and Mornye.\n* Fix Rover and Rover skins.\n* Fix some parts of mod not rendering for characters.\n* Fixed the model display for the NPC Lucilla.\n* Updated VB0 hash for Hiyuki and added texture hashes for High/Medium LOD Bias.\n* Update Lynae's face texture hash.\n\nFix 3.2:\n* Updated and fixed texture errors for the following weapons: Variation, Cosmic Ripples, Emerald of Genesis, Blazing Brilliance, Red Spring, Abyss Surges, Lustrous Razor, Ages of Harvest, Waning Redshift, Discord, and Verdant Summit.\n* Added stable texture configuration for Buling, and added texture hashes for Lynae's summon animation.\n* Fixed Aemeath's mech form model error.\n*  Added High/Medium LOD Bias texture hashes for the FRoverSkin1 and Sigrika, updated Zani's texture hash for High/Medium LOD Bias.\n* Fix Changli's skin texture error.\n\n"
         },
         "intro_note": {
             "zh": "确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错",
@@ -1459,15 +1459,15 @@
             "45658d90": { "replace": ["7b258721"], "derive": { "LOD": ["983a13b7", "9081fb54"] } },
             "f46e3fe6": { "derive": { "LOD": ["2931a1c1", "ec6993a9"] } },
             "7968d921": { "derive": { "LOD": ["4d069274", "8c58128c"] } },
-            "adb701fd": { "replace": ["4b7131f7"], "derive": { "LOD": ["70e89fda", "4ba9f939"] } },
-            "75f3ce40": { "replace": ["4979c5b0"], "derive": { "LOD": ["a8ac5067", "d6cdd4cf"] } },
-            "078d4b06": { "derive": { "LOD": ["dad2d521", "da119917"] } },
+            "4ba9f939": { "replace": ["4b7131f7", "adb701fd"], "derive": { "LOD": ["d98f27f4", "2bc4326d"] } },
+            "d6cdd4cf": { "replace": ["4979c5b0", "75f3ce40"], "derive": { "LOD": ["44eb0a02", "deeb26e2"] } },
+            "da119917": { "replace": ["078d4b06"], "derive": { "LOD": ["483747da", "08185ef1"] } },
             "e5aaf214": { "replace": ["69fb6d9d"], "derive": { "LOD": ["38f56c33", "c3da1acf"] } },
-            "2d26a8fe": { "replace": ["84a341b4"], "derive": { "LOD": ["f07936d9", "ca37a23c"] } },
+            "ca37a23c": { "replace": ["84a341b4", "2d26a8fe"], "derive": { "LOD": ["58117cf1", "9ba94d87"] } },
             "448e8475": { "replace": ["350db74d"], "derive": { "LOD": ["99d11a52", "e861b34f"] } },
             "2bf9506c": { "replace": ["2a6aa36b"], "derive": { "LOD": ["f6a6ce4b", "cf04c438"] } },
             "d5e47035": { "replace": ["3ea68ef7"], "derive": { "LOD": ["08bbee12", "bba349e7"] } },
-            "82e6ec0c": { "replace": ["4d520209"], "derive": { "LOD": ["5fb9722b", "f81f66ee"] } },
+            "f81f66ee": { "replace": ["4d520209", "82e6ec0c"], "derive": { "LOD": ["6a39b823", "fa58ac9c"] } },
             "61d64305": { "derive": { "LOD": ["bc89dd22", "30d78e31"] } },
             "e9ec3443": { "derive": { "LOD": ["6fbaf147", "66c31743"] } },
             "1557244b": { "replace": ["f2768109"], "derive": { "LOD": ["c808ba6c", "6d7798f8"] } },
@@ -1477,9 +1477,9 @@
             "201f9795": { "replace": ["d4b685ff"], "derive": { "LOD": ["fd4009b2", "ddc1d33d"] } },
             "fb7a0fd2": { "derive": { "LOD": ["262591f5", "1596428b"] } },
             "345146b8": { "replace": ["8e65d75a"] },
-            "435cc2ca": { "replace": ["242b3c97"] },
+            "d2d1925e": { "replace": ["242b3c97", "435cc2ca"], "derive": { "LOD": ["5487575a", "24cb5732"] } },
             "dc90fe92": { "replace": ["5a92790e"] },
-            "7e69cd36": { "replace": ["4249bbc8"] },
+            "9f7de295": { "replace": ["4249bbc8", "7e69cd36"] },
             "afacbd93": { "replace": ["1e7c100d"] }
         },
         "Aemeath": {
@@ -1576,11 +1576,11 @@
             "eff5b6e2": {"derive": { "LOD": ["32aa28c5", "00e420cf"] }},
             "f9af9096": {"derive": { "LOD": ["24f00eb1", "1cf8fc2d"] }},
             "fee5ce8e": {"derive": { "LOD": ["23ba50a9", "739ce7f8"] }},
-            "e7456f68": {"derive": { "LOD": ["3a1af14f", "ddc3b658"] }},
+            "07932aef": {"replace": ["e7456f68"], "derive": { "LOD": ["95b5f422", "cef4e54f"] }},
             "be3d8dad": {"derive": { "LOD": ["6362138a", "5a4eb68c"] }},
-            "0e64cea9": {"derive": { "LOD": ["d33b508e", "15e64f3f"] }},
+            "69896a7c": {"replace": ["0e64cea9"], "derive": { "LOD": ["fbafb4b1", "d1158048"] }},
             "2a156241": {"derive": { "LOD": ["f74afc66", "68a00407"] }},
-            "73ed8fea": {"derive": { "LOD": ["aeb211cd", "864dda65"] }},
+            "73ed8fea": {"derive": { "LOD": ["e64cfc08", "a319a7b2"] }},
             "76cbd17e": {"derive": { "LOD": ["ab944f59", "a23b0f33"] }},
             "5085890f": {"derive": { "LOD": ["8dda1728", "811ebea6"] }},
             "d3215f32": {"derive": { "LOD": ["0e7ec115", "13126d15"] }},
