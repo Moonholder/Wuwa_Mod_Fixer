@@ -292,7 +292,8 @@
             "a8a08519": {"derive": {"LOD": ["75ff1b3e", "389187ea"]}},
             "ac811d4b": {"derive": {"LOD": ["71de836c", "e21a6804"]}},
             "c9bbe473": {"derive": {"LOD": ["14e47a54", "100b31ef"]}},
-            "c917c0f0": {"derive": {"LOD": ["14485ed7", "434d0b75"]}},
+            "a17125b7": {"replace": ["c917c0f0"],"derive": {"LOD": ["3357fb7a", "49c09761"]}},
+            "acbed1bb": {"replace": ["3f7bfcca"],"derive": {"LOD": ["3e980f76", "8b75266c"]}},
             "dbfb288a": {"derive": {"LOD": ["06a4b6ad", "65eeadbc"]}},
             "f73250e5": {"derive": {"LOD": ["2a6dcec2", "7d264809"]}}
         },
@@ -1643,7 +1644,7 @@
             "9b21cc30": {"meta": {"id": 3, "type": "N"}, "derive": { "LOD": ["31433c16"] }},
             "1b9e356e": {"meta": {"id": 3, "type": "L"}, "derive": { "LOD": ["7a799a83"] }},
             "fb9f8591": {"meta": {"id": 3, "type": "S"}, "derive": { "LOD": ["034c4ff9"] }}
-        },
+                },
         "Hiyuki": {
             "main_hashes": [{"old": ["14d6362b"], "new": "d83b3034"}],
             "88a0bbcb": { "derive": { "LOD": ["55ff25ec", "ff1a7d3b"] }},
