@@ -1,7 +1,7 @@
 {
     "version" : {
         "min_required_version": "3.3.1",
-        "current_version": "3.3.4",
+        "current_version": "3.3.5",
         "latest_program_version": "3.3.1",
         "update_url": "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest",
         "support_url_cn": "https://support.jix.de5.net",
@@ -29,8 +29,8 @@
         "en": "This fix tool is applicable when the mods produced by WWMI become ineffective due to the update of the game version.\n"
         },
         "intro": {
-            "zh": "修复3.3: 请将XXMI更新至最新版本\n* 修复西格莉卡和莫宁的贴图错误\n* 修复主角及主角的皮肤\n* 修复部分模组某些部位不显示的问题\n* 修复洛瑟菈（NPC）的模型显示\n* 更新绯雪的 VB0 hash，为其添加画面细节高/中下的贴图 hash\n* 更新琳奈的脸部贴图 hash\n\n修复3.2:\n* 更新修复以下武器的贴图错误：奇幻变奏、漪澜浮录、千古洑流、赫奕流明、裁春、擎渊怒涛、浩境粼光、时和岁稔、凋亡频率、异响空灵、苍鳞千嶂\n* 添加卜灵(Buling)的稳定纹理配置，以及添加琳奈(Lynae)唤取动画时的贴图hash\n* 修复爱弥斯机兵形态的模型异常\n* 添加女漂皮肤、西格莉卡的画面细节高/中贴图hash\n* 更新赞妮的画面细节高/中贴图hash\n* 修复长离皮肤的贴图错误\n\n",
-            "en": "Fix 3.3: Please update XXMI to the latest version.\n* Fix the texture errors for Sigrika and Mornye.\n* Fix Rover and Rover skins.\n* Fix some parts of mod not rendering for characters.\n* Fixed the model display for the NPC Lucilla.\n* Updated VB0 hash for Hiyuki and added texture hashes for High/Medium LOD Bias.\n* Update Lynae's face texture hash.\n\nFix 3.2:\n* Updated and fixed texture errors for the following weapons: Variation, Cosmic Ripples, Emerald of Genesis, Blazing Brilliance, Red Spring, Abyss Surges, Lustrous Razor, Ages of Harvest, Waning Redshift, Discord, and Verdant Summit.\n* Added stable texture configuration for Buling, and added texture hashes for Lynae's summon animation.\n* Fixed Aemeath's mech form model error.\n*  Added High/Medium LOD Bias texture hashes for the FRoverSkin1 and Sigrika, updated Zani's texture hash for High/Medium LOD Bias.\n* Fix Changli's skin texture error.\n\n"
+            "zh": "修复3.3: 请将XXMI更新至最新版本\n* 修复爱弥斯、西格莉卡和莫宁的贴图错误\n* 修复主角及主角的皮肤\n* 修复部分模组某些部位不显示的问题\n* 修复洛瑟菈（NPC）的模型显示\n* 更新绯雪的 VB0 hash，为其添加画面细节高/中下的贴图 hash\n* 更新琳奈的脸部贴图 hash\n\n修复3.2:\n* 更新修复以下武器的贴图错误：奇幻变奏、漪澜浮录、千古洑流、赫奕流明、裁春、擎渊怒涛、浩境粼光、时和岁稔、凋亡频率、异响空灵、苍鳞千嶂\n* 添加卜灵(Buling)的稳定纹理配置，以及添加琳奈(Lynae)唤取动画时的贴图hash\n* 修复爱弥斯机兵形态的模型异常\n* 添加女漂皮肤、西格莉卡的画面细节高/中贴图hash\n* 更新赞妮的画面细节高/中贴图hash\n* 修复长离皮肤的贴图错误\n\n",
+            "en": "Fix 3.3: Please update XXMI to the latest version.\n* Fix the texture errors for Aemeath, Sigrika and Mornye.\n* Fix Rover and Rover skins.\n* Fix some parts of mod not rendering for characters.\n* Fixed the model display for the NPC Lucilla.\n* Updated VB0 hash for Hiyuki and added texture hashes for High/Medium LOD Bias.\n* Update Lynae's face texture hash.\n\nFix 3.2:\n* Updated and fixed texture errors for the following weapons: Variation, Cosmic Ripples, Emerald of Genesis, Blazing Brilliance, Red Spring, Abyss Surges, Lustrous Razor, Ages of Harvest, Waning Redshift, Discord, and Verdant Summit.\n* Added stable texture configuration for Buling, and added texture hashes for Lynae's summon animation.\n* Fixed Aemeath's mech form model error.\n*  Added High/Medium LOD Bias texture hashes for the FRoverSkin1 and Sigrika, updated Zani's texture hash for High/Medium LOD Bias.\n* Fix Changli's skin texture error.\n\n"
         },
         "intro_note": {
             "zh": "确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错",
@@ -1493,14 +1493,14 @@
             "9c0c016b": { "derive": { "LOD": ["41539f4c", "4e0b21a2"] } },
             "34d0acfd": { "derive": { "LOD": ["e98f32da", "0777afff"] } },
             "182fc550": { "derive": { "LOD": ["9e790054", "972b84bf"] } },
-            "0454fc47": { "derive": { "LOD": ["d90b6260", "75591798"] } },
+            "75591798": { "replace": ["0454fc47"],"derive": { "LOD": ["e77fc955","f0987e14"] } },
             "79081b2b": { "derive": { "LOD": ["a457850c", "4db76b74"] } },
             "aa4979ac": { "derive": { "LOD": ["f08446f0", "5d17f4dc"] } },
             "b3927ca5": { "derive": { "LOD": ["6ecde282", "9692bd97"] } },
             "d3387127": { "derive": { "LOD": ["0e67ef00", "6da910f6"] } },
             "e5bb71c0": { "derive": { "LOD": ["63edb4c4", "8c13b3f3"] } },
             "e341a037": { "derive": { "LOD": ["3e1e3e10", "2fafc4cb"] } },
-            "ec96a652": { "derive": { "LOD": ["31c93875", "c7d7ad44"] } },
+            "2f18521b": { "replace": ["ec96a652"],"derive": { "LOD": ["bd3e8cd6", "98e03fc5"] } },
             "ef5edd1b": { "derive": { "LOD": ["3201433c", "1cff0950"] } },
             "f58624fb": { "derive": { "LOD": ["28d9badc", "1284c977"], "Charged": ["f857b2b4", "cf137770"] } },
             "fda934b4": { "derive": { "LOD": ["20f6aa93", "8ca059b1"] } },
