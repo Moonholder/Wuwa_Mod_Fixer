@@ -1531,6 +1531,9 @@ fn main() -> Result<()> {
     }
     if is_cli {
         let cli_args = cli::parse_cli_args();
+        if let Some(config_path) = cli_args.config.as_ref() {
+            config_loader::set_config_override_path(config_path);
+        }
         // CLI mode: use a tokio runtime for async config loading
         let rt = tokio::runtime::Runtime::new()?;
 
