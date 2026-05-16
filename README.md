@@ -58,6 +58,7 @@ cargo build --release
 | :--- | :--- |
 | `--cli` | **进入控制台模式**（交互式菜单）。 |
 | `--path <DIR>` | **指定 Mod 文件夹路径**，启用非交互直接修复模式。需搭配 `--cli` 使用。 |
+| `--config <FILE>` | **指定配置文件路径**，优先读取该 `config.json`，并跳过远程配置获取。 |
 | `--derived-hashes` | 启用「补全贴图状态」（与 `--stable-texture` 互斥）。 |
 | `--stable-texture` | 启用「应用稳定纹理」（与 `--derived-hashes` 互斥）。 |
 | `--aemeath-mech` | 启用「修复爱弥斯机兵形态」。 |
@@ -73,6 +74,9 @@ cargo build --release
 
 # 一键修复（仅基础 hash 替换）
 ./Mod_Fixer --cli --path "D:\Mods\MyMod"
+
+# 一键修复 + 使用指定配置文件
+./Mod_Fixer --cli --path "D:\Mods\MyMod" --config "D:\Configs\config.json"
 
 # 一键修复 + 补全贴图状态 + 联网获取最新配置
 ./Mod_Fixer --cli --path "D:\Mods\MyMod" --derived-hashes --online
@@ -128,6 +132,7 @@ The application supports the following startup arguments:
 | :--- | :--- |
 | `--cli` | **Enter Console Mode** (interactive menu). |
 | `--path <DIR>` | **Specify Mod folder path** for non-interactive direct fix mode. Must be used with `--cli`. |
+| `--config <FILE>` | **Specify a config file path**. The app will load that `config.json` first and skip remote config fetch. |
 | `--derived-hashes` | Enable "Add Derived Hashes" (mutually exclusive with `--stable-texture`). |
 | `--stable-texture` | Enable "Apply Stable Texture" (mutually exclusive with `--derived-hashes`). |
 | `--aemeath-mech` | Enable "Fix Aemeath's mech form model error". |
@@ -143,6 +148,9 @@ The application supports the following startup arguments:
 
 # One-click fix (basic hash replacement only)
 ./Mod_Fixer --cli --path "D:\Mods\MyMod"
+
+# One-click fix + use a specific config file
+./Mod_Fixer --cli --path "D:\Mods\MyMod" --config "D:\Configs\config.json"
 
 # One-click fix + derived hashes + fetch latest config online
 ./Mod_Fixer --cli --path "D:\Mods\MyMod" --derived-hashes --online

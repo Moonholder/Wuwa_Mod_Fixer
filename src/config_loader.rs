@@ -3,6 +3,7 @@ use localization::config::{LangPack, get_lang};
 use semver::Version;
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicPtr, Ordering};
 use std::sync::OnceLock;
@@ -10,6 +11,7 @@ use std::time::{Duration, Instant};
 use inquire::Confirm;
 use ureq::Agent;
 static CONFIG_PTR: AtomicPtr<GlobalConfig> = AtomicPtr::new(std::ptr::null_mut());
+static CONFIG_OVERRIDE_PATH: OnceLock<PathBuf> = OnceLock::new();
 
 #[derive(Deserialize, Default)]
 #[serde(default)]
@@ -334,7 +336,9 @@ async fn init_config_inner(prompt: bool, force_local: bool) -> &'static GlobalCo
 
     let load_start = Instant::now();
 
-    let data = if should_load_remote_fetch {
+    let data = if let Some(path) = config_override_path() {
+        load_explicit_local(path)
+    } else if should_load_remote_fetch {
         load_config("config.json")
             .await
             .map_err(|_| ())
@@ -360,6 +364,10 @@ async fn init_config_inner(prompt: bool, force_local: bool) -> &'static GlobalCo
 
 /// Force fetch config from internet and update global state
 pub async fn force_reload_remote_config() -> Result<(), ConfigError> {
+    if config_override_path().is_some() {
+        return Ok(());
+    }
+
     let data = load_config("config.json").await?;
         
     let new_config: GlobalConfig = serde_json::from_str(&data).map_err(ConfigError::SerdeError)?;
@@ -454,6 +462,44 @@ fn load_local(file_name: &str) -> String {
         file_name
     );
     return include_str!("../config.json").to_string();
+}
+
+pub fn set_config_override_path(path: impl Into<PathBuf>) {
+    let path = path.into();
+    if CONFIG_OVERRIDE_PATH.set(path.clone()).is_err() {
+        let current = CONFIG_OVERRIDE_PATH.get().unwrap();
+        if current != &path {
+            panic!(
+                "Config override path already set to {}, cannot change to {}",
+                current.display(),
+                path.display()
+            );
+        }
+    }
+}
+
+fn config_override_path() -> Option<&'static PathBuf> {
+    CONFIG_OVERRIDE_PATH.get()
+}
+
+fn load_explicit_local(path: &PathBuf) -> String {
+    println!(
+        "📁 {}: {}",
+        if get_lang() == "zh" {
+            "从指定路径加载配置"
+        } else {
+            "Loaded config from path"
+        },
+        path.display()
+    );
+
+    fs::read_to_string(path).unwrap_or_else(|e| {
+        panic!(
+            "Failed to read config file '{}': {}",
+            path.display(),
+            e
+        )
+    })
 }
 
 fn should_load_remote() -> bool {

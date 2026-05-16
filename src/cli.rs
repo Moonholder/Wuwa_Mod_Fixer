@@ -10,6 +10,7 @@ use crate::ModFixer;
 
 pub struct CliArgs {
     pub path: Option<String>,
+    pub config: Option<String>,
     pub derived_hashes: bool,
     pub stable_texture: bool,
     pub aemeath_mech: bool,
@@ -22,6 +23,7 @@ pub fn parse_cli_args() -> CliArgs {
     let args: Vec<String> = std::env::args().collect();
     let mut result = CliArgs {
         path: None,
+        config: None,
         derived_hashes: false,
         stable_texture: false,
         aemeath_mech: false,
@@ -41,6 +43,18 @@ pub fn parse_cli_args() -> CliArgs {
                     eprintln!("\x1b[31m{}\x1b[0m", tr!(
                         "错误：--path 需要一个文件夹路径参数。",
                         "Error: --path requires a directory argument."
+                    ));
+                    std::process::exit(1);
+                }
+            }
+            "--config" => {
+                if i + 1 < args.len() {
+                    result.config = Some(args[i + 1].clone());
+                    i += 2;
+                } else {
+                    eprintln!("\x1b[31m{}\x1b[0m", tr!(
+                        "错误：--config 需要一个配置文件路径参数。",
+                        "Error: --config requires a config file path argument."
                     ));
                     std::process::exit(1);
                 }
