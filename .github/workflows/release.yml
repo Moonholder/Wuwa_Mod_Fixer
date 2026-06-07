@@ -18,24 +18,68 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
         with:
-          components: rustfmt, clippy
+          workspaces: src-tauri
 
       - name: Get version
         id: get_version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: Build Windows
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: src-ui
+
+      - name: Generate Tauri icons
+        run: npx tauri icon src-tauri/icons/icon.png
+
+      - name: Build Tauri app (Windows)
+        run: npx tauri build
+
+      - name: Upload unsigned binaries for signing
+        id: upload-unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-binaries
+          path: target/release/Wuwa_Mod_Fixer.exe
+          retention-days: 1
+
+      - name: Sign binaries with SignPath
+        id: signpath
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '${{ vars.SIGNPATH_ORGANIZATION_ID }}'
+          project-slug: 'Wuwa_Mod_Fixer'
+          signing-policy-slug: 'test-signing'
+          github-artifact-id: '${{ steps.upload-unsigned.outputs.artifact-id }}'
+          wait-for-completion: true
+          output-artifact-directory: './signed-artifacts'
+
+      - name: Rename and package
+        shell: pwsh
         run: |
-          cargo build --release --target x86_64-pc-windows-msvc
-          mv ./target/x86_64-pc-windows-msvc/release/Wuwa_Mod_Fixer.exe ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}.exe
-          powershell -Command "Compress-Archive -Path './Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}.exe' -DestinationPath './Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-pc-windows-msvc.zip' -Force"
+          $version = "${{ steps.get_version.outputs.version }}"
+          $src = "signed-artifacts/Wuwa_Mod_Fixer.exe"
+          $dst = "Wuwa_Mod_Fixer_v${version}.exe"
+          Copy-Item $src $dst
+          Compress-Archive -Path $dst -DestinationPath "Wuwa_Mod_Fixer_v${version}_x86_64-pc-windows-msvc.zip" -Force
 
       - name: Upload Windows release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -46,7 +90,6 @@ jobs:
             ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-pc-windows-msvc.zip
 
   build-linux:
-    needs: build-windows
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -54,131 +97,80 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
         with:
-          components: rustfmt, clippy
+          workspaces: src-tauri
 
       - name: Get version
         id: get_version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: Install Linux build dependencies
+      - name: Install Linux system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libx11-dev libasound2-dev libudev-dev \
-            libwayland-dev libxkbcommon-dev libgtk-3-dev libfuse2 imagemagick
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libgtk-3-dev
 
-      - name: Build Linux
-        run: cargo build --release
+      - name: Install root dependencies
+        run: npm ci
 
-      - name: Prepare icons
-        run: |
-          # List all layers in the ICO to find the largest
-          identify icon.ico || true
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: src-ui
 
-          # Extract ALL layers as individual PNGs, then pick the largest
-          convert icon.ico icon_layer.png
+      - name: Generate Tauri icons
+        run: npx tauri icon src-tauri/icons/icon.png
 
-          # Find the largest extracted layer by pixel dimensions
-          BEST=""
-          BEST_SIZE=0
-          for f in icon_layer*.png; do
-            SIZE=$(identify -format '%w' "$f" 2>/dev/null || echo 0)
-            if [ "$SIZE" -gt "$BEST_SIZE" ]; then
-              BEST="$f"
-              BEST_SIZE="$SIZE"
-            fi
-          done
+      - name: Build Tauri app (Linux)
+        run: npx tauri build
 
-          echo "Best icon layer: $BEST (${BEST_SIZE}x${BEST_SIZE})"
-
-          # Generate multiple sizes from the best source for HiDPI support
-          if [ -n "$BEST" ]; then
-            convert "$BEST" -resize 512x512 icon_512.png
-            convert "$BEST" -resize 256x256 icon_256.png
-            convert "$BEST" -resize 128x128 icon_128.png
-            convert "$BEST" -resize 64x64   icon_64.png
-            convert "$BEST" -resize 48x48   icon_48.png
-            convert "$BEST" -resize 32x32   icon_32.png
-          else
-            # Fallback: just use the raw ico conversion
-            convert icon.ico -resize 512x512 icon_512.png
-            convert icon.ico -resize 256x256 icon_256.png
-            convert icon.ico -resize 128x128 icon_128.png
-            convert icon.ico -resize 64x64   icon_64.png
-            convert icon.ico -resize 48x48   icon_48.png
-            convert icon.ico -resize 32x32   icon_32.png
-          fi
-
-      - name: Create .desktop file
-        run: |
-          cat > wuwa-mod-fixer.desktop << 'EOF'
-          [Desktop Entry]
-          Name=WWMI Mod Fixer
-          Comment=WWMI Mod Fix Tool
-          Exec=Wuwa_Mod_Fixer
-          Icon=wuwa-mod-fixer
-          Terminal=false
-          Type=Application
-          Categories=Utility;Game;
-          StartupWMClass=Wuwa_Mod_Fixer
-          EOF
-
-      - name: Build AppImage
-        run: |
-          # Download linuxdeploy
-          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          chmod +x linuxdeploy-x86_64.AppImage
-
-          # Create AppDir structure with multiple icon sizes
-          mkdir -p AppDir/usr/bin
-          for SIZE in 32 48 64 128 256 512; do
-            ICON_DIR="AppDir/usr/share/icons/hicolor/${SIZE}x${SIZE}/apps"
-            mkdir -p "$ICON_DIR"
-            cp "icon_${SIZE}.png" "$ICON_DIR/wuwa-mod-fixer.png"
-          done
-          mkdir -p AppDir/usr/share/applications
-
-          cp ./target/release/Wuwa_Mod_Fixer AppDir/usr/bin/Wuwa_Mod_Fixer
-          cp wuwa-mod-fixer.desktop AppDir/usr/share/applications/wuwa-mod-fixer.desktop
-
-          # Build the AppImage (use --appimage-extract-and-run so linuxdeploy itself works on newer distros)
-          export OUTPUT=Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64.AppImage
-          ./linuxdeploy-x86_64.AppImage --appimage-extract-and-run \
-            --appdir AppDir \
-            --desktop-file wuwa-mod-fixer.desktop \
-            --icon-file icon_256.png \
-            --output appimage
-
-      - name: Build portable tar.gz
+      - name: Prepare portable tar.gz
         run: |
           VERSION=${{ steps.get_version.outputs.version }}
           mkdir -p release_linux
-          cp ./target/release/Wuwa_Mod_Fixer release_linux/Wuwa_Mod_Fixer
-          chmod +x release_linux/Wuwa_Mod_Fixer
-          cp icon_512.png release_linux/icon.png
 
-          # Write the desktop icon installer script line by line to avoid YAML escaping issues
+          cp target/release/Wuwa_Mod_Fixer release_linux/Wuwa_Mod_Fixer
+          chmod +x release_linux/Wuwa_Mod_Fixer
+
+          mkdir -p release_linux/icons
+          cp src-tauri/icons/32x32.png release_linux/icons/32x32.png
+          cp src-tauri/icons/128x128.png release_linux/icons/128x128.png
+          cp src-tauri/icons/128x128@2x.png release_linux/icons/256x256.png
+          cp src-tauri/icons/icon.png release_linux/icons/512x512.png
+
           SCRIPT=release_linux/add_desktop_icon.sh
           echo '#!/bin/bash' > "$SCRIPT"
           echo 'DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"' >> "$SCRIPT"
-          echo 'DESKTOP_FILE="$HOME/.local/share/applications/wuwa-mod-fixer.desktop"' >> "$SCRIPT"
+          
+          echo 'DESKTOP_FILE="$HOME/.local/share/applications/com.moonholder.wuwa-mod-fixer.desktop"' >> "$SCRIPT"
           echo 'mkdir -p "$HOME/.local/share/applications"' >> "$SCRIPT"
           echo '' >> "$SCRIPT"
-          echo '# Install icon at multiple sizes for crisp display' >> "$SCRIPT"
-          echo 'for SIZE in 32 48 64 128 256 512; do' >> "$SCRIPT"
-          echo '  ICON_DIR="$HOME/.local/share/icons/hicolor/${SIZE}x${SIZE}/apps"' >> "$SCRIPT"
-          echo '  mkdir -p "$ICON_DIR"' >> "$SCRIPT"
-          echo '  if command -v convert &> /dev/null; then' >> "$SCRIPT"
-          echo '    convert "$DIR/icon.png" -resize "${SIZE}x${SIZE}" "$ICON_DIR/wuwa-mod-fixer.png"' >> "$SCRIPT"
-          echo '  else' >> "$SCRIPT"
-          echo '    cp "$DIR/icon.png" "$ICON_DIR/wuwa-mod-fixer.png"' >> "$SCRIPT"
-          echo '  fi' >> "$SCRIPT"
-          echo 'done' >> "$SCRIPT"
+          
+          echo '# install icon at multiple sizes for crisp display' >> "$SCRIPT"
+          echo 'mkdir -p "$HOME/.local/share/icons/hicolor/32x32/apps"' >> "$SCRIPT"
+          echo 'mkdir -p "$HOME/.local/share/icons/hicolor/128x128/apps"' >> "$SCRIPT"
+          echo 'mkdir -p "$HOME/.local/share/icons/hicolor/256x256/apps"' >> "$SCRIPT"
+          echo 'mkdir -p "$HOME/.local/share/icons/hicolor/512x512/apps"' >> "$SCRIPT"
           echo '' >> "$SCRIPT"
-          echo '# Update icon cache if possible' >> "$SCRIPT"
+          echo 'cp "$DIR/icons/32x32.png" "$HOME/.local/share/icons/hicolor/32x32/apps/com.moonholder.wuwa-mod-fixer.png" 2>/dev/null || true' >> "$SCRIPT"
+          echo 'cp "$DIR/icons/128x128.png" "$HOME/.local/share/icons/hicolor/128x128/apps/com.moonholder.wuwa-mod-fixer.png" 2>/dev/null || true' >> "$SCRIPT"
+          echo 'cp "$DIR/icons/256x256.png" "$HOME/.local/share/icons/hicolor/256x256/apps/com.moonholder.wuwa-mod-fixer.png" 2>/dev/null || true' >> "$SCRIPT"
+          echo 'cp "$DIR/icons/512x512.png" "$HOME/.local/share/icons/hicolor/512x512/apps/com.moonholder.wuwa-mod-fixer.png" 2>/dev/null || true' >> "$SCRIPT"
+          echo '' >> "$SCRIPT"
           echo 'gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" 2>/dev/null || true' >> "$SCRIPT"
           echo '' >> "$SCRIPT"
           echo 'cat > "$DESKTOP_FILE" << INNEOF' >> "$SCRIPT"
@@ -186,11 +178,11 @@ jobs:
           echo 'Name=WWMI Mod Fixer' >> "$SCRIPT"
           echo 'Comment=WWMI Mod Fix Tool' >> "$SCRIPT"
           echo 'Exec="$DIR/Wuwa_Mod_Fixer"' >> "$SCRIPT"
-          echo 'Icon=wuwa-mod-fixer' >> "$SCRIPT"
+          echo 'Icon=com.moonholder.wuwa-mod-fixer' >> "$SCRIPT"
           echo 'Terminal=false' >> "$SCRIPT"
           echo 'Type=Application' >> "$SCRIPT"
           echo 'Categories=Utility;Game;' >> "$SCRIPT"
-          echo 'StartupWMClass=Wuwa_Mod_Fixer' >> "$SCRIPT"
+          echo 'StartupWMClass=com.moonholder.wuwa-mod-fixer' >> "$SCRIPT"
           echo 'INNEOF' >> "$SCRIPT"
           echo '' >> "$SCRIPT"
           echo 'chmod +x "$DESKTOP_FILE"' >> "$SCRIPT"
@@ -206,11 +198,82 @@ jobs:
           tar -czf ./Wuwa_Mod_Fixer_v${VERSION}_x86_64-unknown-linux-gnu.tar.gz -C release_linux .
 
       - name: Upload Linux release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64.AppImage
             ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-unknown-linux-gnu.tar.gz
+
+  generate-update-json:
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: get_version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download ${{ github.ref_name }} --dir release_assets
+
+      - name: Generate update.json
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          WIN_EXE="Wuwa_Mod_Fixer_v${VERSION}.exe"
+          LINUX_TGZ="Wuwa_Mod_Fixer_v${VERSION}_x86_64-unknown-linux-gnu.tar.gz"
+
+          WIN_SHA256=$(sha256sum "release_assets/$WIN_EXE" | awk '{print $1}')
+          WIN_SIZE=$(stat -c%s "release_assets/$WIN_EXE")
+          LINUX_SHA256=$(sha256sum "release_assets/$LINUX_TGZ" | awk '{print $1}')
+          LINUX_SIZE=$(stat -c%s "release_assets/$LINUX_TGZ")
+          
+          # Extract min_required_version from config.json
+          MIN_REQ=$(jq -r '.version.min_required_version' config.json)
+          if [[ ! "$MIN_REQ" == v* ]]; then MIN_REQ="v$MIN_REQ"; fi
+
+          jq -n \
+            --arg version "v$VERSION" \
+            --arg min_req "$MIN_REQ" \
+            --arg pub_date "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            --arg win_url "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/${WIN_EXE}" \
+            --arg win_sha "$WIN_SHA256" \
+            --argjson win_size "$WIN_SIZE" \
+            --arg linux_url "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/${LINUX_TGZ}" \
+            --arg linux_sha "$LINUX_SHA256" \
+            --argjson linux_size "$LINUX_SIZE" \
+            --slurpfile notes release_notes.json \
+            '{
+              version: $version,
+              notes: $notes[0],
+              pub_date: $pub_date,
+              min_required_version: $min_req,
+              platforms: {
+                "windows-x86_64": {
+                  url: $win_url,
+                  size: $win_size,
+                  sha256: $win_sha
+                },
+                "linux-x86_64": {
+                  url: $linux_url,
+                  size: $linux_size,
+                  sha256: $linux_sha
+                }
+              }
+            }' > update.json
+
+      - name: Upload update.json
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: update.json

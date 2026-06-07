@@ -1,0 +1,40 @@
+{
+  "productName": "Wuwa_Mod_Fixer",
+  "version": "3.3.3",
+  "identifier": "com.moonholder.wuwa-mod-fixer",
+  "build": {
+    "frontendDist": "../src-ui/dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "app"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/icon.ico"
+    ]
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Wuwa Mod Fixer",
+        "width": 1024,
+        "height": 740,
+        "minWidth": 840,
+        "minHeight": 540,
+        "decorations": false,
+        "transparent": true,
+        "resizable": true,
+        "visible": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:"
+    }
+  }
+}

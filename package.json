@@ -1,0 +1,13 @@
+{
+  "name": "wuwa-mod-fixer",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix src-ui",
+    "build": "npm run build --prefix src-ui",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
+    "js-yaml": "^4.1.1"
+  }
+}

@@ -1,0 +1,39 @@
+name: Validate Configuration & Core Library
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Compile config.yml to config.json
+        run: node scripts/compile_config.js
+
+      - name: Check if config.json is out-of-sync with config.yml
+        run: git diff --exit-code config.json || (echo "❌ config.json has uncommitted changes! Please run 'node scripts/compile_config.js' locally and commit the updated config.json." && exit 1)
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-core
+
+      - name: Run Core Library Tests
+        run: cargo test --manifest-path src-core/Cargo.toml

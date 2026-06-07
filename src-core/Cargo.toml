@@ -1,0 +1,23 @@
+[package]
+name = "wuwa-mod-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace      = true
+serde_json.workspace = true
+anyhow.workspace     = true
+log.workspace        = true
+regex.workspace      = true
+walkdir.workspace    = true
+tokio.workspace      = true
+semver.workspace     = true
+chrono.workspace     = true
+once_cell.workspace  = true
+lazy_static.workspace = true
+backtrace.workspace  = true
+futures.workspace    = true
+arc-swap.workspace   = true
+reqwest.workspace    = true
+sys-locale = "0.3"

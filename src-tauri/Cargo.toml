@@ -1,0 +1,37 @@
+[package]
+name = "wuwa-mod-tauri"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "Wuwa_Mod_Fixer"
+path = "src/main.rs"
+
+[dependencies]
+wuwa-mod-core = { path = "../src-core" }
+tauri         = { version = "2", features = ["unstable"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-shell  = "2"
+tauri-plugin-opener = "2"
+serde.workspace      = true
+serde_json.workspace = true
+log.workspace        = true
+anyhow.workspace     = true
+backtrace.workspace  = true
+once_cell.workspace  = true
+sha2 = "0.10"
+reqwest.workspace = true
+tokio = { version = "1.0", features = ["fs", "io-util", "macros"] }
+futures.workspace = true
+semver.workspace  = true
+chrono.workspace  = true
+thiserror.workspace = true
+# CLI interactive mode
+inquire      = "0.7"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_System_Console"] }
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
