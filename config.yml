@@ -1,6 +1,6 @@
 version:
-  min_required_version: 3.3.1
-  current_version: 3.3.9
+  min_required_version: 3.3.3
+  current_version: 3.4.0
   latest_program_version: 3.3.3
   update_url: https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest
   support_url_cn: https://support.jix.de5.net
@@ -32,24 +32,14 @@ lang:
       version.
   intro:
     zh: |+
-      修复3.3: 请将XXMI更新至最新版本
-      * 修复绯雪(05/13更新)
-      * 修复爱弥斯、西格莉卡和莫宁的贴图错误
-      * 修复主角及主角的皮肤
-      * 修复部分模组某些部位不显示的问题
-      * 修复洛瑟菈（NPC）的模型显示
-      * 更新绯雪的 VB0 hash，为其添加画面细节高/中下的贴图 hash
-      * 更新琳奈的脸部贴图 hash
+      修复3.4: 请将XXMI更新至最新版本
+      * 修复漂泊者
+      * 修复布兰特的贴图错误
 
     en: |+
-      Fix 3.3: Please update XXMI to the latest version.
-      * Fix Hiyuki (05/13)
-      * Fix the texture errors for Aemeath, Sigrika and Mornye.
-      * Fix Rover and Rover skins.
-      * Fix some parts of mod not rendering for characters.
-      * Fixed the model display for the NPC Lucilla.
-      * Updated VB0 hash for Hiyuki and added texture hashes for High/Medium LOD Bias.
-      * Update Lynae's face texture hash.
+      Fix 3.4: Please update XXMI to the latest version.
+      * Fix Rover
+      * Fix Brant's texture error
 
   intro_note:
     zh: 确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错
@@ -287,15 +277,15 @@ characters:
     textures:
       '92036301': {replace: [567e2ab7]}
       10cdc735: {replace: [79c389b5]}
-      0f4e6e0a: {replace: [93f37a93], derive: {LOD: [219f9382]}}
-      ef87053b: {replace: [41be688c], derive: {LOD: [f93862c6]}}
-      f69259fd: {replace: [67175ee6], derive: {LOD: [94dcf1b0]}}
+      0f4e6e0a: {replace: [93f37a93], derive: {LOD: [d211f02d, 219f9382]}}
+      ef87053b: {replace: [41be688c], derive: {LOD: [32d89b1c, f93862c6]}}
+      f69259fd: {replace: [67175ee6], derive: {LOD: [2bcdc7da, 94dcf1b0]}}
       820515a6: {replace: [8b25adba, c1f72669]}
-      8b117bac: {replace: [2cf897c6], derive: {LOD: [fe114b02]}}
-      88535a86: {replace: [47c4cf4b, 33a5aeec], derive: {LOD: [77ab8bbd]}}
-      1d8fc580: {replace: [1830304b, 9c7aac2e], derive: {LOD: [342e5ab3]}}
-      b5976b09: {replace: [fc28e018], derive: {LOD: [2b6a1b69]}}
-      541ea4fd: {replace: [9e2806f0], derive: {LOD: [fec86ff2]}}
+      8b117bac: {replace: [2cf897c6], derive: {LOD: [564ee58b, fe114b02]}}
+      2e23b57a: {replace: [47c4cf4b, 33a5aeec, 88535a86], derive: {LOD: [f37c2b5d, 77ab8bbd]}}
+      5613d39c: {replace: [1830304b, 9c7aac2e, 1d8fc580], derive: {LOD: [8b4c4dbb, 342e5ab3]}}
+      b5976b09: {replace: [fc28e018], derive: {LOD: [68c8f52e, 2b6a1b69]}}
+      541ea4fd: {replace: [9e2806f0], derive: {LOD: [89413ada, fec86ff2]}}
       fa002d7e: {replace: [3253c8b4]}
   Buling:
     main_hashes:
@@ -1224,7 +1214,7 @@ characters:
       0807dcc7: {replace: [718589a4], derive: {LOD: [d55842e0, f0a11e9f]}}
   RoverFemale:
     main_hashes:
-      - {old: [be84b775, e8b5a730, 3533a957, bd26f515, '06482222', 4d3d06a6], new: 25a5716a}
+      - {old: [be84b775, e8b5a730, 3533a957, bd26f515, '06482222', 4d3d06a6, 25a5716a], new: 680c3e35}
       - {old: [ac681fc1, a0a808af], new: 3877f0da}
       - {old: [972c1750, bb67ac16], new: feef1128}
     checksum: '2742'
@@ -1252,7 +1242,7 @@ characters:
       e02f1a3f: {derive: {LOD: [7209c4f2, 28093edf]}}
   RoverMale:
     main_hashes:
-      - {old: [d53c2cc7, c9db8418, e18ca2cc, b22dacf9, 8b386efa], new: 1e003b5a}
+      - {old: [d53c2cc7, c9db8418, e18ca2cc, b22dacf9, 8b386efa, 1e003b5a], new: 101e8dbb}
       - {old: [3ab7c4d1, f8375eb4, ec747460], new: 67650e1c}
       - {old: [a4be44e5, 6e2f48ba, 89e3b104], new: 49c00841}
     checksum: '1718'
