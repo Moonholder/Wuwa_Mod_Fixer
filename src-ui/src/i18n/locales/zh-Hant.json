@@ -20,7 +20,8 @@
     "selected_path": "當前目錄",
     "click_to_select": "選擇或拖入 Mod 目錄",
     "cancelling": "正在取消...",
-    "stop_fix": "終止修復"
+    "stop_fix": "終止修復",
+    "select_directory_first": "選擇 Mod 目錄"
   },
   "common": {
     "confirm": "確認",

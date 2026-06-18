@@ -117,6 +117,14 @@ async function startFix() {
   setTimeout(() => { fixFinished.value = false }, 3500)
 }
 
+function handleMainButtonClick() {
+  if (!settings.last_folder) {
+    pickFolder()
+  } else {
+    startFix()
+  }
+}
+
 function changeLang(e: Event) {
   settings.setLanguage((e.target as HTMLSelectElement).value)
 }
@@ -282,13 +290,12 @@ onUnmounted(() => {
 <template>
   <div :class="[
     'bg-[#f4f5f6] dark:bg-[#0a0b0d] text-zinc-900 dark:text-zinc-100 font-sans overflow-hidden transition-colors duration-300 flex flex-col',
-    (os === 'linux' || isMaximized) ? 'absolute inset-0 rounded-none ring-0 shadow-none' : 'absolute inset-0 rounded-xl border border-zinc-300/60 dark:border-zinc-800/80 shadow-none'
-  ]" style="transform: translateZ(0);">
+    (os === 'linux' || isMaximized) ? 'absolute inset-0 rounded-none ring-0 shadow-none' : 'absolute inset-0 rounded-none border border-zinc-300/60 dark:border-zinc-800/80 shadow-none'
+  ]">
     
     <div v-if="os !== 'linux'" @mousedown="startWindowDrag" @dblclick="winMaximize" data-tauri-drag-region 
          :class="[
-           'h-8 w-full flex justify-between items-center pl-4 shrink-0 bg-white/80 dark:bg-[#12131a]/80 border-b border-zinc-250/85 dark:border-zinc-800/80 z-50 select-none cursor-grab active:cursor-grabbing backdrop-blur-xl',
-           isMaximized ? 'rounded-t-none' : 'rounded-t-xl'
+           'h-8 w-full flex justify-between items-center pl-4 shrink-0 bg-white/80 dark:bg-[#12131a]/80 border-b border-zinc-250/85 dark:border-zinc-800/80 z-50 select-none cursor-grab active:cursor-grabbing backdrop-blur-xl rounded-t-none'
          ]" 
          style="-webkit-app-region: drag;">
       
@@ -365,7 +372,7 @@ onUnmounted(() => {
                        :class="[
                          settings.last_folder 
                            ? 'border-zinc-200/80 dark:border-white/10 ring-1 ring-black/5 dark:ring-0' 
-                           : 'border-dashed border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600',
+                           : 'border-dashed border-blue-500/50 dark:border-blue-500/40 hover:border-blue-500 dark:hover:border-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.08)] dark:shadow-[0_0_12px_rgba(10,132,255,0.05)]',
                          fix.running ? 'opacity-50 pointer-events-none' : ''
                        ]" 
                        @click="!fix.running && pickFolder()">
@@ -377,7 +384,7 @@ onUnmounted(() => {
                     </div>
                     
                     <div class="w-9 h-9 rounded-lg flex items-center justify-center transition-colors shadow-sm shrink-0"
-                         :class="settings.last_folder ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-500 dark:text-sky-400' : 'bg-zinc-200 dark:bg-zinc-900 text-zinc-400 group-hover:text-zinc-500'">
+                         :class="settings.last_folder ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-500 dark:text-sky-400' : 'bg-blue-50 dark:bg-blue-950/40 text-blue-500 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50'">
                       <svg class="w-4.5 h-4.5 flex-shrink-0 transition-transform group-hover:scale-110 duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
                       </svg>
@@ -469,10 +476,19 @@ onUnmounted(() => {
                   </button>
                   
                   <!-- Idle state -->
-                  <button v-else @click="startFix" :disabled="!settings.last_folder || update.status?.mandatory" :title="!settings.last_folder ? $t('app.click_to_select') : ''" class="group w-full relative overflow-hidden bg-[#0066ff] dark:bg-[#0a84ff] text-white font-medium py-3 rounded-[10px] shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_1px_2px_rgba(0,0,0,0.1)] active:scale-[0.98] transition-all hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 disabled:bg-zinc-300 dark:disabled:bg-zinc-800 disabled:text-zinc-500 disabled:shadow-none duration-200 flex items-center justify-center gap-2">
+                  <button v-else @click="handleMainButtonClick" :disabled="update.status?.mandatory" :title="!settings.last_folder ? $t('app.click_to_select') : ''" class="group w-full relative overflow-hidden bg-[#0066ff] dark:bg-[#0a84ff] text-white font-medium py-3 rounded-[10px] shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_1px_2px_rgba(0,0,0,0.1)] active:scale-[0.98] transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:active:scale-100 disabled:bg-zinc-200 dark:disabled:bg-zinc-800 disabled:text-zinc-400 dark:disabled:text-zinc-500 disabled:shadow-none duration-200 flex items-center justify-center gap-2">
                     <span class="relative z-10 flex justify-center items-center gap-1.5 tracking-wider text-sm font-semibold">
-                      {{ update.status?.mandatory ? $t('update.mandatory_btn_text') || 'Update Required' : $t('app.start_fix') }}
-                      <svg class="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform duration-200 text-blue-200 dark:text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                      {{ 
+                        update.status?.mandatory 
+                          ? $t('update.mandatory_btn_text') || 'Update Required' 
+                          : (!settings.last_folder 
+                              ? $t('app.select_directory_first') || 'Select Mod Directory' 
+                              : $t('app.start_fix')) 
+                      }}
+                      <svg v-if="!settings.last_folder" class="w-4 h-4 text-blue-100 dark:text-blue-100 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                      </svg>
+                      <svg v-else class="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform duration-200 text-blue-200 dark:text-blue-200 group-disabled:text-zinc-400 dark:group-disabled:text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
                       </svg>
                     </span>

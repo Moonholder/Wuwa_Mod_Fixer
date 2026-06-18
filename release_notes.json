@@ -1,7 +1,8 @@
 {
-  "en": "- UI adjustments\n- Added Ukrainian language support\n- Updated config.json used for fixes",
-  "zh": "- UI调整\n- 增加其他语言支持\n- 更新用于修复的config.json",
-  "zh-Hant": "- UI調整\n- 增加其他語言支援\n- 更新用於修復的config.json",
-  "ja": "- UIの調整\n- その他言語のサポートを追加\n- 修正用のconfig.jsonを更新",
-  "ko": "- UI 조정\n- 기타 언어 지원 추가\n- 복구용 config.json 업데이트"
+  "en": "- Fixed silent hang / invisible window on some Win10 machines (disabled window transparency & removed `reg.exe` spawning)\n- Improved onboarding UX and button logic for first-time startup",
+  "zh": "- 修复了部分 Win10 电脑打开后无窗口、卡在后台进程的问题（移除了 `reg.exe` 进程拉起并禁用窗口透明通道）\n- 优化了首次启动没有选择 Mod 目录时的界面引导与按钮逻辑",
+  "zh-Hant": "- 修復了部分 Win10 電腦打開後無窗口、卡在后台進程的問題（移除了 `reg.exe` 進程拉起並禁用窗口透明通道）\n- 優化了首次啟動沒有選擇 Mod 目錄時的介面引導與按鈕邏輯",
+  "ja": "- 一部の Windows 10 環境でウィンドウが表示されずバックグラウンドでハングする問題を修正（`reg.exe` の起動を削除し、ウィンドウの透過を無効化）\n- 初回起動時に Mod フォルダが未選択の場合のガイド表示とボタン動作を最適化",
+  "ko": "- 일부 Win10 PC에서 창이 표시되지 않고 백그라운드에서 멈추는 현상 수정 (`reg.exe` 실행 제거 및 창 투명화 비활성화)\n- 첫 실행 시 Mod 폴더가 선택되지 않았을 때의 안내 화면 및 버튼 로직 최적화",
+  "ua": "- Виправлено проблему, через яку програма не відкривалася і зависала у фоновому режимі на деяких ПК з Win10 (вимкнено прозорість вікна та видалено запуск `reg.exe`)\n- Оптимізовано інтерфейс підказки та логіку кнопок під час першого запуску без вибраної теки модів"
 }

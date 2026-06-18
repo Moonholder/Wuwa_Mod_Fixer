@@ -20,7 +20,8 @@
     "selected_path": "현재 경로",
     "click_to_select": "Mod 폴더 선택 또는 드롭",
     "cancelling": "취소 중...",
-    "stop_fix": "수정 중지"
+    "stop_fix": "수정 중지",
+    "select_directory_first": "Mod 폴더 선택"
   },
   "common": {
     "confirm": "확인",

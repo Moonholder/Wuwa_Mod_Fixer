@@ -207,7 +207,7 @@ jobs:
             ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-unknown-linux-gnu.tar.gz
 
   generate-update-json:
-    needs: [build-linux]
+    needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write

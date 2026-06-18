@@ -1,6 +1,6 @@
 {
   "productName": "Wuwa_Mod_Fixer",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "identifier": "com.moonholder.wuwa-mod-fixer",
   "build": {
     "frontendDist": "../src-ui/dist",
@@ -29,7 +29,7 @@
         "minWidth": 840,
         "minHeight": 540,
         "decorations": false,
-        "transparent": true,
+        "transparent": false,
         "resizable": true,
         "visible": false
       }

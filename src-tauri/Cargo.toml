@@ -31,7 +31,7 @@ thiserror.workspace = true
 inquire      = "0.7"
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.59", features = ["Win32_System_Console"] }
+windows-sys = { version = "0.59", features = ["Win32_System_Console", "Win32_System_Registry", "Win32_Foundation"] }
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

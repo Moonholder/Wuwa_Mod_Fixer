@@ -20,7 +20,8 @@
     "selected_path": "Active Path",
     "click_to_select": "Select or drop Mod directory",
     "cancelling": "Cancelling...",
-    "stop_fix": "Stop Fix"
+    "stop_fix": "Stop Fix",
+    "select_directory_first": "Select Mod Directory"
   },
   "common": {
     "confirm": "Confirm",

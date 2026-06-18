@@ -23,9 +23,8 @@ export default defineConfig({
     strictPort: true,
     watch: { ignored: ['**/src-tauri/**'] }
   },
-  // Don't open browser (Tauri handles the window)
   build: {
-    target: 'esnext',
+    target: ['chrome105', 'safari15'],
     minify: 'esbuild',
     cssCodeSplit: true,
     chunkSizeWarningLimit: 500,

@@ -292,23 +292,86 @@ fn cleanup_update_files() {
 
 #[cfg(target_os = "windows")]
 fn is_webview2_installed() -> bool {
-    use std::os::windows::process::CommandExt;
-    let paths = [
-        r"HKLM\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
-        r"HKLM\SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
-        r"HKCU\Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
+    use windows_sys::Win32::System::Registry::{
+        RegOpenKeyExW, RegQueryValueExW, RegCloseKey,
+        HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER, KEY_READ
+    };
+    use windows_sys::Win32::Foundation::ERROR_SUCCESS;
+    use std::{ffi::OsStr, os::windows::ffi::OsStrExt};
+
+    let subkeys = [
+        r"SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
+        r"SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
     ];
-    for path in &paths {
-        let status = std::process::Command::new("reg")
-            .args(&["query", path, "/v", "pv"])
-            .creation_flags(0x08000000) // CREATE_NO_WINDOW
-            .status();
-        if let Ok(s) = status {
-            if s.success() {
+
+    let wide_key = |s: &str| -> Vec<u16> { OsStr::new(s).encode_wide().chain([0]).collect() };
+    let value_name = wide_key("pv");
+
+    // Check HKEY_LOCAL_MACHINE
+    for subkey in &subkeys {
+        let wide_subkey = wide_key(subkey);
+        let mut hkey = std::ptr::null_mut();
+        let res = unsafe {
+            RegOpenKeyExW(
+                HKEY_LOCAL_MACHINE,
+                wide_subkey.as_ptr(),
+                0,
+                KEY_READ,
+                &mut hkey,
+            )
+        };
+        if res == ERROR_SUCCESS {
+            let mut val_type = 0;
+            let mut cb_data = 0;
+            let val_res = unsafe {
+                RegQueryValueExW(
+                    hkey,
+                    value_name.as_ptr(),
+                    std::ptr::null_mut(),
+                    &mut val_type,
+                    std::ptr::null_mut(),
+                    &mut cb_data,
+                )
+            };
+            unsafe { RegCloseKey(hkey) };
+            if val_res == ERROR_SUCCESS && cb_data > 0 {
                 return true;
             }
         }
     }
+
+    // Check HKEY_CURRENT_USER
+    let cu_subkey = r"Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}";
+    let wide_subkey = wide_key(cu_subkey);
+    let mut hkey = std::ptr::null_mut();
+    let res = unsafe {
+        RegOpenKeyExW(
+            HKEY_CURRENT_USER,
+            wide_subkey.as_ptr(),
+            0,
+            KEY_READ,
+            &mut hkey,
+        )
+    };
+    if res == ERROR_SUCCESS {
+        let mut val_type = 0;
+        let mut cb_data = 0;
+        let val_res = unsafe {
+            RegQueryValueExW(
+                hkey,
+                value_name.as_ptr(),
+                std::ptr::null_mut(),
+                &mut val_type,
+                std::ptr::null_mut(),
+                &mut cb_data,
+            )
+        };
+        unsafe { RegCloseKey(hkey) };
+        if val_res == ERROR_SUCCESS && cb_data > 0 {
+            return true;
+        }
+    }
+
     false
 }
 

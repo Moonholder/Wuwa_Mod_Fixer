@@ -20,7 +20,8 @@
     "selected_path": "現在のパス",
     "click_to_select": "Mod フォルダを選択またはドロップ",
     "cancelling": "キャンセル中...",
-    "stop_fix": "修復中止"
+    "stop_fix": "修復中止",
+    "select_directory_first": "Mod フォルダを選択"
   },
   "common": {
     "confirm": "確認",

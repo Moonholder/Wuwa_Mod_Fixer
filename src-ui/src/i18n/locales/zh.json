@@ -20,7 +20,8 @@
     "selected_path": "当前目录",
     "click_to_select": "选择或拖入 Mod 目录",
     "cancelling": "正在取消...",
-    "stop_fix": "终止修复"
+    "stop_fix": "终止修复",
+    "select_directory_first": "选择 Mod 目录"
   },
   "common": {
     "confirm": "确认",
