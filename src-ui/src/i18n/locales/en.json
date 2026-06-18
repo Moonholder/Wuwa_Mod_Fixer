@@ -52,6 +52,7 @@
     "no_logs_export": "No logs available to export.",
     "export_success": "Logs exported to",
     "export_failed": "Export failed",
+    "export_done": "Done!",
     "fetching_config": "Fetching latest config from server",
     "config_updated": "Configuration updated successfully",
     "config_failed": "Configuration update failed"

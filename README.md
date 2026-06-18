@@ -1,7 +1,7 @@
 <h1 align="center">🌊 Wuwa Mod Fixer</h1>
 
 <p align="center">
-  <b>A tool designed for fixing textures, hashes, and vertex groups in modified assets caused by version updates.</b>
+  <b>一个用于修复由于游戏更新导致的模组失效等问题的工具。</b>
 </p>
 
 <p align="center">
@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="#chinese-version">中文说明</a> · <a href="#english-version">English</a>
+  <a href="README_en.md">English Readme</a> | 中文说明
 </p>
 
 <p align="center">
@@ -22,34 +22,36 @@
 
 ---
 
-<a name="chinese-version"></a>
-## 中文说明
+## 📖 使用方法
+
+前往 [发布页](https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest) 下载可执行文件，双击打开，选择或拖入 Mod 文件夹，点击“开始修复”按钮即可。
+
 
 ### ✨ 主要功能
 - **自动化修复**：自动识别资源哈希变动并进行替换。
-- **派生 Hash 支持**：通过纹理重定向修复高/中画质下的纹理错误。
 - **回滚管理**：内置回滚管理器，可随时恢复到修改前的原始状态。
-- **跨平台 GUI**：基于 Iced 0.14 构建，支持 Windows、Linux (Steam Deck)。
+- **跨平台 GUI**：基于 Tauri V2 (Vue3 + Vite) 构建，支持 Windows、Linux。
 - **双模式运行**：支持图形界面与传统的控制台模式。
 
-### 🛠️ 编译与打包
-确保你已安装 [Rust](https://rustup.rs/) 环境。
+### 🛠️ 开发与打包
+确保你已安装 [Rust](https://rustup.rs/) 环境以及 [Node.js](https://nodejs.org/) (推荐 18.x 及以上版本)。
+
+#### 安装依赖
+```bash
+npm install
+npm install --prefix src-ui
+```
 
 #### 本地运行
 ```bash
-cargo run --release
+npm run tauri dev
 ```
 
-#### Windows 打包
+#### 编译打包
 ```bash
-cargo build --release --target x86_64-pc-windows-msvc
+npm run tauri build
 ```
-
-#### Linux 打包 (Ubuntu/Steam Deck)
-需预装 `libx11-dev`, `libwayland-dev` 等依赖。
-```bash
-cargo build --release
-```
+对于 Linux 系统，打包前需确保安装了 Tauri 相关的系统依赖，如 `libwebkit2gtk-4.1-dev`, `build-essential`, `curl`, `wget`, `file`, `libssl-dev`, `libayatana-appindicator3-dev`, `librsvg2-dev` 等。
 
 ### 🚀 命令行参数
 程序支持以下启动参数：
@@ -89,81 +91,21 @@ cargo build --release
 
 # 回滚最近一次修复
 ./Mod_Fixer --cli --path "D:\Mods\MyMod" --rollback
-
-# 以开发者模式运行
-cargo run -- --dev
 ```
 
 ---
 
-<a name="english-version"></a>
-## English
+## Sponsors
 
-### ✨ Features
-- **Automated Fixes**: Automatically detects and replaces asset hash changes.
-- **Derived Hash Support**: Fixes texture glitches via redirection for different quality settings.
-- **Rollback Manager**: Built-in manager to revert modifications to their original state.
-- **Cross-platform GUI**: Built with Iced 0.14, supports Windows and Linux (Steam Deck).
-- **Dual Mode**: Supports both Graphical User Interface and classic Terminal mode.
-
-### 🛠️ Build & Packaging
-Ensure you have [Rust](https://rustup.rs/) installed.
-
-#### Run Locally
-```bash
-cargo run --release
-```
-
-#### Build for Windows
-```bash
-cargo build --release --target x86_64-pc-windows-msvc
-```
-
-#### Build for Linux (Ubuntu/Steam Deck)
-Requires dependencies like `libx11-dev`, `libwayland-dev`.
-```bash
-cargo build --release
-```
-
-### 🚀 Command Line Arguments
-The application supports the following startup arguments:
-
-| Argument | Description |
-| :--- | :--- |
-| `--cli` | **Enter Console Mode** (interactive menu). |
-| `--path <DIR>` | **Specify Mod folder path** for non-interactive direct fix mode. Must be used with `--cli`. |
-| `--config <FILE>` | **Specify a config file path**. The app will load that `config.json` first and skip remote config fetch. |
-| `--derived-hashes` | Enable "Add Derived Hashes" (mutually exclusive with `--stable-texture`). |
-| `--stable-texture` | Enable "Apply Stable Texture" (mutually exclusive with `--derived-hashes`). |
-| `--aemeath-mech` | Enable "Fix Aemeath's mech form model error". |
-| `--aero-fix <1\|2>` | Enable "Aero FemaleRover Eye Fix". `1` = TexCoord Override, `2` = Texture Mirror Flip. |
-| `--rollback` | **Rollback the most recent fix** (only undoes the last operation; mutually exclusive with fix options). |
-| `--online` | Fetch latest config from network (non-interactive mode uses local config by default). |
-| `--dev` | **Developer Mode**. Forces loading local configuration and disables remote fetch. |
-
-**Example:**
-```bash
-# Run in interactive console mode
-./Mod_Fixer --cli
-
-# One-click fix (basic hash replacement only)
-./Mod_Fixer --cli --path "D:\Mods\MyMod"
-
-# One-click fix + use a specific config file
-./Mod_Fixer --cli --path "D:\Mods\MyMod" --config "D:\Configs\config.json"
-
-# One-click fix + derived hashes + fetch latest config online
-./Mod_Fixer --cli --path "D:\Mods\MyMod" --derived-hashes --online
-
-# One-click fix + stable texture + Aemeath mech fix
-./Mod_Fixer --cli --path "D:\Mods\MyMod" --stable-texture --aemeath-mech
-
-# One-click fix + Aero eye fix (TexCoord mode)
-./Mod_Fixer --cli --path "D:\Mods\MyMod" --aero-fix 1
-
-# Rollback the most recent fix
-./Mod_Fixer --cli --path "D:\Mods\MyMod" --rollback
-
-# Run in dev mode
-cargo run -- --dev
-```
+<table>
+  <tr>
+    <td align="center" width="64px">
+      <a href="https://signpath.org">
+        <img src="https://avatars.githubusercontent.com/u/34448643?s=48&v=4" width="24" alt="SignPath">
+      </a>
+    </td>
+    <td>
+      Free code signing on Windows provided by <a href="https://signpath.io">SignPath.io</a>, certificate by <a href="https://signpath.org">SignPath Foundation</a>
+    </td>
+  </tr>
+</table>

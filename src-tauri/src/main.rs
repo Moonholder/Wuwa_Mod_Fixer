@@ -15,6 +15,44 @@ fn main() {
     let is_cli = std::env::args().any(|a| a == "--cli");
     let is_dev = std::env::args().any(|a| a == "--dev") || cfg!(debug_assertions);
 
+    // If on Windows and running in GUI mode, check WebView2 presence first
+    #[cfg(target_os = "windows")]
+    if !is_cli && !is_webview2_installed() {
+        let (title, message, download_url) = get_webview2_missing_text();
+        
+        unsafe extern "system" {
+            fn MessageBoxW(h: *mut std::ffi::c_void, text: *const u16, cap: *const u16, ty: u32) -> i32;
+        }
+        use std::{ffi::OsStr, os::windows::ffi::OsStrExt};
+        let wide = |s: &str| -> Vec<u16> { OsStr::new(s).encode_wide().chain([0]).collect() };
+        
+        let result = unsafe {
+            MessageBoxW(
+                std::ptr::null_mut(),
+                wide(message).as_ptr(),
+                wide(title).as_ptr(),
+                0x34, // MB_YESNO | MB_ICONWARNING
+            )
+        };
+        
+        if result == 6 { // Yes (IDYES)
+            if let Ok(current_exe) = std::env::current_exe() {
+                use std::os::windows::process::CommandExt;
+                let _ = std::process::Command::new("cmd")
+                    .args(&["/c", "start", "Wuwa Mod Fixer CLI", current_exe.to_str().unwrap(), "--cli"])
+                    .creation_flags(0x08000000) // CREATE_NO_WINDOW
+                    .status();
+            }
+        } else if result == 7 { // No (IDNO)
+            use std::os::windows::process::CommandExt;
+            let _ = std::process::Command::new("cmd")
+                .args(&["/c", "start", "", download_url])
+                .creation_flags(0x08000000) // CREATE_NO_WINDOW
+                .status();
+        }
+        return;
+    }
+
     // Windows console handling:
     // - CLI mode: runs natively inside the invoking terminal (no hacks needed).
     // - GUI mode: detach console immediately on startup.
@@ -80,6 +118,15 @@ fn run_gui_mode(is_dev: bool) {
             .plugin(tauri_plugin_opener::init())
             .invoke_handler(commands::generate_handlers())
             .setup(move |app| {
+                // On Linux, enable window decorations so window can be dragged and resized natively.
+                #[cfg(target_os = "linux")]
+                {
+                    use tauri::Manager;
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.set_decorations(true);
+                    }
+                }
+
                 let handle = app.handle().clone();
 
                 // In Dev/Debug mode, start a lightweight thread to poll CONFIG_CHANGED 
@@ -240,6 +287,70 @@ fn cleanup_update_files() {
                 let _ = std::fs::remove_file(bat_path);
             }
         }
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn is_webview2_installed() -> bool {
+    use std::os::windows::process::CommandExt;
+    let paths = [
+        r"HKLM\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
+        r"HKLM\SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
+        r"HKCU\Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
+    ];
+    for path in &paths {
+        let status = std::process::Command::new("reg")
+            .args(&["query", path, "/v", "pv"])
+            .creation_flags(0x08000000) // CREATE_NO_WINDOW
+            .status();
+        if let Ok(s) = status {
+            if s.success() {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+#[cfg(target_os = "windows")]
+fn get_webview2_missing_text() -> (&'static str, &'static str, &'static str) {
+    let locale = core::localization::config::get_raw_locale().to_lowercase();
+    if locale.starts_with("zh-tw") || locale.starts_with("zh-hk") || locale.starts_with("zh-hant") {
+        (
+            "缺少 WebView2 執行階段",
+            "本程式需要安裝 Microsoft WebView2 執行階段才能執行圖形介面 (GUI)。\n\n您是否要改用命令列 (CLI) 模式啟動？\n\n- 按一下 [是]：在新主控台視窗中啟動 CLI 互動模式。\n- 按一下 [否]：在瀏覽器中開啟 WebView2 下載網頁。",
+            "https://developer.microsoft.com/zh-tw/microsoft-edge/webview2/"
+        )
+    } else if locale.starts_with("zh") {
+        (
+            "缺少 WebView2 运行环境",
+            "本程序需要安装 Microsoft WebView2 运行环境才能启动图形界面 (GUI)。\n\n您是否要降级并改用命令行 (CLI) 模式启动？\n\n- 点击 [是]：在新控制台窗口中启动 CLI 交互模式。\n- 点击 [否]：在浏览器中打开 WebView2 下载页面。",
+            "https://developer.microsoft.com/zh-cn/microsoft-edge/webview2/"
+        )
+    } else if locale.starts_with("ja") {
+        (
+            "WebView2 ランタイムが見つかりません",
+            "GUI版を実行するには Microsoft WebView2 ランタイムのインストールが必要です。\n\n代わりにコマンドライン (CLI) モードで起動しますか？\n\n- [はい] をクリック：新しいコンソールウィンドウで CLI モードを開始します。\n- [いいえ] をクリック：ブラウザで WebView2 のダウンロードページを開きます。",
+            "https://developer.microsoft.com/ja-jp/microsoft-edge/webview2/"
+        )
+    } else if locale.starts_with("ko") {
+        (
+            "WebView2 런타임 누락됨",
+            "GUI 버전을 실행하려면 Microsoft WebView2 런타임이 설치되어 있어야 합니다.\n\n대신 명령줄(CLI) 모드로 실행하시겠습니까?\n\n- [예] 클릭: 새 콘솔 창에서 CLI 대화형 모드를 시작합니다.\n- [아니오] 클릭: 브라우저에서 WebView2 다운로드 페이지를 엽니다.",
+            "https://developer.microsoft.com/ko-kr/microsoft-edge/webview2/"
+        )
+    } else if locale.starts_with("uk") || locale.starts_with("ua") {
+        (
+            "Відсутній WebView2 Runtime",
+            "Для запуску графічного інтерфейсу (GUI) необхідно встановити Microsoft WebView2 Runtime.\n\nБажаєте запустити програму в режимі командного рядка (CLI)?\n\n- Натисніть [Так], щоб запустити інтерактивний CLI режим у новому вікні консолі.\n- Натисніть [Ні], щоб відкрити сторінку завантаження WebView2 у браузері.",
+            "https://developer.microsoft.com/uk-ua/microsoft-edge/webview2/"
+        )
+    } else {
+        (
+            "WebView2 Runtime Missing",
+            "Microsoft WebView2 Runtime is not installed, which is required to run the GUI version.\n\nWould you like to run in command line (CLI) mode instead?\n\n- Click [Yes] to launch the CLI mode in a new console window.\n- Click [No] to open the WebView2 download page in your browser.",
+            "https://developer.microsoft.com/en-us/microsoft-edge/webview2/"
+        )
     }
 }
 

@@ -52,6 +52,7 @@
     "no_logs_export": "내보낼 로그가 없습니다.",
     "export_success": "로그가 다음 경로로 성공적으로 내보내졌습니다: ",
     "export_failed": "내보내기 실패",
+    "export_done": "내보내기 완료",
     "fetching_config": "클라우드에서 최신 설정을 가져오는 중",
     "config_updated": "설정이 최신 버전으로 업데이트되었습니다",
     "config_failed": "설정 업데이트 실패"

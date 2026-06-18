@@ -75,3 +75,8 @@ pub fn get_intro_logs(lang: Option<String>) -> Vec<String> {
     ]
 }
 
+#[tauri::command]
+pub fn get_os() -> String {
+    std::env::consts::OS.to_string()
+}
+

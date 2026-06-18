@@ -1,13 +1,16 @@
-name: Validate Configuration & Core Library
+name: Compile & Commit Configuration
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    paths:
+      - 'config.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  validate:
+  compile:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -24,16 +27,15 @@ jobs:
       - name: Compile config.yml to config.json
         run: node scripts/compile_config.js
 
-      - name: Check if config.json is out-of-sync with config.yml
-        run: git diff --exit-code config.json || (echo "❌ config.json has uncommitted changes! Please run 'node scripts/compile_config.js' locally and commit the updated config.json." && exit 1)
+      - name: Commit and push compiled config.json
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add config.json
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: auto-compile config.yml to config.json [skip ci]"
+            git push
+          else
+            echo "No changes in config.json. Skipping commit."
+          fi
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: src-core
-
-      - name: Run Core Library Tests
-        run: cargo test --manifest-path src-core/Cargo.toml

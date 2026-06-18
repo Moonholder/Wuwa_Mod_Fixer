@@ -4,19 +4,24 @@
 
 @layer base {
   body {
-    @apply font-sans antialiased overflow-hidden select-none transition-colors duration-300;
+    @apply font-sans antialiased overflow-hidden select-none transition-colors duration-300 relative w-screen h-screen;
     margin: 0;
     padding: 0;
   }
   
-  /* Dark theme */
+  /* Set root canvas color to transparent to avoid square corner leakage underneath App.vue rounded corners */
+  html, body, #app {
+    background-color: transparent !important;
+  }
+
+  /* Dark theme text */
   html.dark body {
-    @apply bg-[#15171a] text-gray-200;
+    @apply text-zinc-200;
   }
   
-  /* Light theme */
+  /* Light theme text */
   html.light body {
-    @apply bg-[#f2f4f7] text-gray-800;
+    @apply text-zinc-800;
   }
 }
 
@@ -63,14 +68,14 @@
   }
 
   ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 8px;
+    height: 8px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    @apply bg-zinc-100/50 dark:bg-zinc-800/30 rounded-r-lg;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-zinc-300/50 dark:bg-zinc-800/80 rounded-full hover:bg-sky-500/50 dark:hover:bg-sky-400/50 transition-colors;
+    @apply bg-zinc-400/50 dark:bg-zinc-700/65 rounded-full hover:bg-sky-500 dark:hover:bg-sky-400 transition-colors;
   }
 }
 
@@ -101,4 +106,27 @@
 .toast-leave-to {
   opacity: 0;
   transform: translateX(30px) scale(0.9);
+}
+
+/* Fade Transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* Hide Scrollbar Utilities */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }

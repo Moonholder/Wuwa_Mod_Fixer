@@ -52,6 +52,7 @@
     "no_logs_export": "エクスポート可能なログがありません。",
     "export_success": "ログを以下のパスにエクスポートしました: ",
     "export_failed": "エクスポートに失敗しました",
+    "export_done": "出力完了",
     "fetching_config": "クラウドから最新設定を取得中",
     "config_updated": "設定が最新バージョンに更新されました",
     "config_failed": "設定の更新に失敗しました"

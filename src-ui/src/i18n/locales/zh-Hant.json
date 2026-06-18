@@ -52,6 +52,7 @@
     "no_logs_export": "沒有可匯出的日誌。",
     "export_success": "日誌已匯出至",
     "export_failed": "匯出失敗",
+    "export_done": "已匯出",
     "fetching_config": "正在從雲端取得最新設定",
     "config_updated": "資料設定已更新至最新",
     "config_failed": "設定更新失敗"

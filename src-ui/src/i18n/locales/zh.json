@@ -52,6 +52,7 @@
     "no_logs_export": "没有可导出的日志。",
     "export_success": "日志已导出到",
     "export_failed": "导出失败",
+    "export_done": "已导出",
     "fetching_config": "正在从云端获取最新配置",
     "config_updated": "数据配置已更新到最新",
     "config_failed": "配置更新失败"

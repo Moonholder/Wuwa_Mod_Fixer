@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useUpdateStore } from '../stores/update'
 import { useSettingsStore } from '../stores/settings'
 import { useI18n } from 'vue-i18n'
+import { invoke } from '@tauri-apps/api/core'
 
 const update = useUpdateStore()
 const settings = useSettingsStore()
@@ -28,13 +29,25 @@ const localizedNotes = computed(() => {
   let text = typeof notes === 'string' ? notes : (notes[locale.value] || notes['en'] || '')
   return text.replace(/\n/g, '<br>').replace(/- (.*?)(<br>|$)/g, '<li class="ml-4 list-disc mb-1">$1</li>')
 })
+
+function handleNotesClick(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  const anchor = target.closest('a')
+  if (anchor && anchor.getAttribute('href')) {
+    e.preventDefault()
+    const url = anchor.getAttribute('href')!
+    invoke('open_url', { url }).catch(err => {
+      console.error('Failed to open link:', err)
+    })
+  }
+}
 </script>
 
 <template>
   <Transition name="fade">
     <!-- Overlay Mask -->
     <div v-if="update.status?.available && update.showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md transition-all">
-      <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 flex flex-col transform transition-all">
+      <div class="modal-card relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 flex flex-col transform transition-all">
         
         <!-- Header Art -->
         <div class="h-[100px] bg-gradient-to-br from-sky-500 via-indigo-500 to-purple-600 relative overflow-hidden flex items-center justify-center shrink-0">
@@ -74,7 +87,7 @@ const localizedNotes = computed(() => {
           <div class="bg-zinc-50 dark:bg-zinc-950/40 rounded-xl p-4 mb-5 border border-zinc-100 dark:border-zinc-800/80 shadow-inner max-h-[160px] overflow-y-auto hide-scrollbar">
             <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2 select-none">Release Notes</div>
             <!-- Enable HTML tags rendering -->
-            <div class="text-[13px] text-zinc-700 dark:text-zinc-300 font-sans leading-relaxed" v-html="localizedNotes"></div>
+            <div class="text-[13px] text-zinc-700 dark:text-zinc-300 font-sans leading-relaxed release-notes-container" v-html="localizedNotes" @click="handleNotesClick"></div>
           </div>
 
           <!-- Download Progress Area -->
@@ -141,11 +154,35 @@ const localizedNotes = computed(() => {
 }
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+  transition: opacity 0.25s ease, backdrop-filter 0.25s ease;
 }
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
   backdrop-filter: blur(0px);
+}
+
+/* Fluent UI modal card physics curve animation */
+.fade-enter-active .modal-card {
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fade-leave-active .modal-card {
+  transition: transform 0.18s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.fade-enter-from .modal-card {
+  transform: scale(0.94) translateY(12px);
+}
+.fade-leave-to .modal-card {
+  transform: scale(0.97) translateY(4px);
+}
+
+.release-notes-container :deep(a) {
+  color: #3b82f6;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.release-notes-container :deep(a:hover) {
+  color: #1d4ed8;
 }
 </style>

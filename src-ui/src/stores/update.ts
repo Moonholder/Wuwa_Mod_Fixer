@@ -37,8 +37,8 @@ export const useUpdateStore = defineStore('update', {
   },
 
   actions: {
-    async checkUpdate(isManual = false) {
-      if (this.checking) return
+    async checkUpdate(isManual = false): Promise<boolean> {
+      if (this.checking) return false
       this.checking = true
       try {
         const res = await invoke<UpdateCheck>('check_update', { proxyNode: this.proxyNode })
@@ -55,8 +55,10 @@ export const useUpdateStore = defineStore('update', {
         } else {
           this.showModal = false
         }
+        return true
       } catch (e) {
         console.warn('Check update failed (network or timeout):', e)
+        return false
       } finally {
         this.checking = false
       }

@@ -1,4 +1,7 @@
 {
-  "zh": "1. UI界面重构 \n2. 增加其他语言支持\n3. 增加自动更新",
-  "en": "1. UI interface reconstruction \n2. Added other language support\n3. Added automatic updates"
+  "en": "- UI adjustments\n- Added Ukrainian language support\n- Updated config.json used for fixes",
+  "zh": "- UI调整\n- 增加其他语言支持\n- 更新用于修复的config.json",
+  "zh-Hant": "- UI調整\n- 增加其他語言支援\n- 更新用於修復的config.json",
+  "ja": "- UIの調整\n- その他言語のサポートを追加\n- 修正用のconfig.jsonを更新",
+  "ko": "- UI 조정\n- 기타 언어 지원 추가\n- 복구용 config.json 업데이트"
 }

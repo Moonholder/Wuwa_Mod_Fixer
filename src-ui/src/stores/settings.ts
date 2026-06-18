@@ -3,26 +3,24 @@ import { invoke } from '@tauri-apps/api/core'
 import { i18n, SUPPORTED_LOCALES, type SupportedLocale } from '../i18n'
 
 /**
- * Map a raw locale string (e.g. "zh-TW", "ja-JP", "ko-KR") to
  * the closest supported locale code.
  */
 function mapLocale(raw: string): SupportedLocale {
   const normalized = raw.trim()
-  // Exact match first (e.g. "zh-TW")
   if ((SUPPORTED_LOCALES as readonly string[]).includes(normalized)) {
     return normalized as SupportedLocale
   }
   // Language-region matching
   const upper = normalized.toUpperCase()
   if (upper.startsWith('ZH')) {
-    // zh-TW, zh-Hant, zh-HK → Traditional Chinese
     if (upper.includes('TW') || upper.includes('HK') || upper.includes('HANT')) {
-      return 'zh-TW'
+      return 'zh-Hant'
     }
     return 'zh'
   }
   if (upper.startsWith('JA')) return 'ja'
   if (upper.startsWith('KO')) return 'ko'
+  if (upper.startsWith('UA') || upper.startsWith('UK')) return 'ua'
   return 'en'
 }
 

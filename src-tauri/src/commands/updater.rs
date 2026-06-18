@@ -72,11 +72,21 @@ pub async fn download_and_apply_update(
 
     let exe = std::env::current_exe().map_err(|e| AppError::Io(e.to_string()))?;
     let temp_path = exe.with_extension("update_tmp");
+    let version_file = exe.with_extension("update_tmp.version");
+
+    // Clean up temp file if it belongs to a different version
+    let current_target_version = manifest.version.clone();
+    let last_target_version = tokio::fs::read_to_string(&version_file).await.unwrap_or_default();
+    if last_target_version != current_target_version {
+        let _ = tokio::fs::remove_file(&temp_path).await;
+        let _ = tokio::fs::write(&version_file, &current_target_version).await;
+    }
 
     let download_nodes = generate_download_nodes(&download_info.url, &proxy_node);
     
     let client = reqwest::Client::builder()
         .connect_timeout(std::time::Duration::from_secs(10))
+        .read_timeout(std::time::Duration::from_secs(15))
         .build()
         .map_err(|e| AppError::Network(e.to_string()))?;
 
@@ -168,8 +178,12 @@ pub async fn download_and_apply_update(
 
     if !hash_matches {
         let _ = tokio::fs::remove_file(&temp_path).await;
+        let _ = tokio::fs::remove_file(&version_file).await;
         return Err(AppError::Update("更新包校验失败，文件已损坏，请重试。".into()));
     }
+
+    // Clean up helper version file on success
+    let _ = tokio::fs::remove_file(&version_file).await;
 
     // Hot-swap executable across platforms
     let temp_path_clone = temp_path.clone();
@@ -226,6 +240,9 @@ pub async fn download_and_apply_update(
         let _ = std::fs::remove_file(&temp_path_clone);
         
         std::process::Command::new(&exe)
+            .stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
             .spawn()
             .map_err(|e| AppError::Io(format!("Failed to spawn new exe: {}", e)))?;
     }
@@ -240,6 +257,7 @@ async fn fetch_manifest_racing(proxy_node: &str) -> Result<UpdateManifest, AppEr
     
     let client = reqwest::Client::builder()
         .connect_timeout(std::time::Duration::from_secs(5))
+        .read_timeout(std::time::Duration::from_secs(8))
         .build()
         .map_err(|e| AppError::Internal(e.to_string()))?;
 
@@ -260,7 +278,9 @@ async fn fetch_manifest_racing(proxy_node: &str) -> Result<UpdateManifest, AppEr
         })
     }).collect();
 
-    let (manifest, _) = futures::future::select_ok(tasks).await
+    let racing_future = futures::future::select_ok(tasks);
+    let (manifest, _) = tokio::time::timeout(std::time::Duration::from_secs(8), racing_future).await
+        .map_err(|_| AppError::Network("获取更新配置超时".into()))?
         .map_err(|_| AppError::Network("所有测速节点均无响应，请检查网络".into()))?;
 
     Ok(manifest)
@@ -268,6 +288,7 @@ async fn fetch_manifest_racing(proxy_node: &str) -> Result<UpdateManifest, AppEr
 
 fn generate_download_nodes(raw_url: &str, preferred: &str) -> Vec<(String, String)> {
     let mut nodes = Vec::new();
+    let preferred = if preferred.trim().is_empty() { "direct" } else { preferred };
     
     let apply_proxy = |url: &str, node: &str| -> String {
         match node {

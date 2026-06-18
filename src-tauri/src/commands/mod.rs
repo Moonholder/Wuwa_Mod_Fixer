@@ -24,6 +24,7 @@ pub fn generate_handlers() -> impl Fn(tauri::ipc::Invoke) -> bool {
         config::get_update_status,
         config::get_detected_locale,
         config::is_chinese_mainland,
+        config::get_os,
         // User settings
         settings::get_settings,
         settings::save_settings,

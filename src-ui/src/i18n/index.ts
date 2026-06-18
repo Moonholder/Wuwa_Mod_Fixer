@@ -1,11 +1,12 @@
 import { createI18n } from 'vue-i18n'
 import en from './locales/en.json'
 import zh from './locales/zh.json'
-import zhTW from './locales/zh-TW.json'
+import zhHant from './locales/zh-Hant.json'
 import ja from './locales/ja.json'
 import ko from './locales/ko.json'
+import ua from './locales/ua.json'
 
-export const SUPPORTED_LOCALES = ['en', 'zh', 'zh-TW', 'ja', 'ko'] as const
+export const SUPPORTED_LOCALES = ['en', 'zh', 'zh-Hant', 'ja', 'ko', 'ua'] as const
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
 
 export const i18n = createI18n({
@@ -15,8 +16,9 @@ export const i18n = createI18n({
   messages: {
     en,
     zh,
-    'zh-TW': zhTW,
+    'zh-Hant': zhHant,
     ja,
-    ko
+    ko,
+    ua
   }
 })
