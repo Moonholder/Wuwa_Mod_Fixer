@@ -21,3 +21,7 @@ futures.workspace    = true
 arc-swap.workspace   = true
 reqwest.workspace    = true
 sys-locale = "0.3"
+image_dds = "0.4"
+ddsfile = "0.5"
+image = "0.24"
+thiserror.workspace = true

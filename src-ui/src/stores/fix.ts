@@ -23,6 +23,7 @@ function preformatLog(msg: string): string {
   safeMsg = safeMsg.replace(/^\[WARN\]\s*/, '<span class="inline-flex bg-amber-500/10 text-amber-400 font-bold px-1.5 py-0.5 rounded text-[10px] border border-amber-500/20 mr-1.5 select-none tracking-wide">WARN</span>');
   safeMsg = safeMsg.replace(/^\[ERROR\]\s*/, '<span class="inline-flex bg-rose-500/10 text-rose-400 font-bold px-1.5 py-0.5 rounded text-[10px] border border-rose-500/20 mr-1.5 select-none tracking-wide">ERROR</span>');
   safeMsg = safeMsg.replace(/^\[OK\]\s*/, '<span class="inline-flex bg-emerald-500/10 text-emerald-400 font-bold px-1.5 py-0.5 rounded text-[10px] border border-emerald-500/20 mr-1.5 select-none tracking-wide">SUCCESS</span>');
+  safeMsg = safeMsg.replace(/^\[DEBUG\]\s*/, '<span class="inline-flex bg-zinc-500/10 text-zinc-400 font-bold px-1.5 py-0.5 rounded text-[10px] border border-zinc-500/20 mr-1.5 select-none tracking-wide">DEBUG</span>');
   
   safeMsg = safeMsg.replace(REGEX_HASH, '<span class="text-sky-300 font-bold">$1</span>');
   safeMsg = safeMsg.replace(REGEX_PATH, '<span class="text-zinc-400 underline decoration-zinc-600 underline-offset-2 break-all">$&</span>');

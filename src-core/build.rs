@@ -4,7 +4,7 @@ fn main() {
     // Let Cargo know that if config.yml or compile_config.js changes, this build script must rerun
     println!("cargo:rerun-if-changed=../config.yml");
     println!("cargo:rerun-if-changed=../scripts/compile_config.js");
-    println!("cargo:rerun-if-changed=src/resources/FixAeroRoverFemaleChargedEyesMap.dds");
+    println!("cargo:rerun-if-changed=src/resources/FRoverAeroEyes.dds");
 
     // Automatically invoke Node.js to compile config.yml into minified config.json
     let status = Command::new("node")

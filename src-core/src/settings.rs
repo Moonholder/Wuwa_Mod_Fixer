@@ -5,24 +5,46 @@ use std::path::PathBuf;
 
 #[derive(serde::Serialize, serde::Deserialize, Default, Clone)]
 pub struct UserSettings {
-    pub last_folder:   Option<String>,
-    pub light_theme:   Option<bool>,
-    pub window_width:  Option<f32>,
+    pub last_folder: Option<String>,
+    pub light_theme: Option<bool>,
+    pub window_width: Option<f32>,
     pub window_height: Option<f32>,
-    pub window_x:      Option<i32>,
-    pub window_y:      Option<i32>,
+    pub window_x: Option<i32>,
+    pub window_y: Option<i32>,
     /// Proxy node for GitHub downloads: "direct"|"ghproxy"|"mirror"|"gh-ddlc"|"kgithub"
-    pub proxy_node:    Option<String>,
+    pub proxy_node: Option<String>,
     /// UI Language: "zh", "en", etc.
-    pub language:      Option<String>,
+    pub language: Option<String>,
 }
 
 pub fn settings_path() -> PathBuf {
-    std::env::current_exe()
+    let local_path = std::env::current_exe()
         .ok()
         .and_then(|p| p.parent().map(|d| d.to_path_buf()))
         .unwrap_or_else(|| PathBuf::from("."))
-        .join("settings.json")
+        .join("settings.json");
+
+    if let Some(local_dir) = local_path.parent() {
+        let test_file = local_dir.join(".settings_write_test");
+        if std::fs::write(&test_file, "").is_ok() {
+            let _ = std::fs::remove_file(test_file);
+            return local_path;
+        }
+    }
+
+    let base_dir = if cfg!(target_os = "windows") {
+        std::env::var("APPDATA").map(PathBuf::from).ok()
+    } else {
+        std::env::var("HOME").map(|h| PathBuf::from(h).join(".config")).ok()
+    };
+
+    if let Some(mut dir) = base_dir {
+        dir.push("WuwaModFixer");
+        let _ = std::fs::create_dir_all(&dir);
+        dir.join("settings.json")
+    } else {
+        local_path
+    }
 }
 
 pub fn load_settings() -> UserSettings {

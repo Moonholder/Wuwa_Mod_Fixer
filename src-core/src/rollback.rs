@@ -71,12 +71,12 @@ pub fn execute_rollback(dir: &Path, target_group_key: &str) -> Result<()> {
     let mut all_candidates:  Vec<BackupFile> = Vec::new();
     let mut files_to_delete: Vec<PathBuf>    = Vec::new();
 
-    for group in &all_groups {
-        if group.group_key == target_group_key { found = true; }
-        if group.group_key >= target_group_key.to_string() {
-            for bf in &group.files {
-                all_candidates.push(bf.clone());
+    for group in all_groups {
+        if group.group_key.as_str() == target_group_key { found = true; }
+        if group.group_key.as_str() >= target_group_key {
+            for bf in group.files {
                 files_to_delete.push(bf.current_path.clone());
+                all_candidates.push(bf);
             }
         }
     }
@@ -88,15 +88,28 @@ pub fn execute_rollback(dir: &Path, target_group_key: &str) -> Result<()> {
     let mut earliest_per_file: HashMap<PathBuf, BackupFile> = HashMap::new();
     for bf in all_candidates {
         let key = bf.original_path.clone();
-        earliest_per_file
-            .entry(key)
-            .and_modify(|existing| {
-                if bf.timestamp < existing.timestamp { *existing = bf.clone(); }
-            })
-            .or_insert(bf);
+        match earliest_per_file.entry(key) {
+            std::collections::hash_map::Entry::Occupied(mut entry) => {
+                if bf.timestamp < entry.get().timestamp {
+                    entry.insert(bf);
+                }
+            }
+            std::collections::hash_map::Entry::Vacant(entry) => {
+                entry.insert(bf);
+            }
+        }
     }
 
     for (original_path, bf) in &earliest_per_file {
+        if let Ok(meta) = fs::metadata(&bf.current_path) {
+            if meta.len() == 0 {
+                if original_path.exists() {
+                    fs::remove_file(original_path)?;
+                    log::info!("Deleted added file during rollback: {}", original_path.display());
+                }
+                continue;
+            }
+        }
         fs::copy(&bf.current_path, original_path)?;
         log::info!("Restored: {} (from backup {})", original_path.display(), bf.timestamp);
     }
@@ -116,14 +129,23 @@ pub fn calculate_backup_size(dir: &Path) -> Result<(u64, usize)> {
 
     for entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
-        if path.is_file() {
-            if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
-                if BAK_RE.is_match(file_name) {
-                    if let Ok(metadata) = fs::metadata(path) {
-                        total_size += metadata.len();
-                        total_count += 1;
-                    }
-                }
+        if !path.is_file() {
+            continue;
+        }
+
+        let Some(file_name) = path.file_name().and_then(|n| n.to_str()) else { continue };
+        let Some(caps) = BAK_RE.captures(file_name) else { continue };
+        let Ok(metadata) = fs::metadata(path) else { continue };
+
+        total_count += 1;
+
+        if metadata.len() > 0 {
+            total_size += metadata.len();
+        } else {
+            let original_name = caps.get(1).unwrap().as_str();
+            let original_path = path.with_file_name(original_name);
+            if let Ok(orig_meta) = fs::metadata(&original_path) {
+                total_size += orig_meta.len();
             }
         }
     }

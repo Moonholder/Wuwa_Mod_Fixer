@@ -6,7 +6,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "3.4.1"
+version = "3.5.0"
 edition = "2024"
 license = "GPL-3.0"
 

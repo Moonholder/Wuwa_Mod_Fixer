@@ -1,6 +1,6 @@
 {
   "productName": "Wuwa_Mod_Fixer",
-  "version": "3.4.1",
+  "version": "3.5.0",
   "identifier": "com.moonholder.wuwa-mod-fixer",
   "build": {
     "frontendDist": "../src-ui/dist",
@@ -31,7 +31,8 @@
         "decorations": false,
         "transparent": false,
         "resizable": true,
-        "visible": false
+        "visible": false,
+        "backgroundColor": "#181a1f"
       }
     ],
     "security": {

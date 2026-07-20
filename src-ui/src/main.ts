@@ -4,7 +4,11 @@ import App from './App.vue'
 import { i18n } from './i18n'
 import './style.css'
 
+// Prevent Webview context menu from appearing
+document.addEventListener('contextmenu', e => e.preventDefault());
+
 const app = createApp(App)
 app.use(createPinia())
 app.use(i18n)
 app.mount('#app')
+

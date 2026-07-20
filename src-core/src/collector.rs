@@ -13,16 +13,22 @@ pub enum BufferType {
     Index,
     BlendRemapForward,
     Color,
+    ShapeKeyOffset,
+    ShapeKeyVertexId,
+    ShapeKeyVertexOffset,
 }
 
 impl std::fmt::Display for BufferType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            BufferType::Blend             => write!(f, "Blend"),
-            BufferType::TexCoord          => write!(f, "TexCoord"),
-            BufferType::Index             => write!(f, "Index"),
+            BufferType::Blend => write!(f, "Blend"),
+            BufferType::TexCoord => write!(f, "TexCoord"),
+            BufferType::Index => write!(f, "Index"),
             BufferType::BlendRemapForward => write!(f, "BlendRemapForward"),
-            BufferType::Color             => write!(f, "Color"),
+            BufferType::Color => write!(f, "Color"),
+            BufferType::ShapeKeyOffset => write!(f, "ShapeKeyOffset"),
+            BufferType::ShapeKeyVertexId => write!(f, "ShapeKeyVertexId"),
+            BufferType::ShapeKeyVertexOffset => write!(f, "ShapeKeyVertexOffset"),
         }
     }
 }
@@ -32,22 +38,27 @@ lazy_static::lazy_static! {
     static ref STRIDE_RE:     Regex = Regex::new(r"(?i)stride\s*=\s*(\d+)").unwrap();
     static ref COMPONENT_RE:  Regex = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
     static ref DRAWINDEXED_RE: Regex = Regex::new(r"drawindexed\s*=\s*(\d+),\s*(\d+),").unwrap();
+
+    static ref RE_BLEND: Regex = Regex::new(r"(?im)^\[ResourceBlendBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
+    static ref RE_TEXCOORD: Regex = Regex::new(r"(?im)^\[ResourceTexCoordBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
+    static ref RE_INDEX: Regex = Regex::new(r"(?im)^\[ResourceIndexBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
+    static ref RE_BREMAP: Regex = Regex::new(r"(?im)^\[ResourceBlendRemapForwardBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
+    static ref RE_COLOR: Regex = Regex::new(r"(?im)^\[ResourceColorBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
+    static ref RE_SHAPEKEY_OFFSET: Regex = Regex::new(r"(?im)^\[ResourceShapeKeyOffsetBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
+    static ref RE_SHAPEKEY_VERTEX_ID: Regex = Regex::new(r"(?im)^\[ResourceShapeKeyVertexIdBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
+    static ref RE_SHAPEKEY_VERTEX_OFFSET: Regex = Regex::new(r"(?im)^\[ResourceShapeKeyVertexOffsetBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
 }
 
-pub fn parse_resouce_buffer_path(
-    content:  &str,
-    buf_type: BufferType,
-    ini_path: &Path,
-) -> Vec<(PathBuf, usize)> {
-    let section_re = match Regex::new(&format!(
-        r"(?im)^\[Resource{}Buffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)",
-        buf_type
-    )) {
-        Ok(re) => re,
-        Err(e) => {
-            log::error!("Failed to compile regex: {}", e);
-            return Vec::new();
-        }
+pub fn parse_resouce_buffer_path(content: &str, buf_type: BufferType, ini_path: &Path) -> Vec<(PathBuf, usize)> {
+    let section_re = match buf_type {
+        BufferType::Blend => &*RE_BLEND,
+        BufferType::TexCoord => &*RE_TEXCOORD,
+        BufferType::Index => &*RE_INDEX,
+        BufferType::BlendRemapForward => &*RE_BREMAP,
+        BufferType::Color => &*RE_COLOR,
+        BufferType::ShapeKeyOffset => &*RE_SHAPEKEY_OFFSET,
+        BufferType::ShapeKeyVertexId => &*RE_SHAPEKEY_VERTEX_ID,
+        BufferType::ShapeKeyVertexOffset => &*RE_SHAPEKEY_VERTEX_OFFSET,
     };
 
     let mut results = Vec::new();
@@ -61,7 +72,7 @@ pub fn parse_resouce_buffer_path(
             }
         };
 
-        let header_end     = section_content.find('\n').unwrap_or(section_content.len());
+        let header_end = section_content.find('\n').unwrap_or(section_content.len());
         let section_header = &section_content[..header_end];
         if section_header.contains("Override")
             || section_header.ends_with("RW]")
@@ -104,7 +115,7 @@ pub fn parse_resouce_buffer_path(
 }
 
 fn extract_component_indices<'a>(
-    content:   &'a str,
+    content: &'a str,
     extractor: impl Fn(&'a str) -> Option<&'a str> + 'a,
 ) -> HashMap<u8, (usize, usize)> {
     let mut component_indices = HashMap::new();
@@ -112,34 +123,43 @@ fn extract_component_indices<'a>(
     for cap in COMPONENT_RE.captures_iter(content) {
         let component_id = match cap.get(1) {
             Some(m) => m.as_str(),
-            None => { log::warn!("Invalid component format: missing ID"); continue; }
+            None => {
+                log::warn!("Invalid component format: missing ID");
+                continue;
+            }
         };
         let component_index = match component_id.parse::<u8>() {
             Ok(id) => id,
-            Err(_) => { log::warn!("Invalid component ID: {}", component_id); continue; }
+            Err(_) => {
+                log::warn!("Invalid component ID: {}", component_id);
+                continue;
+            }
         };
         let block_content = match cap.get(2) {
             Some(m) => m.as_str(),
-            None => { log::warn!("Component {} has no content", component_index); continue; }
+            None => {
+                log::warn!("Component {} has no content", component_index);
+                continue;
+            }
         };
         let target_section = match extractor(block_content) {
             Some(s) => s,
             None => continue,
         };
 
-        let mut min_offset     = usize::MAX;
+        let mut min_offset = usize::MAX;
         let mut max_end_offset = 0;
 
         for draw_cap in DRAWINDEXED_RE.captures_iter(target_section) {
-            let count  = match draw_cap.get(1).and_then(|m| m.as_str().parse::<usize>().ok()) {
+            let count = match draw_cap.get(1).and_then(|m| m.as_str().parse::<usize>().ok()) {
                 Some(c) => c,
-                None    => continue,
+                None => continue,
             };
             let offset = match draw_cap.get(2).and_then(|m| m.as_str().parse::<usize>().ok()) {
                 Some(o) => o,
-                None    => continue,
+                None => continue,
             };
-            min_offset     = min_offset.min(offset);
+            min_offset = min_offset.min(offset);
             max_end_offset = max_end_offset.max(offset + count);
         }
 
@@ -154,10 +174,7 @@ pub fn parse_component_indices(content: &str) -> HashMap<u8, (usize, usize)> {
     extract_component_indices(content, |block| Some(block))
 }
 
-pub fn parse_component_indices_with_multiple(
-    content:          &str,
-    draw_block_index: &str,
-) -> HashMap<u8, (usize, usize)> {
+pub fn parse_component_indices_with_multiple(content: &str, draw_block_index: &str) -> HashMap<u8, (usize, usize)> {
     let pattern = format!(
         r"if \$swapvar == {}\s*([\s\S]*?)(?:else if \$swapvar|endif)",
         regex::escape(draw_block_index)
@@ -178,30 +195,42 @@ pub fn parse_component_indices_with_multiple(
 }
 
 pub fn get_byte_range_in_buffer(
-    index_count:  usize,
+    index_count: usize,
     index_offset: usize,
     index_buffer: &[u8],
-    stride:       usize,
+    stride: usize,
 ) -> Result<(usize, usize), String> {
     let start_index = index_offset;
-    let end_index   = index_offset + index_count;
+    let end_index = index_offset + index_count;
 
     if end_index > index_buffer.len() / INDEX_SIZE {
         return Err("index out of range".to_string());
     }
-
-    let mut vertex_indices = Vec::with_capacity(index_count);
-    for i in start_index..end_index {
-        let start = i * INDEX_SIZE;
-        let end   = start + INDEX_SIZE;
-        let index = u32::from_le_bytes(index_buffer[start..end].try_into().unwrap()) as usize;
-        vertex_indices.push(index);
+    if start_index >= end_index {
+        return Err("empty range".to_string());
     }
 
-    let min_vi    = vertex_indices.iter().min().ok_or("not found min vertex index")?;
-    let max_vi    = vertex_indices.iter().max().ok_or("not found max vertex index")?;
-    let start_byte = *min_vi * stride;
-    let end_byte   = (*max_vi + 1) * stride;
+    let mut min_vi = usize::MAX;
+    let mut max_vi = 0;
+
+    for i in start_index..end_index {
+        let start = i * INDEX_SIZE;
+        let end = start + INDEX_SIZE;
+        let index = u32::from_le_bytes(index_buffer[start..end].try_into().unwrap()) as usize;
+        if index < min_vi {
+            min_vi = index;
+        }
+        if index > max_vi {
+            max_vi = index;
+        }
+    }
+
+    if min_vi == usize::MAX {
+        return Err("not found min/max vertex index".to_string());
+    }
+
+    let start_byte = min_vi * stride;
+    let end_byte = (max_vi + 1) * stride;
     Ok((start_byte, end_byte))
 }
 
@@ -218,4 +247,39 @@ pub fn combile_buf_path(path: &Path, buf_type: &BufferType) -> PathBuf {
         || path.with_file_name(format!("{}.buf", buf_type)),
         |index| path.with_file_name(format!("{}_{}.buf", buf_type, index)),
     )
+}
+
+pub fn parse_vg_offsets(content: &str) -> HashMap<u8, u16> {
+    let mut offsets = HashMap::new();
+    let mut current_comp: Option<u8> = None;
+
+    for line in content.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with('[') {
+            let section_name = if let Some(end) = trimmed.find(']') {
+                trimmed[1..end].trim()
+            } else {
+                trimmed[1..].trim()
+            };
+
+            if section_name.starts_with("TextureOverrideComponent") {
+                let comp_str = &section_name["TextureOverrideComponent".len()..];
+                if let Ok(comp_idx) = comp_str.parse::<u8>() {
+                    current_comp = Some(comp_idx);
+                    continue;
+                }
+            }
+            current_comp = None;
+        } else if let Some(comp_idx) = current_comp {
+            if trimmed.contains("vg_offset") {
+                if let Some(eq_pos) = trimmed.find('=') {
+                    let val_part = trimmed[eq_pos + 1..].split(';').next().unwrap_or("").trim();
+                    if let Ok(offset_val) = val_part.parse::<u16>() {
+                        offsets.insert(comp_idx, offset_val);
+                    }
+                }
+            }
+        }
+    }
+    offsets
 }

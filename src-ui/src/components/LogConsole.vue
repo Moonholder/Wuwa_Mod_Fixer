@@ -174,6 +174,7 @@ async function refreshConfig() {
         <div class="flex-1 min-w-0">
           <span v-if="log.level === 'ERROR'" class="text-rose-600 dark:text-rose-400 font-bold drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(251,113,133,0.15)]" v-html="log.messageHtml"></span>
           <span v-else-if="log.level === 'WARN'" class="text-amber-600 dark:text-amber-400 font-medium" v-html="log.messageHtml"></span>
+          <span v-else-if="log.level === 'DEBUG'" class="text-zinc-500 dark:text-zinc-400 font-medium italic opacity-75" v-html="log.messageHtml"></span>
           <span v-else-if="log.messageHtml.includes('SUCCESS') || log.messageHtml.toLowerCase().includes('success') || log.messageHtml.includes('完成') || log.messageHtml.includes('成功')" class="text-emerald-600 dark:text-emerald-400 font-bold" v-html="log.messageHtml"></span>
           <span v-else-if="log.messageHtml.includes('---')" class="text-zinc-400 dark:text-zinc-600" v-html="log.messageHtml"></span>
           <span v-else class="text-zinc-700 dark:text-zinc-300" v-html="log.messageHtml"></span>

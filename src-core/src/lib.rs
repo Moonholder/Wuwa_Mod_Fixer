@@ -4,10 +4,14 @@
 #[macro_use]
 pub mod localization;
 pub mod config_loader;
+pub mod errors;
 pub mod collector;
+pub mod fixers;
 pub mod rollback;
 pub mod settings;
 pub mod mod_fixer;
+pub mod shapekey_fixer;
+pub mod utils;
 
 pub use mod_fixer::ModFixer;
 

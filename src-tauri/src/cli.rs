@@ -6,7 +6,6 @@ use inquire::{validator::{Validation, ErrorMessage}, Confirm, MultiSelect, Selec
 use std::path::Path;
 use wuwa_mod_core as core;
 use wuwa_mod_core::settings::{load_settings, save_settings, UserSettings};
-use wuwa_mod_core::mod_fixer::reset_progress;
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 
@@ -136,18 +135,13 @@ pub fn run_direct_fix(args: &CliArgs) {
         progress,
         cancel_token,
     );
-    reset_progress();
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         fixer.process_directory(Path::new(&path))
     }));
 
     match result {
-        Ok(Ok(())) => {
+        Ok(()) => {
             println!("\x1b[32m{}\x1b[0m", core::t!(all_done));
-        }
-        Ok(Err(e)) => {
-            eprintln!("\x1b[31m{} {}\x1b[0m", core::tr!("错误:", "Error:"), e);
-            eprintln!("\x1b[31m{}\x1b[0m", core::t!(error_prompt));
         }
         Err(_) => {
             eprintln!("\x1b[31m{}\x1b[0m", core::t!(error_prompt));
@@ -324,18 +318,13 @@ fn run_fix_flow(settings: &mut UserSettings) {
         enable_tex, enable_stable, enable_aemeath, aero_mode, progress, 
         cancel_token,
     );
-    reset_progress();
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         fixer.process_directory(Path::new(&path))
     }));
 
     match result {
-        Ok(Ok(())) => {
+        Ok(()) => {
             println!("\x1b[32m{}\x1b[0m\n", core::t!(all_done));
-        }
-        Ok(Err(e)) => {
-            eprintln!("\x1b[31m{} {}\x1b[0m", core::tr!("错误:", "Error:"), e);
-            eprintln!("\x1b[31m{}\x1b[0m\n", core::t!(error_prompt));
         }
         Err(_) => {
             eprintln!("\x1b[31m{}\x1b[0m\n", core::t!(error_prompt));

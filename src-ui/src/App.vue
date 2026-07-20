@@ -17,6 +17,7 @@ const update = useUpdateStore()
 const { t, locale } = useI18n()
 const appWindow = getCurrentWindow()
 
+const isDev = import.meta.env.DEV
 const currentView = ref('main')
 const isDragging = ref(false)
 const fixFinished = ref(false)
@@ -47,7 +48,9 @@ const options = ref({
   aeroFixMode: 0,
 })
 
-
+watch(locale, async () => {
+  await fetchAndPrintIntroLogs(true)
+})
 
 async function winClose() {
   try {
@@ -255,7 +258,7 @@ onMounted(async () => {
   try { configMeta.value = await invoke<any>('get_config_meta') } catch (e) { }
   try { isChinaMainland = await invoke<boolean>('is_chinese_mainland') } catch (e) {}
 
-  if (import.meta.env.DEV) {
+  if (isDev) {
     await fetchAndPrintIntroLogs()
   } else {
     update.checkUpdate()
@@ -302,6 +305,7 @@ onUnmounted(() => {
       <div class="pointer-events-none flex items-center gap-2 select-none">
         <img src="/app-icon.png" class="w-4 h-4 object-contain" alt="Logo" />
         <span class="text-[11px] font-medium text-zinc-700 dark:text-zinc-300 h-4 flex items-center">Wuwa Mod Fixer</span>
+        <span v-if="isDev" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 uppercase tracking-wider scale-90 origin-left">DEV</span>
       </div>
 
       <div class="flex h-full items-center" style="-webkit-app-region: no-drag;">
@@ -517,7 +521,7 @@ onUnmounted(() => {
           </div>
           <span class="text-zinc-300 dark:text-zinc-800">|</span>
           <span class="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 font-semibold">
-            v{{ configMeta.app_version }} (cfg: {{ configMeta.version }})
+            v{{ configMeta.app_version }} (cfg: {{ configMeta.version }})<span v-if="isDev" class="text-amber-500 dark:text-amber-400 font-bold ml-1">[DEV]</span>
           </span>
         </div>
         

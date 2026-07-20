@@ -47,6 +47,15 @@ if (data && data.characters) {
                 }
             }
         }
+        
+        // 3. Convert shapekey_fix fields back to Number
+        if (charConfig.shapekey_fix) {
+            const sk = charConfig.shapekey_fix;
+            if (sk.old_vertex_count !== undefined) sk.old_vertex_count = Number(sk.old_vertex_count);
+            if (sk.new_vertex_count !== undefined) sk.new_vertex_count = Number(sk.new_vertex_count);
+            if (sk.offset_stride !== undefined) sk.offset_stride = Number(sk.offset_stride);
+            if (sk.custom_values_array !== undefined) sk.custom_values_array = Number(sk.custom_values_array);
+        }
     }
 }
 

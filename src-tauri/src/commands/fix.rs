@@ -6,7 +6,6 @@ use tauri::{AppHandle, Emitter};
 use wuwa_mod_core as core;
 use wuwa_mod_core::ProgressReporter;
 use std::sync::{Arc, atomic::{AtomicUsize, AtomicBool, Ordering}};
-use std::sync::LazyLock;
 
 #[derive(Clone, Serialize)]
 pub struct LogPayload {
@@ -58,20 +57,40 @@ impl ProgressReporter for TauriProgress {
     fn total(&self)   -> usize { self.total.load(Ordering::Relaxed) }
 }
 
-// Global flag to interrupt the core processing loop
-static CANCEL_FLAG: LazyLock<Arc<AtomicBool>> = LazyLock::new(|| Arc::new(AtomicBool::new(false)));
+#[derive(Clone)]
+pub struct FixTaskState {
+    pub cancel_flag: Arc<std::sync::Mutex<Option<Arc<AtomicBool>>>>,
+}
+
+struct FixTaskCleanupGuard {
+    cancel_flag: Arc<std::sync::Mutex<Option<Arc<AtomicBool>>>>,
+}
+
+impl Drop for FixTaskCleanupGuard {
+    fn drop(&mut self) {
+        if let Ok(mut guard) = self.cancel_flag.lock() {
+            *guard = None;
+        }
+        crate::GUI_LOG_TX.store(None);
+    }
+}
 
 use crate::error::AppError;
 
 #[tauri::command]
-pub async fn cancel_fix() -> Result<(), AppError> {
-    CANCEL_FLAG.store(true, Ordering::Release);
+pub async fn cancel_fix(state: tauri::State<'_, FixTaskState>) -> Result<(), AppError> {
+    if let Ok(guard) = state.cancel_flag.lock() {
+        if let Some(ref token) = *guard {
+            token.store(true, Ordering::Release);
+        }
+    }
     Ok(())
 }
 
 #[tauri::command]
 pub async fn start_fix(
     app:                      AppHandle,
+    state:                    tauri::State<'_, FixTaskState>,
     path:                     String,
     enable_texture_override:  bool,
     enable_stable_texture:    bool,
@@ -80,14 +99,17 @@ pub async fn start_fix(
 ) -> Result<(), AppError> {
     let app2 = app.clone();
 
-    CANCEL_FLAG.store(false, Ordering::Release);
-    let cancel_token = CANCEL_FLAG.clone();
+    let cancel_token = Arc::new(AtomicBool::new(false));
+    if let Ok(mut guard) = state.cancel_flag.lock() {
+        if guard.is_some() {
+            return Err(AppError::FileLocked("已有修复任务正在运行，请勿重复触发！".to_string()));
+        }
+        *guard = Some(cancel_token.clone());
+    }
     
     // Tap into broadcast log channel
     let (tx, mut rx) = tokio::sync::broadcast::channel::<String>(512);
-    if let Ok(mut guard) = crate::GUI_LOG_TX.lock() {
-        *guard = Some(tx);
-    }
+    crate::GUI_LOG_TX.store(Some(Arc::new(tx)));
 
     // Forward log messages to frontend (Batched to prevent IPC bottleneck)
     let app_log = app.clone();
@@ -100,6 +122,7 @@ pub async fn start_fix(
                     Ok(msg) => {
                         let level = if msg.contains("[ERROR]") { "ERROR" }
                                     else if msg.contains("[WARN]") { "WARN" }
+                                    else if msg.contains("[DEBUG]") { "DEBUG" }
                                     else { "INFO" };
                         batch.push(LogPayload {
                             level:   level.to_string(),
@@ -126,8 +149,13 @@ pub async fn start_fix(
         let _ = app_log.emit("fix:done", ());
     });
 
+    let cancel_flag_clone = state.cancel_flag.clone();
     // Run fix in blocking thread
     tokio::task::spawn_blocking(move || {
+        let _guard = FixTaskCleanupGuard {
+            cancel_flag: cancel_flag_clone,
+        };
+
         let progress = Arc::new(TauriProgress {
             app:       app2.clone(),
             current:   Arc::new(AtomicUsize::new(0)),
@@ -146,10 +174,8 @@ pub async fn start_fix(
             cancel_token,
         );
         let _ = fixer.process_directory(std::path::Path::new(&path));
-        // Clear log sender, which drops tx and causes rx to close.
-        // The forwarding task will then flush its batch and emit fix:done.
-        if let Ok(mut guard) = crate::GUI_LOG_TX.lock() { *guard = None; }
     });
 
     Ok(())
 }
+

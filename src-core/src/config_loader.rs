@@ -1,16 +1,18 @@
 // src-core/src/config_loader.rs
 // Config loading, validation, and hot-reload.
 
-use crate::{collector, localization};
+use crate::localization;
+use arc_swap::ArcSwap;
 use localization::config::LangPack;
+use reqwest::Client;
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, OnceLock};
 use std::time::{Duration, Instant};
-use arc_swap::ArcSwap;
-use reqwest::Client;
+
+pub use crate::utils::vertex_remap::*;
 
 /// Thread-safe, lock-free global config.
 /// OnceLock ensures one-time initialization; ArcSwap enables safe hot-reload.
@@ -24,28 +26,29 @@ pub static CONFIG_CHANGED: std::sync::atomic::AtomicBool = std::sync::atomic::At
 #[derive(Serialize, Deserialize, Default, Clone)]
 #[serde(default)]
 pub struct GlobalConfig {
-    lang:       LangPack,
-    settings:   SettingConfig,
+    lang: LangPack,
+    settings: SettingConfig,
     characters: HashMap<String, CharacterConfig>,
-    version:    VersionConfig,
+    version: VersionConfig,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone)]
 #[serde(default)]
 pub struct SettingConfig {
     pub state_texture_removers: Vec<String>,
-    pub enable_aero_rover_fix:  bool,
+    pub enable_aero_rover_fix: bool,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone)]
 #[serde(default)]
 pub struct CharacterConfig {
     pub main_hashes: Vec<Replacement>,
-    pub textures:    HashMap<String, TextureNode>,
-    pub checksum:    Option<String>,
-    pub rules:       Option<Vec<ReplacementRule>>,
-    pub vg_remaps:   Option<Vec<VertexRemapConfig>>,
-    pub stride_fix:  Option<StrideFix>,
+    pub textures: HashMap<String, TextureNode>,
+    pub checksum: Option<String>,
+    pub rules: Option<Vec<ReplacementRule>>,
+    pub vg_remaps: Option<Vec<VertexRemapConfig>>,
+    pub stride_fix: Option<StrideFix>,
+    pub shapekey_fix: Option<ShapeKeyFixConfig>,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone)]
@@ -56,10 +59,29 @@ pub struct StrideFix {
 
 #[derive(Serialize, Deserialize, Default, Clone)]
 #[serde(default)]
+pub struct ShapeKeyFixConfig {
+    pub trigger_hash: Vec<String>,
+    pub section_rewrites: Option<Vec<SectionRewrite>>,
+    pub custom_values_array: Option<u32>,
+    #[serde(default, deserialize_with = "deserialize_option_map_or_string")]
+    pub expression_remap: Option<HashMap<u16, u16>>,
+    pub new_vertex_count: Option<u32>,
+    pub offset_stride: Option<u32>,
+}
+
+#[derive(Serialize, Deserialize, Default, Clone)]
+#[serde(default)]
+pub struct SectionRewrite {
+    pub old_section: String,
+    pub new_content: String,
+}
+
+#[derive(Serialize, Deserialize, Default, Clone)]
+#[serde(default)]
 pub struct TextureNode {
-    pub meta:    Option<TextureMeta>,
+    pub meta: Option<TextureMeta>,
     pub replace: Vec<String>,
-    pub derive:  HashMap<String, Vec<String>>,
+    pub derive: HashMap<String, Vec<String>>,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone)]
@@ -79,195 +101,8 @@ pub struct Replacement {
 #[derive(Serialize, Deserialize, Default, Clone)]
 #[serde(default)]
 pub struct ReplacementRule {
-    pub line_prefix:  String,
+    pub line_prefix: String,
     pub replacements: Vec<Replacement>,
-}
-
-#[derive(Serialize, Deserialize, Default, Clone)]
-#[serde(default)]
-pub struct VertexRemapConfig {
-    pub trigger_hash:    Vec<String>,
-    #[serde(deserialize_with = "deserialize_option_map_or_string")]
-    pub vertex_groups:   Option<HashMap<u16, u16>>,
-    pub component_remap: Option<Vec<ComponentRemapRegion>>,
-}
-
-#[derive(Serialize, Deserialize, Default, Clone)]
-#[serde(default)]
-pub struct ComponentRemapRegion {
-    pub component_index: u8,
-    #[serde(deserialize_with = "deserialize_map_or_string")]
-    pub indices:         HashMap<u16, u16>,
-}
-
-pub trait RemapProvider {
-    fn vertex_groups(&self)   -> Option<&HashMap<u16, u16>>;
-    fn component_remap(&self) -> Option<&Vec<ComponentRemapRegion>>;
-
-    fn apply_remap_merged(&self, blend_data: &mut [u8], stride: usize) -> Result<bool, String> {
-        if let Some(vg) = self.vertex_groups() {
-            if stride % 2 != 0 || stride < 8 {
-                return Err(format!("Invalid stride {stride} - must be even and >=8"));
-            }
-            log::info!("Applying merged remap");
-            self.remapping_vertex_groups(blend_data, vg, 0, blend_data.len(), stride);
-            return Ok(true);
-        }
-        Ok(false)
-    }
-
-    fn apply_remap_component(
-        &self,
-        blend_data: &mut [u8],
-        blend_path: &PathBuf,
-        content:    &str,
-        multiple:   bool,
-        stride:     usize,
-    ) -> Result<bool, String> {
-        if stride % 2 != 0 || stride < 8 {
-            return Err(format!("Invalid stride {stride} - must be even and >=8"));
-        }
-        if let Some(regions) = self.component_remap() {
-            let mut applied    = false;
-            let index_path     = collector::combile_buf_path(blend_path, &collector::BufferType::Index);
-            let buf_index_opt  = collector::get_buf_path_index(blend_path);
-            let mut component_indices = if multiple || buf_index_opt.is_some() {
-                collector::parse_component_indices_with_multiple(content, buf_index_opt.unwrap_or("0"))
-            } else {
-                collector::parse_component_indices(content)
-            };
-            if component_indices.is_empty() {
-                component_indices = collector::parse_component_indices(content);
-            }
-            let index_data = std::fs::read(&index_path)
-                .map_err(|e| format!("Index read error: {}", e))?;
-
-            for region in regions {
-                let ci = region.component_index;
-                if let Some(&(idx_count, idx_offset)) = component_indices.get(&ci) {
-                    let (start, end) = collector::get_byte_range_in_buffer(
-                        idx_count, idx_offset, &index_data, stride
-                    ).map_err(|e| format!("Failed to get byte range in buffer: {}", e))?;
-
-                    if start < end && end <= blend_data.len() {
-                        self.remapping_vertex_groups(blend_data, &region.indices, start, end, stride);
-                        applied = true;
-                    }
-                } else {
-                    log::warn!("Component {} not found in parsed indices", ci);
-                }
-            }
-            log::info!("Applied component remap");
-            return Ok(applied);
-        }
-        Ok(false)
-    }
-
-    fn remapping_vertex_groups(
-        &self,
-        blend_data:    &mut [u8],
-        remap_indices: &HashMap<u16, u16>,
-        start: usize, end: usize, stride: usize,
-    ) {
-        let indices_len = stride / 2;
-        for chunk in blend_data[start..end].chunks_exact_mut(stride) {
-            let indices = &mut chunk[0..indices_len];
-            indices.iter_mut().for_each(|idx| {
-                *idx = *remap_indices.get(&(*idx as u16)).unwrap_or(&(*idx as u16)) as u8;
-            });
-        }
-    }
-}
-
-impl RemapProvider for VertexRemapConfig {
-    fn vertex_groups(&self)   -> Option<&HashMap<u16, u16>>         { self.vertex_groups.as_ref() }
-    fn component_remap(&self) -> Option<&Vec<ComponentRemapRegion>> { self.component_remap.as_ref() }
-}
-
-impl VertexRemapConfig {
-    pub fn remap_blend_remap_data(
-        forward_data: &mut [u8], reverse_data: &mut [u8], vg_data: &mut [u8],
-        vertex_groups: &HashMap<u16, u16>,
-    ) {
-        for i in 0..(vg_data.len() / 2) {
-            let old_global = u16::from_le_bytes([vg_data[i*2], vg_data[i*2+1]]);
-            let new_global = vertex_groups.get(&old_global).copied().unwrap_or(old_global);
-            vg_data[i*2..i*2+2].copy_from_slice(&new_global.to_le_bytes());
-        }
-        const BLOCK_ENTRIES: usize = 512;
-        let num_blocks = forward_data.len() / (BLOCK_ENTRIES * 2);
-        for b in 0..num_blocks {
-            let off = b * BLOCK_ENTRIES * 2;
-            let mut new_reverse = vec![0u16; BLOCK_ENTRIES];
-            for i in 0..BLOCK_ENTRIES {
-                let old_global = u16::from_le_bytes([forward_data[off+i*2], forward_data[off+i*2+1]]);
-                let new_global = vertex_groups.get(&old_global).copied().unwrap_or(old_global);
-                forward_data[off+i*2..off+i*2+2].copy_from_slice(&new_global.to_le_bytes());
-                if (new_global as usize) < BLOCK_ENTRIES { new_reverse[new_global as usize] = i as u16; }
-            }
-            for i in 0..BLOCK_ENTRIES {
-                reverse_data[off+i*2..off+i*2+2].copy_from_slice(&new_reverse[i].to_le_bytes());
-            }
-        }
-    }
-
-    pub fn remap_blend_remap_forward(forward_data: &mut [u8], vertex_groups: &HashMap<u16, u16>) {
-        const BLOCK_ENTRIES: usize = 512;
-        let num_blocks = forward_data.len() / (BLOCK_ENTRIES * 2);
-        for b in 0..num_blocks {
-            let off = b * BLOCK_ENTRIES * 2;
-            let mut new_forward = vec![0u16; BLOCK_ENTRIES];
-            for i in 0..BLOCK_ENTRIES {
-                let base_global = u16::from_le_bytes([forward_data[off+i*2], forward_data[off+i*2+1]]);
-                new_forward[i] = vertex_groups.get(&base_global).copied().unwrap_or(base_global);
-            }
-            for (i, &val) in new_forward.iter().enumerate() {
-                forward_data[off+i*2..off+i*2+2].copy_from_slice(&val.to_le_bytes());
-            }
-        }
-    }
-
-    pub fn build_composite_remap<'a>(
-        remaps: impl Iterator<Item = &'a VertexRemapConfig>,
-    ) -> VertexRemapConfig {
-        let mut composite_vg_map:   HashMap<u16, u16>               = HashMap::new();
-        let mut composite_comp_map: HashMap<u8,  HashMap<u16, u16>> = HashMap::new();
-
-        for config in remaps {
-            if let Some(vg_map) = &config.vertex_groups {
-                for (_, current_target) in composite_vg_map.iter_mut() {
-                    if let Some(&new_target) = vg_map.get(current_target) {
-                        *current_target = new_target;
-                    }
-                }
-                for (&src, &tgt) in vg_map {
-                    composite_vg_map.entry(src).or_insert(tgt);
-                }
-            }
-            if let Some(comp_remap) = &config.component_remap {
-                for region in comp_remap {
-                    let map = composite_comp_map.entry(region.component_index).or_default();
-                    for (_, ct) in map.iter_mut() {
-                        if let Some(&nt) = region.indices.get(ct) { *ct = nt; }
-                    }
-                    for (&src, &tgt) in &region.indices {
-                        map.entry(src).or_insert(tgt);
-                    }
-                }
-            }
-        }
-
-        let comp_regions: Vec<ComponentRemapRegion> = composite_comp_map
-            .into_iter()
-            .map(|(ci, indices)| ComponentRemapRegion { component_index: ci, indices })
-            .collect();
-
-        VertexRemapConfig {
-            trigger_hash:    vec![],
-            vertex_groups:   if composite_vg_map.is_empty() { None } else { Some(composite_vg_map) },
-            component_remap: if comp_regions.is_empty()     { None } else { Some(comp_regions) },
-        }
-    }
 }
 
 // ── Version / Update ────────────────────────────────────────────────────────
@@ -275,12 +110,12 @@ impl VertexRemapConfig {
 #[derive(Serialize, Deserialize, Default, Clone)]
 #[serde(default)]
 pub struct VersionConfig {
-    pub min_required_version:    String,
-    pub current_version:         String,
-    pub update_url:              String,
-    pub latest_program_version:  Option<String>,
-    pub support_url_cn:          Option<String>,
-    pub support_url_intl:        Option<String>,
+    pub min_required_version: String,
+    pub current_version: String,
+    pub update_url: String,
+    pub latest_program_version: Option<String>,
+    pub support_url_cn: Option<String>,
+    pub support_url_intl: Option<String>,
 }
 
 #[derive(Debug)]
@@ -293,20 +128,36 @@ pub enum ConfigError {
     VersionMismatch(String),
 }
 
-impl From<serde_json::Error> for ConfigError { fn from(e: serde_json::Error) -> Self { ConfigError::SerdeError(e) } }
-impl From<std::io::Error>    for ConfigError { fn from(e: std::io::Error)    -> Self { ConfigError::IoError(e) } }
-impl From<semver::Error>     for ConfigError { fn from(e: semver::Error)     -> Self { ConfigError::Semver(format!("{e}")) } }
-impl From<reqwest::Error>       for ConfigError { fn from(e: reqwest::Error)       -> Self { ConfigError::NetworkError(e) } }
+impl From<serde_json::Error> for ConfigError {
+    fn from(e: serde_json::Error) -> Self {
+        ConfigError::SerdeError(e)
+    }
+}
+impl From<std::io::Error> for ConfigError {
+    fn from(e: std::io::Error) -> Self {
+        ConfigError::IoError(e)
+    }
+}
+impl From<semver::Error> for ConfigError {
+    fn from(e: semver::Error) -> Self {
+        ConfigError::Semver(format!("{e}"))
+    }
+}
+impl From<reqwest::Error> for ConfigError {
+    fn from(e: reqwest::Error) -> Self {
+        ConfigError::NetworkError(e)
+    }
+}
 
 impl std::fmt::Display for ConfigError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Self::SerdeError(e)     => write!(f, "JSON解析错误: {e}"),
-            Self::IoError(e)        => write!(f, "文件读写错误: {e}"),
-            Self::NetworkError(e)   => write!(f, "网络错误: {e}"),
-            Self::AllRemoteFailed   => write!(f, "所有远程源都不可用"),
-            Self::Semver(e)         => write!(f, "Semver解析错误: {e}"),
-            Self::VersionMismatch(e)=> write!(f, "版本不匹配: {e}"),
+            Self::SerdeError(e) => write!(f, "JSON解析错误: {e}"),
+            Self::IoError(e) => write!(f, "文件读写错误: {e}"),
+            Self::NetworkError(e) => write!(f, "网络错误: {e}"),
+            Self::AllRemoteFailed => write!(f, "所有远程源都不可用"),
+            Self::Semver(e) => write!(f, "Semver解析错误: {e}"),
+            Self::VersionMismatch(e) => write!(f, "版本不匹配: {e}"),
         }
     }
 }
@@ -322,16 +173,38 @@ pub async fn init_config() {
         println!("Loading config...");
         let load_start = Instant::now();
 
-        let config_data = if let Some(override_path) = config_override_path() {
+        let (config_data, is_override) = if let Some(override_path) = config_override_path() {
             println!("📁 Loading config from specified path: {}", override_path.display());
-            std::fs::read_to_string(override_path).unwrap_or_else(|e| {
-                panic!("Failed to read config file '{}': {}", override_path.display(), e)
+            match std::fs::read_to_string(override_path) {
+                Ok(content) => (content, true),
+                Err(e) => {
+                    eprintln!(
+                        "⚠️ Failed to read override config file '{}': {}. Falling back to default loader.",
+                        override_path.display(),
+                        e
+                    );
+                    (load_local("config.json"), false)
+                }
+            }
+        } else {
+            (load_local("config.json"), false)
+        };
+
+        let config: GlobalConfig = if is_override {
+            serde_json::from_str(&config_data).unwrap_or_else(|e| {
+                eprintln!("⚠️ Failed to parse override config: {e}. Falling back to default configuration.");
+                serde_json::from_str(&load_local("config.json")).unwrap_or_else(|_| {
+                    serde_json::from_str(include_str!("../../config.json"))
+                        .expect("Embedded config.json must be valid JSON")
+                })
             })
         } else {
-            load_local("config.json")
+            serde_json::from_str(&config_data).unwrap_or_else(|e| {
+                eprintln!("⚠️ Failed to parse local config.json: {e}. Falling back to embedded config.");
+                serde_json::from_str(include_str!("../../config.json"))
+                    .expect("Embedded config.json must be valid JSON")
+            })
         };
-        let config: GlobalConfig = serde_json::from_str(&config_data)
-            .unwrap_or_else(|e| panic!("Failed to parse config.json: {e}"));
 
         println!("Config loaded in {:.2?}", load_start.elapsed());
 
@@ -346,6 +219,7 @@ pub async fn init_config() {
 }
 
 /// Helper function to traverse directories upwards to locate a specific file in the workspace
+#[cfg(debug_assertions)]
 fn find_workspace_file(name: &str) -> Option<std::path::PathBuf> {
     let mut dir = std::env::current_dir().ok()?;
     loop {
@@ -364,7 +238,7 @@ fn find_workspace_file(name: &str) -> Option<std::path::PathBuf> {
 fn spawn_dev_rules_watcher() {
     std::thread::spawn(move || {
         use std::time::SystemTime;
-        
+
         // Dynamically find the absolute path of config.yml by walking up parent directories
         let yml_path = match find_workspace_file("config.yml") {
             Some(path) => path,
@@ -373,7 +247,7 @@ fn spawn_dev_rules_watcher() {
                 return;
             }
         };
-        
+
         let workspace_root = yml_path.parent().unwrap().to_path_buf();
         let config_json_path = workspace_root.join("config.json");
 
@@ -381,7 +255,8 @@ fn spawn_dev_rules_watcher() {
         println!("[DEV] Monitoring: {}", yml_path.display());
         println!("[DEV] Workspace root: {}", workspace_root.display());
 
-        let mut last_modified = yml_path.metadata()
+        let mut last_modified = yml_path
+            .metadata()
             .and_then(|m| m.modified())
             .unwrap_or(SystemTime::UNIX_EPOCH);
 
@@ -399,7 +274,7 @@ fn spawn_dev_rules_watcher() {
                             // Heartbeat log every 5 seconds to debug timing values
                             if loop_count % 60 == 0 {
                                 println!(
-                                    "[DEV] Watcher Heartbeat #{} - modified: {:?}, last_modified: {:?}", 
+                                    "[DEV] Watcher Heartbeat #{} - modified: {:?}, last_modified: {:?}",
                                     loop_count, modified, last_modified
                                 );
                             }
@@ -424,20 +299,31 @@ fn spawn_dev_rules_watcher() {
                                                         Ok(new_config) => {
                                                             if let Some(arc_swap) = CONFIG.get() {
                                                                 arc_swap.store(std::sync::Arc::new(new_config));
-                                                                CONFIG_CHANGED.store(true, std::sync::atomic::Ordering::SeqCst);
-                                                                println!("[DEV] ⚡ Config successfully auto-reloaded in running app!");
+                                                                CONFIG_CHANGED
+                                                                    .store(true, std::sync::atomic::Ordering::SeqCst);
+                                                                println!(
+                                                                    "[DEV] ⚡ Config successfully auto-reloaded in running app!"
+                                                                );
                                                             }
                                                         }
-                                                        Err(e) => eprintln!("[DEV] ❌ Failed to parse config.json after changes: {:?}", e),
+                                                        Err(e) => eprintln!(
+                                                            "[DEV] ❌ Failed to parse config.json after changes: {:?}",
+                                                            e
+                                                        ),
                                                     }
                                                 }
                                                 Err(e) => eprintln!("[DEV] ❌ Failed to read config.json: {:?}", e),
                                             }
                                         } else {
-                                            eprintln!("[DEV] ❌ Recompile failed: compile_config.js exited with non-zero status.");
+                                            eprintln!(
+                                                "[DEV] ❌ Recompile failed: compile_config.js exited with non-zero status."
+                                            );
                                         }
                                     }
-                                    Err(e) => eprintln!("[DEV] ❌ Failed to invoke node. Ensure Node.js is in your PATH. Error: {:?}", e),
+                                    Err(e) => eprintln!(
+                                        "[DEV] ❌ Failed to invoke node. Ensure Node.js is in your PATH. Error: {:?}",
+                                        e
+                                    ),
                                 }
                             }
                         }
@@ -470,8 +356,6 @@ pub async fn update_config_from_remote() -> Result<(), ConfigError> {
     Ok(())
 }
 
-
-
 /// Hot-reload config from remote sources manually.
 /// Old config is automatically freed when all Arc references drop — no memory leak.
 pub async fn force_reload_remote_config() -> Result<(), ConfigError> {
@@ -495,9 +379,7 @@ async fn load_remote_config(file_name: &str) -> Result<String, ConfigError> {
         tasks.push(tokio::spawn(async move {
             let client = agent_ref.clone();
             match client.get(&url).send().await {
-                Ok(resp) if resp.status().is_success() => {
-                    resp.text().await.map_err(|e| e.to_string())
-                }
+                Ok(resp) if resp.status().is_success() => resp.text().await.map_err(|e| e.to_string()),
                 Ok(resp) => Err(format!("StatusCode: {}", resp.status())),
                 Err(e) => Err(e.to_string()),
             }
@@ -509,6 +391,9 @@ async fn load_remote_config(file_name: &str) -> Result<String, ConfigError> {
         tasks = rest;
         if let Ok(Ok(content)) = result {
             println!("🌐 Remote config loaded: {file_name}");
+            for task in &tasks {
+                task.abort();
+            }
             return Ok(content);
         }
     }
@@ -516,9 +401,15 @@ async fn load_remote_config(file_name: &str) -> Result<String, ConfigError> {
 }
 
 fn load_local(file_name: &str) -> String {
-    if let Some(path) = find_workspace_file(file_name) {
+    let path = std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(|d| d.to_path_buf()))
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join(file_name);
+
+    if path.exists() {
         if let Ok(content) = std::fs::read_to_string(&path) {
-            println!("📁 Loaded local config from workspace disk: {}", path.display());
+            println!("📁 Loaded local config from disk: {}", path.display());
             return content;
         }
     }
@@ -567,21 +458,31 @@ fn load_config() -> Arc<GlobalConfig> {
 
 /// Load the current config snapshot as an Arc.
 /// Callers access sub-fields via `.lang_ref()`, `.characters_ref()`, etc.
-pub fn config() -> Arc<GlobalConfig> { load_config() }
+pub fn config() -> Arc<GlobalConfig> {
+    load_config()
+}
 
 // Convenience accessors for direct field access (backward-compatible pattern)
 impl GlobalConfig {
-    pub fn lang_ref(&self)       -> &LangPack                         { &self.lang }
-    pub fn settings_ref(&self)   -> &SettingConfig                    { &self.settings }
-    pub fn characters_ref(&self) -> &HashMap<String, CharacterConfig> { &self.characters }
-    pub fn version_ref(&self)    -> &VersionConfig                    { &self.version }
+    pub fn lang_ref(&self) -> &LangPack {
+        &self.lang
+    }
+    pub fn settings_ref(&self) -> &SettingConfig {
+        &self.settings
+    }
+    pub fn characters_ref(&self) -> &HashMap<String, CharacterConfig> {
+        &self.characters
+    }
+    pub fn version_ref(&self) -> &VersionConfig {
+        &self.version
+    }
 }
 
 pub fn check_version() -> Result<String, ConfigError> {
     let current_ver = Version::parse(env!("CARGO_PKG_VERSION").trim_start_matches('v'))?;
-    let cfg         = load_config();
-    let config      = cfg.version_ref();
-    let min_ver     = Version::parse(config.min_required_version.trim_start_matches('v'))?;
+    let cfg = load_config();
+    let config = cfg.version_ref();
+    let min_ver = Version::parse(config.min_required_version.trim_start_matches('v'))?;
     if current_ver < min_ver {
         return Err(ConfigError::VersionMismatch(format!(
             "Current version {current_ver} < required {min_ver}. Update: {}",
@@ -599,12 +500,14 @@ pub enum UpdateStatus {
 }
 
 pub fn check_update_status() -> UpdateStatus {
-    let cfg    = load_config();
+    let cfg = load_config();
     let config = cfg.version_ref();
     if let Ok(current) = Version::parse(env!("CARGO_PKG_VERSION").trim_start_matches('v')) {
         if let Ok(min_req) = Version::parse(config.min_required_version.trim_start_matches('v')) {
             if current < min_req {
-                let target = config.latest_program_version.clone()
+                let target = config
+                    .latest_program_version
+                    .clone()
                     .unwrap_or_else(|| config.min_required_version.clone());
                 return UpdateStatus::MandatoryUpdate(target, config.update_url.clone());
             }
@@ -669,16 +572,12 @@ where
     deserializer.deserialize_any(MapOrStringVisitor)
 }
 
-pub fn deserialize_option_map_or_string<'de, D>(
-    deserializer: D,
-) -> Result<Option<HashMap<u16, u16>>, D::Error>
+pub fn deserialize_option_map_or_string<'de, D>(deserializer: D) -> Result<Option<HashMap<u16, u16>>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
     #[derive(serde::Deserialize)]
-    struct Wrapper(
-        #[serde(deserialize_with = "deserialize_map_or_string")] HashMap<u16, u16>,
-    );
+    struct Wrapper(#[serde(deserialize_with = "deserialize_map_or_string")] HashMap<u16, u16>);
 
     Option::<Wrapper>::deserialize(deserializer).map(|opt| opt.map(|w| w.0))
 }
