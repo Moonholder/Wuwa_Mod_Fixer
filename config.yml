@@ -1,6 +1,6 @@
 version:
   min_required_version: 3.5.0
-  current_version: 3.5.0
+  current_version: 3.5.1
   latest_program_version: 3.5.0
   update_url: https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest
   support_url_cn: https://support.jix.de5.net
@@ -343,25 +343,29 @@ characters:
       - {old: ['63e02559'], new: '63e02559'}
       - {old: [9c24e7eb], new: 9c24e7eb}
     textures:
-      f3e04a65: {derive: {LOD: [2ebfd442, 107a92cf]}}
-      1ae38ad2: {replace: [52197a16], derive: {LOD: [c7bc14f5, 78c757a9]}}
-      3e77c6f1: {replace: [8a7d6de5], derive: {LOD: [e32858d6, e7a576a3]}}
-      d4a87b42: {replace: [7e87c77a]}
-      5687b335: {replace: [de0af803], derive: {LOD: [8bd82d12, 493cf798]}}
-      88fc89dd: {replace: [0485b505]}
-      b578f66a: {replace: [3320efad], derive: {LOD: [6827684d, aba928d9]}}
-      790dc54b: {replace: [96cdca80], derive: {LOD: [a4525b6c, c49d1d97]}}
-      0465ef39: {replace: [e8d882a0], derive: {LOD: [d93a711e, c60b16ee]}}
-      71756a01: {replace: [feff1922], derive: {LOD: [ac2af426, 06d6ea30]}}
+      10957a71: {meta: {id: 0, type: D}, replace: [5687b335]}
+      b8801141: {meta: {id: 0, type: L}, replace: [d4a87b42, 7e87c77a]}
+      4a280edd: {meta: {id: 1, type: D}, replace: [b578f66a, 3320efad], derive: {LOD: [6827684d, aba928d9]}}
+      29d41134: {meta: {id: 1, type: L}, replace: [88fc89dd, 0485b505]}
+      80f4de62: {meta: {id: 2, type: D}, replace: [790dc54b, 96cdca80], derive: {LOD: [a4525b6c, c49d1d97]}}
+      f32521f0: {meta: {id: 2, type: L}, replace: [f3e04a65],derive: {LOD: [2ebfd442, 107a92cf]}}
+      311df707: {meta: {id: 3, type: D}, replace: [71756a01, feff1922], derive: {LOD: [ac2af426, 06d6ea30]}}
+      107035aa: {meta: {id: 3, type: N}, replace: [0465ef39, e8d882a0], derive: {LOD: [d93a711e, c60b16ee]}}
+      36e3a469: {meta: {id: 4, type: D}, replace: [3e77c6f1, 8a7d6de5], derive: {LOD: [e32858d6, e7a576a3]}}
+      c63ed3a5: {meta: {id: 4, type: N}, replace: [1ae38ad2, 52197a16], derive: {LOD: [c7bc14f5, 78c757a9]}}
+      20b30a3f: {meta: {id: 5, type: D}, replace: [c7e92085], derive: {LOD: [8bd82d12, 493cf798]}}
       31f8578b: {replace: [cb23f0b5], derive: {LOD: [eca7c9ac, c64b31f8]}}
-      d482f64e: {replace: [f657b0b8], derive: {LOD: [09dd6869, ac9bf8b7]}}
+      507e163c: {replace: [aa0d3145]}
+      75a72a87: {replace: [16a54566]}
+      8ea88b99: {replace: [97821bff]}
   CalcharoTorso:
     main_hashes:
       - {old: [908eb357], new: 908eb357}
       - {old: [006cda67], new: 006cda67}
     textures:
-      31f8578b: {replace: [cb23f0b5], derive: {LOD: [eca7c9ac, c64b31f8]}}
-      d482f64e: {replace: [f657b0b8], derive: {LOD: [09dd6869, ac9bf8b7]}}
+      16b7d51e: {meta: {id: 0, type: D}, replace: [d482f64e, f657b0b8], derive: {LOD: [09dd6869, ac9bf8b7]}}
+      08836a34: {meta: {id: 0, type: L}, replace: [8b43ad38]}
+      8a7c5b3d: {meta: {id: 0, type: N}, replace: [31f8578b, cb23f0b5], derive: {LOD: [eca7c9ac, c64b31f8]}}
   Camellya:
     main_hashes:
       - {old: [7748c1d8], new: 7748c1d8}
@@ -817,20 +821,26 @@ characters:
       - {old: [c2dc3697], new: 02ff8fd2}
     checksum: '2742'
     textures:
-      0a136c79: {derive: {LOD: [d74cf25e, 92f99f5c]}}
-      4a5502b1: {derive: {LOD: [970a9c96, 20bd2886]}}
-      4fca3f55: {derive: {LOD: [9295a172, 1f243c59]}}
-      6d4a87ef: {derive: {LOD: [b01519c8, 8b25c1be]}}
-      47e8b051: {derive: {LOD: [9ab72e76, a8b8ac1f]}}
+      aac65558: {meta: {id: 0, type: D}, replace: [0a136c79], derive: {LOD: [d74cf25e, 92f99f5c]}}
+      59b28407: {replace: [0e990ce3]}
+      a140aad3: {meta: {id: 1, type: D}, replace: [47e8b051], derive: {LOD: [9ab72e76, a8b8ac1f]}}
+      cbad5f85: {replace: [ca2115c4]}
+      3099fc8d: {meta: {id: 2, type: D}, replace: [a17125b7, c917c0f0], derive: {LOD: [3357fb7a, 49c09761]}}
+      8c77bccd: {meta: {id: 3, type: D}, replace: [ac811d4b], derive: {LOD: [71de836c, e21a6804]}}
+      2154238f: {meta: {id: 3, type: L}, replace: [4fca3f55], derive: {LOD: [9295a172, 1f243c59]}}
+      aa75b5a9: {meta: {id: 3, type: N}, replace: [4a5502b1]}
+      5e5d935c: {meta: {id: 4, type: D}, replace: [c9bbe473], derive: {LOD: [14e47a54, 100b31ef]}}
+      58d681aa: {meta: {id: 4, type: L}, replace: [6d4a87ef], derive: {LOD: [b01519c8, 8b25c1be]}}
+      2b3e162b: {meta: {id: 4, type: N}, replace: [dbfb288a], derive: {LOD: [06a4b6ad, 65eeadbc]}}
+      a4871136: {meta: {id: 5, type: D}, replace: [acbed1bb, 3f7bfcca], derive: {LOD: [3e980f76, 8b75266c]}}
       129f1dd8: {derive: {LOD: [cfc083ff, 6577061c]}}
       82837e0d: {derive: {LOD: [5fdce02a, 9d202311]}}
       a8a08519: {derive: {LOD: [75ff1b3e, 389187ea]}}
-      ac811d4b: {derive: {LOD: [71de836c, e21a6804]}}
-      c9bbe473: {derive: {LOD: [14e47a54, 100b31ef]}}
-      a17125b7: {replace: [c917c0f0], derive: {LOD: [3357fb7a, 49c09761]}}
-      acbed1bb: {replace: [3f7bfcca], derive: {LOD: [3e980f76, 8b75266c]}}
-      dbfb288a: {derive: {LOD: [06a4b6ad, 65eeadbc]}}
       f73250e5: {derive: {LOD: [2a6dcec2, 7d264809]}}
+      3409f0dc: {replace: [bcea36b2]}
+      3e171584: {replace: [d256e174]}
+      f7763c9e: {replace: [eaf4ddb5]}
+      fe792723: {replace: [f6f06932]}
   Galbrena:
     main_hashes:
       - {old: [3765f0a6], new: 3765f0a6}
@@ -1214,16 +1224,18 @@ characters:
       0f5d6c08: {replace: [ec6b0edc, 6c09d0d7], derive: {LOD: [f68762c4], Gacha: [6a1b490e, dee612b2, b744d729]}}
       4f1d5285: {replace: [7aa57b2c], derive: {LOD: [e07849d1]}}
       d2ef0438: {replace: [10c8713e], derive: {LOD: [0fc46a2c]}}
-      d5dfa096: {replace: ['38686e88'], derive: {LOD: [968beddd], Gacha: [91b7fedc]}}
+      d5dfa096: {replace: [38686e88], derive: {LOD: [968beddd], Gacha: [91b7fedc]}}
       94d7281e: {replace: [dd5dceaa], derive: {LOD: [b8c41f77], Gacha: [4feb8f2c]}}
       c5784ddf: {derive: {LOD: [2949a306]}}
       c49bec43: {derive: {LOD: [97e53f80]}}
       6d5f71f9: {derive: {LOD: [99b0f5d1]}}
-      950acc22: {derive: {LOD: ['95944679']}}
-      1261dcbc: {replace: [513eace9]}
+      950acc22: {derive: {LOD: [95944679]}}
+      48947f0c: {replace: [1261dcbc, 513eace9]}
       8e20c909: {replace: [347a41a2], derive: {LOD: [537f572e, 2d50f344]}}
       b5453395: {replace: [17372a89]}
       47df9d42: {replace: [f45cea79], derive: {LOD: [9a800365, eccd0754]}}
+      bfa33038: {replace: [c5ff72a6]}
+      997e0a9a: {replace: [6ac45992]}
   Lucy:
     main_hashes:
       - {old: [aceabae4], new: aceabae4}
