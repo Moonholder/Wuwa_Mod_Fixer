@@ -68,13 +68,34 @@ pub fn export_shading_mask<P1: AsRef<Path>, P2: AsRef<Path>>(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut file = File::open(input_path)?;
     let dds = Dds::read(&mut file)?;
-    let img = image_from_dds(&dds, 0)?;
+    let img_res = image_from_dds(&dds, 0);
 
-    let (width, height) = img.dimensions();
-    let gray_data: Vec<u8> = img
-        .pixels()
-        .map(|p| if p[0] < 50 { bg_gray_value } else { p[1] })
-        .collect();
+    let (width, height, gray_data) = match img_res {
+        Ok(img) => {
+            let (width, height) = img.dimensions();
+            let data: Vec<u8> = img
+                .pixels()
+                .map(|p| if p[0] < 50 { bg_gray_value } else { p[1] })
+                .collect();
+            (width, height, data)
+        }
+        Err(e) => {
+            if let Some(ddsfile::D3DFormat::A8B8G8R8) = dds.get_d3d_format() {
+                let width = dds.get_width();
+                let height = dds.get_height();
+                let mut data = Vec::with_capacity((width * height) as usize);
+
+                for chunk in dds.data.chunks_exact(4) {
+                    let r = chunk[0];
+                    let g = chunk[1];
+                    data.push(if r < 50 { bg_gray_value } else { g });
+                }
+                (width, height, data)
+            } else {
+                return Err(e.into());
+            }
+        }
+    };
 
     let gray_img = image::GrayImage::from_raw(width, height, gray_data).expect("gray image size mismatch");
 
