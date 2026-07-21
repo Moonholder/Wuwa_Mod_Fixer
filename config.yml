@@ -606,25 +606,25 @@ characters:
       - {old: [e57c9380], new: e57c9380}
     textures:
       1603d6fa: {replace: [839d2623]}
-      141dbc74: {replace: [10d1aeac, fe853fcf]}
-      c2bddf85: {replace: [a20c032a, 19d3de08]}
-      fb5cd7be: {replace: [342dcbc3, 852b2b72]}
-      a8f40af2: {meta: {id: '2', type: 'D'}, replace: [6f620405, 4c379f61]}
-      c3b314ca: {meta: {id: '2', type: 'L'}, replace: [32271b48]}
-      d3933df2: {meta: {id: '3', type: 'D'}, replace: [24af21ae, d79a3f55]}
-      4db471ed: {meta: {id: '3', type: 'L'}, replace: [ea49c595]}
-      d0be8afe: {meta: {id: '3', type: 'N'}, replace: [de5a0f92, 4358f290]}
-      7e5b9732: {meta: {id: '4', type: 'D'}, replace: [f58c741e, 2f590d3f]}
-      46f3a4ed: {meta: {id: '4', type: 'N'}, replace: [1cffa7e8, 748f8d97]}
-      f7bf1c9b: {meta: {id: '5', type: 'D'}, replace: [5a41b6fa, cca1af56]}
-      4a718845: {meta: {id: '5', type: 'L'}, replace: [cf8ac68f]}
-      b210a21c: {meta: {id: '5', type: 'N'}, replace: [37400c45, 3b5e4a9b]}
-      51ac5e38: {replace: [ed5511fe, 4e1fdf28]}
-      9a9b6927: {meta: {id: '7', type: 'D'}, replace: [1f746639, 1e072c24]}
-      5734ef32: {meta: {id: '7', type: 'N'}, replace: [0448648a, '09e98e33']}
-      7bcede78: {replace: [be1295ae]}
-      1c03e88d: {replace: [952d2862]}
-      f6c53a65: {replace: [e7f8bb3b, bf7e0ab1]}
+      141dbc74: {meta: {id: 0, type: D}, replace: [10d1aeac, fe853fcf]}
+      c2bddf85: {meta: {id: 0, type: L}, replace: [a20c032a, 19d3de08]}
+      fb5cd7be: {meta: {id: 1, type: D}, replace: [342dcbc3, 852b2b72]}
+      f6c53a65: {meta: {id: 1, type: L}, replace: [e7f8bb3b, bf7e0ab1]}
+      a8f40af2: {meta: {id: 2, type: D}, replace: [6f620405, 4c379f61]}
+      c3b314ca: {meta: {id: 2, type: L}, replace: [32271b48]}
+      d3933df2: {meta: {id: 3, type: D}, replace: [24af21ae, d79a3f55]}
+      4db471ed: {meta: {id: 3, type: L}, replace: [ea49c595]}
+      d0be8afe: {meta: {id: 3, type: N}, replace: [de5a0f92, 4358f290]}
+      7e5b9732: {meta: {id: 4, type: D}, replace: [f58c741e, 2f590d3f]}
+      46f3a4ed: {meta: {id: 4, type: N}, replace: [1cffa7e8, 748f8d97]}
+      f7bf1c9b: {meta: {id: 5, type: D}, replace: [5a41b6fa, cca1af56]}
+      4a718845: {meta: {id: 5, type: L}, replace: [cf8ac68f]}
+      b210a21c: {meta: {id: 5, type: N}, replace: [37400c45, 3b5e4a9b]}
+      51ac5e38: {meta: {id: 6, type: D}, replace: [ed5511fe, 4e1fdf28]}
+      9a9b6927: {meta: {id: 7, type: D}, replace: [1f746639, 1e072c24]}
+      5734ef32: {meta: {id: 7, type: N}, replace: [0448648a, '09e98e33']}
+      882cb675: {replace: [7bcede78, be1295ae]}
+      d08e5294: {replace: [1c03e88d, 952d2862]}
   CiacconaUltimate:
     textures:
       f7bf1c9b: {replace: [987a6f0e]}
