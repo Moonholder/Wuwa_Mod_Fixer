@@ -37,6 +37,7 @@ lang:
       * 修复秧秧的模型异常及表情问题
       * 修复其他角色的贴图错误
       * 更新UID的哈希值
+      * 修复秧秧·玄翎的贴图错误（07/22）
 
     en: |+
       Fix 3.5: Please update XXMI to the latest version.
@@ -44,6 +45,7 @@ lang:
       * Fixed model glitches and expression issues for Yangyang.
       * Fixed texture errors for other characters.
       * Updated UID Hashes.
+      * Fixed Yangyang·Xuanling's texture error (07/22)
 
   intro_note:
     zh: 确保光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0，否则面部会出错
@@ -508,7 +510,6 @@ characters:
       - {old: [d8decbca, 1ccb8008], new: 59f24b66}
       - {old: [fd9483ca, 060f5303], new: 277e18c9}
     rules:
-      - {line_prefix: 'global $object_guid', replacements: [{old: ['285591'], new: '286611'}]}
       - {line_prefix: match_first_index, replacements: [{old: ['152343'], new: '153363'}, {old: ['198855'], new: '199875'}, {old: ['283461'], new: '284481'}, {old: ['285489'], new: '286509'}]}
       - {line_prefix: match_index_count, replacements: [{old: ['81513'], new: '82533'}]}
     vg_remaps:
@@ -1800,6 +1801,29 @@ characters:
       eba37282: {meta: {id: '6', type: 'D'}, replace: [cc7a443c,29942440], derive: {LOD: [f4cbba67, '44030476']}}
       0e3eb7d9: {derive: {LOD: [9c186914, bfc63c64, 49b9d512]}}
       95caeb91c: {derive: {LOD: [07ec3551, '60662e92', c1a3ff90]}}
+  YangyangXuanling:
+    main_hashes:
+      - {old: [15fb50a9], new: 15fb50a9}
+    textures:
+      b2d27320: {meta: {id: 0, type: D}}
+      c2082b2c: {meta: {id: 0, type: L}}
+      afcffa8b: {meta: {id: 1, type: D}}
+      09015f15: {meta: {id: 1, type: L}}
+      e02d9167: {meta: {id: 2, type: D}}
+      7ed83a67: {meta: {id: 2, type: L}}
+      b5a883f0: {meta: {id: 3, type: D}, replace: [348c9329]}
+      d8904fe1: {meta: {id: 3, type: L}, replace: [62d877e3]}
+      3cf63def: {meta: {id: 3, type: N}, replace: [7d8d1ae0]}
+      a4492cc1: {meta: {id: 3, type: M}, replace: [621a6f4f]}
+      64007c50: {meta: {id: 4, type: D}}
+      4230c6e9: {meta: {id: 4, type: L}}
+      18459867: {meta: {id: 4, type: N}}
+      18332f1d: {meta: {id: 4, type: M}}
+      e9612536: {meta: {id: 5, type: D}}
+      507e618e: {meta: {id: 5, type: L}}
+      9f9d536f: {meta: {id: 5, type: N}}
+      9cae66cf: {meta: {id: 5, type: M}}
+      89905b77: {meta: {id: 6, type: D}}
   Yinlin:
     main_hashes:
       - {old: ['42702199'], new: 0b8b7323}
