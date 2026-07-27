@@ -1,0 +1,34 @@
+name: "🔁 模组问题 / Mod Issue"
+description: "报告特定 Mod 修复失败、贴图异常或无法识别的问题。"
+title: "[Mod]: "
+labels: ["mod issue"]
+body:
+  - type: markdown
+    attributes:
+      value: "如果是针对某个具体的 Mod 出现问题，请务必提供原 Mod 的下载链接，以便测试！\nPlease provide the download link of the mod for testing."
+  - type: input
+    id: summary
+    attributes:
+      label: 一句话概述 / One-line summary
+      description: 描述一下这个 Mod 出了什么问题。
+    validations:
+      required: true
+  - type: input
+    id: mod_link
+    attributes:
+      label: Mod 链接或来源 / Mod link or source
+      description: 请贴出该 Mod 的原下载链接（如 GameBanana 链接）。
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: 发生了什么 / What happened
+      description: 简要说明修复后游戏内的表现（例如“贴图错乱”、“材质透明”等）。
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 附件（截图 / 日志） / Attachments
+      description: 请拖拽上传游戏内出错的截图，或者运行工具时的日志截图。

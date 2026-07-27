@@ -1,0 +1,49 @@
+name: "🐛 Bug 报告 / Bug Report"
+description: "报告程序错误：软件本身的崩溃、闪退或功能异常。"
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "感谢提交 Bug！请尽可能详细地提供信息，这会帮助我们更快定位问题。\nThanks for reporting a bug!"
+  - type: input
+    id: summary
+    attributes:
+      label: 一句话概述 / One-line summary
+      description: 用一句话说明发生了什么。Please summarize the problem in one line.
+      placeholder: "例如：在使用 XXX 功能时程序闪退"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述 / What happened
+      description: 请详细描述问题（尽量清楚）。Describe the problem briefly in Chinese or English.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 简要复现步骤 / Steps to reproduce
+      description: 如果可以，请提供复现这个问题的步骤。
+  - type: input
+    id: version
+    attributes:
+      label: Wuwa_Mod_Fixer 版本 / Version
+      description: 你目前使用的软件版本是多少？
+      placeholder: "例如：v1.2.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: 操作系统 / OS
+      options:
+        - Windows 11
+        - Windows 10
+        - 其他 / Other
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志与附件 / Logs & Attachments
+      description: 请将关键错误/堆栈粘贴到这里，或直接拖拽上传日志文件及报错截图。

@@ -1,0 +1,27 @@
+name: "✨ 功能请求 / Feature Request"
+description: "建议一个新功能或现有功能的改进。"
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "感谢你为工具提出改进建议！\nThanks for your suggestion!"
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你的建议是否与某个痛点有关？/ Is your feature request related to a problem?
+      description: 清楚地描述遇到的问题，比如“我总是因为……感到困扰”。
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: 你期望的解决方案 / Describe the solution you'd like
+      description: 描述你希望加入什么功能，或者现有功能该如何改进。
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 替代方案 / Describe alternatives you've considered
+      description: 你目前在使用什么替代方法来解决这个问题？(可选)
