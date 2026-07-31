@@ -95,6 +95,7 @@ pub async fn start_fix(
     enable_texture_override:  bool,
     enable_stable_texture:    bool,
     enable_fix_aemeath_mech:  bool,
+    enable_rendering33_fix:   bool,
     aero_fix_mode:            u8,
 ) -> Result<(), AppError> {
     let app2 = app.clone();
@@ -169,6 +170,7 @@ pub async fn start_fix(
             enable_texture_override,
             enable_stable_texture,
             enable_fix_aemeath_mech,
+            enable_rendering33_fix,
             aero_fix_mode,
             progress,
             cancel_token,

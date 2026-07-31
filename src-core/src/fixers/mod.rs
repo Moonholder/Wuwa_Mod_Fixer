@@ -5,6 +5,7 @@ pub mod rabbit_fx;
 pub mod rendering_3_3;
 pub mod rover_fix;
 pub mod rule_replace;
+pub mod resource_override;
 pub mod shapekey;
 pub mod stride;
 pub mod traits;

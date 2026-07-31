@@ -14,6 +14,7 @@ pub struct FixerContext<'a> {
     pub original_hashes: &'a HashSet<String>,
     pub enable_stable_texture: bool,
     pub enable_fix_aemeath_mech: bool,
+    pub enable_rendering33_fix: bool,
     pub aero_fix_mode: u8,
     pub enable_texture_override: bool,
 }

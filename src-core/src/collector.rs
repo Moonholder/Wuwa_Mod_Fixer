@@ -49,7 +49,11 @@ lazy_static::lazy_static! {
     static ref RE_SHAPEKEY_VERTEX_OFFSET: Regex = Regex::new(r"(?im)^\[ResourceShapeKeyVertexOffsetBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
 }
 
-pub fn parse_resouce_buffer_path(content: &str, buf_type: BufferType, ini_path: &Path) -> Vec<(PathBuf, usize)> {
+pub fn parse_resource_buffer_path(
+    content: &str,
+    buf_type: BufferType,
+    ini_path: &Path,
+) -> Vec<(PathBuf, Option<usize>)> {
     let section_re = match buf_type {
         BufferType::Blend => &*RE_BLEND,
         BufferType::TexCoord => &*RE_TEXCOORD,
@@ -93,18 +97,11 @@ pub fn parse_resouce_buffer_path(content: &str, buf_type: BufferType, ini_path: 
             }
         };
 
-        let stride = match STRIDE_RE
+        let stride = STRIDE_RE
             .captures(section_content)
             .and_then(|cap| cap.get(1))
             .map(|m| m.as_str().trim())
-            .and_then(|s| s.parse::<usize>().ok())
-        {
-            Some(s) => s,
-            None => {
-                log::warn!("Failed to parse stride");
-                continue;
-            }
-        };
+            .and_then(|s| s.parse::<usize>().ok());
 
         let path = ini_path
             .parent()
@@ -242,7 +239,7 @@ pub fn get_buf_path_index(path: &Path) -> Option<&str> {
         .map(|s| s.split('_').last().unwrap())
 }
 
-pub fn combile_buf_path(path: &Path, buf_type: &BufferType) -> PathBuf {
+pub fn combine_buf_path(path: &Path, buf_type: &BufferType) -> PathBuf {
     get_buf_path_index(path).map_or_else(
         || path.with_file_name(format!("{}.buf", buf_type)),
         |index| path.with_file_name(format!("{}_{}.buf", buf_type, index)),

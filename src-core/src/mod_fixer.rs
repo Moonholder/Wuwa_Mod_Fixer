@@ -21,6 +21,7 @@ use crate::fixers::derive_redirect::DeriveRedirectFixer;
 use crate::fixers::hash_replace::HashReplaceFixer;
 use crate::fixers::rabbit_fx::RabbitFxFixer;
 use crate::fixers::rendering_3_3::Rendering33Fixer;
+use crate::fixers::resource_override::ResourceOverrideFixer;
 use crate::fixers::rover_fix::RoverFixer;
 use crate::fixers::rule_replace::RuleReplaceFixer;
 use crate::fixers::shapekey::ShapeKeyFixer;
@@ -56,6 +57,7 @@ pub struct ModFixer {
     pub enable_texture_override: bool,
     pub enable_stable_texture: bool,
     pub enable_fix_aemeath_mech: bool,
+    pub enable_rendering33_fix: bool,
     pub aero_fix_mode: u8,
     progress: Arc<dyn ProgressReporter>,
     cancel_flag: Arc<AtomicBool>,
@@ -67,6 +69,7 @@ impl ModFixer {
         enable_texture_override: bool,
         enable_stable_texture: bool,
         enable_fix_aemeath_mech: bool,
+        enable_rendering33_fix: bool,
         aero_fix_mode: u8,
         progress: Arc<dyn ProgressReporter>,
         cancel_flag: Arc<AtomicBool>,
@@ -76,6 +79,7 @@ impl ModFixer {
             enable_texture_override,
             enable_stable_texture,
             enable_fix_aemeath_mech,
+            enable_rendering33_fix,
             aero_fix_mode,
             progress,
             cancel_flag,
@@ -180,6 +184,7 @@ impl ModFixer {
                 original_hashes: &original_hashes,
                 enable_stable_texture: self.enable_stable_texture,
                 enable_fix_aemeath_mech: self.enable_fix_aemeath_mech,
+                enable_rendering33_fix: self.enable_rendering33_fix,
                 aero_fix_mode: self.aero_fix_mode,
                 enable_texture_override: self.enable_texture_override,
             };
@@ -195,13 +200,14 @@ impl ModFixer {
 
                 let pipeline: &[&dyn Fixer] = &[
                     &RuleReplaceFixer,
-                    &RabbitFxFixer,
                     &VertexRemapFixer,
                     &Rendering33Fixer,
                     &StrideFixer,
                     &AeroFixer,
                     &ShapeKeyFixer,
                     &RoverFixer,
+                    &RabbitFxFixer,
+                    &ResourceOverrideFixer,
                 ];
 
                 for fixer in pipeline {
@@ -210,15 +216,24 @@ impl ModFixer {
                     }
                 }
             }
+        }
 
-            // Derive Redirect
-            let cfg = crate::config_loader::config();
-            let settings = cfg.settings_ref();
+        // Derive Redirect (runs once outside the loop to aggregate all valid configs)
+        let cfg = crate::config_loader::config();
+        let settings = cfg.settings_ref();
+
+        let mut derive_configs = Vec::new();
+        for char_name in &potential_chars {
             if self.enable_texture_override || settings.state_texture_removers.contains(char_name) {
-                let derive_redirect = DeriveRedirectFixer;
-                if derive_redirect.run(&mut ctx)? {
-                    ini_modified = true;
+                if let Some(config) = self.configs.get(char_name) {
+                    derive_configs.push(config);
                 }
+            }
+        }
+
+        if !derive_configs.is_empty() {
+            if DeriveRedirectFixer::run_multi(&mut ini, &derive_configs)? {
+                ini_modified = true;
             }
         }
 

@@ -2,6 +2,8 @@ use crate::config_loader::VertexRemapConfig;
 use crate::errors::FixerError;
 use crate::fixers::traits::{Fixer, FixerContext};
 use crate::t;
+use crate::utils::vertex_remap::remap_vertex_groups;
+use crate::{collector, collector::BufferType};
 use log::info;
 use std::collections::HashSet;
 
@@ -18,88 +20,122 @@ impl Fixer for VertexRemapFixer {
             None => return Ok(false),
         };
 
-        let blend_matches = crate::collector::parse_resouce_buffer_path(
-            ctx.original_content,
-            crate::collector::BufferType::Blend,
-            ctx.file_path,
-        );
+        let blend_matches =
+            collector::parse_resource_buffer_path(ctx.original_content, BufferType::Blend, ctx.file_path);
         if blend_matches.is_empty() {
             return Ok(false);
         }
 
-        let use_merged = ctx.ini.has_section("ResourceMergedSkeleton");
-
-        let multiple = blend_matches.len() > 1;
-        let mut start_idx = None;
-        for (i, vg) in vg_remaps.iter().enumerate() {
-            if vg
-                .trigger_hash
+        let start_idx = vg_remaps.iter().position(|vg| {
+            vg.trigger_hash
                 .iter()
                 .any(|h| ctx.original_hashes.contains(&h.to_lowercase()))
-            {
-                start_idx = Some(i);
-                break;
-            }
-        }
+        });
         let start_idx = match start_idx {
             Some(idx) => idx,
             None => return Ok(false),
         };
 
-        use crate::config_loader::RemapProvider;
-
-        let temp_config = VertexRemapConfig::build_composite_remap(vg_remaps[start_idx..].iter());
-        let has_vg = temp_config.vertex_groups.is_some();
-        let has_comp = temp_config.component_remap.is_some();
-        if !has_vg && !has_comp {
+        let composite = VertexRemapConfig::build_composite_remap(vg_remaps[start_idx..].iter(), ctx.original_content);
+        if composite.vertex_groups.is_none() && composite.component_remap.is_none() {
             return Ok(false);
         }
+
+        let use_merged = ctx.ini.has_section("ResourceMergedSkeleton");
+        let multiple = blend_matches.len() > 1;
+
+        let fwd_remap_matches =
+            collector::parse_resource_buffer_path(ctx.original_content, BufferType::BlendRemapForward, ctx.file_path);
+
+        let global_vg_map = composite.vertex_groups.as_ref();
 
         let mut seen = HashSet::new();
 
         for (b_path, stride) in blend_matches {
+            let stride = match stride {
+                Some(s) => s,
+                None => continue,
+            };
             let canon = b_path.canonicalize().unwrap_or_else(|_| b_path.clone());
             if !seen.insert(canon) || !b_path.exists() {
                 continue;
             }
 
-            let fwd_path =
-                crate::collector::combile_buf_path(&b_path, &crate::collector::BufferType::BlendRemapForward);
-            let has_remap = fwd_path.exists();
+            let b_index = collector::get_buf_path_index(&b_path);
+            let fwd_entry = fwd_remap_matches
+                .iter()
+                .find(|(p, _)| collector::get_buf_path_index(p) == b_index);
+            let has_fwd = fwd_entry.is_some_and(|(p, _)| p.exists());
 
-            let mut b_data = std::fs::read(&b_path)?;
-            let res = if use_merged {
-                if ctx.char_name == "RoverMale" {
-                    if let Some(vg) = &temp_config.vertex_groups {
-                        let len = b_data.len();
-                        let changed = temp_config.remapping_vertex_groups(&mut b_data, vg, 0, len, stride);
-                        Ok(changed)
-                    } else {
-                        Ok(false)
-                    }
-                } else {
-                    temp_config.apply_remap_merged(&mut b_data, ctx.original_content, stride)
+            if has_fwd {
+                if let Some(vg_map) = &global_vg_map {
+                    let (fwd_path, _) = fwd_entry.unwrap();
+                    let mut fwd_data = std::fs::read(fwd_path)?;
+
+                    VertexRemapConfig::remap_blend_remap_forward(&mut fwd_data, vg_map);
+
+                    crate::utils::fs_utils::create_backup_once(fwd_path, ctx.backed_up)?;
+                    std::fs::write(fwd_path, &fwd_data)?;
+                    info!(
+                        "[BlendRemapForward] {}: {}",
+                        t!(remapped_successfully),
+                        fwd_path.display()
+                    );
                 }
-            } else {
-                temp_config.apply_remap_component(&mut b_data, &b_path, ctx.original_content, multiple, stride)
-            };
-
-            if let Ok(true) = res {
-                crate::utils::fs_utils::create_backup_once(&b_path, ctx.backed_up)?;
-                std::fs::write(&b_path, &b_data)?;
-                info!("{}", t!(remapped_successfully));
             }
 
-            if has_remap {
-                if let Some(vg_map) = &temp_config.vertex_groups {
-                    let mut fwd = std::fs::read(&fwd_path)?;
+            if use_merged {
+                if let Some(vg_map) = &global_vg_map {
+                    let mut b_data = std::fs::read(&b_path)?;
+                    let len = b_data.len();
+                    let changed = remap_vertex_groups(&mut b_data, vg_map, 0, len, stride);
+                    if changed {
+                        crate::utils::fs_utils::create_backup_once(&b_path, ctx.backed_up)?;
+                        std::fs::write(&b_path, &b_data)?;
+                        info!("[MergedRemap] {}: {}", t!(remapped_successfully), b_path.display());
+                    }
+                }
+            } else {
+                if let Some(regions) = &composite.component_remap {
+                    let index_path = collector::combine_buf_path(&b_path, &BufferType::Index);
+                    let buf_index_opt = collector::get_buf_path_index(&b_path);
+                    let mut comp_indices = if multiple || buf_index_opt.is_some() {
+                        collector::parse_component_indices_with_multiple(
+                            ctx.original_content,
+                            buf_index_opt.unwrap_or("0"),
+                        )
+                    } else {
+                        collector::parse_component_indices(ctx.original_content)
+                    };
+                    if comp_indices.is_empty() {
+                        comp_indices = collector::parse_component_indices(ctx.original_content);
+                    }
 
-                    VertexRemapConfig::remap_blend_remap_forward(&mut fwd, vg_map);
+                    let index_data = std::fs::read(&index_path).map_err(|e| FixerError::IoError(e))?;
+                    let mut b_data = std::fs::read(&b_path)?;
+                    let mut applied = false;
 
-                    crate::utils::fs_utils::create_backup_once(&fwd_path, ctx.backed_up)?;
-                    std::fs::write(&fwd_path, &fwd)?;
+                    for region in regions {
+                        let ci = region.component_index;
+                        if let Some(&(idx_count, idx_offset)) = comp_indices.get(&ci) {
+                            let range = collector::get_byte_range_in_buffer(idx_count, idx_offset, &index_data, stride);
+                            if let Ok((start, end)) = range {
+                                if start < end && end <= b_data.len() {
+                                    if remap_vertex_groups(&mut b_data, &region.indices, start, end, stride) {
+                                        applied = true;
+                                    }
+                                }
+                            }
+                        } else {
+                            log::warn!("Component {} not found in parsed indices", ci);
+                        }
+                    }
 
-                    info!("WWMI BlendRemapForward chained-remapped successfully");
+                    if applied {
+                        crate::utils::fs_utils::create_backup_once(&b_path, ctx.backed_up)?;
+                        std::fs::write(&b_path, &b_data)?;
+                        info!("[ComponentRemap] {}: {}", t!(remapped_successfully), b_path.display());
+                    }
                 }
             }
         }

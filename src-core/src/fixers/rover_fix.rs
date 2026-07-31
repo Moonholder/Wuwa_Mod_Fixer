@@ -115,7 +115,7 @@ impl RoverFixer {
             let mut matched_lightmap = None;
             for (new_hash, node) in &ctx.config.textures {
                 if let Some(meta) = &node.meta {
-                    if meta.id.to_string() == target_id && meta.type_ == "L" {
+                    if meta.id.iter().any(|id| id.to_string() == target_id) && meta.type_ == "L" {
                         matched_lightmap = Some((new_hash.clone(), node));
                         break;
                     }
@@ -258,9 +258,9 @@ impl RoverFixer {
         let mut is_new_ovr = false;
         if ovr_sec.is_none() {
             let mut new_sec = IniSection::new(override_name);
-            new_sec.set_key_value("hash", base_hash, "    ");
-            new_sec.set_key_value("match_priority", "0", "    ");
-            new_sec.set_key_value("this", resource_name, "    ");
+            new_sec.set_key_value("hash", base_hash, "");
+            new_sec.set_key_value("match_priority", "0", "");
+            new_sec.set_key_value("this", resource_name, "");
             ovr_sec = Some(new_sec);
             is_new_ovr = true;
             ini_modified = true;
@@ -293,7 +293,7 @@ impl RoverFixer {
         let mut hair_diffuse_hashes = HashSet::new();
         for (base_hash, node) in &ctx.config.textures {
             if let Some(meta) = &node.meta {
-                if meta.id == 0 && meta.type_ == "D" {
+                if meta.id.contains(&0) && meta.type_ == "D" {
                     hair_diffuse_hashes.insert(base_hash.to_lowercase());
                     for old_h in &node.replace {
                         hair_diffuse_hashes.insert(old_h.to_lowercase());
@@ -655,13 +655,13 @@ impl Fixer for RoverFixer {
 
         for (_, node) in &ctx.config.textures {
             if let Some(meta) = &node.meta {
-                if meta.id == 0 && meta.type_ == "D" {
+                if meta.id.contains(&0) && meta.type_ == "D" {
                     for old_h in &node.replace {
                         hair_old_hashes.push(old_h.to_lowercase());
                     }
                 }
-                let meta_id_str = meta.id.to_string();
-                if target_ids.contains(meta_id_str.as_str()) && meta.type_ == "L" {
+                let matches_target = meta.id.iter().any(|id| target_ids.contains(id.to_string().as_str()));
+                if matches_target && meta.type_ == "L" {
                     for old_h in &node.replace {
                         old_lightmap_hashes.insert(old_h.to_lowercase());
                     }

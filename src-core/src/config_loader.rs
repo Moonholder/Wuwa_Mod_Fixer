@@ -49,6 +49,7 @@ pub struct CharacterConfig {
     pub vg_remaps: Option<Vec<VertexRemapConfig>>,
     pub stride_fix: Option<StrideFix>,
     pub shapekey_fix: Option<ShapeKeyFixConfig>,
+    pub skip_components: Option<Vec<u8>>,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone)]
@@ -86,9 +87,11 @@ pub struct TextureNode {
 
 #[derive(Serialize, Deserialize, Default, Clone)]
 pub struct TextureMeta {
-    pub id: u32,
+    #[serde(deserialize_with = "deserialize_id_as_vec")]
+    pub id: Vec<u32>,
     #[serde(rename = "type")]
     pub type_: String,
+    pub slot: Option<Vec<u32>>,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone)]
@@ -580,4 +583,39 @@ where
     struct Wrapper(#[serde(deserialize_with = "deserialize_map_or_string")] HashMap<u16, u16>);
 
     Option::<Wrapper>::deserialize(deserializer).map(|opt| opt.map(|w| w.0))
+}
+
+fn deserialize_id_as_vec<'de, D>(deserializer: D) -> Result<Vec<u32>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    struct IdVisitor;
+
+    impl<'de> serde::de::Visitor<'de> for IdVisitor {
+        type Value = Vec<u32>;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("a u32 or an array of u32")
+        }
+
+        fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
+        where
+            E: serde::de::Error,
+        {
+            Ok(vec![v as u32])
+        }
+
+        fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+        where
+            A: serde::de::SeqAccess<'de>,
+        {
+            let mut ids = Vec::new();
+            while let Some(val) = seq.next_element::<u32>()? {
+                ids.push(val);
+            }
+            Ok(ids)
+        }
+    }
+
+    deserializer.deserialize_any(IdVisitor)
 }

@@ -59,16 +59,20 @@ impl AeroFixer {
             .ok_or_else(|| anyhow!("Failed to find component indices"))?;
 
         let texcoord_buf_matches =
-            collector::parse_resouce_buffer_path(content, collector::BufferType::TexCoord, ini_path);
+            collector::parse_resource_buffer_path(content, collector::BufferType::TexCoord, ini_path);
 
         let mut ret = false;
 
         for (tex_coord_path, stride) in texcoord_buf_matches {
+            let stride = match stride {
+                Some(s) => s,
+                None => continue,
+            };
             if !tex_coord_path.exists() {
                 continue;
             }
 
-            let index_path = collector::combile_buf_path(&tex_coord_path, &collector::BufferType::Index);
+            let index_path = collector::combine_buf_path(&tex_coord_path, &collector::BufferType::Index);
 
             let index_data = std::fs::read(index_path)?;
 

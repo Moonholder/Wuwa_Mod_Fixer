@@ -11,7 +11,7 @@ fn main() {
     init_panic_hook();
     let args = cli::parse_args();
     let is_cli = std::env::args().any(|a| a == "--cli");
-    let is_dev = std::env::args().any(|a| a == "--dev") || cfg!(debug_assertions);
+    let is_dev = cfg!(feature = "test-build") || cfg!(debug_assertions);
 
     // If on Windows and running in GUI mode, check WebView2 presence first
     #[cfg(target_os = "windows")]

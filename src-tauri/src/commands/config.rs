@@ -1,10 +1,11 @@
+use crate::error::AppError;
 use serde::Serialize;
 use wuwa_mod_core as core;
-use crate::error::AppError;
 
 #[tauri::command]
 pub async fn reload_remote_config() -> Result<String, AppError> {
-    core::config_loader::force_reload_remote_config().await
+    core::config_loader::force_reload_remote_config()
+        .await
         .map(|_| "Config updated".to_string())
         .map_err(|e| AppError::Network(e.to_string()))
 }
@@ -12,7 +13,8 @@ pub async fn reload_remote_config() -> Result<String, AppError> {
 // Emulates the original Iced "Refresh Config" feature
 #[tauri::command]
 pub async fn refresh_config() -> Result<ConfigMeta, AppError> {
-    core::config_loader::force_reload_remote_config().await
+    core::config_loader::force_reload_remote_config()
+        .await
         .map_err(|e| AppError::Network(e.to_string()))?;
     Ok(get_config_meta())
 }
@@ -28,6 +30,7 @@ pub struct ConfigMeta {
     pub support_url_cn: String,
     pub support_url_intl: String,
     pub app_version: String,
+    pub build_tag: Option<String>,
 }
 
 #[tauri::command]
@@ -36,10 +39,28 @@ pub fn get_config_meta() -> ConfigMeta {
     let ver = cfg.version_ref();
     ConfigMeta {
         version: ver.current_version.clone(),
-        support_url_cn: ver.support_url_cn.clone().unwrap_or_else(|| "https://support.jix.de5.net".into()),
-        support_url_intl: ver.support_url_intl.clone().unwrap_or_else(|| "https://ko-fi.com/moonholder".into()),
+        support_url_cn: ver
+            .support_url_cn
+            .clone()
+            .unwrap_or_else(|| "https://support.jix.de5.net".into()),
+        support_url_intl: ver
+            .support_url_intl
+            .clone()
+            .unwrap_or_else(|| "https://ko-fi.com/moonholder".into()),
         app_version: env!("CARGO_PKG_VERSION").to_string(),
+        build_tag: get_build_tag(),
     }
+}
+
+#[cfg(feature = "test-build")]
+fn get_build_tag() -> Option<String> {
+    let hash = env!("BUILD_GIT_HASH");
+    if hash.is_empty() { None } else { Some(hash.to_string()) }
+}
+
+#[cfg(not(feature = "test-build"))]
+fn get_build_tag() -> Option<String> {
+    None
 }
 
 /// Returns the system-detected locale with region info (e.g. "zh-TW", "ja-JP", "ko-KR").
@@ -49,7 +70,9 @@ pub fn get_config_meta() -> ConfigMeta {
 pub fn get_detected_locale() -> String {
     // If user has a saved preference, honour it
     if let Some(lang) = core::settings::load_settings().language {
-        if !lang.is_empty() { return lang; }
+        if !lang.is_empty() {
+            return lang;
+        }
     }
     // Return the raw OS locale (preserves region, e.g. "zh-TW")
     core::localization::config::get_raw_locale()
@@ -63,20 +86,19 @@ pub fn is_chinese_mainland() -> bool {
 }
 
 #[tauri::command]
-pub fn get_intro_logs(lang: Option<String>) -> Vec<String> {
+pub fn get_intro_logs(lang: Option<String>) -> Result<Vec<String>, String> {
     // Use the provided lang or fallback to auto-detected
     let lang = lang.unwrap_or_else(|| core::localization::config::get_lang());
-    vec![
+    Ok(vec![
         core::localization::config::get_text("title", &lang),
         core::localization::config::get_text("intro", &lang),
         core::localization::config::get_text("intro_note", &lang),
         core::localization::config::get_text("compatibility_note", &lang),
         core::localization::config::get_text("graphics_setting_note", &lang),
-    ]
+    ])
 }
 
 #[tauri::command]
 pub fn get_os() -> String {
     std::env::consts::OS.to_string()
 }
-

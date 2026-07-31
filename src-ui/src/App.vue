@@ -30,7 +30,8 @@ const configMeta = ref({
   version: 'Loading...',
   support_url_cn: 'https://support.jix.de5.net',
   support_url_intl: 'https://ko-fi.com/moonholder',
-  app_version: 'Loading...'
+  app_version: 'Loading...',
+  build_tag: null as string | null,
 })
 
 const isPickingFolder = ref(false)
@@ -44,6 +45,7 @@ let unlistenConfig: UnlistenFn | null = null
 const options = ref({
   enableTextureOverride: false,
   enableStableTexture: false,
+  enableRendering33Fix: false,
   enableFixAemeathMech: false,
   aeroFixMode: 0,
 })
@@ -91,6 +93,18 @@ function toggleAeroFixMode() {
     options.value.aeroFixMode = 1
     setTimeout(() => {
       const el = document.getElementById('aero-fix-card')
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
+    }, 120)
+  }
+}
+
+function toggleRendering33Fix() {
+  options.value.enableRendering33Fix = !options.value.enableRendering33Fix
+  if (options.value.enableRendering33Fix) {
+    setTimeout(() => {
+      const el = document.getElementById('rendering-33-fix-card')
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
       }
@@ -305,7 +319,8 @@ onUnmounted(() => {
       <div class="pointer-events-none flex items-center gap-2 select-none">
         <img src="/app-icon.png" class="w-4 h-4 object-contain" alt="Logo" />
         <span class="text-[11px] font-medium text-zinc-700 dark:text-zinc-300 h-4 flex items-center">Wuwa Mod Fixer</span>
-        <span v-if="isDev" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 uppercase tracking-wider scale-90 origin-left">DEV</span>
+        <span v-if="configMeta.build_tag" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/25 uppercase tracking-wider scale-90 origin-left">TEST {{ configMeta.build_tag }}</span>
+        <span v-else-if="isDev" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 uppercase tracking-wider scale-90 origin-left">DEV</span>
       </div>
 
       <div class="flex h-full items-center" style="-webkit-app-region: no-drag;">
@@ -429,6 +444,46 @@ onUnmounted(() => {
                     <button class="pointer-events-none relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out shadow-inner" :class="options.enableStableTexture ? ((options.enableTextureOverride || fix.running) ? 'bg-blue-600/40 dark:bg-blue-500/30' : 'bg-blue-600 dark:bg-blue-500') : 'bg-zinc-200 dark:bg-zinc-700'"><span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-1 ring-black/5 transition-transform duration-200 ease-in-out" :class="options.enableStableTexture ? 'translate-x-4' : 'translate-x-0'"></span></button>
                   </div>
 
+                  <div 
+                    id="rendering-33-fix-card" 
+                    @click="!fix.running && toggleRendering33Fix()" 
+                    class="cursor-pointer p-4 rounded-[10px] border border-zinc-200/80 dark:border-white/5 bg-white/50 dark:bg-[#101115]/50 transition-all hover:bg-zinc-50 dark:hover:bg-[#1a1b22] active:scale-[0.99] duration-200 select-none" 
+                    :class="{'pointer-events-none opacity-60': fix.running}"
+                  >
+                    <div class="flex gap-4 items-start">
+                      <div class="flex-1">
+                        <div class="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200">
+                          {{ $t('options.rendering_3_3') }}
+                        </div>
+
+                        <div v-if="options.enableRendering33Fix" class="text-[11px] text-amber-600 dark:text-amber-400 mt-0.5 font-medium leading-tight">
+                          {{ $t('options.rendering_3_3_warn') }}
+                        </div>
+                      </div>
+
+                      <button 
+                        class="pointer-events-none relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out shadow-inner mt-0.5" 
+                        :class="options.enableRendering33Fix ? (fix.running ? 'bg-amber-600/40 dark:bg-amber-500/30' : 'bg-amber-500 dark:bg-amber-500') : 'bg-zinc-200 dark:bg-zinc-700'"
+                      >
+                        <span 
+                          class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-1 ring-black/5 transition-transform duration-200 ease-in-out" 
+                          :class="options.enableRendering33Fix ? 'translate-x-4' : 'translate-x-0'"
+                        ></span>
+                      </button>
+                    </div>
+
+                    <div v-if="options.enableRendering33Fix" @click.stop class="mt-3 animate-in fade-in duration-200">
+                      <div class="pt-2.5 border-t border-zinc-100 dark:border-white/5 text-[10.5px] text-zinc-500 dark:text-zinc-400 font-normal leading-relaxed flex items-start gap-1.5">
+                        <svg class="w-3.5 h-3.5 shrink-0 mt-[1px] text-amber-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <span class="flex-1">
+                          {{ $t('options.rendering_3_3_desc') }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
                   <div @click="!fix.running && (options.enableFixAemeathMech = !options.enableFixAemeathMech)" class="cursor-pointer p-4 rounded-[10px] border border-zinc-200/80 dark:border-white/5 bg-white/50 dark:bg-[#101115]/50 transition-all hover:bg-zinc-50 dark:hover:bg-[#1a1b22] active:scale-[0.99] duration-200 flex gap-4 items-start" :class="{'pointer-events-none': fix.running}">
                     <div class="flex-1">
                       <div class="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200">{{ $t('options.aemeath_mech') || 'Fix Aemeath Mech' }}</div>
@@ -521,7 +576,7 @@ onUnmounted(() => {
           </div>
           <span class="text-zinc-300 dark:text-zinc-800">|</span>
           <span class="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 font-semibold">
-            v{{ configMeta.app_version }} (cfg: {{ configMeta.version }})<span v-if="isDev" class="text-amber-500 dark:text-amber-400 font-bold ml-1">[DEV]</span>
+            v{{ configMeta.app_version }} (cfg: {{ configMeta.version }})<span v-if="configMeta.build_tag" class="text-sky-500 dark:text-sky-400 font-bold ml-1">[TEST {{ configMeta.build_tag }}]</span><span v-else-if="isDev" class="text-amber-500 dark:text-amber-400 font-bold ml-1">[DEV]</span>
           </span>
         </div>
         

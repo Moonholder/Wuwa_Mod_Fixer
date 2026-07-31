@@ -55,7 +55,7 @@ impl IniSection {
     /// 设置键值对。若已存在，则更新值并保留原行缩进；若不存在，则在末尾追加并应用备用缩进
     pub fn set_key_value(&mut self, key: &str, value: &str, fallback_indent: &str) {
         if !self.update_existing_key(key, value) {
-            self.lines.push(format!("{}{} = {}", fallback_indent, key, value));
+            self.push_line_tight(format!("{}{} = {}", fallback_indent, key, value));
         }
     }
 
@@ -64,6 +64,20 @@ impl IniSection {
         if !self.update_existing_key(key, value) {
             self.lines.insert(0, format!("{}{} = {}", fallback_indent, key, value));
         }
+    }
+
+    /// 在当前 Section 紧凑地插入新行（即忽略末尾的空行，将其插入在最后一个实际内容之后）
+    pub fn push_line_tight(&mut self, line: String) {
+        let mut insert_idx = self.lines.len();
+        while insert_idx > 0 && self.lines[insert_idx - 1].trim().is_empty() {
+            insert_idx -= 1;
+        }
+        self.lines.insert(insert_idx, line);
+    }
+
+    /// 紧凑地追加一个键值对，允许多个同名 Key 存在（不进行存在性检查与更新）
+    pub fn push_key_value_tight(&mut self, key: &str, value: &str, indent: &str) {
+        self.push_line_tight(format!("{}{} = {}", indent, key, value));
     }
 
     /// 移除指定的 Key，成功移除返回 true

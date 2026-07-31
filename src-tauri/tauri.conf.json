@@ -1,6 +1,6 @@
 {
   "productName": "Wuwa_Mod_Fixer",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "identifier": "com.moonholder.wuwa-mod-fixer",
   "build": {
     "frontendDist": "../src-ui/dist",

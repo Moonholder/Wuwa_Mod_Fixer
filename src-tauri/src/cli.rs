@@ -15,6 +15,7 @@ pub struct CliArgs {
     pub derived_hashes: bool,
     pub stable_texture: bool,
     pub aemeath_mech: bool,
+    pub rendering_33: bool,
     pub aero_fix:     u8,
     pub online:       bool,
     pub rollback:     bool,
@@ -24,7 +25,7 @@ pub fn parse_args() -> CliArgs {
     let args: Vec<String> = std::env::args().collect();
     let mut result = CliArgs {
         path: None, config: None, derived_hashes: false, stable_texture: false,
-        aemeath_mech: false, aero_fix: 0, online: false, rollback: false,
+        aemeath_mech: false, rendering_33: false, aero_fix: 0, online: false, rollback: false,
     };
     let mut i = 1;
     while i < args.len() {
@@ -56,6 +57,7 @@ pub fn parse_args() -> CliArgs {
             "--derived-hashes"  => { result.derived_hashes = true; i += 1; }
             "--stable-texture"  => { result.stable_texture  = true; i += 1; }
             "--aemeath-mech"    => { result.aemeath_mech    = true; i += 1; }
+            "--rendering-33"    => { result.rendering_33    = true; i += 1; }
             "--online"          => { result.online           = true; i += 1; }
             "--rollback"        => { result.rollback         = true; i += 1; }
             "--aero-fix" => {
@@ -117,6 +119,8 @@ pub fn run_direct_fix(args: &CliArgs) {
         if args.stable_texture { "✓" } else { "✗" });
     println!("  {}: {}", core::tr!("修复爱弥斯机兵", "Aemeath Mech Fix"),
         if args.aemeath_mech { "✓" } else { "✗" });
+    println!("  {}: {}", core::tr!("模组破洞/部位缺失修复", "Fix Mesh Holes/Missing Parts"),
+        if args.rendering_33 { "✓" } else { "✗" });
     println!("  {}: {}", core::tr!("风主眼部修复", "Aero Eye Fix"),
         match args.aero_fix {
             1 => core::tr!("TexCoord 覆盖", "TexCoord Override"),
@@ -131,7 +135,7 @@ pub fn run_direct_fix(args: &CliArgs) {
     let fixer = core::ModFixer::new(
         core::config_loader::config().characters_ref(),
         args.derived_hashes, args.stable_texture,
-        args.aemeath_mech, args.aero_fix,
+        args.aemeath_mech, args.rendering_33, args.aero_fix,
         progress,
         cancel_token,
     );
@@ -263,6 +267,12 @@ fn run_fix_flow(settings: &mut UserSettings) {
         "Do not enable this function for Aemeath mech mods that are already normal, do not repeat the fix"
     ));
 
+    println!("  \x1b[1m{}\x1b[0m", core::tr!("模组破洞/部位缺失修复", "Fix Mesh Holes / Missing Parts"));
+    println!("    \x1b[90m{}\x1b[0m", core::tr!(
+        "修复在游戏 3.3 版本后因为旧Mod中Color1的脏数据导致身体部位未显示或破洞的问题。",
+        "Fix missing body parts or mesh holes caused by old WWMI export data after version 3.3+."
+    ));
+
     println!("  \x1b[1m{}\x1b[0m", core::tr!("女漂-风主形态眼部修复", "Aero FemaleRover Eye Fix (eyes glitch when resonance energy is full)"));
     println!("    \x1b[90m{}\x1b[0m\n", core::tr!(
         "确保你的 mod 存在此问题，否则不要开启!",
@@ -272,6 +282,7 @@ fn run_fix_flow(settings: &mut UserSettings) {
     let opt_tex     = core::tr!("补全贴图状态", "Add Derived Hashes").to_string();
     let opt_stable  = core::tr!("应用稳定纹理", "Apply Stable Texture").to_string();
     let opt_aemeath = core::tr!("修复爱弥斯机兵形态的模型异常", "Fix Aemeath's mech form model error").to_string();
+    let opt_rendering = core::tr!("模组破洞/部位缺失修复", "Fix Mesh Holes / Missing Parts").to_string();
     let opt_aero    = core::tr!("女漂-风主形态眼部修复", "Aero FemaleRover Eye Fix").to_string();
 
     let opt_tx2 = opt_tex.clone();
@@ -289,7 +300,7 @@ fn run_fix_flow(settings: &mut UserSettings) {
 
     let selected = match MultiSelect::new(
         core::tr!("选择额外修复选项 (空格勾选, 回车确认):", "Select extra fix options (Space toggle, Enter confirm):"),
-        vec![&opt_tex, &opt_stable, &opt_aemeath, &opt_aero],
+        vec![&opt_tex, &opt_stable, &opt_aemeath, &opt_rendering, &opt_aero],
     ).with_validator(validator).prompt() {
         Ok(s) => s,
         Err(_) => return,
@@ -298,6 +309,7 @@ fn run_fix_flow(settings: &mut UserSettings) {
     let enable_tex     = selected.contains(&&opt_tex);
     let enable_stable  = selected.contains(&&opt_stable);
     let enable_aemeath = selected.contains(&&opt_aemeath);
+    let enable_rendering = selected.contains(&&opt_rendering);
     let enable_aero    = selected.contains(&&opt_aero);
 
     let aero_mode = if enable_aero {
@@ -315,7 +327,7 @@ fn run_fix_flow(settings: &mut UserSettings) {
     let cancel_token = Arc::new(AtomicBool::new(false));
     let fixer = core::ModFixer::new(
         core::config_loader::config().characters_ref(),
-        enable_tex, enable_stable, enable_aemeath, aero_mode, progress, 
+        enable_tex, enable_stable, enable_aemeath, enable_rendering, aero_mode, progress, 
         cancel_token,
     );
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {

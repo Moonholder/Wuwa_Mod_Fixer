@@ -32,6 +32,10 @@ inquire      = "0.7"
 arc-swap.workspace = true
 
 
+[features]
+default = []
+test-build = []
+
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = ["Win32_System_Console", "Win32_System_Registry", "Win32_Foundation", "Win32_System_Threading", "Win32_Security", "Win32_Storage_FileSystem"] }
 

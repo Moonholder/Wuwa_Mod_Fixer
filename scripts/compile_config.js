@@ -29,8 +29,17 @@ if (data && data.characters) {
             for (const texHash in charConfig.textures) {
                 if (!Object.prototype.hasOwnProperty.call(charConfig.textures, texHash)) continue;
                 const texNode = charConfig.textures[texHash];
-                if (texNode && texNode.meta && texNode.meta.id !== undefined) {
-                    texNode.meta.id = Number(texNode.meta.id);
+                if (texNode.meta) {
+                    if (texNode.meta.id !== undefined) {
+                        if (Array.isArray(texNode.meta.id)) {
+                            texNode.meta.id = texNode.meta.id.map(Number);
+                        } else {
+                            texNode.meta.id = Number(texNode.meta.id);
+                        }
+                    }
+                    if (Array.isArray(texNode.meta.slot)) {
+                        texNode.meta.slot = texNode.meta.slot.map(Number);
+                    }
                 }
             }
         }
@@ -55,6 +64,11 @@ if (data && data.characters) {
             if (sk.new_vertex_count !== undefined) sk.new_vertex_count = Number(sk.new_vertex_count);
             if (sk.offset_stride !== undefined) sk.offset_stride = Number(sk.offset_stride);
             if (sk.custom_values_array !== undefined) sk.custom_values_array = Number(sk.custom_values_array);
+        }
+
+        // 4. Convert skip_components array elements back to Number
+        if (Array.isArray(charConfig.skip_components)) {
+            charConfig.skip_components = charConfig.skip_components.map(Number);
         }
     }
 }

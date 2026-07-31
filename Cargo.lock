@@ -5975,7 +5975,7 @@ dependencies = [
 
 [[package]]
 name = "wuwa-mod-core"
-version = "3.5.0"
+version = "3.5.1"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -6001,7 +6001,7 @@ dependencies = [
 
 [[package]]
 name = "wuwa-mod-tauri"
-version = "3.5.0"
+version = "3.5.1"
 dependencies = [
  "anyhow",
  "arc-swap",

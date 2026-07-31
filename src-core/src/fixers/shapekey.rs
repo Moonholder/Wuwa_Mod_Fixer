@@ -55,17 +55,17 @@ impl Fixer for ShapeKeyFixer {
             }
         }
 
-        let offsets = collector::parse_resouce_buffer_path(
+        let offsets = collector::parse_resource_buffer_path(
             ctx.original_content,
             collector::BufferType::ShapeKeyOffset,
             ctx.file_path,
         );
-        let vertex_ids = collector::parse_resouce_buffer_path(
+        let vertex_ids = collector::parse_resource_buffer_path(
             ctx.original_content,
             collector::BufferType::ShapeKeyVertexId,
             ctx.file_path,
         );
-        let vertex_offsets = collector::parse_resouce_buffer_path(
+        let vertex_offsets = collector::parse_resource_buffer_path(
             ctx.original_content,
             collector::BufferType::ShapeKeyVertexOffset,
             ctx.file_path,

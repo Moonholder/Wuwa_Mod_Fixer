@@ -46,10 +46,10 @@ pub fn make_bc7_opaque(input_path: &Path, output_path: &Path, backed_up_mutex: &
                 bits |= mask;
             }
             6 => {
-                bits |= 0xFFFF << 49;
+                bits |= 0x3FFF << 49;
             }
             7 => {
-                bits |= 0xFFFFF << 68;
+                bits |= 0xFFFFF << 74;
             }
             _ => {} // Mode 0,1,2,3 无 Alpha 通道，跳过
         }
