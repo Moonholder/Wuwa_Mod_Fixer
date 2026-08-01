@@ -214,7 +214,6 @@ characters:
       08d1fee9: {replace: [12566ee7]}
       7b4b87ee: {replace: [875a537d]}
       69eee297: {replace: [764ddd34]}
-      ab9067bf: {replace: [913631e7]}
       c6acaf94: {replace: [6a73cfad]}
       c6a3d0b6: {replace: [8b228d89]}
       970c252e: {replace: [f14c6a63]}
@@ -252,7 +251,6 @@ characters:
       11555cd8: {meta: {id: 6, type: N}, replace: [d95ba1d3], derive: {LOD: [cc0ac2ff,3de377bf]}}
       94ede714: {replace: [08cbd7b6]}
       f9f7219e: {replace: [0ff7625a]}
-      ab9067bf: {replace: [913631e7]}
       58d2165a: {replace: [6cf0c8eb]}
   AemeathMechaSpear:
     main_hashes:
