@@ -40,7 +40,7 @@ lang:
       * 修复勾选'补全贴图状态'重复触发修复的问题
       * 修复主角使用修复后头发还存在杂色的问题 - 需回滚修复
       * 新增额外的修复选项'模组破洞/部位缺失修复'
-      * 画面细节高/中(LOD Bias) 派生hash更新: 赞妮 琳奈 莫宁 达妮娅 绯雪 露西 丽贝卡
+      * 画面细节高/中(LOD Bias) 派生hash更新: 赞妮 琳奈 莫宁 达妮娅 绯雪 露西 丽贝卡 陆赫斯
       * 稳定纹理更新: 爱弥斯/机兵 奥古斯塔/大剑 柯莱塔 坎特蕾菈的伞 长离 达妮娅 安可 尤诺 今汐 忌炎 凌阳 露帕 陆赫斯 琳奈/皮肤 露西 莫宁 男主皮肤 洛可可 丽贝卡 守岸人 西格莉卡 赞妮 渊武
 
     en: |+
@@ -52,7 +52,7 @@ lang:
       * Fixed duplicate fix triggers when 'Add Derived Hashes' is checked.
       * Fixed Rover's hair still having color noise after the fix - requires rollback fix.
       * Added an additional fix option 'Mod Hole/Missing Part Fix'.
-      * High/Medium LOD Bias derived hash updates: Zanni, Lynae, Mornye, Denia, Hiyuki, Lucy, Rebecca.
+      * High/Medium LOD Bias derived hash updates: Zanni, Lynae, Mornye, Denia, Hiyuki, Lucy, Rebecca Luuk.
       * Stable texture updates: Aemeath/Mecha, Augusta/Sword, Carlotta, Cantarella_Umbrella, Changli, Denia, Encore, Iuno, Jinhsi, Jiyan, Lingyang, Lupa, Luuk, Lynae/Skin, Lucy, Mornye, MRoverSkin1, Roccia, Rebecca, Shorekeeper, Sigrika, Zanni, Yuanwu.
 
   intro_note:
@@ -1261,32 +1261,32 @@ characters:
       - {old: [3bbfa5a0], new: f16f00ed}
     skip_components: [7]
     textures:
-      e74884cc: {meta: {id: 0, type: D}, replace: [ee87d588]}
-      efa1c5fe: {meta: {id: 0, type: L}, replace: [44a7d030]}
+      e74884cc: {meta: {id: 0, type: D}, replace: [ee87d588], derive: {LOD: [3a171aeb,8d6eef63]}}
+      efa1c5fe: {meta: {id: 0, type: L}, replace: [44a7d030], derive: {LOD: [69f700fa,baab277c]}}
       2845cb12: {replace: [61c8b5d0]}
-      0f43c23c: {meta: {id: 1, type: D}, replace: [9b6c0a01]}
-      e0a195cd: {meta: {id: 1, type: L}, replace: [cbef30ae]}
+      0f43c23c: {meta: {id: 1, type: D}, replace: [9b6c0a01], derive: {LOD: [d21c5c1b,af0d30e6]}}
+      e0a195cd: {meta: {id: 1, type: L}, replace: [cbef30ae], derive: {LOD: [66f750c9,25ba7513]}}
       3d6c1d8f: {replace: [63aad023]}
-      612cd71f: {meta: {id: 2, type: D}, replace: [205a6c11]}
-      dca390b7: {meta: {id: 3, type: D}, replace: [1aab24c3]}
-      8c0477bc: {meta: {id: 3, type: L}, replace: [55d1429f]}
-      1b1a2c99: {meta: {id: 3, type: N}, replace: [75044bfc]}
-      7769baf5: {meta: {id: 3, type: M}}
-      2d780faa: {meta: {id: 4, type: D}, replace: [51e24364]}
-      a9483192: {meta: {id: 4, type: L}, replace: [824080cb]}
-      57566e20: {meta: {id: 4, type: N}, replace: [20682b3f]}
-      74f74bf2: {meta: {id: 4, type: M}}
-      c3e7bbd3: {meta: {id: 5, type: D}, replace: [71659245]}
-      fa17d24b: {meta: {id: 5, type: L}, replace: [0474775e]}
-      b586ff08: {replace: [3ad28d2a]}
-      655d5084: {meta: {id: 5, type: N}, replace: [b17ad082]}
-      dba27b64: {meta: {id: 5, type: M}}
-      70bb6f8e: {meta: {id: 6, type: D}, replace: [dc3785f8]}
-      64fa4655: {meta: {id: 6, type: L}, replace: [9e5a4789]}
-      a9f7614b: {meta: {id: 6, type: N}, replace: [c53088e7]}
-      7fa978b6: {meta: {id: 6, type: M}, replace: [b1ed5893]}
+      612cd71f: {meta: {id: 2, type: D}, replace: [205a6c11], derive: {LOD: [f30a09d2,65ee39af]}}
+      dca390b7: {meta: {id: 3, type: D}, replace: [1aab24c3], derive: {LOD: [01fc0e90,7bae4a06]}}
+      8c0477bc: {meta: {id: 3, type: L}, replace: [55d1429f], derive: {LOD: [515be99b,2a8ecde6]}}
+      1b1a2c99: {meta: {id: 3, type: N}, replace: [75044bfc], derive: {LOD: [c645b2be,ae6c9016]}}
+      7769baf5: {meta: {id: 3, type: M}, derive: {LOD: [aa3624d2,138fe85e]}}
+      2d780faa: {meta: {id: 4, type: D}, replace: [51e24364], derive: {LOD: [f027918d,560c8a08]}}
+      a9483192: {meta: {id: 4, type: L}, replace: [824080cb], derive: {LOD: [7417afb5,4c29939c]}}
+      57566e20: {meta: {id: 4, type: N}, replace: [20682b3f], derive: {LOD: [8a09f007,ecf6c36c]}}
+      74f74bf2: {meta: {id: 4, type: M}, derive: {LOD: [a9a8d5d5,47bb4149]}}
+      c3e7bbd3: {meta: {id: 5, type: D}, replace: [71659245], derive: {LOD: [1eb825f4,26eff430]}}
+      fa17d24b: {meta: {id: 5, type: L}, replace: [0474775e], derive: {LOD: [27484c6c,37d97bdd]}}
+      b586ff08: {replace: [3ad28d2a], derive: {LOD: [27a021c5,690f9352]}}
+      655d5084: {meta: {id: 5, type: N}, replace: [b17ad082], derive: {LOD: [b802cea3,d5b53375]}}
+      dba27b64: {meta: {id: 5, type: M}, derive: {LOD: [06fde543,51f0c0f3]}}
+      70bb6f8e: {meta: {id: 6, type: D}, replace: [dc3785f8], derive: {LOD: [e29db143,a66e567f]}}
+      64fa4655: {meta: {id: 6, type: L}, replace: [9e5a4789], derive: {LOD: [f6dc9898,0b0bf437]}}
+      a9f7614b: {meta: {id: 6, type: N}, replace: [c53088e7], derive: {LOD: [3bd1bf86,a626e864]}}
+      7fa978b6: {meta: {id: 6, type: M}, replace: [b1ed5893], derive: {LOD: [ed8fa67b,a55298d3]}}
       c7ff81be: {replace: [93dfc47e]}
-      434e4184: {meta: {id: 7, type: D}, replace: [6946794b]}
+      434e4184: {meta: {id: 7, type: D}, replace: [6946794b], derive: {LOD: [d1689f49,a57a599b]}}
   LuukScalpel:
     main_hashes:
       - {old: [8bf0df9e], new: 8bf0df9e}
@@ -1320,7 +1320,7 @@ characters:
       c3375aee: {meta: {id: 6, type: D, slot: [9]}, replace: [211e50f4, 37cdf366], derive: {LOD: [1e68c4c9,e7957220], Gacha: [4311c0b1, 09105c98, 22b1401f, '28025e54']}}
       4f1d5285: {meta: {id: 6, type: L}, replace: [7aa57b2c], derive: {LOD: [9242cca2,67c09873]}}
       cecc13eb: {meta: {id: 6, type: N}, replace: [391a7fde, ba2b09a1], derive: {LOD: [13938dcc,bbf759b3], Gacha: [9e6a91bc, 28ae13d3]}}
-      c49bec43: {meta: {id: 6, type: M}, derive: {LOD: [19c47264,607d713e]}}
+      c49bec43: {meta: {id: 6, type: M, slot: [8]}, derive: {LOD: [19c47264,607d713e]}}
       a004a399: {meta: {id: 7, type: D}, replace: [cb04a3d7, c84b599c], derive: {LOD: [32227d54,3a054ed9], Gacha: [47700ba0, be16f064, bc4c1d22, c62d648, '61138305']}}
       8e20c909: {replace: [347a41a2], derive: {LOD: [537f572e, 2d50f344]}}
       47df9d42: {replace: [f45cea79], derive: {LOD: [9a800365, eccd0754]}}
