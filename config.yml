@@ -197,6 +197,7 @@ characters:
       22932116: {meta: {id: 3, type: D}, replace: [f58624fb], derive: {LOD: [1fd24d90], Charged: [86c4b5fd]}}
       c154eedc: {meta: {id: 3, type: L}, replace: [79081b2b]}
       c0c34a21: {meta: {id: 3, type: N}, replace: [fda934b4]}
+      1944212c: {meta: {id: 3, type: M}}
       a576ce3e: {meta: {id: 4, type: D}, replace: [3a5a08ac], derive: {LOD: [7e6c8d99], Charged: [a54870d2]}}
       50522981: {meta: {id: 4, type: L}, replace: [b3927ca5]}
       c045cf76: {meta: {id: 4, type: N}, replace: [0eb70c8f, 157217af]}
@@ -298,6 +299,7 @@ characters:
       41bd7de9: {replace: [1cb4f62d], derive: {LOD: [316ee5f3]}}
       d935ddc1: {replace: [1af65e52]}
       b5ddc0b1: {replace: [6a277b4b]}
+      c1c1061e: {replace: [028f5639]}
   AugustaSword:
     main_hashes:
       - {old: [300c0bc2], new: 300c0bc2}
@@ -476,7 +478,7 @@ characters:
       08d3e652: {meta: {id: 1, type: L}, replace: [333ad4cc], derive: {LOD: [ee654aeb, 803ae598]}}
       259644f5: {meta: {id: 1, type: N}, replace: [10d7620f, ee96e964], derive: {LOD: [33c97743, c63ffae5]}}
       f5b3ad19: {meta: {id: 2, type: D}, replace: [abea3993, fd016c75], derive: {LOD: [205ef252, 6978ec78]}}
-      3a965001: {replace: [aff53965, 463ab246], derive: {LOD: [9b652c61, 424e166f]}}
+      3a965001: {meta: {id: 2, type: L}, replace: [aff53965, 463ab246], derive: {LOD: [9b652c61, 424e166f]}}
       7de7b837: {meta: {id: 2, type: N}, replace: [1874bd89, 27abb610], derive: {LOD: [faf42837, 99713eb2]}}
       d9a09450: {meta: {id: 3, type: D}, replace: [129c321d, c7918746], derive: {LOD: [1ace1961, fe16e9c4]}}
       2dc9e723: {replace: [c83f222f]}
@@ -639,6 +641,7 @@ characters:
       a5da2563: {replace: [c7beddc7]}
       2694816c: {replace: [fbcb1f4b]}
       bb708c4d: {replace: [4c7e5ddf]}
+      d02cdbaa: {replace: [247f4c84]}
   Chixia:
     main_hashes:
       - {old: [1606ae41], new: 1606ae41}
@@ -738,22 +741,7 @@ characters:
       7766a196: {replace: [11315dc1, b4618a2b], derive: {LOD: [8317830c, 11ec00da]}}
       2311b835: {replace: [d35da2f0, 7c720662], derive: {LOD: [417b7c3d, ac78f338]}}
       b25de1d7: {replace: [8ae06cff, f56dbcb4], derive: {LOD: [18c6b232, 87f27fb9]}}
-  Denia(LiberationForm):
-    main_hashes:
-      - {old: [89d30421], new: 89d30421}
-    textures:
-      50a229fd: {meta: {id: 0, type: D}, replace: [97064dd7], derive: {LOD: [8dfdb7da,9dbe18b2]}}
-      991fed0d: {meta: {id: 1, type: D}, replace: [ee083830], derive: {LOD: [4440732a,ea1cb8db]}}
-      3ead6468: {meta: {id: 2, type: D}, replace: [698223c8], derive: {LOD: [e3f2fa4f,53c379d2]}}
-      768107b7: {meta: {id: 2, type: L}, replace: [4d03e84c], derive: {LOD: [abde9990,17cb6392]}}
-      6172fc3c: {meta: {id: 2, type: N}, replace: [2bee1723], derive: {LOD: [bc2d621b,b299ba53]}}
-      4a6f7e7e: {meta: {id: 2, type: M}, derive: {LOD: [9730e059,f52b82a3]}}
-      74b77ed7: {meta: {id: 3, type: D}, replace: [a000a7dd], derive: {LOD: [a9e8e0f0,79b3018d]}}
-      0eaf2115: {meta: {id: 3, type: L}, replace: [bee4b470], derive: {LOD: [d3f0bf32,ffd07380]}}
-      2e562077: {meta: {id: 3, type: N}, replace: [66d49b87], derive: {LOD: [f309be50,490a957e]}}
-      0e92d2b6: {meta: {id: 3, type: M}, derive: {LOD: [d3cd4c91,eed6b320]}}
-      022aab80: {replace: [1a7930f9], derive: {LOD: [847c6e84,f0456f2a]}}
-      f0b9c66b: {derive: {LOD: [629f18a6,aab5a104]}}
+
   Denia:
     main_hashes:
       - {old: [077c8876], new: 8287b2f2}
@@ -772,7 +760,7 @@ characters:
     vg_remaps:
       - {trigger_hash: [077c8876], vertex_groups: '73:93,74:94,75:95,76:96,77:97,78:98,79:99,80:100,81:101,82:102,83:103,84:104,85:105,86:106,87:107,88:108,89:109,90:110,91:111,92:112,93:113,94:114,95:115,96:116,97:117,98:118,99:119,100:120,101:121,102:122,103:123,104:124,105:125,106:126,107:127,108:128,109:129,110:130,111:131,112:132,113:133,114:134,115:135,116:136,117:137,118:138,119:139,120:140,121:141,122:142,123:143,124:144,125:145,126:146,127:147,128:148,129:149,130:150,131:151,132:152,133:153,134:154,135:155,136:156,137:157,138:158,139:159,140:160,141:161,142:162,143:163,144:164,145:165,146:166,147:167,148:168,149:169,150:170,151:171,152:172,153:173,154:174,155:175,156:176,157:177,158:178,159:179,160:180,161:181,162:182,163:183,164:184,165:185,166:186,167:187,168:188,169:189,170:190,171:191,172:192,173:193,174:194,175:195,176:196,177:197,178:198,179:199,180:200,181:201,182:202,183:203,184:204,185:205,186:206,187:207,188:208,189:209,190:210,191:211,192:212,193:213,194:214,195:215,196:216,197:217,198:218,199:219,200:220,201:221,202:222,203:223,204:224,205:225,206:226,207:227,208:228,209:229,210:230,211:231,212:232,213:233,214:234,215:235,216:236,217:237,218:238,219:239,220:240,221:241,222:242,223:243,224:244,225:245,229:249,230:250,231:251,232:252,233:253,234:254,235:255,236:256,237:257,238:258,239:259,240:260,241:261,242:262,243:263,244:264,245:265,246:266,247:267,248:268,249:269,250:270,251:271,252:272,253:273,254:274,255:275,256:276,257:277,258:278,259:279,260:280,261:281,262:282,263:283,264:284,265:285,266:286,267:287,268:288,269:289,270:290,271:291,272:292,273:293,274:294,275:295,276:296,277:297,278:298,279:299,280:300,281:301,282:302,283:303,284:304,285:305,286:306,287:307,288:308,289:309,290:310,291:311,292:312,293:313,294:314,295:315,296:316,297:317,298:318,299:319,300:320,301:321,302:322,303:323,304:324,305:325,306:326,307:327,308:328,309:329,310:330,311:331,312:332,313:333,314:334,315:335,316:336,317:337,318:338,319:339,320:340,321:341,322:342,323:343,324:344,325:345,326:346,327:347,328:348,329:349,330:350,331:351,332:352,333:353,334:354'}
     textures:
-      083895b3: {meta: {id: 0, type: D}, replace: [09d68397], derive: {LOD: [d5670b94,f0b9c66b]}}
+      083895b3: {meta: {id: 0, type: D}, replace: [09d68397], derive: {LOD: [d5670b94,f0b9c66b,629f18a6,aab5a104]}}
       5b44af6d: {replace: [62181364], derive: {LOD: [dd126a69, 06822233]}}
       324c2f74: {replace: [798458c9]}
       b07466a5: {meta: {id: 1, type: D}, replace: [79bfbc77], derive: {LOD: [6d2bf882,4e71ebae]}}
@@ -796,6 +784,29 @@ characters:
       9fe54c83: {replace: [761177f1], derive: {LOD: [19b38987,321e6d82]}}
       0ae01980: {replace: [0db20298], derive: {LOD: [8cb6dc84,4bd77ad2]}}
       ce55add8: {replace: [f54ae09a]}
+  DeniaLiberBody:
+    main_hashes:
+      - {old: [89d30421], new: 89d30421}
+    textures:
+      50a229fd: {meta: {id: 0, type: D}, replace: [97064dd7], derive: {LOD: [8dfdb7da,9dbe18b2]}}
+      991fed0d: {meta: {id: 1, type: D}, replace: [ee083830], derive: {LOD: [4440732a,ea1cb8db]}}
+      3ead6468: {meta: {id: 2, type: D}, replace: [698223c8], derive: {LOD: [e3f2fa4f,53c379d2]}}
+      768107b7: {meta: {id: 2, type: L}, replace: [4d03e84c], derive: {LOD: [abde9990,17cb6392]}}
+      6172fc3c: {meta: {id: 2, type: N}, replace: [2bee1723], derive: {LOD: [bc2d621b,b299ba53]}}
+      4a6f7e7e: {meta: {id: 2, type: M}, derive: {LOD: [9730e059,f52b82a3]}}
+      74b77ed7: {meta: {id: 3, type: D}, replace: [a000a7dd], derive: {LOD: [a9e8e0f0,79b3018d]}}
+      0eaf2115: {meta: {id: 3, type: L}, replace: [bee4b470], derive: {LOD: [d3f0bf32,ffd07380]}}
+      2e562077: {meta: {id: 3, type: N}, replace: [66d49b87], derive: {LOD: [f309be50,490a957e]}}
+      0e92d2b6: {meta: {id: 3, type: M}, derive: {LOD: [d3cd4c91,eed6b320]}}
+      022aab80: {replace: [1a7930f9], derive: {LOD: [847c6e84,f0456f2a]}}
+  DeniaLiberFace:
+    main_hashes:
+      - {old: [4e4dc18e], new: 4e4dc18e}
+    textures:
+      685a3eb1: {meta: {id: 0, type: D}, replace: [ba94532d], derive: {LOD: [fa7ce07c,e18ee6e1]}}
+      2defd113: {meta: {id: 1, type: D}}
+      fa0d87d7: {meta: {id: 2, type: D}, derive: {LOD: [682b591a,699c6794]}}
+      d3029429: {meta: {id: 3, type: D}, replace: [437bbd92], derive: {LOD: [41244ae4,5c224481]}}
   Discord:
     textures:
       0a28b7ee: {replace: [f55bdb86]}
@@ -879,8 +890,8 @@ characters:
     main_hashes:
       - {old: [b67843da], new: b67843da}
     textures:
-      ff615a59: {replace: [7233337e]}
-      4082c8ea: {replace: [99977887]}
+      dcf4dd6f: {meta: {id: 0, type: D}, replace: [ff615a59, 7233337e]}
+      e692508d: {meta: {id: 0, type: D}, replace: [4082c8ea, 99977887]}
   FRoverSkin1:
     main_hashes:
       - {old: [e8b0d332], new: aa9d9edb}
@@ -934,11 +945,19 @@ characters:
       87d04527: {meta: {id: '5', type: 'N'}, replace: [cad50fd9]}
       db7a6931: {meta: {id: '6', type: 'D'}, replace: [205adb6b]}
       caf28767: {replace: [cd3cab33]}
+  GalbrenaWing:
+    main_hashes:
+      - {old: [90781730], new: 90781730}
+    textures:
+      521407b9: {meta: {id: 0, type: D}, replace: [82f9ba3c], derive: {LOD: [21098d11]}}
+      dceaa431: {replace: [c39e289b]}
+      75d25c45: {replace: [10d7937d]}
+      6fc482cf: {replace: [177e7343]}
   glider(normal):
     main_hashes:
       - {old: [a0c4996d], new: a0c4996d}
     textures:
-      8c2f4684: {replace: [e0b526b0]}
+      d822a306: {replace: [8c2f4684, e0b526b0]}
   Helios_Cleaver:
     main_hashes:
       - {old: [e83a5452], new: e83a5452}
@@ -1228,7 +1247,6 @@ characters:
     main_hashes:
       - {old: [c8a3ba12], new: c8a3ba12}
     textures:
-      c1c1061e: {replace: [1d1adc02]}
       e2fe6821: {replace: [21db5107]}
       3beea079: {replace: [8f0cda59]}
       20b169ce: {replace: [f52454f2]}
@@ -1592,7 +1610,6 @@ characters:
       6459716d: {replace: [24b44872, 8c76d557]}
       6bf7a371: {replace: [40b7b42f]}
       ffb3f4ae: {replace: [a3db372f]}
-      f31444ea: {replace: [d1c76257], derive: {Component6: [15abcb7d]}}
   RoverFemale:
     main_hashes:
       - {old: [be84b775, e8b5a730, 3533a957, bd26f515, '06482222', 4d3d06a6, 25a5716a, 680c3e35], new: 2330a489}
