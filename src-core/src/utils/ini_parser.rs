@@ -134,10 +134,10 @@ impl IniSection {
                 continue;
             }
 
-            let lower_trimmed = trimmed.to_lowercase();
-            let first_word = lower_trimmed.split_whitespace().next().unwrap_or("");
-
-            let is_control_flow = matches!(first_word, "if" | "else" | "elif" | "endif");
+            let first_word = trimmed.split_whitespace().next().unwrap_or("");
+            let is_control_flow = ["if", "else", "elif", "endif"]
+                .iter()
+                .any(|&kw| first_word.eq_ignore_ascii_case(kw));
 
             if is_control_flow {
                 result.push(line.clone());
@@ -155,6 +155,29 @@ impl IniSection {
                 }
             }
         }
+
+        if result.len() >= 2
+            && result[0].trim().to_lowercase().contains("$object_detected")
+            && result[result.len() - 1].trim().eq_ignore_ascii_case("endif")
+        {
+            result.remove(0);
+            result.pop();
+
+            if let Some(first_remaining) = result.first() {
+                let cut_prefix: String = first_remaining
+                    .chars()
+                    .take_while(|c| c.is_whitespace() && *c != '\r' && *c != '\n')
+                    .collect();
+                if !cut_prefix.is_empty() {
+                    for line in &mut result {
+                        if line.starts_with(&cut_prefix) {
+                            *line = line[cut_prefix.len()..].to_string();
+                        }
+                    }
+                }
+            }
+        }
+
         result
     }
 

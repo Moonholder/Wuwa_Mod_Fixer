@@ -67,17 +67,15 @@ impl Fixer for Rendering33Fixer {
                 let b7 = chunk[7];
 
                 if ctx.enable_rendering33_fix {
-                    if b4 == b5 && b6 == b7 {
-                        if b4 != 0 || b6 != 0 {
-                            chunk[4] = 0;
-                            chunk[5] = 0;
-                            chunk[6] = 0;
-                            chunk[7] = 0;
-                            changed = true;
-                            comp_changed = true;
-                            if unique_masks.len() < 20 {
-                                unique_masks.insert([b4, b5, b6, b7]);
-                            }
+                    if b4 != 0 || b6 != 0 {
+                        chunk[4] = 0;
+                        chunk[5] = 0;
+                        chunk[6] = 0;
+                        chunk[7] = 0;
+                        changed = true;
+                        comp_changed = true;
+                        if unique_masks.len() < 20 {
+                            unique_masks.insert([b4, b5, b6, b7]);
                         }
                     }
                 } else {

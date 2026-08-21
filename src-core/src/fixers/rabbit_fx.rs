@@ -189,7 +189,7 @@ impl RabbitFxFixer {
     }
 
     fn detect_indent(lines: &[String], insert_idx: usize) -> String {
-        const DEFAULT_INDENT: &str = "        ";
+        const DEFAULT_INDENT: &str = "";
         if insert_idx == 0 || insert_idx > lines.len() {
             return DEFAULT_INDENT.to_string();
         }
