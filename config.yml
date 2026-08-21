@@ -1,7 +1,7 @@
 version:
   min_required_version: 3.5.1
-  current_version: 3.5.3
-  latest_program_version: 3.5.1
+  current_version: 3.6.0
+  latest_program_version: 3.6.0
   update_url: https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest
   support_url_cn: https://support.jix.de5.net
   support_url_intl: https://ko-fi.com/moonholder
@@ -33,27 +33,11 @@ lang:
   intro:
     zh: |+
       修复更新: 请将XXMI更新至最新版本
-      * 修复了夏空大招身体消失、奥古斯塔腿部发光
-      * 修复了琳奈皮肤
-      * 修复了下列角色的画面细节极高下的贴图错误: 忌炎 凌阳 陆赫斯 渊武 莫特斐 男主皮肤 琳奈皮肤 赞妮皮肤 爱弥斯机兵
-      * 新增资源重载检查以修复莫宁和琳奈等模组的贴图问题
-      * 修复勾选'补全贴图状态'重复触发修复的问题
-      * 修复主角使用修复后头发还存在杂色的问题 - 需回滚修复
-      * 新增额外的修复选项'模组破洞/部位缺失修复'
-      * 画面细节高/中(LOD Bias) 派生hash更新: 赞妮 琳奈 莫宁 达妮娅 绯雪 露西 丽贝卡 陆赫斯
-      * 稳定纹理更新: 爱弥斯/机兵 奥古斯塔/大剑 柯莱塔 坎特蕾菈的伞 长离 达妮娅 安可 尤诺 今汐 忌炎 凌阳 露帕 陆赫斯 琳奈/皮肤 露西 莫宁 男主皮肤 洛可可 丽贝卡 守岸人 西格莉卡 赞妮 渊武
+      * 修复女主 琳奈 秧秧·玄翎 穗穗
 
     en: |+
       Fix Update: Please update XXMI to the latest version.
-      * Fixed Ciaccona's ultimate body disappearance and Augusta's glowing legs.
-      * Fixed Lynae's skin.
-      * Fixed texture errors at High/Medium LOD Bias for: Jiyan, Lingyang, Luuk, Yuanwu, Mortefi, MRoverSkin1, Lynae's Skin, Zanni's Skin, Aemeath Mecha.
-      * Added Resource Override check to fix texture issues for mods like Mornye and Lynae.
-      * Fixed duplicate fix triggers when 'Add Derived Hashes' is checked.
-      * Fixed Rover's hair still having color noise after the fix - requires rollback fix.
-      * Added an additional fix option 'Mod Hole/Missing Part Fix'.
-      * High/Medium LOD Bias derived hash updates: Zanni, Lynae, Mornye, Denia, Hiyuki, Lucy, Rebecca Luuk.
-      * Stable texture updates: Aemeath/Mecha, Augusta/Sword, Carlotta, Cantarella_Umbrella, Changli, Denia, Encore, Iuno, Jinhsi, Jiyan, Lingyang, Lupa, Luuk, Lynae/Skin, Lucy, Mornye, MRoverSkin1, Roccia, Rebecca, Shorekeeper, Sigrika, Zanni, Yuanwu.
+      * Fixed FRover, Lynae, YangyangXuanling and Suisui.
 
   intro_note:
     zh: 确保画面细节为极高，光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0。
@@ -208,6 +192,9 @@ characters:
       a76caeb5: {meta: {id: 6, type: N}, replace: [2d9235e9]}
       898230f4: {meta: {id: 6, type: M}}
       e9af6d61: {meta: {id: 7, type: D}, replace: [2f18521b, ec96a652]}
+      86c4b5fd: {replace: [f857b2b4]}
+      a54870d2: {replace: [b944ac35]}
+      9ad693e0: {replace: [7d815cc1]}
       7d54a0d5: {replace: [2e5607c2]}
       18f84aa4: {replace: [182fc550]}
       58d2165a: {replace: [6cf0c8eb]}
@@ -1196,6 +1183,18 @@ characters:
       475e2ef0: {replace: [dbd7ca37], derive: {LOD: [82b730bd]}}
       ea3b578e: {replace: [8a1d2f74], derive: {LOD: [b0f668d2]}}
       336ca740: {replace: [067db31a]}
+  LucillaHead:
+    main_hashes:
+      - {old: [356cc2a3], new: 356cc2a3}
+    textures:
+      b76a23ec: {meta: {id: 0, type: D}, replace: [6b4f1a7e], derive: {LOD: []}}
+      3a5f285d: {meta: {id: 1, type: D}, replace: [56af240d], derive: {LOD: []}}
+      36f2c8ff: {replace: [11021e2a], derive: {LOD: []}}
+      2b162402: {replace: [e379df53], derive: {LOD: []}}
+      500f741f: {replace: [05231837], derive: {LOD: []}}
+      d73201db: {replace: [f67bed9d], derive: {LOD: []}}
+      c69ef92d: {replace: [11fa3f7d], derive: {LOD: []}}
+      df1ea7fe: {replace: [2e7d6b19], derive: {LOD: []}}
   Lumi:
     main_hashes:
       - {old: [b441b9f6], new: b441b9f6}
@@ -1313,8 +1312,10 @@ characters:
       76e80cbd: {meta: {id: 0, type: N}, replace: [372dae54]}
   Lynae:
     main_hashes:
-      - {old: [0c33d628], new: 0c33d628}
+      - {old: [0c33d628], new: 7e400733}
     skip_components: [7]
+    vg_remaps:
+      - {trigger_hash: [0c33d628], component_remap: [{component_index: '3', indices: '26:27,27:28,28:29,29:30,30:31,31:32,32:33,33:34,34:35,35:36,36:26,48:49,49:50,50:51,51:52,52:53,53:54,54:55,55:56,56:57,57:58,58:59,59:60,60:61,61:62,62:63,63:64,64:66,65:67,66:68,67:69,68:70,69:71,70:72,71:73,72:74,73:75,74:76,75:77,76:78,77:79,78:80,79:81,80:82,81:83,82:84,83:85,84:86,85:87,86:88,87:89,88:90,89:91,90:92,91:93,92:94,93:95,94:96,95:97,96:98,97:99,98:100,99:101,100:102,101:103,102:104,103:105,104:106,105:107,106:65,107:108,108:48'}]}
     textures:
       7d044e58: {meta: {id: 0, type: D}, replace: [b0e8646a], derive: {LOD: [a05bd07f,709ef037], Gacha: [acc8e74a, aa39082d, 7197796d]}}
       997e0a9a: {meta: {id: 0, type: L}, replace: [6ac45992], derive: {LOD: [1f28cf9e,bb1de432]}}
@@ -1612,7 +1613,7 @@ characters:
       ffb3f4ae: {replace: [a3db372f]}
   RoverFemale:
     main_hashes:
-      - {old: [be84b775, e8b5a730, 3533a957, bd26f515, '06482222', 4d3d06a6, 25a5716a, 680c3e35], new: 2330a489}
+      - {old: [be84b775, e8b5a730, 3533a957, bd26f515, '06482222', 4d3d06a6, 25a5716a, 680c3e35, 2330a489], new: a38211d3}
       - {old: [ac681fc1, a0a808af, 3877f0da], new: cfd1b528}
       - {old: [972c1750, bb67ac16, feef1128], new: de97705a}
     checksum: '2742'
@@ -1810,6 +1811,29 @@ characters:
       4bee4070: {replace: [e5df00a8]}
       ba4c3c6a: {replace: [ec2fecec]}
       61af16e3: {replace: [4104a6ef]}
+  Suisui: 
+    main_hashes:
+      - {old: [46159a16], new: 46159a16}
+    textures:
+      59276c52: {derive: {LOD: [9b65bc5b]}}
+      2af7486b: {derive: {LOD: [26d60fea]}}
+      d6875a80: {derive: {LOD: [9c61f188]}}
+      beffc90b: {derive: {LOD: [64b72830]}}
+      491e2b90: {derive: {LOD: [fb46d9e7]}}
+      239cabd0: {derive: {LOD: [c7ea5729]}}
+      bf997bb0: {replace: [70503aed], derive: {LOD: [bb2c48e2]}}
+      0c9de429: {replace: [bed9ebe2], derive: {LOD: [37cf7e92]}}
+      164df2d5: {derive: {LOD: [562f278b]}}
+      63e009b9: {derive: {LOD: [6435fa36]}}
+      ce89633a: {derive: {LOD: [81b34ff0]}}
+      04c4c716: {replace: [2bcbbc13], derive: {LOD: [2c06167c]}}
+      7ead6dd3: {derive: {LOD: [04e2bc99]}}
+      4f1aa63c: {derive: {LOD: [61272998]}}
+      b22bec61: {derive: {LOD: [1723f8f3]}}
+      8fcd5788: {derive: {LOD: [fedbbe40]}}
+      b46d93eb: {derive: {LOD: [e96c9808]}}
+      a220a997: {derive: {LOD: [fcfc3cb2]}}
+      37975225: {derive: {LOD: [ac3900d0]}}
   SomnoireAnchor:
     main_hashes:
       - {old: ['90554178'], new: '90554178'}
@@ -1842,7 +1866,7 @@ characters:
       bdb3ffb5: {meta: {id: '5', type: 'D'}, replace: [16d55d60, b0e248c5], derive: {LOD: [bbea0537]}}
   UID:
     textures:
-      25e0a0822800ae0c: {replace: [225fe38faba0aaa7, ee9bba54e287c770, 31bd7d7a4b36db57, 6f56547013d8f727]}
+      f6b9787cee195c7c: {replace: [25e0a0822800ae0c, 225fe38faba0aaa7, ee9bba54e287c770, 31bd7d7a4b36db57, 6f56547013d8f727]}
   Variation:
     main_hashes:
       - {old: [e048d096], new: e048d096}
@@ -1968,7 +1992,12 @@ characters:
       95caeb9c: {replace: [1aa4714e], derive: {LOD: [07ec3551, '60662e92', c1a3ff90]}}
   YangyangXuanling:
     main_hashes:
-      - {old: [15fb50a9], new: 15fb50a9}
+      - {old: [15fb50a9], new: efd45ce3}
+      - {old: [7fe8c94e], new: 1a646636}
+      - {old: [81378bbb], new: 6fe81411}
+    rules:
+      - {line_prefix: match_first_index, replacements: [{old: ['226401'], new: '227337'}, {old: ['261141'], new: '262077'}]}
+      - {line_prefix: match_index_count, replacements: [{old: ['82332'], new: '83268'}]}
     textures:
       b2d27320: {meta: {id: 0, type: D}}
       c2082b2c: {meta: {id: 0, type: L}}
