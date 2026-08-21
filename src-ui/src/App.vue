@@ -312,7 +312,7 @@ onUnmounted(() => {
     
     <div v-if="os !== 'linux'" @mousedown="startWindowDrag" @dblclick="winMaximize" data-tauri-drag-region 
          :class="[
-           'h-8 w-full flex justify-between items-center pl-4 shrink-0 bg-white/80 dark:bg-[#12131a]/80 border-b border-zinc-250/85 dark:border-zinc-800/80 z-50 select-none cursor-grab active:cursor-grabbing backdrop-blur-xl rounded-t-none'
+           'h-8 w-full flex justify-between items-center pl-4 shrink-0 bg-white/80 dark:bg-[#12131a]/80 border-b border-zinc-250/85 dark:border-zinc-800/80 z-[150] select-none cursor-grab active:cursor-grabbing backdrop-blur-xl rounded-t-none'
          ]" 
          style="-webkit-app-region: drag;">
       

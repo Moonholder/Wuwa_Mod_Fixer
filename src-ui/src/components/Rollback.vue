@@ -54,6 +54,23 @@ async function loadBackupSize() {
   }
 }
 
+function formatError(e: any): string {
+  if (e === null || e === undefined) return ''
+  if (typeof e === 'string') return e
+  if (typeof e === 'object') {
+    if (e.message && typeof e.message === 'string') {
+      return e.kind ? `[${e.kind}] ${e.message}` : e.message
+    }
+    if (e.kind && typeof e.kind === 'string') return e.kind
+    try {
+      return JSON.stringify(e)
+    } catch {
+      return String(e)
+    }
+  }
+  return String(e)
+}
+
 async function executeCleanBackups() {
   if (!settings.last_folder) return
   cleanLoading.value = true
@@ -62,7 +79,7 @@ async function executeCleanBackups() {
     (window as any).showToast?.(t('rollback.clean_success') || 'Backup files cleaned successfully!', 'success')
     await refreshBackups()
   } catch (e) {
-    (window as any).showToast?.(`Clean failed: ${e}`, 'error')
+    (window as any).showToast?.(`Clean failed: ${formatError(e)}`, 'error')
   } finally {
     cleanLoading.value = false
     showCleanConfirm.value = false
@@ -101,7 +118,7 @@ async function executeRollback(group_key: string) {
     await invoke('do_rollback', { path: settings.last_folder, groupKey: targetKey })
     fix.pushLog('INFO', '[OK] Rollback success.')
     await refreshBackups()
-  } catch (e) { fix.pushLog('ERROR', `[ERR] Rollback failed: ${e}`) }
+  } catch (e) { fix.pushLog('ERROR', `[ERR] Rollback failed: ${formatError(e)}`) }
 }
 
 function groupFilesByDir(files: BackupFile[], basePath: string) {

@@ -50,6 +50,9 @@ jobs:
         run: npx tauri build
 
       - name: Upload unsigned binaries for signing
+        env:
+          SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+        if: env.SIGNPATH_API_TOKEN != ''
         id: upload-unsigned
         uses: actions/upload-artifact@v4
         with:
@@ -58,14 +61,17 @@ jobs:
           retention-days: 1
 
       - name: Sign binaries with SignPath
+        env:
+          SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+        if: env.SIGNPATH_API_TOKEN != ''
         id: signpath
         uses: signpath/github-action-submit-signing-request@v2
         with:
-          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
-          organization-id: '${{ vars.SIGNPATH_ORGANIZATION_ID }}'
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
           project-slug: 'Wuwa_Mod_Fixer'
           signing-policy-slug: 'release-signing'
-          github-artifact-id: '${{ steps.upload-unsigned.outputs.artifact-id }}'
+          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
           wait-for-completion: true
           output-artifact-directory: './signed-artifacts'
 
@@ -73,7 +79,7 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ steps.get_version.outputs.version }}"
-          $src = "signed-artifacts/Wuwa_Mod_Fixer.exe"
+          $src = if (Test-Path "signed-artifacts/Wuwa_Mod_Fixer.exe") { "signed-artifacts/Wuwa_Mod_Fixer.exe" } else { "target/release/Wuwa_Mod_Fixer.exe" }
           $dst = "Wuwa_Mod_Fixer_v${version}.exe"
           Copy-Item $src $dst
           Compress-Archive -Path $dst -DestinationPath "Wuwa_Mod_Fixer_v${version}_x86_64-pc-windows-msvc.zip" -Force
@@ -277,3 +283,20 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           files: update.json
+
+      - name: Extract release notes for GitHub Release body
+        id: release_notes
+        run: |
+          BODY=$(node -e "const f=require('./release_notes.json'); console.log(f.en || Object.values(f)[0] || '')")
+          DELIMITER="EOF_$(date +%s%N)"
+          echo "body<<$DELIMITER" >> $GITHUB_OUTPUT
+          echo "$BODY" >> $GITHUB_OUTPUT
+          echo "$DELIMITER" >> $GITHUB_OUTPUT
+
+      - name: Update GitHub Release body
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          body: ${{ steps.release_notes.outputs.body }}

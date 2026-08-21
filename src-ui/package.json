@@ -12,6 +12,7 @@
     "@tailwindcss/vite": "^4.3.0",
     "@tauri-apps/api": "^2.11.0",
     "@tauri-apps/cli": "^2.11.1",
+    "@types/dompurify": "^3.0.5",
     "@types/node": "^25.9.3",
     "@vitejs/plugin-vue": "^6.0.6",
     "autoprefixer": "^10.5.0",
@@ -25,6 +26,8 @@
   },
   "dependencies": {
     "@tauri-apps/plugin-dialog": "^2.7.1",
+    "dompurify": "^3.4.14",
+    "marked": "^18.0.9",
     "vue-i18n": "^9.14.4"
   }
 }
