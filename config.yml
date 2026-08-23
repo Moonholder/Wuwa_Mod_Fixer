@@ -422,9 +422,9 @@ characters:
       af6c88fe: {meta: {id: 4, type: L}, replace: [29fedfbc]}
       21c818e8: {meta: {id: 4, type: N}, replace: [26e023bb, 0f14fc34]}
       f2903153: {meta: {id: 5, type: D}, replace: [e299e4ca, edfe74f8]}
-      120ce215: {replace: [277dcf73, 212d1d6a]}
-      e7723c8d: {replace: [4f357454, 5f4e6f09]}
-      f0c34a19: {replace: [afadfdbd, 837c1b30], derive: {LOD: [82d321e6]}}
+      120ce215: {replace: [277dcf73, 212d1d6a], derive: {LOD: [802a3cd8,245012b8]}}
+      e7723c8d: {replace: [4f357454, 5f4e6f09], derive: {LOD: [7554e240,856285d6]}}
+      f0c34a19: {replace: [afadfdbd, 837c1b30], derive: {LOD: [82d321e6,2d9cd43e]}}
   Cantarella:
     main_hashes:
       - {old: [5432f939], new: 5432f939}
@@ -1628,7 +1628,7 @@ characters:
     textures:
       a856c4f2: {replace: [fa3f84a8,29304593], derive: {LOD: [5e5c9eae,3a5735a5,d80a5baa,41a3e9d0]}}
       c7953bd5: {meta: {id: '0', type: 'D'}, replace: [6aac203f,04192868], derive: {LOD: [1acaa5f2,7c90550b]}}
-      74ccba7a: {meta: {id: '0', type: 'L'}, replace: [dcae957e,68a6b802]}
+      74ccba7a: {replace: [dcae957e,68a6b802]}
       d6f2ce5f: {meta: {id: '1', type: 'L'}, replace: [a2aed964,2ff23d4c]}
       ac2f90d5: {meta: {id: '1', type: 'D'}, replace: [be8666c3,a01c9b96], derive: {LOD: [71700ef2,12da25dc]}}
       8b82d036: {meta: {id: '2', type: 'D'}, replace: [7bc718ed,84025dca,c8064e9e], derive: {LOD: [19a40efb,1d65ab94]}}
@@ -1661,7 +1661,7 @@ characters:
     textures:
       a2ac355e: {replace: [7931ea8a, fedfec0e, e2c06226]}
       e8349ade: {meta: {id: '0', type: 'D'}, replace: [b4855e43,7de9f13a], derive: {LOD: [a0b66f1d, 038fedbf]}}
-      53fc8e59: {meta: {id: '0', type: 'L'}, replace: [f16d5dae,a1c0d97c]}
+      53fc8e59: {replace: [f16d5dae,a1c0d97c]}
       534053f3: {meta: {id: '1', type: 'D'}, replace: [9ac598b5]}
       8d8851ff: {meta: {id: '2', type: 'D'}, replace: [65af60de,6bc458a2], derive: {LOD: [b69bc685, 8654c681]}}
       5422dac8: {meta: {id: '2', type: 'L'}, replace: [21993deb]}
@@ -1807,7 +1807,6 @@ characters:
       d5b783a6: {derive: {LOD: [53e146a2, 5372b79b]}}
       de7ccb3f: {replace: [73ed8fea], derive: {LOD: [e64cfc08, a319a7b2]}}
       2337ff3a: {replace: [d53e86d6], derive: {LOD: [086118f1, da44f032]}}
-      20bb1b79: {replace: [83141b71]}
       4bee4070: {replace: [e5df00a8]}
       ba4c3c6a: {replace: [ec2fecec]}
       61af16e3: {replace: [4104a6ef]}
