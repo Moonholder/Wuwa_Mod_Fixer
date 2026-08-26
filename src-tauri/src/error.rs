@@ -26,8 +26,6 @@ pub enum AppError {
     Internal(String),
 }
 
-
-
 // Convenience conversions
 impl From<std::io::Error> for AppError {
     fn from(e: std::io::Error) -> Self {

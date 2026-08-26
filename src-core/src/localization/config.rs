@@ -1,5 +1,6 @@
-﻿use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default, Clone)]
 #[serde(transparent)]
@@ -34,9 +35,11 @@ impl LangPack {
 
 pub fn get_lang() -> String {
     if let Some(lang) = crate::settings::load_settings().language {
-        if !lang.is_empty() { return lang; }
+        if !lang.is_empty() {
+            return lang;
+        }
     }
-    
+
     let raw = sys_locale::get_locale().unwrap_or_else(|| "en-US".into());
     raw.split(|c| c == '-' || c == '_')
         .next()
@@ -56,5 +59,8 @@ pub fn get_raw_locale() -> String {
 }
 
 pub fn get_text(key: &str, lang: &str) -> String {
-    crate::config_loader::config().lang_ref().get_text(key, lang).to_string()
+    crate::config_loader::config()
+        .lang_ref()
+        .get_text(key, lang)
+        .to_string()
 }

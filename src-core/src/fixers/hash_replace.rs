@@ -1,10 +1,14 @@
 // src-core/src/fixers/text_replace/hash_replace.rs
 
-use crate::errors::FixerError;
-use crate::fixers::traits::{Fixer, FixerContext};
-use crate::utils::ini_parser::parse_line;
-use log::info;
 use std::collections::HashMap;
+
+use log::info;
+
+use crate::{
+    errors::FixerError,
+    fixers::traits::{Fixer, FixerContext},
+    utils::ini_parser::parse_line,
+};
 
 pub struct HashReplaceFixer;
 

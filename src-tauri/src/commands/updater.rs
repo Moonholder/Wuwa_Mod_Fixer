@@ -1,9 +1,11 @@
-use crate::error::AppError;
+use std::time::Instant;
+
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::time::Instant;
 use tauri::{AppHandle, Emitter};
 use tokio::io::AsyncWriteExt;
+
+use crate::error::AppError;
 
 const REPO_BASE_URL: &str = "https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest/download/update.json";
 
@@ -383,7 +385,6 @@ fn generate_download_nodes(raw_url: &str, preferred: &str) -> Vec<(String, Strin
         match node {
             "ghproxy" => format!("https://ghproxy.net/{}", url),
             "ghfast" => format!("https://ghfast.top/{}", url),
-            "dlproxy" => format!("https://dl.jix.de5.net/{}", url),
             "kgithub" => url.replace("github.com", "kkgithub.com"),
             _ => url.to_string(), // "direct"
         }
@@ -399,7 +400,6 @@ fn generate_download_nodes(raw_url: &str, preferred: &str) -> Vec<(String, Strin
 
     let fallbacks = [
         ("ghfast", format!("https://ghfast.top/{}", raw_url)),
-        ("dlproxy", format!("https://dl.jix.de5.net/{}", raw_url)),
         ("kgithub", raw_url.replace("github.com", "kkgithub.com")),
         ("ghproxy", format!("https://ghproxy.net/{}", raw_url)),
         ("direct", raw_url.to_string()),
@@ -418,9 +418,11 @@ fn generate_download_nodes(raw_url: &str, preferred: &str) -> Vec<(String, Strin
 fn get_system_proxy_url() -> Option<String> {
     #[cfg(target_os = "windows")]
     {
-        use windows_sys::Win32::Foundation::ERROR_SUCCESS;
-        use windows_sys::Win32::System::Registry::{
-            HKEY_CURRENT_USER, KEY_READ, REG_DWORD, REG_SZ, RegCloseKey, RegOpenKeyExW, RegQueryValueExW,
+        use windows_sys::Win32::{
+            Foundation::ERROR_SUCCESS,
+            System::Registry::{
+                HKEY_CURRENT_USER, KEY_READ, REG_DWORD, REG_SZ, RegCloseKey, RegOpenKeyExW, RegQueryValueExW,
+            },
         };
 
         let subkey: Vec<u16> = "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\0"

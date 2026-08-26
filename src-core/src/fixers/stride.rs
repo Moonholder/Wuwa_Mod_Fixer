@@ -1,7 +1,10 @@
-use crate::errors::FixerError;
-use crate::fixers::traits::{Fixer, FixerContext};
-use crate::utils::regex_patterns::*;
 use log::info;
+
+use crate::{
+    errors::FixerError,
+    fixers::traits::{Fixer, FixerContext},
+    utils::regex_patterns::*,
+};
 
 pub struct StrideFixer;
 

@@ -1,11 +1,14 @@
 // src-core/src/rollback.rs
 // Migrated verbatim from src/rollback.rs
 
+use std::{
+    collections::{BTreeMap, HashMap},
+    fs,
+    path::{Path, PathBuf},
+};
+
 use anyhow::{Result, anyhow};
 use regex::Regex;
-use std::collections::{HashMap, BTreeMap};
-use std::fs;
-use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
 lazy_static::lazy_static! {
@@ -16,17 +19,17 @@ lazy_static::lazy_static! {
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct BackupFile {
-    pub current_path:  PathBuf,
+    pub current_path: PathBuf,
     pub original_path: PathBuf,
-    pub timestamp:     String,
+    pub timestamp: String,
     #[allow(dead_code)]
-    pub group_key:     String,
+    pub group_key: String,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct BackupGroup {
     pub group_key: String,
-    pub files:     Vec<BackupFile>,
+    pub files: Vec<BackupFile>,
 }
 
 pub fn scan_backups(dir: &Path) -> Result<Vec<BackupGroup>> {
@@ -37,20 +40,17 @@ pub fn scan_backups(dir: &Path) -> Result<Vec<BackupGroup>> {
         if path.is_file() {
             if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
                 if let Some(caps) = BAK_RE.captures(file_name) {
-                    let original_name  = caps.get(1).unwrap().as_str();
+                    let original_name = caps.get(1).unwrap().as_str();
                     let full_timestamp = caps.get(2).unwrap().as_str();
                     let group_key = String::from(&full_timestamp[..full_timestamp.len().min(16)]);
-                    let original_path  = path.with_file_name(original_name);
+                    let original_path = path.with_file_name(original_name);
 
-                    files_by_time
-                        .entry(group_key.clone())
-                        .or_default()
-                        .push(BackupFile {
-                            current_path: path.to_path_buf(),
-                            original_path,
-                            timestamp: full_timestamp.to_string(),
-                            group_key,
-                        });
+                    files_by_time.entry(group_key.clone()).or_default().push(BackupFile {
+                        current_path: path.to_path_buf(),
+                        original_path,
+                        timestamp: full_timestamp.to_string(),
+                        group_key,
+                    });
                 }
             }
         }
@@ -67,12 +67,14 @@ pub fn scan_backups(dir: &Path) -> Result<Vec<BackupGroup>> {
 pub fn execute_rollback(dir: &Path, target_group_key: &str) -> Result<()> {
     let all_groups = scan_backups(dir)?;
 
-    let mut found            = false;
-    let mut all_candidates:  Vec<BackupFile> = Vec::new();
-    let mut files_to_delete: Vec<PathBuf>    = Vec::new();
+    let mut found = false;
+    let mut all_candidates: Vec<BackupFile> = Vec::new();
+    let mut files_to_delete: Vec<PathBuf> = Vec::new();
 
     for group in all_groups {
-        if group.group_key.as_str() == target_group_key { found = true; }
+        if group.group_key.as_str() == target_group_key {
+            found = true;
+        }
         if group.group_key.as_str() >= target_group_key {
             for bf in group.files {
                 files_to_delete.push(bf.current_path.clone());
@@ -116,7 +118,7 @@ pub fn execute_rollback(dir: &Path, target_group_key: &str) -> Result<()> {
 
     for bak_path in &files_to_delete {
         match fs::remove_file(bak_path) {
-            Ok(_)  => log::info!("Cleaned up: {}", bak_path.display()),
+            Ok(_) => log::info!("Cleaned up: {}", bak_path.display()),
             Err(e) => log::warn!("Failed to clean {}: {}", bak_path.display(), e),
         }
     }
@@ -133,8 +135,12 @@ pub fn calculate_backup_size(dir: &Path) -> Result<(u64, usize)> {
             continue;
         }
 
-        let Some(file_name) = path.file_name().and_then(|n| n.to_str()) else { continue };
-        let Some(caps) = BAK_RE.captures(file_name) else { continue };
+        let Some(file_name) = path.file_name().and_then(|n| n.to_str()) else {
+            continue;
+        };
+        let Some(caps) = BAK_RE.captures(file_name) else {
+            continue;
+        };
         let Ok(metadata) = fs::metadata(path) else { continue };
 
         total_count += 1;

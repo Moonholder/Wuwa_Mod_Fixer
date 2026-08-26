@@ -1,5 +1,6 @@
-use crate::config_loader::ShapeKeyFixConfig;
 use log::info;
+
+use crate::config_loader::ShapeKeyFixConfig;
 
 pub struct RebuildResult {
     pub offset_buf: Vec<u8>,

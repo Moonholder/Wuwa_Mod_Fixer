@@ -1,7 +1,8 @@
 // src-core/src/utils/regex_patterns.rs
 
-use regex::Regex;
 use std::sync::LazyLock;
+
+use regex::Regex;
 
 // ---------------- rollback.rs ----------------
 pub static BAK_RE: LazyLock<Regex> =

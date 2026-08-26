@@ -1,6 +1,6 @@
+use std::{borrow::Cow, collections::HashMap};
+
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
-use std::collections::HashMap;
 
 use crate::collector;
 

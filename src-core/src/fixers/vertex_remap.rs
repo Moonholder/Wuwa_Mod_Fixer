@@ -1,11 +1,16 @@
-use crate::config_loader::VertexRemapConfig;
-use crate::errors::FixerError;
-use crate::fixers::traits::{Fixer, FixerContext};
-use crate::t;
-use crate::utils::vertex_remap::remap_vertex_groups;
-use crate::{collector, collector::BufferType};
-use log::info;
 use std::collections::HashSet;
+
+use log::info;
+
+use crate::{
+    collector,
+    collector::BufferType,
+    config_loader::VertexRemapConfig,
+    errors::FixerError,
+    fixers::traits::{Fixer, FixerContext},
+    t,
+    utils::vertex_remap::remap_vertex_groups,
+};
 
 pub struct VertexRemapFixer;
 

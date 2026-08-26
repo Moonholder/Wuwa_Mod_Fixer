@@ -117,8 +117,11 @@ static SINGLE_INSTANCE_MUTEX: std::sync::Mutex<Option<usize>> = std::sync::Mutex
 #[cfg(target_os = "windows")]
 fn check_single_instance() -> bool {
     use std::{ffi::OsStr, os::windows::ffi::OsStrExt};
-    use windows_sys::Win32::Foundation::{ERROR_ALREADY_EXISTS, GetLastError};
-    use windows_sys::Win32::System::Threading::CreateMutexW;
+
+    use windows_sys::Win32::{
+        Foundation::{ERROR_ALREADY_EXISTS, GetLastError},
+        System::Threading::CreateMutexW,
+    };
 
     let mutex_name: Vec<u16> = OsStr::new("Local\\WuwaModFixerSingleInstanceMutex")
         .encode_wide()
@@ -453,9 +456,12 @@ fn cleanup_update_files() {
 #[cfg(target_os = "windows")]
 fn is_webview2_installed() -> bool {
     use std::{ffi::OsStr, os::windows::ffi::OsStrExt};
-    use windows_sys::Win32::Foundation::ERROR_SUCCESS;
-    use windows_sys::Win32::System::Registry::{
-        HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, KEY_READ, RegCloseKey, RegOpenKeyExW, RegQueryValueExW,
+
+    use windows_sys::Win32::{
+        Foundation::ERROR_SUCCESS,
+        System::Registry::{
+            HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, KEY_READ, RegCloseKey, RegOpenKeyExW, RegQueryValueExW,
+        },
     };
 
     let subkeys = [
@@ -599,11 +605,10 @@ fn alloc_console_and_redirect() {
             freopen(b"CONOUT$\0".as_ptr(), b"w\0".as_ptr(), __acrt_iob_func(2));
 
             use std::{ffi::OsStr, os::windows::ffi::OsStrExt};
-            use windows_sys::Win32::Storage::FileSystem::{
-                CreateFileW, FILE_SHARE_READ, FILE_SHARE_WRITE, OPEN_EXISTING,
-            };
-            use windows_sys::Win32::System::Console::{
-                STD_ERROR_HANDLE, STD_INPUT_HANDLE, STD_OUTPUT_HANDLE, SetStdHandle,
+
+            use windows_sys::Win32::{
+                Storage::FileSystem::{CreateFileW, FILE_SHARE_READ, FILE_SHARE_WRITE, OPEN_EXISTING},
+                System::Console::{STD_ERROR_HANDLE, STD_INPUT_HANDLE, STD_OUTPUT_HANDLE, SetStdHandle},
             };
 
             let conout_name: Vec<u16> = OsStr::new("CONOUT$").encode_wide().chain([0]).collect();

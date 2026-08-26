@@ -1,9 +1,9 @@
+pub mod config;
 pub mod fix;
 pub mod rollback;
-pub mod config;
 pub mod settings;
-pub mod updater;
 pub mod shell;
+pub mod updater;
 
 pub fn generate_handlers() -> impl Fn(tauri::ipc::Invoke) -> bool {
     tauri::generate_handler![
@@ -18,7 +18,6 @@ pub fn generate_handlers() -> impl Fn(tauri::ipc::Invoke) -> bool {
         // Config & locale
         config::refresh_config,
         config::reload_remote_config,
-
         config::get_config_meta,
         config::get_intro_logs,
         config::get_update_status,

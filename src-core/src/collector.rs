@@ -1,9 +1,12 @@
 // src-core/src/collector.rs — migrated verbatim from src/collector.rs
 // Only change: removed `error!` macro (use log::error instead, already in scope via #[macro_use])
 
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
+
 use regex::Regex;
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
 
 pub const INDEX_SIZE: usize = 4;
 
@@ -259,8 +262,7 @@ pub fn parse_vg_offsets(content: &str) -> HashMap<u8, u16> {
                 trimmed[1..].trim()
             };
 
-            if section_name.starts_with("TextureOverrideComponent") {
-                let comp_str = &section_name["TextureOverrideComponent".len()..];
+            if let Some(comp_str) = section_name.strip_prefix("TextureOverrideComponent") {
                 if let Ok(comp_idx) = comp_str.parse::<u8>() {
                     current_comp = Some(comp_idx);
                     continue;

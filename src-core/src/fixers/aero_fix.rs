@@ -1,13 +1,18 @@
+use std::{
+    collections::HashSet,
+    path::{Path, PathBuf},
+};
+
 use anyhow::anyhow;
 use log::{debug, info, warn};
-use std::collections::HashSet;
-use std::path::{Path, PathBuf};
 
-use crate::collector;
-use crate::errors::FixerError;
-use crate::fixers::traits::{Fixer, FixerContext};
-use crate::t;
-use crate::utils::{fs_utils, ini_parser};
+use crate::{
+    collector,
+    errors::FixerError,
+    fixers::traits::{Fixer, FixerContext},
+    t,
+    utils::{fs_utils, ini_parser},
+};
 
 pub struct AeroFixer;
 

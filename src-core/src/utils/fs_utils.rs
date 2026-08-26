@@ -1,10 +1,12 @@
-use log::{debug, info};
-use std::collections::HashSet;
-use std::fs;
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashSet,
+    fs,
+    path::{Path, PathBuf},
+};
 
-use crate::errors::FixerError;
-use crate::t;
+use log::{debug, info};
+
+use crate::{errors::FixerError, t};
 
 pub fn check_write_permission(path: &Path) -> Result<(), FixerError> {
     let temp_file_name = format!(".tmp_permission_check_{}", std::process::id());

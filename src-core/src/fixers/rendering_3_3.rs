@@ -1,8 +1,11 @@
-use crate::collector;
-use crate::errors::FixerError;
-use crate::fixers::traits::{Fixer, FixerContext};
-use crate::utils::fs_utils;
 use log::{debug, info};
+
+use crate::{
+    collector,
+    errors::FixerError,
+    fixers::traits::{Fixer, FixerContext},
+    utils::fs_utils,
+};
 
 pub struct Rendering33Fixer;
 

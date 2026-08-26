@@ -1,9 +1,11 @@
-use crate::collector;
-use crate::errors::FixerError;
-use crate::fixers::traits::{Fixer, FixerContext};
-use crate::utils::fs_utils;
-use crate::utils::regex_patterns::*;
 use log::info;
+
+use crate::{
+    collector,
+    errors::FixerError,
+    fixers::traits::{Fixer, FixerContext},
+    utils::{fs_utils, regex_patterns::*},
+};
 
 pub struct ShapeKeyFixer;
 

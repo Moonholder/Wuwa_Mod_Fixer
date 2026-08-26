@@ -1,44 +1,51 @@
 // fix.rs — start_fix command
 // Spawns ModFixer in blocking thread, streams log+progress via Tauri events
 
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, AtomicUsize, Ordering},
+};
+
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
 use wuwa_mod_core as core;
 use wuwa_mod_core::ProgressReporter;
-use std::sync::{Arc, atomic::{AtomicUsize, AtomicBool, Ordering}};
 
 #[derive(Clone, Serialize)]
 pub struct LogPayload {
-    pub level:   String,
+    pub level: String,
     pub message: String,
 }
 
 #[derive(Clone, Serialize)]
 pub struct ProgressPayload {
     pub current: usize,
-    pub total:   usize,
+    pub total: usize,
 }
 
 // Tauri-side ProgressReporter: emits events to frontend
 struct TauriProgress {
-    app:       AppHandle,
-    current:   Arc<AtomicUsize>,
-    total:     Arc<AtomicUsize>,
+    app: AppHandle,
+    current: Arc<AtomicUsize>,
+    total: Arc<AtomicUsize>,
     last_emit: std::sync::Mutex<std::time::Instant>,
 }
 
 impl ProgressReporter for TauriProgress {
     fn set_total(&self, total: usize) {
         self.total.store(total, Ordering::Relaxed);
-        let _ = self.app.emit("fix:progress", ProgressPayload {
-            current: self.current.load(Ordering::Relaxed),
-            total,
-        });
+        let _ = self.app.emit(
+            "fix:progress",
+            ProgressPayload {
+                current: self.current.load(Ordering::Relaxed),
+                total,
+            },
+        );
     }
     fn increment(&self) {
         let cur = self.current.fetch_add(1, Ordering::Relaxed) + 1;
         let tot = self.total.load(Ordering::Relaxed);
-        
+
         let mut should_emit = cur == tot;
         if !should_emit {
             if let Ok(mut last) = self.last_emit.try_lock() {
@@ -48,13 +55,23 @@ impl ProgressReporter for TauriProgress {
                 }
             }
         }
-        
+
         if should_emit {
-            let _ = self.app.emit("fix:progress", ProgressPayload { current: cur, total: tot });
+            let _ = self.app.emit(
+                "fix:progress",
+                ProgressPayload {
+                    current: cur,
+                    total: tot,
+                },
+            );
         }
     }
-    fn current(&self) -> usize { self.current.load(Ordering::Relaxed) }
-    fn total(&self)   -> usize { self.total.load(Ordering::Relaxed) }
+    fn current(&self) -> usize {
+        self.current.load(Ordering::Relaxed)
+    }
+    fn total(&self) -> usize {
+        self.total.load(Ordering::Relaxed)
+    }
 }
 
 #[derive(Clone)]
@@ -89,14 +106,14 @@ pub async fn cancel_fix(state: tauri::State<'_, FixTaskState>) -> Result<(), App
 
 #[tauri::command]
 pub async fn start_fix(
-    app:                      AppHandle,
-    state:                    tauri::State<'_, FixTaskState>,
-    path:                     String,
-    enable_texture_override:  bool,
-    enable_stable_texture:    bool,
-    enable_fix_aemeath_mech:  bool,
-    enable_rendering33_fix:   bool,
-    aero_fix_mode:            u8,
+    app: AppHandle,
+    state: tauri::State<'_, FixTaskState>,
+    path: String,
+    enable_texture_override: bool,
+    enable_stable_texture: bool,
+    enable_fix_aemeath_mech: bool,
+    enable_rendering33_fix: bool,
+    aero_fix_mode: u8,
 ) -> Result<(), AppError> {
     let app2 = app.clone();
 
@@ -107,7 +124,7 @@ pub async fn start_fix(
         }
         *guard = Some(cancel_token.clone());
     }
-    
+
     // Tap into broadcast log channel
     let (tx, mut rx) = tokio::sync::broadcast::channel::<String>(512);
     crate::GUI_LOG_TX.store(Some(Arc::new(tx)));
@@ -158,9 +175,9 @@ pub async fn start_fix(
         };
 
         let progress = Arc::new(TauriProgress {
-            app:       app2.clone(),
-            current:   Arc::new(AtomicUsize::new(0)),
-            total:     Arc::new(AtomicUsize::new(0)),
+            app: app2.clone(),
+            current: Arc::new(AtomicUsize::new(0)),
+            total: Arc::new(AtomicUsize::new(0)),
             last_emit: std::sync::Mutex::new(std::time::Instant::now()),
         });
 
@@ -180,4 +197,3 @@ pub async fn start_fix(
 
     Ok(())
 }
-

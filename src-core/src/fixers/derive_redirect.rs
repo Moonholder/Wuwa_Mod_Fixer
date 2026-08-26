@@ -1,10 +1,14 @@
 // src-core/src/fixers/derive_redirect.rs
 
-use crate::config_loader::CharacterConfig;
-use crate::errors::FixerError;
-use crate::utils::ini_parser::{IniSection, parse_line};
-use log::info;
 use std::collections::{HashMap, HashSet};
+
+use log::info;
+
+use crate::{
+    config_loader::CharacterConfig,
+    errors::FixerError,
+    utils::ini_parser::{IniSection, parse_line},
+};
 
 pub struct DeriveRedirectFixer;
 

@@ -1,8 +1,9 @@
-use crate::config_loader::CharacterConfig;
-use crate::errors::FixerError;
-use crate::utils::ini_parser::IniDocument;
-use std::collections::HashSet;
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashSet,
+    path::{Path, PathBuf},
+};
+
+use crate::{config_loader::CharacterConfig, errors::FixerError, utils::ini_parser::IniDocument};
 
 pub struct FixerContext<'a> {
     pub file_path: &'a Path,

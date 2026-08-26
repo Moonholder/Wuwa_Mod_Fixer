@@ -1,10 +1,12 @@
 // src-core/src/fixers/text_replace/rule_replace.rs
 
-use crate::errors::FixerError;
-use crate::fixers::traits::{Fixer, FixerContext};
-use crate::utils::ini_parser::parse_line;
-use crate::utils::regex_patterns::RE_CHECKSUM;
 use log::info;
+
+use crate::{
+    errors::FixerError,
+    fixers::traits::{Fixer, FixerContext},
+    utils::{ini_parser::parse_line, regex_patterns::RE_CHECKSUM},
+};
 
 pub struct RuleReplaceFixer;
 

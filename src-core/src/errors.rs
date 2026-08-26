@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -31,7 +32,7 @@ pub enum FixerError {
 pub enum ShapeKeyError {
     #[error("IO Error: {0}")]
     IoError(#[from] std::io::Error),
-    
+
     #[error("Internal shape key error: {0}")]
     InternalError(String),
 }

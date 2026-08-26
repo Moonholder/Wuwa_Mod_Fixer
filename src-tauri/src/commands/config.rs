@@ -1,6 +1,7 @@
-use crate::error::AppError;
 use serde::Serialize;
 use wuwa_mod_core as core;
+
+use crate::error::AppError;
 
 #[tauri::command]
 pub async fn reload_remote_config() -> Result<String, AppError> {
