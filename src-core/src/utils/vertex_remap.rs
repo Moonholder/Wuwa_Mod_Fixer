@@ -70,20 +70,26 @@ impl VertexRemapConfig {
         None
     }
 
-    pub fn remap_blend_remap_forward(forward_data: &mut [u8], vertex_groups: &HashMap<u16, u16>) {
+    pub fn remap_blend_remap_forward(forward_data: &mut [u8], vertex_groups: &HashMap<u16, u16>) -> bool {
         const BLOCK_ENTRIES: usize = 512;
         let num_blocks = forward_data.len() / (BLOCK_ENTRIES * 2);
+        let mut changed = false;
         for b in 0..num_blocks {
             let off = b * BLOCK_ENTRIES * 2;
             let mut new_forward = vec![0u16; BLOCK_ENTRIES];
             for i in 0..BLOCK_ENTRIES {
                 let base_global = u16::from_le_bytes([forward_data[off + i * 2], forward_data[off + i * 2 + 1]]);
-                new_forward[i] = vertex_groups.get(&base_global).copied().unwrap_or(base_global);
+                let new_val = vertex_groups.get(&base_global).copied().unwrap_or(base_global);
+                if new_val != base_global {
+                    changed = true;
+                }
+                new_forward[i] = new_val;
             }
             for (i, &val) in new_forward.iter().enumerate() {
                 forward_data[off + i * 2..off + i * 2 + 2].copy_from_slice(&val.to_le_bytes());
             }
         }
+        changed
     }
 
     pub fn build_composite_remap<'a>(

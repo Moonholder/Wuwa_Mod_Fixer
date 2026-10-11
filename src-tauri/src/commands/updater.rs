@@ -286,17 +286,21 @@ pub async fn download_and_apply_update(
 
     #[cfg(target_os = "linux")]
     {
-        let exe_dir = exe.parent().unwrap();
+        let exe_dir = exe
+            .parent()
+            .ok_or_else(|| AppError::Io("Executable directory not found".into()))?;
         let temp_extract_dir = exe_dir.join(".update_tmp");
         let _ = std::fs::create_dir_all(&temp_extract_dir);
 
+        let temp_str = temp_path_clone
+            .to_str()
+            .ok_or_else(|| AppError::Io("Invalid temp path encoding".into()))?;
+        let extract_str = temp_extract_dir
+            .to_str()
+            .ok_or_else(|| AppError::Io("Invalid extract dir encoding".into()))?;
+
         let status = std::process::Command::new("tar")
-            .args([
-                "-xzf",
-                temp_path_clone.to_str().unwrap(),
-                "-C",
-                temp_extract_dir.to_str().unwrap(),
-            ])
+            .args(["-xzf", temp_str, "-C", extract_str])
             .status()
             .map_err(|e| AppError::Io(format!("Failed to run tar: {}", e)))?;
 

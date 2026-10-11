@@ -58,6 +58,11 @@ pub static RE_SHAPEKEY_VERTEX_ID: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?im)^\[ResourceShapeKeyVertexIdBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap()
 });
 
+pub static RE_POSITION: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?im)^\[ResourcePositionBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)")
+        .unwrap()
+});
+
 pub static RE_SHAPEKEY_VERTEX_OFFSET: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?im)^\[ResourceShapeKeyVertexOffsetBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap()
 });

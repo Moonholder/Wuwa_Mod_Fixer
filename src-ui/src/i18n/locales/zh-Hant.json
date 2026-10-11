@@ -29,7 +29,7 @@
   },
   "options": {
     "derived_hashes": "補全貼圖狀態",
-    "derived_hashes_desc": "為模組補全缺失的貼圖狀態Hash (如畫面細節高/中、坎特蕾拉濕身、千咲強化E、愛彌斯滿充能等) (部分角色未添加)",
+    "derived_hashes_desc": "為模組補全缺失的貼圖狀態Hash (如坎特蕾拉濕身、千咲強化E、愛彌斯滿充能等) (部分角色未添加)",
     "stable_texture": "套用穩定紋理",
     "stable_texture_desc": "使用 RabbitFX 為角色設定穩定紋理 (目前僅坎特蕾拉、千咲、卡提、夏空...)，需安裝最新的 RabbitFX",
     "rendering_3_3": "模組破洞/部位缺失修復",

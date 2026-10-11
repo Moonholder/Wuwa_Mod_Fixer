@@ -90,13 +90,19 @@ pub fn is_chinese_mainland() -> bool {
 pub fn get_intro_logs(lang: Option<String>) -> Result<Vec<String>, String> {
     // Use the provided lang or fallback to auto-detected
     let lang = lang.unwrap_or_else(|| core::localization::config::get_lang());
-    Ok(vec![
-        core::localization::config::get_text("title", &lang),
-        core::localization::config::get_text("intro", &lang),
-        core::localization::config::get_text("intro_note", &lang),
-        core::localization::config::get_text("compatibility_note", &lang),
-        core::localization::config::get_text("graphics_setting_note", &lang),
-    ])
+    let keys = ["title", "intro", "intro_note", "compatibility_note"];
+    let logs: Vec<String> = keys
+        .iter()
+        .filter_map(|&k| {
+            let text = core::localization::config::get_text_with_fallback(k, &lang, "");
+            if text.trim().is_empty() || text == k {
+                None
+            } else {
+                Some(text)
+            }
+        })
+        .collect();
+    Ok(logs)
 }
 
 #[tauri::command]

@@ -1,7 +1,7 @@
 version:
-  min_required_version: 3.5.1
-  current_version: 3.6.1
-  latest_program_version: 3.6.0
+  min_required_version: 3.7.0
+  current_version: 3.7.0
+  latest_program_version: 3.7.0
   update_url: https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest
   support_url_cn: https://support.jix.de5.net
   support_url_intl: https://ko-fi.com/moonholder
@@ -33,32 +33,42 @@ lang:
   intro:
     zh: |+
       修复更新: 请将XXMI更新至最新版本
-      * 修复女主 琳奈 秧秧·玄翎 穗穗
-
+      * 修复主角及其表情（注意：若此前手动修改过 Hash，请先回滚或还原才能触发修复）
+      * 修复千咲皮肤
     en: |+
       Fix Update: Please update XXMI to the latest version.
-      * Fixed FRover, Lynae, YangyangXuanling and Suisui.
+      * Fixed Rover and their expressions (Note: If you have manually modified hashes before, please rollback or restore first to trigger this fix)
+      * Fixed Chisa outfit
 
   intro_note:
-    zh: 确保画面细节为极高，光追已关闭。若 Engine.ini 中存在 r.RayTracing.LoadConfig，必须将其设为 0。
-    en: >-
-      Ensure that the LOD Bias are set to Ultra High and Ray Tracing is turned off. If r.RayTracing.LoadConfig
-      exists in Engine.ini, it must be set to 0.
+    zh: |+
+      **游戏资源与 Engine.ini 设置说明：**
+      1. **客户端资源质量**：游戏 3.7 版本起将包体资源质量划分为 `SD` / `HD` / `UHD`，当前 Mod 基本运行在 `HD` 下。请在 XXMI「设置/通用/游戏设置/客户端资源质量」中将其设为 **HD**（无需再手动添加启动项 `-krqlv=hd`）。
+      2. **Engine.ini 配置**：请在 `Engine.ini` 的 `[SystemSettings]` 下添加以下配置以保证 Mod 贴图正常流送加载：
+         ```ini
+         [SystemSettings]
+         r.Streaming.UsingNewKuroStreaming=0
+         r.Streaming.HiddenPrimitiveScale=25
+         ```
+         *注：若切人时遇到贴图延迟加载，可酌情尝试追加 `r.Streaming.FramesForFullUpdate=0`（非必须项，可能带来额外性能损失或副作用，请按需权衡）。*
+    en: |+
+      **Game Resources & Engine.ini Settings Requirements:**
+      1. **Client Resource Quality**: Starting from game version 3.7, package resource quality is divided into `SD` / `HD` / `UHD`. Currently, mods basically run under `HD`. Please set "Settings / General / Game Settings / Client Resource Quality" to **HD** in XXMI (no longer need to manually add launch parameter `-krqlv=hd`).
+      2. **Engine.ini Configuration**: Please add the following configuration under `[SystemSettings]` in `Engine.ini` to ensure normal texture streaming:
+         ```ini
+         [SystemSettings]
+         r.Streaming.UsingNewKuroStreaming=0
+         r.Streaming.HiddenPrimitiveScale=25
+         ```
+         *Note: If you experience texture streaming delays during character switching, you may optionally try adding `r.Streaming.FramesForFullUpdate=0` (not required, may introduce extra performance overhead or side effects, use at your discretion).*
   compatibility_note:
-    zh: >-
-
-      注：wwmi 0.6x版本的旧Mod在WWMI 070版本之后需开启兼容模式才能加载. 开启后有一定性能损失. 开启方式: 游戏内 Alt + F12. 显示 Compatibility Mode:
-      Enabled
-    en: >-
-
-      Note: The old mods of the WWMI 0.6x version need to have the compatibility mode enabled to be loaded after the
-      WWMI 070 version. Enabling it will result in a certain performance loss. The way to enable it is: press Alt + F12
-      in the game. It should display 'Compatibility Mode: Enabled'.
+    zh: |+
+      > **兼容模式提示**：WWMI 0.6x 版本的旧 Mod 在 WWMI 0.7.0 之后需开启兼容模式才能加载（游戏内快捷键 `Alt + F12`）。
+    en: |+
+      > **Compatibility Mode Note**: Old mods of WWMI 0.6x version require enabling compatibility mode after WWMI 0.7.0 (in-game shortcut `Alt + F12`).
   graphics_setting_note:
-    zh: 游戏从2.0版本开始不同画面预设的Hash值可能不同，这可能导致Mod贴图错误，请将图形质量预设调整至均衡/画质优先
-    en: >-
-      Starting from version 2.0, different graphics presets may have different hash values, which may cause mod texture
-      errors. Please set the graphics quality preset to Balanced/Quality.
+    zh: ""
+    en: ""
   found_old_mod:
     zh: 发现旧版Mod(wwmi 0.6x)，正在尝试修复...
     en: Found old mod (wwmi 0.6x), trying to fix...
@@ -132,7 +142,7 @@ lang:
     zh: '遍历目录时出错: {path}, 错误: {error}'
     en: 'Error traversing directory: {path}, Error: {error}'
 settings:
-  state_texture_removers: [Aemeath,Camellya]
+  state_texture_removers: [Aemeath,Camellya,Carlotta,Chisa]
   enable_aero_rover_fix: false
 characters:
   Aalto:
@@ -173,31 +183,31 @@ characters:
       - {old: [2738a0f0], new: 8d8097bc}
     skip_components: [7]
     textures:
-      262dd8c5: {meta: {id: 0, type: D}, replace: [34d0acfd]}
-      aa69d267: {replace: [109cc560]}
-      1571587a: {meta: {id: 1, type: D}, replace: [e341a037]}
-      34897ad2: {meta: {id: 1, type: L}, replace: [d01d0380]}
-      fcc6992c: {meta: {id: 2, type: D}, replace: [0454fc47, 75591798]}
-      22932116: {meta: {id: 3, type: D}, replace: [f58624fb], derive: {LOD: [1fd24d90], Charged: [86c4b5fd]}}
-      c154eedc: {meta: {id: 3, type: L}, replace: [79081b2b]}
-      c0c34a21: {meta: {id: 3, type: N}, replace: [fda934b4]}
-      1944212c: {meta: {id: 3, type: M}}
-      a576ce3e: {meta: {id: 4, type: D}, replace: [3a5a08ac], derive: {LOD: [7e6c8d99], Charged: [a54870d2]}}
-      50522981: {meta: {id: 4, type: L}, replace: [b3927ca5]}
-      c045cf76: {meta: {id: 4, type: N}, replace: [0eb70c8f, 157217af]}
-      ef5edd1b: {meta: {id: 4, type: M}}
+      262dd8c5: {meta: {id: 0, type: D}, replace: [34d0acfd], derive: {LOD: [fb7246e2, b399a4b3]}}
+      aa69d267: {replace: [109cc560], derive: {LOD: [2c3f1763, 6d54adc1]}}
+      1571587a: {meta: {id: 1, type: D}, replace: [e341a037], derive: {LOD: [c82ec65d, 0af03518]}}
+      34897ad2: {meta: {id: 1, type: L}, replace: [d01d0380], derive: {LOD: [b2dfbfd6, 2b311f69]}}
+      fcc6992c: {meta: {id: 2, type: D}, replace: [0454fc47, 75591798], derive: {LOD: [6ee047e1, 2711d6ed]}}
+      22932116: {meta: {id: 3, type: D}, replace: [f58624fb], derive: {LOD: [ffccbf31, 1fd24d90], Charged: [86c4b5fd]}}
+      c154eedc: {meta: {id: 3, type: L}, replace: [79081b2b], derive: {LOD: [1c0b70fb, c90fd734]}}
+      c0c34a21: {meta: {id: 3, type: N}, replace: [fda934b4], derive: {LOD: [1d9cd406, b59a10c8]}}
+      1944212c: {meta: {id: 3, type: M}, derive: {LOD: [c41bbf0b, c5673dfc]}}
+      a576ce3e: {meta: {id: 4, type: D}, replace: [3a5a08ac], derive: {LOD: [78295019, 7e6c8d99], Charged: [a54870d2]}}
+      50522981: {meta: {id: 4, type: L}, replace: [b3927ca5], derive: {LOD: [8d0db7a6, f225423f]}}
+      c045cf76: {meta: {id: 4, type: N}, replace: [0eb70c8f, 157217af], derive: {LOD: [1d1a5151, c33d1139]}}
+      ef5edd1b: {meta: {id: 4, type: M}, derive: {LOD: [3201433c, 1cff0950]}}
       fcdd3e98: {meta: {id: 5, type: D}, replace: [9c0c016b]}
-      a9c4f230: {meta: {id: 6, type: D}, replace: [1d31d19d]}
-      3ce06c9a: {meta: {id: 6, type: L}, replace: [d3387127]}
-      a76caeb5: {meta: {id: 6, type: N}, replace: [2d9235e9]}
+      a9c4f230: {meta: {id: 6, type: D}, replace: [1d31d19d], derive: {LOD: [749b6c17, b02c8f87]}}
+      3ce06c9a: {meta: {id: 6, type: L}, replace: [d3387127], derive: {LOD: [e1bff2bd, 7a909b49]}}
+      a76caeb5: {meta: {id: 6, type: N}, replace: [2d9235e9], derive: {LOD: [7a333092, 5015b951]}}
       898230f4: {meta: {id: 6, type: M}}
-      e9af6d61: {meta: {id: 7, type: D}, replace: [2f18521b, ec96a652]}
-      86c4b5fd: {replace: [f857b2b4]}
-      a54870d2: {replace: [b944ac35]}
-      9ad693e0: {replace: [7d815cc1]}
-      7d54a0d5: {replace: [2e5607c2]}
+      e9af6d61: {meta: {id: 7, type: D}, replace: [2f18521b, ec96a652], derive: {LOD: [7b89b3ac, 2abd8735]}}
+      86c4b5fd: {replace: [f857b2b4], derive: {LOD: [5b9b2bda, a83a425d]}}
+      a54870d2: {replace: [b944ac35], derive: {LOD: [7817eef5, 5f20f841]}}
+      9ad693e0: {replace: [7d815cc1], derive: {LOD: [47890dc7, 6a57f692]}}
+      7d54a0d5: {replace: [2e5607c2], derive: {LOD: [a00b3ef2, 03fccdfa]}}
       18f84aa4: {replace: [182fc550]}
-      58d2165a: {replace: [6cf0c8eb]}
+      58d2165a: {replace: [6cf0c8eb], derive: {LOD: [858d887d, 706ce698]}}
       e6fbda6a: {replace: [8f535dff]}
       08d1fee9: {replace: [12566ee7]}
       7b4b87ee: {replace: [875a537d]}
@@ -462,10 +472,10 @@ characters:
     textures:
       abe03def: {meta: {id: 0, type: D}, replace: [90e7de37, fc76838a], derive: {LOD: [21291dad, cbee7046]}}
       2069415f: {meta: {id: 1, type: D}, replace: [6deb3b31, 6a96ee48], derive: {LOD: [b7c9706f, fa6108a4]}}
-      08d3e652: {meta: {id: 1, type: L}, replace: [333ad4cc], derive: {LOD: [ee654aeb, 803ae598]}}
+      08d3e652: {meta: {id: 1, type: L}, replace: [333ad4cc], derive: {LOD: [d58c7875, 29e02dab]}}
       259644f5: {meta: {id: 1, type: N}, replace: [10d7620f, ee96e964], derive: {LOD: [33c97743, c63ffae5]}}
       f5b3ad19: {meta: {id: 2, type: D}, replace: [abea3993, fd016c75], derive: {LOD: [205ef252, 6978ec78]}}
-      3a965001: {meta: {id: 2, type: L}, replace: [aff53965, 463ab246], derive: {LOD: [9b652c61, 424e166f]}}
+      3a965001: {meta: {id: 2, type: L}, replace: [aff53965, 463ab246], derive: {LOD: [e7c9ce26, 4efa4faa]}}
       7de7b837: {meta: {id: 2, type: N}, replace: [1874bd89, 27abb610], derive: {LOD: [faf42837, 99713eb2]}}
       d9a09450: {meta: {id: 3, type: D}, replace: [129c321d, c7918746], derive: {LOD: [1ace1961, fe16e9c4]}}
       2dc9e723: {replace: [c83f222f]}
@@ -629,6 +639,9 @@ characters:
       2694816c: {replace: [fbcb1f4b]}
       bb708c4d: {replace: [4c7e5ddf]}
       d02cdbaa: {replace: [247f4c84]}
+  ChisaSkin1:
+    main_hashes:
+      - {old: [e611d493], new: 95ecef77}
   Chixia:
     main_hashes:
       - {old: [1606ae41], new: 1606ae41}
@@ -955,8 +968,8 @@ characters:
       - {old: [14d6362b, d83b3034], new: 91cff509}
     skip_components: [6]
     textures:
-      5e804060: {replace: [88a0bbcb], derive: {LOD: [83dfde47,5d07dc8f]}}
-      00ad3de9: {replace: [bf508060], derive: {LOD: [ddf2a3ce,f3db3fa2,61fde16f,87c9e488]}}
+      5e804060: {replace: [88a0bbcb], derive: {LOD: [83dfde47,5d07dc8f,11f9008a,b28054bb]}}
+      00ad3de9: {replace: [bf508060], derive: {LOD: [ddf2a3ce,f3db3fa2,4fd47d03,87c9e488]}}
       179fe07e: {replace: [4048c74d], derive: {LOD: [cac07e59,5c98c58a]}}
       fc6b51c6: {replace: [883bcfe6], derive: {LOD: [7a3d94c2,31401677]}}
       d6f8159b: {replace: [c5cca911], derive: {LOD: [0ba78bbc,e40762e9]}}
@@ -964,12 +977,12 @@ characters:
       d74a92b4: {derive: {LOD: [0a150c93,7c3db8f1]}}
       e6652153: {replace: [4b9655be, 5edbaac9], derive: {LOD: [3b3abf74,3c89a49b]}}
       259b7976: {replace: [4f63b006], derive: {LOD: [f8c4e751,61a9da09]}}
-      1cf10f04: {replace: [5d60bf24], derive: {LOD: [c1ae9123,827f36d2,1059e81f,f204c527]}}
+      1cf10f04: {replace: [5d60bf24], derive: {LOD: [c1ae9123,827f36d2,53884fee,f204c527]}}
       0b71b442: {replace: [ef4a0b26], derive: {LOD: [d62e2a65,136e8f0e]}}
       ba2d3319: {replace: [fa6e9670], derive: {LOD: [3c7bf61d,bfd61c09]}}
-      e856d57c: {replace: [a28fa422], derive: {LOD: [35094b5b,0d684ea1,9f4e906c,65212889]}}
+      e856d57c: {replace: [a28fa422], derive: {LOD: [35094b5b,0d684ea1,a72f9596,65212889]}}
       320d17d8: {replace: [3a0b68fd], derive: {LOD: [ef5289ff,61ff4600]}}
-      22f7e214: {replace: [42a39385], derive: {LOD: [ffa87c33,4c498150,de6f5f9d,65d863d0]}}
+      22f7e214: {replace: [42a39385], derive: {LOD: [ffa87c33,4c498150,6d8ea2fe,65d863d0]}}
       4aa60446: {replace: [350ff32b], derive: {LOD: [97f99a61,7d99ed6f]}}
       63ec1998: {replace: [61b6e6af], derive: {LOD: [f1cac755,529db395]}}
       c72f568c: {replace: [d03b18fb], derive: {LOD: [55098841,90ce7404]}}
@@ -985,7 +998,7 @@ characters:
       d91e371b: {derive: {LOD: [0441a93c,7023c179]}}
       e983299a: {derive: {LOD: [34dcb7bd,793f3802]}}
       d835bd5b: {derive: {LOD: [056a237c,787c71b4]}}
-      d4c3878d: {replace: [84b5387b]}
+      d4c3878d: {replace: [84b5387b], derive: {LOD: [46e55940,8d2ea939]}}
       13b693db: {replace: [522e7cb9], derive: {LOD: [cee90dfc,12217efe]}}
       349e8273: {replace: [a4fb9b89], derive: {LOD: [e9c11c54,0d02a36e]}}
       4124fa59: {replace: [82c11611, 123f0570], derive: {LOD: [9c7b647e,ecd48ce4]}}
@@ -1002,6 +1015,14 @@ characters:
       feb4d9c5: {replace: [41558879]}
       8c3518c5: {replace: [b9414ce7], derive: {LOD: [d6f82799]}}
       2d7c5726: {replace: [481123ae]}
+  Hsin:
+    main_hashes:
+      - {old: [48f26bb5], new: 4705b82b}
+      - {old: [800e1aa3], new: 67b0a7f4}
+      - {old: [6cd1cc5d], new: d87014b0}
+  HsinLiber:
+    main_hashes:
+      - {old: [f751a490], new: 9bb8b247}
   Iuno:
     main_hashes:
       - {old: [f8b55eeb], new: f8b55eeb}
@@ -1200,7 +1221,7 @@ characters:
       - {old: [b441b9f6], new: b441b9f6}
     textures:
       789987f6: {meta: {id: 0, type: D}, replace: [8e28c8e7, 0390820a], derive: {LOD: [f435435b]}}
-      48969ded: {meta: {id: 0, type: L}, replace: [27308969, a2c25060]}
+      48969ded: {replace: [27308969, a2c25060]}
       1af2edfe: {meta: {id: 1, type: L}, replace: [33d29aa1, 73dc0ecf]}
       054e21cf: {meta: {id: 1, type: D}, replace: [d23090a3, 2decd61b], derive: {LOD: [5298d206]}}
       399a5cff: {meta: {id: 2, type: D}, replace: [ac26dd3b, dda29ba9], derive: {LOD: [be6db02c]}}
@@ -1316,6 +1337,15 @@ characters:
     skip_components: [7]
     vg_remaps:
       - {trigger_hash: [0c33d628], component_remap: [{component_index: '3', indices: '26:27,27:28,28:29,29:30,30:31,31:32,32:33,33:34,34:35,35:36,36:26,48:49,49:50,50:51,51:52,52:53,53:54,54:55,55:56,56:57,57:58,58:59,59:60,60:61,61:62,62:63,63:64,64:66,65:67,66:68,67:69,68:70,69:71,70:72,71:73,72:74,73:75,74:76,75:77,76:78,77:79,78:80,79:81,80:82,81:83,82:84,83:85,84:86,85:87,86:88,87:89,88:90,89:91,90:92,91:93,92:94,93:95,94:96,95:97,96:98,97:99,98:100,99:101,100:102,101:103,102:104,103:105,104:106,105:107,106:65,107:108,108:48'}]}
+    fallback_masks:
+      - hash: "d63a624a"
+    # materialmap_adapt:
+    #   - material_hash: "c5784ddf"
+    #     component_id: 3
+    #     clothing_value: 1
+    #   - material_hash: "950acc22"
+    #     component_id: 4
+    #     clothing_value: 1
     textures:
       7d044e58: {meta: {id: 0, type: D}, replace: [b0e8646a], derive: {LOD: [a05bd07f,709ef037], Gacha: [acc8e74a, aa39082d, 7197796d]}}
       997e0a9a: {meta: {id: 0, type: L}, replace: [6ac45992], derive: {LOD: [1f28cf9e,bb1de432]}}
@@ -1343,7 +1373,7 @@ characters:
       a004a399: {meta: {id: 7, type: D}, replace: [cb04a3d7, c84b599c], derive: {LOD: [32227d54,3a054ed9], Gacha: [47700ba0, be16f064, bc4c1d22, c62d648, '61138305']}}
       8e20c909: {replace: [347a41a2], derive: {LOD: [537f572e, 2d50f344]}}
       47df9d42: {replace: [f45cea79], derive: {LOD: [9a800365, eccd0754]}}
-      d63a624a: {replace: [7f91ca3e]}
+      d63a624a: {meta: {slot: [8]}, replace: [7f91ca3e], derive: {LOD: [994322a0, 241abdb6]}}
   LynaeSkin1:
     main_hashes:
       - {old: [96644717], new: ebbfa346}
@@ -1495,7 +1525,7 @@ characters:
     textures:
       eda07ae0: {meta: {id: 0, type: D}, replace: [0483589e]}
       fe1fe650: {replace: [1d33408b]}
-      534053f3: {meta: {id: 1, type: D}, replace: [479a0692]}
+      534053f3: {meta: {id: 1, type: D}, replace: [9ac598b5], derive: {LOD: [479a0692]}}
       d35ec8a5: {replace: [e17e9a42]}
       a34a9f18: {meta: {id: 2, type: D}, replace: [0483589e]}
       cb360609: {meta: {id: 2, type: L}, replace: [742f31a0]}
@@ -1522,7 +1552,7 @@ characters:
     skip_components: [6]
     textures:
       d7d75f48: {meta: {id: 0, type: D}, replace: [eeefa6b0, 1641ec82], derive: {LOD: [d74fe465]}}
-      204ed695: {meta: {id: 0, type: L}, replace: [cd290e05, 04c4949f]}
+      204ed695: {replace: [cd290e05, 04c4949f]}
       2375c88b: {meta: {id: 1, type: D}, replace: [06b39fed, 18b491c2], derive: {LOD: [cbfea546]}}
       412d15e4: {meta: {id: 1, type: L}, replace: [22a9e382, 08ee69e1]}
       13a68ee2: {meta: {id: 2, type: D}, replace: [620fd27a, a04d2480], derive: {LOD: [9ee1ab38]}}
@@ -1549,9 +1579,9 @@ characters:
       - {old: [2819cef7], new: 2819cef7}
     textures:
       d44d6c55: {meta: {id: '0', type: 'D'}, replace: [584e289f]}
-      97715493: {meta: {id: '0', type: 'L'}, replace: [a7bc8074]}
+      97715493: {replace: [a7bc8074]}
       ec7bb0fa: {meta: {id: '1', type: 'D'}, replace: [5ef9b4d3]}
-      f8d108e3: {meta: {id: '1', type: 'L'}, replace: [eb978a29]}
+      f8d108e3: {replace: [eb978a29]}
       abd78989: {meta: {id: '2', type: 'D'}, replace: [183fe440]}
       84cd66ac: {meta: {id: '2', type: 'L'}, replace: [b55a11e4]}
       1b751255: {meta: {id: '3', type: 'D'}, replace: [9b2007f8, d8121963]}
@@ -1567,7 +1597,7 @@ characters:
       - {old: [5634b8f2], new: 5634b8f2}
     textures:
       7a0c5383: {meta: {id: 0, type: D}, replace: [4977b68f]}
-      d9030f2a: {meta: {id: 0, type: L}, replace: [feabd438]}
+      d9030f2a: {replace: [feabd438]}
       4bbcc436: {meta: {id: 1, type: D}, replace: [18184205]}
       0e1ae03a: {meta: {id: 1, type: L}, replace: [e576ca47]}
       49864a78: {meta: {id: 2, type: D}, replace: [e4dfca63]}
@@ -1581,6 +1611,39 @@ characters:
       b131f862: {meta: {id: 5, type: D}, replace: [b5c941de]}
       af575739: {meta: {id: 5, type: L}, replace: [c8dc4a2b]}
       a5df4b3c: {meta: {id: 6, type: D}, replace: [66e6fa10]}
+  Qingxiao:
+    main_hashes:
+      - {old: [3d7b9c89], new: 3d7b9c89}
+    textures:
+      263b6f70: {meta: {id: 0, type: D}, derive: {LOD: [fb64f157,f92c1b4a]}}
+      377def2e: {derive: {LOD: [ea227109,c3b0745a]}}
+      02930c0e: {meta: {id: 0, type: L}, derive: {LOD: [84c5c90a,92b6c34b]}}
+      1a4a20b1: {meta: {id: 1, type: D}, derive: {LOD: [c715be96,2322d374]}}
+      ca0cb173: {derive: {LOD: [17532f54,b6c7fdef]}}
+      33b3509d: {meta: {id: 1, type: L}, derive: {LOD: [b5e59599,1fde429e]}}
+      0ab623ac: {meta: {id: 2, type: D}, derive: {LOD: [d7e9bd8b,832db37b]}}
+      49fd7c02: {derive: {LOD: [94a2e225,d8e98128]}}
+      dbf9f5a9: {meta: {id: 3, type: D}, derive: {LOD: [06a66b8e,420727cb]}}
+      10d05b83: {derive: {LOD: [cd8fc5a4,152c6286]}}
+      0acb6ff3: {meta: {id: 3, type: L}, derive: {LOD: [d794f1d4,dffa6279]}}
+      70f02d8c: {meta: {id: 3, type: N}, derive: {LOD: [adafb3ab,ca23bf83]}}
+      2ba4a81b: {meta: {id: 3, type: M}, derive: {LOD: [f6fb363c,bb2a5aa6]}}
+      1b9a329e: {meta: {id: 4, type: D}, derive: {LOD: [c6c5acb9,531baca3]}}
+      8b372338: {derive: {LOD: [5668bd1f,675eb05b]}}
+      9b20ef18: {meta: {id: 4, type: L}, derive: {LOD: [467f713f,ca358a83]}}
+      3ca8cabe: {meta: {id: 4, type: N}, derive: {LOD: [e1f75499,9901a3ac]}}
+      5d7c27a8: {meta: {id: 4, type: M}, derive: {LOD: [8023b98f,f89c4cdc]}}
+      7ebcc2e7: {meta: {id: 5, type: D}, derive: {LOD: [a3e35cc0,e4e57add]}}
+      78394be4: {meta: {id: 5, type: L}, derive: {LOD: [a566d5c3,40592d70]}}
+      3c9ac51a: {meta: {id: 5, type: N}, derive: {LOD: [e1c55b3d,9286d86e]}}
+      365fcc23: {meta: {id: 5, type: M}, derive: {LOD: [eb005204,a146ed36]}}
+      817e4f24: {meta: {id: 6, type: D}, derive: {LOD: [135891e9,df3331e4]}}
+      49e654da: {derive: {LOD: [dbc08a17,5bf6f769]}}
+      462fa1f3: {meta: {id: 7, type: D}, derive: {LOD: [9b703fd4,82f6848e]}}
+      73104b5e: {derive: {LOD: [ae4fd579,0ce9451a]}}
+      8fbd28a3: {meta: {id: 7, type: L}, derive: {LOD: [52e2b684,83c1f809]}}
+      d0209e8b: {meta: {id: 7, type: N}, derive: {LOD: [0d7f00ac,7d816424]}}
+      232680dc: {meta: {id: 7, type: M}, derive: {LOD: [fe791efb,a710b736]}}
   RedSpring:
     main_hashes:
       - {old: [c693a1b0], new: c693a1b0}
@@ -1614,11 +1677,45 @@ characters:
       ffb3f4ae: {replace: [a3db372f]}
   RoverFemale:
     main_hashes:
-      - {old: [be84b775, e8b5a730, 3533a957, bd26f515, '06482222', 4d3d06a6, 25a5716a, 680c3e35, 2330a489], new: a38211d3}
+      - {old: [be84b775, e8b5a730, 3533a957, bd26f515, 06482222, 4d3d06a6, 25a5716a, 680c3e35, 2330a489, a38211d3], new: b7b6abd9}
       - {old: [ac681fc1, a0a808af, 3877f0da], new: cfd1b528}
       - {old: [972c1750, bb67ac16, feef1128], new: de97705a}
     checksum: '2742'
+    shapekey_fix:
+      trigger_hash: [ac681fc1, a0a808af, 3877f0da, 2330a489, a38211d3]
+      offset_stride: 12
+      custom_values_array: 64
+      expression_remap: '0:0L,0:1R,0:11,1:2L,1:3R,1:12,2:5R,2:6L,2:13,3:4L,3:7R,3:14,4:8,5:16L,5:17R,5:133,6:18L,6:19R,6:134,7:20L,7:21R,7:135,8:24L,8:25R,8:136,9:26L,9:27R,9:137,10:138,11:139,12:28L,12:29R,12:140,13:30L,13:31R,13:141,14:32L,14:33R,14:142,15:32L,15:34L,16:33R,16:35R,17:38L,17:39R,17:143,18:40L,18:41R,18:144,19:42,20:43,21:9L,21:10R,21:15,21:36L,21:37R,22:44,23:45,24:46,25:47,26:48,27:49,28:51,28:55L,29:52,29:56R,30:53,31:54,32:57,33:58,34:59,35:60,36:61,37:63,38:64,39:65,40:66,41:76,42:77,43:78,44:79'
+      section_rewrites:
+        - old_section: CommandListSetupShapeKeys
+          new_content: |
+            [CommandListSetupShapeKeysBatch]
+            $\WWMIv1\shapekey_checksum_batch0 = 1398
+            $\WWMIv1\shapekey_vertex_offset_original_batch0 = 0
+            $\WWMIv1\shapekey_vertex_offset_custom_batch0 = $shapekey_vertex_offset_batch0
+            $\WWMIv1\shapekey_checksum_batch1 = 705
+            $\WWMIv1\shapekey_vertex_offset_original_batch1 = 49931
+            $\WWMIv1\shapekey_vertex_offset_custom_batch1 = $shapekey_vertex_offset_batch1
+            cs-t33 = ResourceShapeKeyOffsetBuffer
+            cs-u5 = ResourceCustomShapeKeyValuesRW
+            cs-u6 = ResourceShapeKeyCBRW
+            run = CustomShader\WWMIv1\ShapeKeyBatchOverrider
+        - old_section: CommandListLoadShapeKeys
+          new_content: |
+            [CommandListLoadShapeKeysBatch]
+            $\WWMIv1\shapekey_dispatch_size_y_original_batch0 = 1561
+            $\WWMIv1\shapekey_vertex_count_batch0 = $shapekey_vertex_count_batch0
+            $\WWMIv1\shapekey_dispatch_size_y_original_batch1 = 555
+            $\WWMIv1\shapekey_vertex_count_batch1 = $shapekey_vertex_count_batch1
+            cs-t0 = ResourceShapeKeyVertexIdBuffer
+            cs-t1 = ResourceShapeKeyVertexOffsetBuffer
+            cs-u6 = ResourceShapeKeyCBRW
+            run = CommandList\WWMIv1\LoadShapeKeysBatch
+    hair_fix:
+      trigger_hash: [6aac203f, 04192868]
     rules:
+      - {line_prefix: 'run', replacements: [{old: ['CommandListSetupShapeKeys'], new: 'CommandListSetupShapeKeysBatch'}]}
+      - {line_prefix: 'run', replacements: [{old: ['CommandListLoadShapeKeys'], new: 'CommandListLoadShapeKeysBatch'}]}
       - {line_prefix: match_first_index, replacements: [{old: ['13164'], new: '18831'}, {old: ['30399'], new: '41706'}, {old: ['40548'], new: '56382'}, {old: ['83781', '120117'], new: '120144'}, {old: ['113172', '172419'], new: '172554'}, {old: ['114894', '173961'], new: '174096'}]}
       - {line_prefix: match_index_count, replacements: [{old: ['13164'], new: '18831'}, {old: ['17235'], new: '22875'}, {old: ['10149'], new: '14676'}, {old: ['43233', '63735'], new: '63762'}, {old: ['29391', '52302'], new: '52410'}, {old: ['1722'], new: '1542'}, {old: ['48'], new: '129'}]}
     stride_fix:
@@ -1626,32 +1723,84 @@ characters:
     vg_remaps:
       - {trigger_hash: [be84b775, e8b5a730, 3533a957, bd26f515, '06482222', ac681fc1], vertex_groups: '2:19,3:2,4:3,5:4,6:5,7:6,8:7,9:8,10:9,11:10,12:11,13:12,14:13,15:14,16:15,17:16,18:17,19:18,24:25,25:24,29:33,31:34,33:29,34:31,35:36,36:37,37:35,39:38,40:39,41:40,42:41,43:42,44:43,45:44,46:45,47:46,48:47,49:48,50:49,51:50,53:55,55:53,56:114,57:115,58:56,59:57,60:58,61:59,62:60,63:61,64:62,65:63,66:64,67:74,68:78,69:72,70:117,71:116,72:77,73:75,74:134,75:73,77:133,78:71,79:70,80:69,81:135,82:68,83:118,84:65,85:66,86:67,87:136,88:137,89:140,90:138,91:139,92:141,93:142,94:143,95:144,96:145,97:146,98:147,99:148,100:149,101:79,102:80,103:120,104:121,105:122,106:119,107:123,108:124,109:125,110:128,111:126,112:127,113:81,114:129,115:130,116:131,117:132,118:112,119:151,120:82,121:83,122:84,123:85,124:86,125:87,126:88,127:89,128:90,129:91,130:92,131:93,132:94,133:95,134:96,135:97,136:98,137:99,138:100,139:101,140:102,141:103,142:104,143:105,144:106,145:107,146:108,147:109,148:110,149:111,150:113,151:150,158:159,159:158,160:161,161:162,162:163,163:164,164:160,165:169,166:167,167:170,168:172,169:171,170:165,171:174,172:173,173:166,174:168,177:180,178:181,179:182,180:183,181:184,182:186,183:185,184:177,185:178,186:179', component_remap: [{component_index: '0', indices: '2:19,3:2,4:3,5:4,6:5,7:6,8:7,9:8,10:9,11:10,12:11,13:12,14:13,15:14,16:15,17:16,18:17,19:18,24:25,25:24'}, {component_index: '1', indices: '1:5,3:6,5:1,6:3,7:8,8:9,9:7,11:10,12:11,13:12,14:13,15:14,16:15,17:16,18:17,19:18,20:19,21:20,22:21,23:22'}, {component_index: '3', indices: '0:2,2:0,3:61,4:62,5:3,6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:21,15:25,16:19,17:64,18:63,19:24,20:22,21:81,22:20,24:80,25:18,26:17,27:16,28:82,29:15,30:65,31:12,32:13,33:14,34:83,35:84,36:87,37:85,38:86,39:88,40:89,41:90,42:91,43:92,44:93,45:94,46:95,47:96,48:26,49:27,50:67,51:68,52:69,53:66,54:70,55:71,56:72,57:75,58:73,59:74,60:28,61:76,62:77,63:78,64:79,65:59,66:98,67:29,68:30,69:31,70:32,71:33,72:34,73:35,74:36,75:37,76:38,77:39,78:40,79:41,80:42,81:43,82:44,83:45,84:46,85:47,86:48,87:49,88:50,89:51,90:52,91:53,92:54,93:55,94:56,95:57,96:58,97:60,98:97'}, {component_index: '4', indices: '6:7,7:6,8:9,9:10,10:11,11:12,12:8,13:17,14:15,15:18,16:20,17:19,18:13,19:22,20:21,21:14,22:16,25:28,26:29,27:30,28:31,29:32,30:34,31:33,32:25,33:26,34:27'}]}
       - {trigger_hash: [a0a808af, 3877f0da], vertex_groups: '40:39,41:40,76:81,77:76,78:86,79:87,80:88,81:89,82:90,83:91,84:92,85:93,86:94,87:95,88:96,89:97,90:98,91:99,92:100,93:101,94:102,95:103,96:104,97:105,98:106,99:107,100:108,101:109,102:110,103:111,104:112,105:113,106:114,107:115,108:116,109:117,110:118,111:83,112:82,113:80,114:79,115:78,116:77,117:119,118:120,119:121,120:122,121:123,122:124,123:125,124:126,125:127,126:128,127:129,128:130,129:131,130:132,131:133,132:134,133:135,134:136,135:137,136:138,137:139,138:140,139:141,140:142,141:143,142:144,143:145,144:146,145:147,146:148,147:149,148:150,149:84,150:85,159:163,160:159,161:160,163:162,166:169,167:170,168:171,169:173,170:174,171:167,172:168,173:166,174:176,175:177,176:175,177:184,178:185,179:172,180:178,181:179,182:180,183:181,184:182,185:183', component_remap: [{component_index: '1', indices: '6:13,7:6,8:7,9:8,10:9,11:10,12:11,13:12'},{component_index: '3', indices: '24:29,25:24,26:34,27:35,28:36,29:37,30:38,31:39,32:40,33:41,34:42,35:43,36:44,37:45,38:46,39:47,40:48,41:49,42:50,43:51,44:52,45:53,46:54,47:55,48:56,49:57,50:58,51:59,52:60,53:61,54:62,55:63,56:64,57:65,58:66,59:31,60:30,61:28,62:27,63:26,64:25,65:67,66:68,67:69,68:70,69:71,70:72,71:73,72:74,73:75,74:76,75:77,76:78,77:79,78:80,79:81,80:82,81:83,82:84,83:85,84:86,85:87,86:88,87:89,88:90,89:91,90:92,91:93,92:94,93:95,94:96,95:97,96:98,97:32,98:33'}, {component_index: '4', indices: '8:12,9:8,10:9,11:10,12:11,15:18,16:19,17:20,18:22,19:23,20:16,21:17,22:15,23:25,24:26,25:24,26:33,27:34,28:21,29:27,30:28,31:29,32:30,33:31,34:32'}]}
+    materialmap_adapt:
+      - material_hash: "f813702e"
+        component_id: 3
+        skin_value: 64
+        clothing_value: 0
+      - material_hash: "e40b43c4"
+        component_id: 4
+        skin_value: 4
+        clothing_value: 0
     textures:
-      a856c4f2: {replace: [fa3f84a8,29304593], derive: {LOD: [5e5c9eae,3a5735a5,d80a5baa,41a3e9d0]}}
-      c7953bd5: {meta: {id: '0', type: 'D'}, replace: [6aac203f,04192868], derive: {LOD: [1acaa5f2,7c90550b]}}
-      74ccba7a: {replace: [dcae957e,68a6b802]}
-      d6f2ce5f: {meta: {id: '1', type: 'L'}, replace: [a2aed964,2ff23d4c]}
-      ac2f90d5: {meta: {id: '1', type: 'D'}, replace: [be8666c3,a01c9b96], derive: {LOD: [71700ef2,12da25dc]}}
-      8b82d036: {meta: {id: '2', type: 'D'}, replace: [7bc718ed,84025dca,c8064e9e], derive: {LOD: [19a40efb,1d65ab94]}}
-      aeec915c: {meta: {id: '3', type: 'D'}, replace: [c446a221, 99d33a32, c79b5772,e57c98f4], derive: {LOD: [73b30f7b,a5deb8c1]}}
-      9bf984c4: {meta: {id: '3', type: 'N'}, replace: [12407ce2,ab6288a3], derive: {LOD: [46a61ae3,6470aad7]}}
-      8dee74d3: {meta: {id: '3', type: 'L'}, replace: [1091025c], derive: {LOD: [50b1eaf4,6d692e35]}}
-      f813702e: {meta: {id: '3', type: 'M'}}
-      c1320ea8: {meta: {id: '4', type: 'D'}, replace: [cccc4663,f85b1b15], derive: {LOD: [1c6d908f,746e5330]}}
-      081efd79: {meta: {id: '4', type: 'L'}, replace: [2d5b41f6,372bd73a], derive: {LOD: [1c6d908f,746e5330]}}
-      cb0c6930: {meta: {id: '4', type: 'N'}, replace: [c39ea10a,747ada83], derive: {LOD: [d541635e,f0abbafa]}}
-      e40b43c4: {meta: {id: '4', type: 'M'}}
-      a4871136: {meta: {id: '5', type: 'D'}, replace: [a2207e11,52c18227], derive: {LOD: [36a1cffb,6182f808]}}
+      a856c4f2: {replace: [fa3f84a8, 29304593], derive: {LOD: [5e5c9eae, 3a5735a5, d80a5baa, 41a3e9d0]}}
+      c7953bd5: {meta: {id: 0, type: D}, replace: [6aac203f, 04192868], derive: {LOD: [1acaa5f2, 7c90550b]}}
+      74ccba7a: {replace: [dcae957e, 68a6b802]}
+      d6f2ce5f: {meta: {id: 1, type: L}, replace: [a2aed964, 2ff23d4c]}
+      ac2f90d5: {meta: {id: 1, type: D}, replace: [be8666c3, a01c9b96], derive: {LOD: [71700ef2, 12da25dc]}}
+      8b82d036: {meta: {id: 2, type: D}, replace: [7bc718ed, 84025dca, c8064e9e], derive: {LOD: [19a40efb, 1d65ab94]}}
+      aeec915c: {meta: {id: 3, type: D}, replace: [c446a221, 99d33a32, c79b5772, e57c98f4], derive: {LOD: [73b30f7b, a5deb8c1]}}
+      9bf984c4: {meta: {id: 3, type: N}, replace: [12407ce2, ab6288a3], derive: {LOD: [46a61ae3, 6470aad7]}}
+      8dee74d3: {meta: {id: 3, type: L}, replace: [1091025c], derive: {LOD: [50b1eaf4, 6d692e35]}}
+      f813702e: {meta: {id: 3, type: M}}
+      c1320ea8: {meta: {id: 4, type: D}, replace: [cccc4663, f85b1b15], derive: {LOD: [1c6d908f, 746e5330]}}
+      081efd79: {meta: {id: 4, type: L}, replace: [2d5b41f6, 372bd73a], derive: {LOD: [1c6d908f, 746e5330]}}
+      cb0c6930: {meta: {id: 4, type: N}, replace: [c39ea10a, 747ada83], derive: {LOD: [d541635e, f0abbafa]}}
+      e40b43c4: {meta: {id: 4, type: M}}
+      a4871136: {meta: {id: 5, type: D}, replace: [a2207e11, 52c18227], derive: {LOD: [36a1cffb, 6182f808]}}
   RoverMale:
     main_hashes:
-      - {old: [d53c2cc7, c9db8418, e18ca2cc, b22dacf9, 8b386efa, 1e003b5a, 101e8dbb], new: b8b24b6c}
+      - {old: [d53c2cc7, c9db8418, e18ca2cc, b22dacf9, 8b386efa, 1e003b5a, 101e8dbb, b8b24b6c], new: 52c1090e}
       - {old: [3ab7c4d1, f8375eb4, ec747460, 67650e1c], new: b4d222d6}
       - {old: [a4be44e5, 6e2f48ba, 89e3b104, 49c00841], new: e7fdfccc}
     checksum: '1718'
     skip_components: [4]
+    hair_fix:
+      trigger_hash: [b4855e43, 7de9f13a]
+      match_first_index: '144738'
+      match_index_count: '32112'
+      vg_offset: 139
+      vg_count: 24
+    materialmap_adapt:
+      - material_hash: "faf5e483"
+        component_id: 2
+        skin_value: 0
+        clothing_value: 4
     stride_fix:
       trigger_hash: [d53c2cc7, c9db8418, e18ca2cc, b22dacf9, a4be44e5, f8375eb4]
+    shapekey_fix:
+      trigger_hash: [3ab7c4d1, f8375eb4, ec747460, 67650e1c, b8b24b6c]
+      offset_stride: 12
+      custom_values_array: 64
+      expression_remap: '0:0L,0:1R,0:11,1:2L,1:3R,1:12,2:5R,2:6L,2:13,3:4L,3:7R,3:14,4:8,5:16L,5:17R,5:133,6:18L,6:19R,6:134,7:20L,7:21R,7:135,8:24L,8:25R,8:136,9:26L,9:27R,9:137,10:138,11:139,12:28L,12:29R,12:140,13:30L,13:31R,13:141,14:32L,14:33R,14:142,15:32L,15:34L,16:33R,16:35R,17:38L,17:39R,17:143,18:40L,18:41R,18:144,21:9L,21:10R,21:15,21:36L,21:37R,19:42,20:43,22:44,23:45,24:46,25:47,26:48,27:49,27:50,28:51,29:52,30:53,31:54,32:57,33:58,34:59,35:60,36:61,37:63,38:64,39:65,40:66,41:76,42:77,43:78,44:79,45:80,46:81,47:82,48:83,49:84,50:85,51:86,52:87,53:88,54:89,55:90,56:145,58:94,59:146,60:97,61:103,62:104,63:105,64:106,65:107,66:108,66:109,67:108,67:109,68:110,69:111,70:112,71:113,72:114,73:115,74:116,75:117,76:118,77:119,78:120,79:121,80:122,81:123,82:124,83:125,84:126,85:127,86:128,87:129,88:130,89:131,90:132,91:147,92:148,93:149,94:150,95:151,96:152,97:153,98:154,99:155,100:156,101:157,102:158,103:159,104:160'
+      section_rewrites:
+        - old_section: CommandListSetupShapeKeys
+          new_content: |
+            [CommandListSetupShapeKeysBatch]
+            $\WWMIv1\shapekey_checksum_batch0 = 873
+            $\WWMIv1\shapekey_vertex_offset_original_batch0 = 0
+            $\WWMIv1\shapekey_vertex_offset_custom_batch0 = $shapekey_vertex_offset_batch0
+            $\WWMIv1\shapekey_checksum_batch1 = 1341
+            $\WWMIv1\shapekey_vertex_offset_original_batch1 = 45917
+            $\WWMIv1\shapekey_vertex_offset_custom_batch1 = $shapekey_vertex_offset_batch1
+            cs-t33 = ResourceShapeKeyOffsetBuffer
+            cs-u5 = ResourceCustomShapeKeyValuesRW
+            cs-u6 = ResourceShapeKeyCBRW
+            run = CustomShader\WWMIv1\ShapeKeyBatchOverrider
+        - old_section: CommandListLoadShapeKeys
+          new_content: |
+            [CommandListLoadShapeKeysBatch]
+            $\WWMIv1\shapekey_dispatch_size_y_original_batch0 = 1435
+            $\WWMIv1\shapekey_vertex_count_batch0 = $shapekey_vertex_count_batch0
+            $\WWMIv1\shapekey_dispatch_size_y_original_batch1 = 517
+            $\WWMIv1\shapekey_vertex_count_batch1 = $shapekey_vertex_count_batch1
+            cs-t0 = ResourceShapeKeyVertexIdBuffer
+            cs-t1 = ResourceShapeKeyVertexOffsetBuffer
+            cs-u6 = ResourceShapeKeyCBRW
+            run = CommandList\WWMIv1\LoadShapeKeysBatch
     rules:
+      - {line_prefix: 'run', replacements: [{old: ['CommandListSetupShapeKeys'], new: 'CommandListSetupShapeKeysBatch'}]}
+      - {line_prefix: 'run', replacements: [{old: ['CommandListLoadShapeKeys'], new: 'CommandListLoadShapeKeysBatch'}]}
       - {line_prefix: match_first_index, replacements: [{old: ['42495', '52713'], new: '20601'}, {old: ['52533', '67467'], new: '35355'}, {old: ['102237', '120789'], new: '90684'}, {old: ['140157', '172107'], new: '143136'}, {old: ['141693', '173643'], new: '144672'}]}
       - {line_prefix: match_index_count, replacements: [{old: ['42495', '52713'], new: '20601'}, {old: ['10038'], new: '14754'}, {old: ['49704', '53322'], new: '55329'}, {old: ['37920', '51318'], new: '52452'}]}
       - {line_prefix: $\WWMIv1\vg_offset, replacements: [{old: ['46'], new: '23'}, {old: ['47'], new: '24'}, {old: ['124'], new: '101'}, {old: ['158'], new: '135'}, {old: ['159'], new: '136'}]}
@@ -1661,20 +1810,20 @@ characters:
       - {trigger_hash: [ec747460, 67650e1c], vertex_groups: '13:19,14:15,15:14,16:13,17:16,18:17,19:18,21:79,22:140,23:144,24:141,25:142,26:143,27:145,28:149,29:148,30:146,31:147,32:150,33:21,34:22,35:152,36:153,37:154,38:155,39:156,40:157,41:158,42:161,43:162,44:159,45:160,21:79,47:24,48:25,49:26,50:27,51:28,52:29,53:30,54:31,55:32,56:33,57:34,58:35,59:36,60:37,61:38,62:39,63:40,64:41,65:42,66:43,67:44,68:45,70:46,71:47,72:48,73:49,74:51,75:52,76:62,77:67,78:53,79:54,80:55,81:56,82:57,83:58,84:59,85:60,86:61,87:63,88:64,89:65,90:66,91:68,92:69,93:70,94:71,95:72,96:73,97:74,98:75,99:76,100:77,101:78,103:80,104:81,105:82,106:83,107:84,108:85,109:86,110:87,111:88,112:89,113:90,114:91,115:92,116:93,117:94,118:95,119:96,120:97,121:98,122:99,123:100,84:59,103:80,126:103,127:104,128:105,129:106,130:107,131:108,132:109,133:110,134:111,135:112,136:113,137:114,138:115,139:116,140:117,141:118,142:119,143:120,144:121,145:122,146:123,147:124,148:125,149:126,150:127,151:128,152:129,153:130,154:131,155:132,156:133,157:134'}
     textures:
       a2ac355e: {replace: [7931ea8a, fedfec0e, e2c06226]}
-      e8349ade: {meta: {id: '0', type: 'D'}, replace: [b4855e43,7de9f13a], derive: {LOD: [a0b66f1d, 038fedbf]}}
-      53fc8e59: {replace: [f16d5dae,a1c0d97c]}
-      534053f3: {meta: {id: '1', type: 'D'}, replace: [9ac598b5]}
-      8d8851ff: {meta: {id: '2', type: 'D'}, replace: [65af60de,6bc458a2], derive: {LOD: [b69bc685, 8654c681]}}
-      5422dac8: {meta: {id: '2', type: 'L'}, replace: [21993deb]}
-      de3c43a6: {meta: {id: '2', type: 'N'}, replace: [454843d1,7997ade0], derive: {LOD: [a4c833c7, 96789cc5]}}
-      faf5e483: {meta: {id: '2', type: 'M'}}
-      e3db1560: {meta: {id: '3', type: 'D'}, replace: [db7ba06b,5606456f], derive: {LOD: [8b59db48, 18a5098b]}}
-      c93b00ee: {meta: {id: '3', type: 'L'}}
-      4cbd1cb3: {meta: {id: '3', type: 'N'}, replace: [13bc29e0,756ab255], derive: {LOD: [a8352c72, 9bc4cdc9]}}
-      3aad30ab: {meta: {id: '3', type: 'M'}}
-      ab321cf8: {meta: {id: '4', type: 'D'}, replace: [56343b28,6913dea1], derive: {LOD: [b44c4086, 564607b9]}}
-      74b3086f: {meta: {id: '6', type: 'D'}}
-      0505946b: {meta: {id: '6', type: 'L'}}
+      e8349ade: {meta: {id: 0, type: D}, replace: [b4855e43, 7de9f13a], derive: {LOD: [a0b66f1d, 038fedbf]}}
+      53fc8e59: {replace: [f16d5dae, a1c0d97c]}
+      534053f3: {meta: {id: 1, type: D}, replace: [9ac598b5], derive: {LOD: [89a47019]}}
+      8d8851ff: {meta: {id: 2, type: D}, replace: [65af60de, 6bc458a2], derive: {LOD: [b69bc685, 8654c681]}}
+      5422dac8: {meta: {id: 2, type: L}, replace: [21993deb]}
+      de3c43a6: {meta: {id: 2, type: N}, replace: [454843d1, 7997ade0], derive: {LOD: [a4c833c7, 96789cc5]}}
+      faf5e483: {meta: {id: 2, type: M}}
+      e3db1560: {meta: {id: 3, type: D}, replace: [db7ba06b, 5606456f], derive: {LOD: [8b59db48, 18a5098b]}}
+      c93b00ee: {meta: {id: 3, type: L}}
+      4cbd1cb3: {meta: {id: 3, type: N}, replace: [13bc29e0, 756ab255], derive: {LOD: [a8352c72, 9bc4cdc9]}}
+      3aad30ab: {meta: {id: 3, type: M}}
+      ab321cf8: {meta: {id: 4, type: D}, replace: [56343b28, 6913dea1], derive: {LOD: [b44c4086, 564607b9]}}
+      74b3086f: {meta: {id: 6, type: D}}
+      0505946b: {meta: {id: 6, type: L}}
   Rebecca:
     main_hashes:
       - {old: [aed00161], new: aed00161}
@@ -1735,7 +1884,7 @@ characters:
       - {old: [b101dcf3], new: b101dcf3}
     textures:
       af3ba241: {meta: {id: 0, type: D}, replace: [f8d5c991, 31a5f36a], derive: {LOD: [258a57b6, 811967db]}}
-      0442ed26: {meta: {id: 0, type: L}, replace: [63c807fe, d153e37f]}
+      0442ed26: {replace: [63c807fe, d153e37f]}
       10980f87: {meta: {id: 1, type: D}, replace: [11171f1c, 9522bbc7], derive: {LOD: [cc48813b, 95ec8dc2]}}
       77a480f9: {meta: {id: 1, type: L}, replace: [9febd992, a0cf932f]}
       280300b0: {meta: {id: 2, type: D}, replace: [c98e83cd, 464256d1], derive: {LOD: [14d11dea, 7a523a66]}}
@@ -1910,7 +2059,7 @@ characters:
       - {old: [ed536543], new: ed536543}
     textures:
       8937be16: {meta: {id: 0, type: D}, replace: [19190a12, d966cc04], derive: {LOD: [bdfd2c86]}}
-      2d7889b7: {meta: {id: 0, type: L}, replace: [65f5a746, 59f0cae9]}
+      2d7889b7: {replace: [65f5a746, 59f0cae9]}
       9f46c992: {meta: {id: 1, type: D}, replace: [312a23b3, 1ccddcaf], derive: {LOD: [017cdc6a]}}
       d71529c2: {meta: {id: 1, type: L}, replace: [d3334af2, 30766750]}
       41bcde46: {meta: {id: 2, type: D}, replace: [c5e3d837, 392cfad5], derive: {LOD: [c853c2f9]}}
@@ -1935,7 +2084,6 @@ characters:
     skip_components: [6]
     shapekey_fix:
       trigger_hash: [2ce54174, d70fa623, b43ab901]
-      new_vertex_count: 49041
       offset_stride: 12
       custom_values_array: 64
       expression_remap: '14:25,15:26,16:27,17:28,18:22,19:147,20:148,21:149,22:150,23:151,24:152,25:153,26:154,27:155,28:156,29:48,30:49,31:157,32:158,33:56,34:57,35:29,36:58,37:59,38:60,39:61,40:62,41:63,42:65,43:66,44:67,45:68,46:71,47:72,48:73,49:74,50:75,51:77,52:78,53:79,54:80,55:90,56:91,57:92,58:93,59:94,60:95,61:96,62:97,63:98,64:99,65:100,66:101,67:102,68:103,69:104,70:105,71:107,72:108,73:160,74:111,79:121,80:122'
@@ -1965,8 +2113,8 @@ characters:
             cs-u6 = ResourceShapeKeyCBRW
             run = CommandList\WWMIv1\LoadShapeKeysBatch
     rules:
-      - {line_prefix: '$mesh_vertex_count', replacements: [{old: ['30051'], new: '30050'}]}
-      - {line_prefix: '$shapekey_vertex_count', replacements: [{old: ['27913'], new: '49041'}]}
+      # - {line_prefix: '$mesh_vertex_count', replacements: [{old: ['30051'], new: '30050'}]}
+      # - {line_prefix: '$shapekey_vertex_count', replacements: [{old: ['27913'], new: '49041'}]}
       - {line_prefix: 'run', replacements: [{old: ['CommandListSetupShapeKeys'], new: 'CommandListSetupShapeKeysBatch'}]}
       - {line_prefix: 'run', replacements: [{old: ['CommandListLoadShapeKeys'], new: 'CommandListLoadShapeKeysBatch'}]}
       - {line_prefix: match_first_index, replacements: [{old: ['120018'], new: '120021'}]}

@@ -49,6 +49,9 @@ jobs:
       - name: Build Tauri app (Windows)
         run: npx tauri build
 
+      - name: Build Standalone CLI (Windows)
+        run: cargo build --release -p wuwa-mod-cli
+
       - name: Upload unsigned binaries for signing
         env:
           SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
@@ -84,6 +87,12 @@ jobs:
           Copy-Item $src $dst
           Compress-Archive -Path $dst -DestinationPath "Wuwa_Mod_Fixer_v${version}_x86_64-pc-windows-msvc.zip" -Force
 
+          # Package standalone headless CLI
+          $cliSrc = "target/release/wuwa-mod-cli.exe"
+          $cliDst = "wuwa-mod-cli_v${version}.exe"
+          Copy-Item $cliSrc $cliDst
+          Compress-Archive -Path $cliDst -DestinationPath "wuwa-mod-cli_v${version}_x86_64-pc-windows-msvc.zip" -Force
+
       - name: Upload Windows release
         uses: softprops/action-gh-release@v2
         env:
@@ -94,6 +103,8 @@ jobs:
           files: |
             ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}.exe
             ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-pc-windows-msvc.zip
+            ./wuwa-mod-cli_v${{ steps.get_version.outputs.version }}.exe
+            ./wuwa-mod-cli_v${{ steps.get_version.outputs.version }}_x86_64-pc-windows-msvc.zip
 
   build-linux:
     runs-on: ubuntu-22.04
@@ -143,6 +154,9 @@ jobs:
 
       - name: Build Tauri app (Linux)
         run: npx tauri build
+
+      - name: Build Standalone CLI (Linux)
+        run: cargo build --release -p wuwa-mod-cli
 
       - name: Prepare portable tar.gz
         run: |
@@ -203,6 +217,12 @@ jobs:
 
           tar -czf ./Wuwa_Mod_Fixer_v${VERSION}_x86_64-unknown-linux-gnu.tar.gz -C release_linux .
 
+          # Package standalone headless CLI
+          mkdir -p release_linux_cli
+          cp target/release/wuwa-mod-cli release_linux_cli/wuwa-mod-cli
+          chmod +x release_linux_cli/wuwa-mod-cli
+          tar -czf ./wuwa-mod-cli_v${VERSION}_x86_64-unknown-linux-gnu.tar.gz -C release_linux_cli .
+
       - name: Upload Linux release
         uses: softprops/action-gh-release@v2
         env:
@@ -211,6 +231,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: |
             ./Wuwa_Mod_Fixer_v${{ steps.get_version.outputs.version }}_x86_64-unknown-linux-gnu.tar.gz
+            ./wuwa-mod-cli_v${{ steps.get_version.outputs.version }}_x86_64-unknown-linux-gnu.tar.gz
 
   generate-update-json:
     needs: [build-windows, build-linux]

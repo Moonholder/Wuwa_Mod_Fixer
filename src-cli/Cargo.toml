@@ -1,0 +1,36 @@
+[package]
+name = "wuwa-mod-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "wuwa-mod-cli"
+path = "src/main.rs"
+
+[lib]
+name = "wuwa_mod_cli"
+path = "src/lib.rs"
+
+[dependencies]
+wuwa-mod-core = { path = "../src-core" }
+clap.workspace = true
+inquire = "0.7"
+serde.workspace = true
+serde_json.workspace = true
+log.workspace = true
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+anyhow.workspace = true
+walkdir.workspace = true
+sys-locale = "0.3"
+
+[features]
+default = []
+test-build = []
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_System_Console"] }
+

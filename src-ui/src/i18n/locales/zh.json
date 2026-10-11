@@ -29,7 +29,7 @@
   },
   "options": {
     "derived_hashes": "补全贴图状态",
-    "derived_hashes_desc": "为模组补全缺失的贴图状态Hash (如画面细节高/中、坎特蕾拉湿身、千咲强化E、爱弥斯满充能等) (部分角色未添加)",
+    "derived_hashes_desc": "为模组补全缺失的贴图状态Hash (如坎特蕾拉湿身、千咲强化E、爱弥斯满充能等) (部分角色未添加)",
     "stable_texture": "应用稳定纹理",
     "stable_texture_desc": "使用 RabbitFX 为角色设置稳定纹理 (目前仅坎特蕾拉、千咲、卡提、夏空...)，需安装最新的RabbitFX",
     "rendering_3_3": "模组破洞/部位缺失修复",
@@ -59,7 +59,10 @@
     "export_done": "已导出",
     "fetching_config": "正在从云端获取最新配置",
     "config_updated": "数据配置已更新到最新",
-    "config_failed": "配置更新失败"
+    "config_failed": "配置更新失败",
+    "copy": "复制",
+    "copied": "已复制 ✓",
+    "copied_toast": "配置代码已复制到剪贴板！"
   },
   "update": {
     "title": "应用更新",

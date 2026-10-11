@@ -24,17 +24,61 @@
 
 ## 📖 How to Use
 
-Go to the [Releases page](https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest) to download the executable file. Double-click to open it, select or drag in your Mod folder, and click the "Start Fix" button.
-
+Go to the [Releases page](https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest) to download the suitable executable:
+- **`Wuwa_Mod_Fixer`** (Recommended for most users): Graphical interface version. Double-click to open, select or drag in your Mod folder, and click "Start Fix". Also supports running via command-line arguments.
+- **`wuwa-mod-cli`**: Lightweight headless standalone CLI version without GUI dependencies, suitable for terminal users or integration into automation scripts.
 
 ### ✨ Features
 - **Automated Fixes**: Automatically detects and replaces asset hash changes.
-- **Rollback Manager**: Built-in manager to revert modifications to their original state.
-- **Cross-platform GUI**: Built with Tauri V2 (Vue3 + Vite), supports Windows and Linux.
-- **Dual Mode**: Supports both Graphical User Interface and classic Terminal mode.
+- **Rollback Manager**: Backups are automatically created before fixing, with a built-in manager to restore original state at any time.
+- **Cross-platform**: Supports Windows and Linux.
+- **Dual Mode**: Supports intuitive graphical interface, interactive console wizard, and direct command-line execution.
+
+### 🚀 Command Line Arguments
+The application supports the following startup arguments (shared between desktop and standalone CLI versions):
+
+| Argument | Description |
+| :--- | :--- |
+| `--path <DIR>` | **Specify Mod folder path**. Specifying this triggers direct fix or rollback. |
+| `--cli` | Explicitly enter interactive console mode (for desktop binary). |
+| `--rendering-33` | Enable "Rendering 3.3 pipeline fix". |
+| `--stable-texture` | Enable "Apply Stable Texture" (mutually exclusive with `--derived-hashes`). |
+| `--derived-hashes` | Enable "Add Derived Hashes" (mutually exclusive with `--stable-texture`). |
+| `--aemeath-mech` | Enable "Fix Aemeath's mech form model error". |
+| `--aero-fix <1\|2>` | Enable "Aero FemaleRover Eye Fix". `1` = TexCoord Override, `2` = Texture Mirror Flip. |
+| `--rollback` | **Rollback the most recent fix** (only undoes the last operation; mutually exclusive with fix options). |
+| `--config <FILE>` | **Specify a config file path**. Loads that `config.json` first and skips remote fetch. |
+| `--online` | Fetch latest configuration online. |
+| `--format <text\|json>` | Output format. Default is `text`, set to `json` to output line-delimited NDJSON event stream for third-party tools. |
+
+**Example:**
+```bash
+# Run in interactive console mode
+./wuwa-mod-cli
+# Or desktop binary:
+./Wuwa_Mod_Fixer --cli
+
+# One-click fix for target Mod
+./wuwa-mod-cli --path "D:\Mods\MyMod"
+
+# One-click fix + Rendering 3.3 pipeline fix + apply stable texture
+./wuwa-mod-cli --path "D:\Mods\MyMod" --rendering-33 --stable-texture
+
+# One-click fix + derived hashes + fetch latest config online
+./wuwa-mod-cli --path "D:\Mods\MyMod" --derived-hashes --online
+
+# One-click fix + use a custom config file
+./wuwa-mod-cli --path "D:\Mods\MyMod" --config "D:\Configs\config.json"
+
+# Rollback the most recent fix
+./wuwa-mod-cli --path "D:\Mods\MyMod" --rollback
+
+# Stream JSON progress events (for third-party tools)
+./wuwa-mod-cli --path "D:\Mods\MyMod" --format json
+```
 
 ### 🛠️ Build & Packaging
-Ensure you have [Rust](https://rustup.rs/) and [Node.js](https://nodejs.org/) (v18+) installed.
+Ensure you have [Rust](https://rustup.rs/) and [Node.js](https://nodejs.org/) (20.x+) installed.
 
 #### Install Dependencies
 ```bash
@@ -49,49 +93,13 @@ npm run tauri dev
 
 #### Build
 ```bash
+# Build desktop GUI app (Windows / Linux)
 npm run tauri build
+
+# Build standalone headless CLI
+cargo build --release -p wuwa-mod-cli
 ```
-For Linux, you'll need to install Tauri system dependencies such as `libwebkit2gtk-4.1-dev`, `build-essential`, `curl`, `wget`, `file`, `libssl-dev`, `libayatana-appindicator3-dev`, `librsvg2-dev` before building.
-
-### 🚀 Command Line Arguments
-The application supports the following startup arguments:
-
-| Argument | Description |
-| :--- | :--- |
-| `--cli` | **Enter Console Mode** (interactive menu). |
-| `--path <DIR>` | **Specify Mod folder path** for non-interactive direct fix mode. Must be used with `--cli`. |
-| `--config <FILE>` | **Specify a config file path**. The app will load that `config.json` first and skip remote config fetch. |
-| `--derived-hashes` | Enable "Add Derived Hashes" (mutually exclusive with `--stable-texture`). |
-| `--stable-texture` | Enable "Apply Stable Texture" (mutually exclusive with `--derived-hashes`). |
-| `--aemeath-mech` | Enable "Fix Aemeath's mech form model error". |
-| `--aero-fix <1\|2>` | Enable "Aero FemaleRover Eye Fix". `1` = TexCoord Override, `2` = Texture Mirror Flip. |
-| `--rollback` | **Rollback the most recent fix** (only undoes the last operation; mutually exclusive with fix options). |
-| `--online` | Fetch latest config from network (non-interactive mode uses local config by default). |
-| `--dev` | **Developer Mode**. Forces loading local configuration and disables remote fetch. |
-
-**Example:**
-```bash
-# Run in interactive console mode
-./Mod_Fixer --cli
-
-# One-click fix (basic hash replacement only)
-./Mod_Fixer --cli --path "D:\Mods\MyMod"
-
-# One-click fix + use a specific config file
-./Mod_Fixer --cli --path "D:\Mods\MyMod" --config "D:\Configs\config.json"
-
-# One-click fix + derived hashes + fetch latest config online
-./Mod_Fixer --cli --path "D:\Mods\MyMod" --derived-hashes --online
-
-# One-click fix + stable texture + Aemeath mech fix
-./Mod_Fixer --cli --path "D:\Mods\MyMod" --stable-texture --aemeath-mech
-
-# One-click fix + Aero eye fix (TexCoord mode)
-./Mod_Fixer --cli --path "D:\Mods\MyMod" --aero-fix 1
-
-# Rollback the most recent fix
-./Mod_Fixer --cli --path "D:\Mods\MyMod" --rollback
-```
+For Linux, you'll need to install Tauri system dependencies such as `libwebkit2gtk-4.1-dev`, `build-essential`, `curl`, `wget`, `file`, `libssl-dev`, `libayatana-appindicator3-dev`, `librsvg2-dev` before building the desktop application.
 
 ---
 

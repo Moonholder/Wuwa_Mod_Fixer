@@ -7,7 +7,7 @@ fn main() {
     println!("cargo:rerun-if-changed=src/resources/FRoverAeroEyes.dds");
 
     // Automatically invoke Node.js to compile config.yml into minified config.json
-    let status = Command::new("node").args(&["../scripts/compile_config.js"]).status();
+    let status = Command::new("node").args(["../scripts/compile_config.js"]).status();
 
     if let Ok(stat) = status {
         if stat.success() {

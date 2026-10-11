@@ -1,6 +1,6 @@
 {
   "productName": "Wuwa_Mod_Fixer",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "identifier": "com.moonholder.wuwa-mod-fixer",
   "build": {
     "frontendDist": "../src-ui/dist",
@@ -36,7 +36,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:"
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: asset:;"
     }
   }
 }

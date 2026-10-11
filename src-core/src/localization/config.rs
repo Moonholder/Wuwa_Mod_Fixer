@@ -10,8 +10,12 @@ pub struct LangItem {
 
 impl LangItem {
     pub fn get_translation(&self, lang: &str) -> &str {
+        let norm = lang.to_ascii_lowercase();
+        let is_zh = norm.starts_with("zh");
         self.translations
             .get(lang)
+            .or_else(|| self.translations.get(&norm))
+            .or_else(|| if is_zh { self.translations.get("zh") } else { None })
             .or_else(|| self.translations.get("en"))
             .map(|s| s.as_str())
             .unwrap_or("")
@@ -59,8 +63,36 @@ pub fn get_raw_locale() -> String {
 }
 
 pub fn get_text(key: &str, lang: &str) -> String {
-    crate::config_loader::config()
-        .lang_ref()
-        .get_text(key, lang)
-        .to_string()
+    get_text_with_fallback(key, lang, key)
+}
+
+/// Look up translated text for given key and language.
+/// Order: 1) Dynamic configuration lang pack; 2) Built-in shared dictionary; 3) fallback string.
+pub fn get_text_with_fallback(key: &str, lang: &str, fallback: &str) -> String {
+    if let Some(cfg) = crate::config_loader::try_config() {
+        let lang_pack = cfg.lang_ref();
+        if let Some(item) = lang_pack.items.get(key) {
+            let trans = item.get_translation(lang);
+            if !trans.is_empty() && trans != key {
+                return trans.to_string();
+            }
+        }
+    }
+
+    if let Some(builtin) = super::builtin::get_builtin_translation(key, lang) {
+        return builtin.to_string();
+    }
+
+    fallback.to_string()
+}
+
+/// Look up text for the currently active system/user language.
+pub fn get_text_for_current_lang(key: &str, fallback: &str) -> String {
+    let lang = get_lang();
+    get_text_with_fallback(key, &lang, fallback)
+}
+
+/// Shorthand to look up text using its key with automatic fallback to key.
+pub fn text(key: &str) -> String {
+    get_text_for_current_lang(key, key)
 }

@@ -70,6 +70,28 @@ if (data && data.characters) {
         if (Array.isArray(charConfig.skip_components)) {
             charConfig.skip_components = charConfig.skip_components.map(Number);
         }
+
+        // 5. Convert materialmap_adapt fields back to Number
+        if (Array.isArray(charConfig.materialmap_adapt)) {
+            for (const rule of charConfig.materialmap_adapt) {
+                if (rule && rule.component_id !== undefined) {
+                    rule.component_id = Number(rule.component_id);
+                }
+                if (rule && rule.clothing_value !== undefined) {
+                    rule.clothing_value = Number(rule.clothing_value);
+                }
+                if (rule && rule.skin_value !== undefined) {
+                    rule.skin_value = Number(rule.skin_value);
+                }
+            }
+        }
+
+        // 6. Convert hair_fix / rover_hair_fix fields back to Number
+        const hf = charConfig.hair_fix || charConfig.rover_hair_fix;
+        if (hf) {
+            if (hf.vg_offset !== undefined) hf.vg_offset = Number(hf.vg_offset);
+            if (hf.vg_count !== undefined) hf.vg_count = Number(hf.vg_count);
+        }
     }
 }
 

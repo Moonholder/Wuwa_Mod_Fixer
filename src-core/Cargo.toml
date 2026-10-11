@@ -4,6 +4,9 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+[lints]
+workspace = true
+
 [dependencies]
 serde.workspace      = true
 serde_json.workspace = true
@@ -14,8 +17,6 @@ walkdir.workspace    = true
 tokio.workspace      = true
 semver.workspace     = true
 chrono.workspace     = true
-once_cell.workspace  = true
-lazy_static.workspace = true
 backtrace.workspace  = true
 futures.workspace    = true
 arc-swap.workspace   = true
@@ -25,3 +26,5 @@ image_dds = "0.4"
 ddsfile = "0.5"
 image = "0.24"
 thiserror.workspace = true
+rayon.workspace     = true
+crc32fast = "1.4"

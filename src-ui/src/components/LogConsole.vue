@@ -76,7 +76,10 @@ async function exportLogs() {
     txt.innerHTML = html;
     return txt.value;
   };
-  const logBody = fix.logs.map(l => decodeHtml(l.messageHtml.replace(/<[^>]+>/g, ''))).join('\n');
+  const logBody = fix.logs.map(l => {
+    if (l.rawText) return l.rawText;
+    return decodeHtml(l.messageHtml.replace(/<[^>]+>/g, ''));
+  }).join('\n');
   
   try {
     const savedPath = await invoke<string>('export_logs', { 
@@ -110,6 +113,34 @@ async function refreshConfig() {
     (window as any).showToast?.(t('console.config_failed') || 'Config update failed!', 'error');
   } finally {
     refreshing.value = false;
+  }
+}
+
+async function handleLogClick(e: MouseEvent) {
+  const target = e.target as HTMLElement;
+  const copyBtn = target.closest('.copy-code-btn') as HTMLButtonElement | null;
+  if (!copyBtn) return;
+  const encoded = copyBtn.dataset.code;
+  if (!encoded) return;
+
+  try {
+    const code = decodeURIComponent(encoded);
+    await navigator.clipboard.writeText(code);
+    const copyText = copyBtn.querySelector('.copy-text');
+    const copiedStr = t('console.copied') || '已复制 ✓';
+    const copyStr = t('console.copy') || '复制';
+    const toastMsg = t('console.copied_toast') || '配置代码已复制到剪贴板！';
+
+    if (copyText) copyText.textContent = copiedStr;
+    copyBtn.classList.add('!text-emerald-500', 'dark:!text-emerald-400', '!border-emerald-500/50');
+    (window as any).showToast?.(toastMsg, 'success');
+
+    setTimeout(() => {
+      if (copyText) copyText.textContent = copyStr;
+      copyBtn.classList.remove('!text-emerald-500', 'dark:!text-emerald-400', '!border-emerald-500/50');
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to copy to clipboard:', err);
   }
 }
 </script>
@@ -164,15 +195,25 @@ async function refreshConfig() {
       </label>
     </div>
     
-    <div @keydown="handleKeyDown" tabindex="0" @wheel.passive="handleWheel" @touchstart.passive="handleTouchStart" @touchmove.passive="handleTouchMove" @mousedown="handleMouseDown" @scroll.passive="handleScroll" class="flex-1 overflow-y-auto p-4 text-[12px] leading-relaxed hide-scrollbar scroll-smooth min-h-0 focus:outline-none" ref="logContainer">
+    <div @keydown="handleKeyDown" tabindex="0" @wheel.passive="handleWheel" @touchstart.passive="handleTouchStart" @touchmove.passive="handleTouchMove" @mousedown="handleMouseDown" @scroll.passive="handleScroll" @click="handleLogClick" class="flex-1 overflow-y-auto p-4 text-[12px] leading-relaxed hide-scrollbar scroll-smooth min-h-0 focus:outline-none" ref="logContainer">
       <div v-if="fix.logs.length === 0" class="h-full flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 opacity-80">
         <svg class="w-8 h-8 mb-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
         <span class="italic">{{ $t('console.waiting') }}</span>
       </div>
       
-      <div v-for="log in fix.logs" :key="log.id" class="mb-1 flex hover:bg-zinc-100/50 dark:hover:bg-white/[0.04] px-2 -mx-2 rounded transition-colors break-words pl-2">
-        <div class="flex-1 min-w-0">
-          <span v-if="log.level === 'ERROR'" class="text-rose-600 dark:text-rose-400 font-bold drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(251,113,133,0.15)]" v-html="log.messageHtml"></span>
+      <div 
+        v-for="log in fix.logs" 
+        :key="log.id" 
+        class="mb-1 flex rounded transition-colors break-words"
+        :class="[
+          log.isMarkdown 
+            ? 'my-2.5 p-3.5 bg-zinc-500/[0.04] dark:bg-zinc-800/20 border border-zinc-200/80 dark:border-zinc-800/80 rounded-xl' 
+            : 'hover:bg-zinc-100/50 dark:hover:bg-white/[0.04] px-2 -mx-2 pl-2'
+        ]"
+      >
+        <div class="flex-1 min-w-0" :class="{ 'log-markdown-content': log.isMarkdown }">
+          <div v-if="log.isMarkdown" class="markdown-body font-sans text-[12.5px] leading-relaxed text-zinc-700 dark:text-zinc-300 select-text" v-html="log.messageHtml"></div>
+          <span v-else-if="log.level === 'ERROR'" class="text-rose-600 dark:text-rose-400 font-bold drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(251,113,133,0.15)]" v-html="log.messageHtml"></span>
           <span v-else-if="log.level === 'WARN'" class="text-amber-600 dark:text-amber-400 font-medium" v-html="log.messageHtml"></span>
           <span v-else-if="log.level === 'DEBUG'" class="text-zinc-500 dark:text-zinc-400 font-medium italic opacity-75" v-html="log.messageHtml"></span>
           <span v-else-if="log.messageHtml.includes('SUCCESS') || log.messageHtml.toLowerCase().includes('success') || log.messageHtml.includes('完成') || log.messageHtml.includes('成功')" class="text-emerald-600 dark:text-emerald-400 font-bold" v-html="log.messageHtml"></span>
@@ -184,6 +225,25 @@ async function refreshConfig() {
       <div class="h-2 w-full shrink-0"></div>
     </div>
     
+    <!-- Streaming Status Bar when fixing is running -->
+    <div
+      v-if="fix.running"
+      class="px-3 py-1 bg-zinc-50/90 dark:bg-[#12131a]/90 border-t border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between text-[11px] font-mono select-none z-10 shrink-0 backdrop-blur-sm"
+    >
+      <div class="flex items-center gap-2 min-w-0 pr-3">
+        <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse shrink-0"></span>
+        <span class="text-sky-600 dark:text-sky-400 font-bold shrink-0">
+          {{ fix.activeStage || $t('app.fixing') }}
+        </span>
+        <span class="text-zinc-400 dark:text-zinc-500 truncate" :title="fix.currentFile">
+          {{ fix.currentFile || '...' }}
+        </span>
+      </div>
+      <div class="shrink-0 font-semibold tabular-nums text-zinc-600 dark:text-zinc-400">
+        {{ fix.progress.current }} / {{ fix.progress.total }} ({{ fix.progressPct }}%)
+      </div>
+    </div>
+
     <div v-if="fix.running" class="absolute bottom-0 left-0 right-0 h-[3px] bg-zinc-100 dark:bg-zinc-900 shrink-0">
       <div 
         class="h-full animate-[bg-pan_2s_linear_infinite] transition-all duration-300 ease-out" 
@@ -193,3 +253,128 @@ async function refreshConfig() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.markdown-body :deep(p) {
+  margin: 0.35rem 0;
+  line-height: 1.6;
+}
+
+.markdown-body :deep(h1),
+.markdown-body :deep(h2),
+.markdown-body :deep(h3),
+.markdown-body :deep(h4) {
+  font-weight: 700;
+  margin: 0.5rem 0 0.25rem 0;
+  color: #0f172a;
+}
+:global(.dark) .markdown-body :deep(h1),
+:global(.dark) .markdown-body :deep(h2),
+:global(.dark) .markdown-body :deep(h3),
+:global(.dark) .markdown-body :deep(h4) {
+  color: #f8fafc;
+}
+
+.markdown-body :deep(strong),
+.markdown-body :deep(b) {
+  font-weight: 700;
+  color: #0369a1;
+}
+:global(.dark) .markdown-body :deep(strong),
+:global(.dark) .markdown-body :deep(b) {
+  color: #38bdf8;
+}
+
+.markdown-body :deep(em),
+.markdown-body :deep(i) {
+  font-style: normal;
+  color: #64748b;
+  font-size: 11.5px;
+  display: block;
+  margin-top: 0.25rem;
+}
+:global(.dark) .markdown-body :deep(em),
+:global(.dark) .markdown-body :deep(i) {
+  color: #94a3b8;
+}
+
+.markdown-body :deep(code:not(pre code)) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.88em;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  background: rgba(14, 165, 233, 0.08);
+  color: #0284c7;
+  border: 1px solid rgba(14, 165, 233, 0.2);
+}
+:global(.dark) .markdown-body :deep(code:not(pre code)) {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+.markdown-body :deep(.code-card pre) {
+  background: #090a0f !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+.markdown-body :deep(pre:not(.code-card pre)) {
+  background: #0f131a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 0.5rem 0;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  line-height: 1.5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.markdown-body :deep(pre code) {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  color: #34d399 !important;
+  font-size: 11.5px !important;
+  font-family: inherit !important;
+}
+
+.markdown-body :deep(blockquote) {
+  border-left: 3px solid #38bdf8;
+  background: rgba(56, 189, 248, 0.06);
+  border-radius: 0 8px 8px 0;
+  padding: 8px 12px;
+  margin: 0.5rem 0;
+  font-size: 12px;
+  color: #334155;
+}
+:global(.dark) .markdown-body :deep(blockquote) {
+  background: rgba(56, 189, 248, 0.08);
+  color: #cbd5e1;
+}
+
+.markdown-body :deep(ul) {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin: 0.35rem 0;
+}
+
+.markdown-body :deep(ol) {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+  margin: 0.35rem 0;
+}
+
+.markdown-body :deep(li) {
+  margin: 0.2rem 0;
+}
+
+.markdown-body :deep(hr) {
+  border: none;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  margin: 0.75rem 0;
+}
+</style>

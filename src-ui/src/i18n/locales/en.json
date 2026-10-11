@@ -29,7 +29,7 @@
   },
   "options": {
     "derived_hashes": "Add Derived Hashes",
-    "derived_hashes_desc": "Add missing texture state hashes (e.g. LOD Bias High/Medium, Cantarella wet, Chisa Enhanced E, Aemeath Charged) so character mod textures display correctly (some characters not added)",
+    "derived_hashes_desc": "Add missing texture state hashes (e.g. Cantarella wet, Chisa Enhanced E, Aemeath Charged) so character mod textures display correctly (some characters not added)",
     "stable_texture": "Apply Stable Texture",
     "stable_texture_desc": "Use RabbitFX to set stable textures for characters (currently Cantarella, Chisa, Cartethyia, Ciaccona...). Requires latest RabbitFX",
     "rendering_3_3": "Fix Mesh Holes / Missing Parts",
@@ -59,7 +59,10 @@
     "export_done": "Done!",
     "fetching_config": "Fetching latest config from server",
     "config_updated": "Configuration updated successfully",
-    "config_failed": "Configuration update failed"
+    "config_failed": "Configuration update failed",
+    "copy": "Copy",
+    "copied": "Copied! ✓",
+    "copied_toast": "Config code copied to clipboard!"
   },
   "update": {
     "title": "App Update",

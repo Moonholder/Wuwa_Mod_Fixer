@@ -1,10 +1,13 @@
 use std::collections::HashMap;
 
-use crate::errors::FixerError;
-use crate::fixers::traits::{Fixer, FixerContext};
-use crate::utils::regex_patterns::*;
 use log::info;
-use regex::Regex;
+
+use crate::{
+    domain::pipeline::{PipelineFixer, PipelineStage},
+    errors::FixerError,
+    fixers::traits::FixerContext,
+    utils::regex_patterns::*,
+};
 
 pub struct RabbitFxFixer;
 
@@ -17,9 +20,17 @@ const MAT_TYPE_MAP: &[(&str, &str)] = &[
     ("S", "Specialmap"),
 ];
 
-impl Fixer for RabbitFxFixer {
+impl PipelineFixer for RabbitFxFixer {
+    fn name(&self) -> &'static str {
+        "RabbitFxFixer"
+    }
+
+    fn stage(&self) -> PipelineStage {
+        PipelineStage::MeshGated
+    }
+
     fn run(&self, ctx: &mut FixerContext) -> Result<bool, FixerError> {
-        if !ctx.enable_stable_texture {
+        if !ctx.mod_ctx.enable_stable_texture {
             return Ok(false);
         }
         let mut modified = false;
@@ -27,7 +38,7 @@ impl Fixer for RabbitFxFixer {
         // Legacy replacement (ps-t17 -> GlowMap, ps-t18 -> FXMap)
         modified |= self.replace_legacy_rabbit_fx_resources(ctx);
 
-        let mut comp_map: HashMap<char, String> = HashMap::new();
+        let mut comp_map: HashMap<u32, String> = HashMap::new();
 
         for (hash, texture_node) in &ctx.config.textures {
             let meta = match &texture_node.meta {
@@ -41,17 +52,21 @@ impl Fixer for RabbitFxFixer {
             };
 
             for &comp_id in &meta.id {
-                let comp_char = match std::char::from_digit(comp_id, 10) {
-                    Some(c) => c,
-                    None => continue,
-                };
-
-                self.try_inject_resource(ctx, hash, mat_type, comp_char, &mut comp_map);
+                self.try_inject_resource(ctx, hash, mat_type, comp_id, &mut comp_map);
             }
         }
 
-        for (comp_no, insert_data) in comp_map {
-            modified |= self.insert_into_component(ctx, comp_no, &insert_data);
+        for (comp_id, insert_data) in comp_map {
+            if let Some(mut comp_view) = ctx.ini_mut().as_component_mut(comp_id) {
+                if comp_view.inject_rabbit_fx_block(&insert_data) {
+                    info!("RabbitFX Update: Component {}, inserted logic block.", comp_id);
+                    modified = true;
+                }
+            }
+        }
+
+        if modified {
+            ctx.mark_ini_modified();
         }
 
         Ok(modified)
@@ -67,9 +82,15 @@ impl RabbitFxFixer {
     }
 
     fn has_rabbitfx_resource(lines: &[String], mat_type: &str) -> bool {
-        let pattern = format!(r"(?i)Resource\\RabbitFX\\{}\s*=", regex::escape(mat_type));
-        let re = Regex::new(&pattern).unwrap();
-        lines.iter().any(|l| re.is_match(l))
+        let target_prefix = format!("resource\\rabbitfx\\{}", mat_type.to_lowercase());
+        lines.iter().any(|l| {
+            let trimmed = l.trim().to_lowercase();
+            if let Some(rest) = trimmed.strip_prefix(&target_prefix) {
+                rest.trim_start().starts_with('=')
+            } else {
+                false
+            }
+        })
     }
 
     fn try_inject_resource(
@@ -77,11 +98,11 @@ impl RabbitFxFixer {
         ctx: &FixerContext,
         hash: &str,
         mat_type: &str,
-        comp_char: char,
-        comp_map: &mut HashMap<char, String>,
+        comp_id: u32,
+        comp_map: &mut HashMap<u32, String>,
     ) {
-        let target_section_name = format!("TextureOverrideComponent{}", comp_char);
-        let sec = match ctx.ini.get_section(&target_section_name) {
+        let target_section_name = format!("TextureOverrideComponent{}", comp_id);
+        let sec = match ctx.ini().get_section(&target_section_name) {
             Some(s) => s,
             None => return,
         };
@@ -90,32 +111,31 @@ impl RabbitFxFixer {
             return;
         }
 
-        let texture_sec = match ctx.ini.sections.iter().find(|s| {
-            s.name.starts_with("TextureOverride")
-                && !s.name.starts_with("TextureOverrideComponent")
-                && !s.name.starts_with("TextureOverrideShapeKey")
-                && s.get_value("hash").map_or(false, |h| h.eq_ignore_ascii_case(hash))
-        }) {
+        let texture_sec = match ctx.ini().find_texture_override_by_hash(hash) {
             Some(s) => s,
             None => return,
         };
 
-        let condition_lines = texture_sec.extract_control_flow_and_resources(|indent, key, val| {
+        let mut cf = texture_sec.to_control_flow();
+        cf.retain_resource_bindings_only();
+        cf.strip_outer_object_detected();
+        cf.transform_resource_bindings(|key, val| {
             if key.eq_ignore_ascii_case("this") {
-                let clean_res_name = val.trim().replace('"', "");
-                if let Some(resource_name) = clean_res_name.split_whitespace().next() {
-                    return Some(format!(
-                        "{}Resource\\RabbitFX\\{} = ref {}",
-                        indent, mat_type, resource_name
-                    ));
-                }
+                let clean = val.trim().replace('"', "");
+                let res_name = clean.strip_prefix("ref ").unwrap_or(&clean).trim();
+                Some(format!("ref {}", res_name))
+            } else {
+                None
             }
-            None
         });
 
-        if !condition_lines.is_empty() {
+        // Rename key directly on AST to target resource reference path.
+        cf.rename_key("this", &format!("Resource\\RabbitFX\\{}", mat_type));
+
+        let condition_lines = cf.to_lines();
+        if !condition_lines.is_empty() && Self::has_rabbitfx_resource(&condition_lines, mat_type) {
             let block_str = condition_lines.join("\n");
-            let entry = comp_map.entry(comp_char).or_default();
+            let entry = comp_map.entry(comp_id).or_default();
             if !entry.is_empty() && !entry.ends_with('\n') {
                 entry.push('\n');
             }
@@ -127,7 +147,7 @@ impl RabbitFxFixer {
     /// Replace legacy rabbit fx resources
     fn replace_legacy_rabbit_fx_resources(&self, ctx: &mut FixerContext) -> bool {
         let mut modified = false;
-        for section in &mut ctx.ini.sections {
+        for section in &mut ctx.ini_mut().sections {
             for line in &mut section.lines {
                 if RE_T17.is_match(line) {
                     let replaced = RE_T17.replace(line, "${1}Resource\\RabbitFX\\GlowMap = ref ${2}");
@@ -145,63 +165,5 @@ impl RabbitFxFixer {
             info!("RabbitFX legacy resources updated.");
         }
         modified
-    }
-
-    /// 将收集到的资源引用块插入到目标 Component section
-    fn insert_into_component(&self, ctx: &mut FixerContext, component_no: char, insert_content: &str) -> bool {
-        let target_section_name = format!("TextureOverrideComponent{}", component_no);
-        let run_cmd = "run = Commandlist\\RabbitFX\\SetTextures";
-
-        let sec = match ctx.ini.get_section_mut(&target_section_name) {
-            Some(s) => s,
-            None => return false,
-        };
-
-        let mut insert_idx = sec.lines.len();
-        let mut append_run = false;
-
-        // Find run = Commandlist\RabbitFX\SetTextures
-        if let Some(idx) = sec.lines.iter().position(|l| RE_RUN_CMD.is_match(l)) {
-            insert_idx = idx;
-        } else {
-            // If not found, insert after handling = skip and append run command
-            if let Some(idx) = sec.lines.iter().position(|l| RE_HANDLING_SKIP.is_match(l)) {
-                insert_idx = idx + 1;
-            }
-            append_run = true;
-        }
-
-        let base_indent = Self::detect_indent(&sec.lines, insert_idx);
-
-        let mut block: Vec<String> = insert_content
-            .lines()
-            .filter(|line| !line.trim().is_empty())
-            .map(|line| format!("{}{}", base_indent, line))
-            .collect();
-
-        if append_run {
-            block.push(format!("{}{}", base_indent, run_cmd));
-        }
-
-        sec.lines.splice(insert_idx..insert_idx, block);
-        info!("RabbitFX Update: Component {}, inserted logic block.", component_no);
-        true
-    }
-
-    fn detect_indent(lines: &[String], insert_idx: usize) -> String {
-        const DEFAULT_INDENT: &str = "";
-        if insert_idx == 0 || insert_idx > lines.len() {
-            return DEFAULT_INDENT.to_string();
-        }
-        let ref_line = &lines[insert_idx - 1];
-        let ind: String = ref_line
-            .chars()
-            .take_while(|c| c.is_whitespace() && *c != '\r' && *c != '\n')
-            .collect();
-        if ind.is_empty() {
-            DEFAULT_INDENT.to_string()
-        } else {
-            ind
-        }
     }
 }

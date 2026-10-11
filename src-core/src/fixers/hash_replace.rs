@@ -1,21 +1,27 @@
-// src-core/src/fixers/text_replace/hash_replace.rs
+// src-core/src/fixers/hash_replace.rs
 
 use std::collections::HashMap;
 
 use log::info;
 
 use crate::{
+    domain::pipeline::{PipelineFixer, PipelineStage},
     errors::FixerError,
-    fixers::traits::{Fixer, FixerContext},
-    utils::ini_parser::parse_line,
+    fixers::traits::FixerContext,
 };
 
 pub struct HashReplaceFixer;
 
-impl Fixer for HashReplaceFixer {
-    fn run(&self, ctx: &mut FixerContext) -> Result<bool, FixerError> {
-        let mut modified = false;
+impl PipelineFixer for HashReplaceFixer {
+    fn name(&self) -> &'static str {
+        "HashReplaceFixer"
+    }
 
+    fn stage(&self) -> PipelineStage {
+        PipelineStage::PreProcess
+    }
+
+    fn run(&self, ctx: &mut FixerContext) -> Result<bool, FixerError> {
         let mut replace_map: HashMap<String, String> = HashMap::new();
         for hr in &ctx.config.main_hashes {
             for old in &hr.old {
@@ -36,59 +42,15 @@ impl Fixer for HashReplaceFixer {
             return Ok(false);
         }
 
-        let replace_line = |line: &mut String| -> bool {
-            let is_comment = line.trim_start().starts_with(';');
+        let modified = ctx.ini_mut().replace_key_values("hash", |val| {
+            replace_map.get(&val.to_lowercase()).map(|new_hash| {
+                info!("{} -> {}", val, new_hash);
+                new_hash.clone()
+            })
+        });
 
-            let (clean_line, comment_prefix) = if is_comment {
-                let prefix: String = line.chars().take_while(|&c| c.is_whitespace() || c == ';').collect();
-                (&line[prefix.len()..], Some(prefix))
-            } else {
-                (line.as_str(), None)
-            };
-
-            let (k, v, comment) = parse_line(clean_line);
-
-            if let (Some(key), Some(val)) = (k, v) {
-                if key.eq_ignore_ascii_case("hash") {
-                    if let Some(new_hash) = replace_map.get(&val.to_lowercase()) {
-                        if let Some(ref prefix) = comment_prefix {
-                            if let Some(comm) = comment {
-                                *line = format!("{}hash = {} {}", prefix, new_hash, comm);
-                            } else {
-                                *line = format!("{}hash = {}", prefix, new_hash);
-                            }
-                        } else {
-                            let indent: String = line
-                                .chars()
-                                .take_while(|c| c.is_whitespace() && *c != '\r' && *c != '\n')
-                                .collect();
-
-                            if let Some(comm) = comment {
-                                *line = format!("{}hash = {} {}", indent, new_hash, comm);
-                            } else {
-                                *line = format!("{}hash = {}", indent, new_hash);
-                            }
-                        }
-                        info!("{} -> {}", val, new_hash);
-                        return true;
-                    }
-                }
-            }
-            false
-        };
-
-        for line in &mut ctx.ini.pre_lines {
-            if replace_line(line) {
-                modified = true;
-            }
-        }
-
-        for section in &mut ctx.ini.sections {
-            for line in &mut section.lines {
-                if replace_line(line) {
-                    modified = true;
-                }
-            }
+        if modified {
+            ctx.mark_ini_modified();
         }
 
         Ok(modified)

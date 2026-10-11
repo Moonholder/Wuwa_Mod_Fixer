@@ -1,6 +1,6 @@
 use log::info;
 
-use crate::config_loader::ShapeKeyFixConfig;
+use crate::config_loader::{ShapeKeyFixConfig, SymmetryFilter};
 
 pub struct RebuildResult {
     pub offset_buf: Vec<u8>,
@@ -10,18 +10,27 @@ pub struct RebuildResult {
     pub batch1_count: u32,
 }
 
-pub struct ShapeKeyFixer<'a> {
+/// Low-level geometry buffer rebuilder for multi-batch shape keys.
+pub struct ShapeKeyRebuilder<'a> {
     config: &'a ShapeKeyFixConfig,
 }
 
-impl<'a> ShapeKeyFixer<'a> {
+pub type ShapeKeyFixer<'a> = ShapeKeyRebuilder<'a>;
+
+impl<'a> ShapeKeyRebuilder<'a> {
     pub fn new(config: &'a ShapeKeyFixConfig, _char_name: &str) -> Option<Self> {
         Some(Self { config })
     }
 
-    pub fn needs_fix(&self, vertex_id_buf_size: usize) -> bool {
-        let expected = self.config.new_vertex_count.unwrap_or(0) as usize * 4;
-        expected > 0 && vertex_id_buf_size != expected
+    pub fn needs_fix(&self, offset_buf: &[u8]) -> bool {
+        // Check if buffer is already reorganized into multi-batch layout.
+        if offset_buf.len() >= 1024 && offset_buf.len() % 512 == 0 {
+            let b1_first = u32::from_le_bytes(offset_buf[512..516].try_into().unwrap_or([1; 4]));
+            if b1_first == 0 {
+                return false;
+            }
+        }
+        true
     }
 
     pub fn rebuild_buffers(
@@ -29,6 +38,7 @@ impl<'a> ShapeKeyFixer<'a> {
         old_offset: &[u8],
         old_vertex_id: &[u8],
         old_vertex_offset: &[u8],
+        position_buf: Option<&[u8]>,
     ) -> Result<RebuildResult, String> {
         let stride = self.config.offset_stride.unwrap_or(12) as usize;
 
@@ -46,23 +56,23 @@ impl<'a> ShapeKeyFixer<'a> {
             let mut vertex_offset_base = 0;
             for b in 0..num_batches {
                 let batch_base = b * 512;
-                let batch_vertex_count = u32::from_le_bytes(
-                    old_offset[batch_base + 127 * 4..batch_base + 128 * 4]
-                        .try_into()
-                        .unwrap(),
-                ) as usize;
+                let batch_vertex_count = old_offset
+                    .get(batch_base + 127 * 4..batch_base + 128 * 4)
+                    .and_then(|s| s.try_into().ok())
+                    .map(u32::from_le_bytes)
+                    .unwrap_or(0) as usize;
 
                 for k in 0..127 {
-                    let start = u32::from_le_bytes(
-                        old_offset[batch_base + k * 4..batch_base + k * 4 + 4]
-                            .try_into()
-                            .unwrap(),
-                    ) as usize;
-                    let end = u32::from_le_bytes(
-                        old_offset[batch_base + (k + 1) * 4..batch_base + (k + 1) * 4 + 4]
-                            .try_into()
-                            .unwrap(),
-                    ) as usize;
+                    let start = old_offset
+                        .get(batch_base + k * 4..batch_base + k * 4 + 4)
+                        .and_then(|s| s.try_into().ok())
+                        .map(u32::from_le_bytes)
+                        .unwrap_or(0) as usize;
+                    let end = old_offset
+                        .get(batch_base + (k + 1) * 4..batch_base + (k + 1) * 4 + 4)
+                        .and_then(|s| s.try_into().ok())
+                        .map(u32::from_le_bytes)
+                        .unwrap_or(0) as usize;
                     let count = end.saturating_sub(start);
 
                     if count > 0 {
@@ -88,8 +98,16 @@ impl<'a> ShapeKeyFixer<'a> {
                 let mut has_odd_blocks = false;
                 for i in (1..num_8_blocks).step_by(2) {
                     has_odd_blocks = true;
-                    let start = u32::from_le_bytes(old_offset[i * 8..i * 8 + 4].try_into().unwrap());
-                    let end = u32::from_le_bytes(old_offset[i * 8 + 4..i * 8 + 8].try_into().unwrap());
+                    let start = old_offset
+                        .get(i * 8..i * 8 + 4)
+                        .and_then(|s| s.try_into().ok())
+                        .map(u32::from_le_bytes)
+                        .unwrap_or(0);
+                    let end = old_offset
+                        .get(i * 8 + 4..i * 8 + 8)
+                        .and_then(|s| s.try_into().ok())
+                        .map(u32::from_le_bytes)
+                        .unwrap_or(0);
                     if start != 0 || end != 0 {
                         all_odd_zeros = false;
                         break;
@@ -109,8 +127,16 @@ impl<'a> ShapeKeyFixer<'a> {
 
             for i in 0..num_old_slots {
                 let base_idx = i * offset_unit_size;
-                let start = u32::from_le_bytes(old_offset[base_idx..base_idx + 4].try_into().unwrap()) as usize;
-                let end = u32::from_le_bytes(old_offset[base_idx + 4..base_idx + 8].try_into().unwrap()) as usize;
+                let start = old_offset
+                    .get(base_idx..base_idx + 4)
+                    .and_then(|s| s.try_into().ok())
+                    .map(u32::from_le_bytes)
+                    .unwrap_or(0) as usize;
+                let end = old_offset
+                    .get(base_idx + 4..base_idx + 8)
+                    .and_then(|s| s.try_into().ok())
+                    .map(u32::from_le_bytes)
+                    .unwrap_or(0) as usize;
                 let count = end.saturating_sub(start);
 
                 if count > 0 {
@@ -128,11 +154,12 @@ impl<'a> ShapeKeyFixer<'a> {
             }
         }
 
-        let max_mapped = self
-            .config
-            .expression_remap
-            .as_ref()
-            .map_or(0, |r| r.values().copied().max().unwrap_or(0) as usize);
+        let max_mapped = self.config.expression_remap.as_ref().map_or(0, |r| {
+            r.values()
+                .flat_map(|v| v.iter().map(|t| t.target_channel))
+                .max()
+                .unwrap_or(0) as usize
+        });
 
         let max_unmapped = extracted_shapekeys.keys().copied().max().unwrap_or(0) as usize;
         let max_channel = std::cmp::max(max_mapped, max_unmapped);
@@ -142,22 +169,91 @@ impl<'a> ShapeKeyFixer<'a> {
 
         let mut new_shapekeys = vec![(0usize, Vec::<u8>::new(), Vec::<u8>::new()); target_entries];
 
+        // Adaptive horizontal gaze orientation normalization:
+        // By standard convention, slot 2 (look left) has negative X displacement (mean_x < 0),
+        // and slot 3 (look right) has positive X displacement (mean_x > 0).
+        // Swap slots if inverted displacement is detected to preserve physical orientation.
+        if let (Some((c2, _, vals2)), Some((c3, _, vals3))) = (extracted_shapekeys.get(&2), extracted_shapekeys.get(&3))
+        {
+            let mean2 = calculate_mean_x(vals2, *c2, stride);
+            let mean3 = calculate_mean_x(vals3, *c3, stride);
+
+            if mean2 > 0.05 && mean3 < -0.05 {
+                info!(
+                    "Detected inverted eye gaze horizontal displacement (Slot 2: {mean2:.3}, Slot 3: {mean3:.3}). Normalizing gaze orientation."
+                );
+                if let (Some(data2), Some(data3)) = (extracted_shapekeys.remove(&2), extracted_shapekeys.remove(&3)) {
+                    extracted_shapekeys.insert(2, data3);
+                    extracted_shapekeys.insert(3, data2);
+                }
+            }
+        }
+
         let mut sorted_keys: Vec<usize> = extracted_shapekeys.keys().copied().collect();
         sorted_keys.sort_unstable();
 
         for old_channel in sorted_keys {
-            let data = extracted_shapekeys.get(&old_channel).unwrap().clone();
-            let new_channel = if let Some(remaps) = &self.config.expression_remap {
-                remaps
-                    .get(&(old_channel as u16))
-                    .map(|&v| v as usize)
-                    .unwrap_or(old_channel)
-            } else {
-                old_channel
+            let Some((src_count, src_ids, src_vals)) = extracted_shapekeys.get(&old_channel).cloned() else {
+                continue;
             };
+            if let Some(remaps) = &self.config.expression_remap {
+                if let Some(targets) = remaps.get(&(old_channel as u16)) {
+                    for target in targets {
+                        let t = target.target_channel as usize;
+                        if t >= target_entries {
+                            continue;
+                        }
+                        match target.filter {
+                            SymmetryFilter::All => {
+                                new_shapekeys[t] = (src_count, src_ids.clone(), src_vals.clone());
+                            }
+                            SymmetryFilter::Left | SymmetryFilter::Right => {
+                                if let Some(pos) = position_buf {
+                                    let mut filtered_ids = Vec::new();
+                                    let mut filtered_vals = Vec::new();
+                                    let is_left = target.filter == SymmetryFilter::Left;
 
-            if new_channel < target_entries {
-                new_shapekeys[new_channel] = data;
+                                    for i in 0..src_count {
+                                        let vid_start = i * 4;
+                                        if vid_start + 4 > src_ids.len() {
+                                            break;
+                                        }
+                                        let vid =
+                                            u32::from_le_bytes(src_ids[vid_start..vid_start + 4].try_into().unwrap())
+                                                as usize;
+                                        let pos_offset = vid * 12;
+
+                                        let keep = if pos_offset + 4 <= pos.len() {
+                                            let x =
+                                                f32::from_le_bytes(pos[pos_offset..pos_offset + 4].try_into().unwrap());
+                                            if is_left { x <= 0.0 } else { x >= 0.0 }
+                                        } else {
+                                            true
+                                        };
+
+                                        if keep {
+                                            filtered_ids.extend_from_slice(&src_ids[vid_start..vid_start + 4]);
+                                            let val_start = i * stride;
+                                            let val_end = val_start + stride;
+                                            if val_end <= src_vals.len() {
+                                                filtered_vals.extend_from_slice(&src_vals[val_start..val_end]);
+                                            }
+                                        }
+                                    }
+                                    let count = filtered_ids.len() / 4;
+                                    new_shapekeys[t] = (count, filtered_ids, filtered_vals);
+                                } else {
+                                    log::warn!(
+                                        "Position buffer missing for symmetry split on channel {t}, fallback to All"
+                                    );
+                                    new_shapekeys[t] = (src_count, src_ids.clone(), src_vals.clone());
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if old_channel < target_entries {
+                new_shapekeys[old_channel] = (src_count, src_ids, src_vals);
             }
         }
 
@@ -199,4 +295,50 @@ impl<'a> ShapeKeyFixer<'a> {
             batch1_count: c1,
         })
     }
+}
+
+/// Converts an IEEE 754 half-precision float (16-bit) to f32.
+fn f16_to_f32(h: u16) -> f32 {
+    let sign = ((h & 0x8000) as u32) << 16;
+    let exp = (h & 0x7c00) >> 10;
+    let mant = (h & 0x03ff) as u32;
+
+    if exp == 0 {
+        if mant == 0 {
+            f32::from_bits(sign)
+        } else {
+            let mut m = mant << 13;
+            let mut e = 127 - 14;
+            while (m & 0x00800000) == 0 {
+                m <<= 1;
+                e -= 1;
+            }
+            m &= !0x00800000;
+            f32::from_bits(sign | ((e as u32) << 23) | m)
+        }
+    } else if exp == 31 {
+        f32::from_bits(sign | 0x7f800000 | (mant << 13))
+    } else {
+        let e = (exp as i32 - 15 + 127) as u32;
+        let m = mant << 13;
+        f32::from_bits(sign | (e << 23) | m)
+    }
+}
+
+/// Computes mean X-axis displacement across shape key vertices.
+fn calculate_mean_x(vals: &[u8], count: usize, stride: usize) -> f32 {
+    if count == 0 || stride < 2 {
+        return 0.0;
+    }
+    let mut sum = 0.0f32;
+    let mut valid_verts = 0usize;
+    for i in 0..count {
+        let offset = i * stride;
+        if offset + 2 <= vals.len() {
+            let u = u16::from_le_bytes([vals[offset], vals[offset + 1]]);
+            sum += f16_to_f32(u);
+            valid_verts += 1;
+        }
+    }
+    if valid_verts > 0 { sum / valid_verts as f32 } else { 0.0 }
 }

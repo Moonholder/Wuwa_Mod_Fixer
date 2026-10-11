@@ -1,8 +1,8 @@
 {
-  "en": "- Fixed FRover, Lynae, Yangyang: Xuanling, Suisui.",
-  "zh": "- 修复女主 琳奈 秧秧·玄翎 穗穗",
-  "zh-Hant": "- 修復女主 琳奈 秧秧·玄翎 穗穗",
-  "ja": "- 主人公（女）、リンネー、秧秧玄翎、穂穂（スイスイ）の修正",
-  "ko": "- 방랑자(여), 린네, 양양·현령, 수수",
-  "ua": "- Виправлено FRover, Lynae, Yangyang: Xuanling, Suisui."
+  "zh": "### 改进\n- 优化批量扫描与处理性能，提升修复速度。\n- 优化备份机制，单次修复会话统一生成同一时间戳备份，避免长时间批量处理导致备份分散，方便整体回滚。\n- 改进主角 (Rover) Materialmap 生成效果，提升材质渲染表现。\n\n### 模组修复\n- 修复主角及其表情（若此前曾手动修改过 Hash，请先回滚或还原后再执行修复）。\n- 修复千咲皮肤。",
+  "zh-Hant": "### 改進\n- 最佳化批次掃描與處理效能，提升修復速度。\n- 最佳化備份機制，單次修復工作階段統一產生同一時間戳記備份，避免長時間批次處理導致備份分散，方便整體回滾。\n- 改進主角 (Rover) Materialmap 產生效果，提升材質渲染表現。\n\n### 模組修復\n- 修復主角及其表情（若此前曾手動修改過 Hash，請先回滾或還原後再執行修復）。\n- 修復千咲皮膚。",
+  "en": "### Improvements\n- Optimized batch scanning and processing performance for faster fixes.\n- Unified backup timestamps: all backups in a single session now share one timestamp, preventing backups from being split across multiple groups during long batch runs and making full rollbacks easier.\n- Improved Rover Materialmap generation to enhance material rendering quality.\n\n### Mod Fixes\n- Fixed Rover and facial expressions (if hashes were manually modified previously, rollback or revert them first to apply the fix).\n- Fixed Chisa outfit.",
+  "ja": "### 改善\n- バッチスキャンと処理パフォーマンスを最適化し、修復速度を向上。\n- バックアップ機構の改善：長時間のバッチ処理でバックアップが複数のグループに分散する問題を解消し、1回の修復セッションで単一のタイムスタンプに統一して一括復元を容易に。\n- 主人公（Rover）の Materialmap 生成ロジックを改善し、材質レンダリングの品質を向上。\n\n### Mod修正\n- 主人公および表情の修正（以前に Hash を手動変更した場合は、修復を適用するために事前にロールバックまたは復元してください）。\n- 千咲の衣装修正。",
+  "ko": "### 개선 사항\n- 대량 스캔 및 처리 성능을 최적화하여 수정 속도를 향상했습니다.\n- 백업 생성 로직 개선: 대량 처리 시 시간이 오래 걸려 백업이 여러 그룹으로 분산되던 문제를 해결하고, 단일 세션에서 동일한 타임스탬프로 통일하여 전체 롤백이 쉬워졌습니다.\n- 방랑자(Rover)의 Materialmap 생성 효과를 개선하여 재질 렌더링 품질을 향상했습니다.\n\n### 모드 수정\n- 방랑자 및 표정 수정 (이전에 Hash를 수동으로 수정한 경우, 수정을 정상 적용하려면 먼저 롤백 또는 복원해 주세요).\n- 치사키 의상 수정.",
+  "ua": "### Покращення\n- Оптимізовано швидкість пакетного сканування та обробки файлів.\n- Вдосконалено систему резервного копіювання: усі резервні копії в межах однієї сесії тепер мають єдину мітку часу, що запобігає розділенню на різні групи та спрощує повний відкат.\n- Покращено генерацію Rover Materialmap для підвищення якості відображення матеріалів.\n\n### Виправлення модів\n- Виправлено Rover та міміку (якщо хеші змінювалися вручну, спочатку виконайте відкат або відновлення, щоб застосувати виправлення).\n- Виправлено костюм Chisa."
 }

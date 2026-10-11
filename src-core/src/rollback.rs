@@ -1,5 +1,4 @@
 // src-core/src/rollback.rs
-// Migrated verbatim from src/rollback.rs
 
 use std::{
     collections::{BTreeMap, HashMap},
@@ -8,14 +7,9 @@ use std::{
 };
 
 use anyhow::{Result, anyhow};
-use regex::Regex;
 use walkdir::WalkDir;
 
-lazy_static::lazy_static! {
-    static ref BAK_RE: Regex = Regex::new(
-        r"^(.*)_(\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2}(?:\.\d{3})?)\.BAK$"
-    ).unwrap();
-}
+use crate::utils::regex_patterns::BAK_RE;
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct BackupFile {
@@ -32,6 +26,7 @@ pub struct BackupGroup {
     pub files: Vec<BackupFile>,
 }
 
+/// Scans directory for .BAK backup files and groups them by session timestamp.
 pub fn scan_backups(dir: &Path) -> Result<Vec<BackupGroup>> {
     let mut files_by_time: BTreeMap<String, Vec<BackupFile>> = BTreeMap::new();
 
@@ -40,17 +35,19 @@ pub fn scan_backups(dir: &Path) -> Result<Vec<BackupGroup>> {
         if path.is_file() {
             if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
                 if let Some(caps) = BAK_RE.captures(file_name) {
-                    let original_name = caps.get(1).unwrap().as_str();
-                    let full_timestamp = caps.get(2).unwrap().as_str();
-                    let group_key = String::from(&full_timestamp[..full_timestamp.len().min(16)]);
-                    let original_path = path.with_file_name(original_name);
+                    if let (Some(orig), Some(ts)) = (caps.get(1), caps.get(2)) {
+                        let original_name = orig.as_str();
+                        let full_timestamp = ts.as_str();
+                        let group_key = full_timestamp.to_string();
+                        let original_path = path.with_file_name(original_name);
 
-                    files_by_time.entry(group_key.clone()).or_default().push(BackupFile {
-                        current_path: path.to_path_buf(),
-                        original_path,
-                        timestamp: full_timestamp.to_string(),
-                        group_key,
-                    });
+                        files_by_time.entry(group_key.clone()).or_default().push(BackupFile {
+                            current_path: path.to_path_buf(),
+                            original_path,
+                            timestamp: full_timestamp.to_string(),
+                            group_key,
+                        });
+                    }
                 }
             }
         }
@@ -64,6 +61,7 @@ pub fn scan_backups(dir: &Path) -> Result<Vec<BackupGroup>> {
     Ok(groups)
 }
 
+/// Restores modified files to the specified session state and deletes subsequent backups.
 pub fn execute_rollback(dir: &Path, target_group_key: &str) -> Result<()> {
     let all_groups = scan_backups(dir)?;
 
@@ -102,6 +100,14 @@ pub fn execute_rollback(dir: &Path, target_group_key: &str) -> Result<()> {
         }
     }
 
+    // Verify backup source files exist before mutating the filesystem.
+    for (_, bf) in &earliest_per_file {
+        if !bf.current_path.exists() {
+            return Err(anyhow!("Backup source file missing: {}", bf.current_path.display()));
+        }
+    }
+
+    // Restore files or delete newly injected files (tracked with 0-byte markers).
     for (original_path, bf) in &earliest_per_file {
         if let Ok(meta) = fs::metadata(&bf.current_path) {
             if meta.len() == 0 {
@@ -112,19 +118,28 @@ pub fn execute_rollback(dir: &Path, target_group_key: &str) -> Result<()> {
                 continue;
             }
         }
+        if let Some(parent) = original_path.parent() {
+            if !parent.exists() {
+                fs::create_dir_all(parent)?;
+            }
+        }
         fs::copy(&bf.current_path, original_path)?;
         log::info!("Restored: {} (from backup {})", original_path.display(), bf.timestamp);
     }
 
+    // Clean up processed backup files.
     for bak_path in &files_to_delete {
-        match fs::remove_file(bak_path) {
-            Ok(_) => log::info!("Cleaned up: {}", bak_path.display()),
-            Err(e) => log::warn!("Failed to clean {}: {}", bak_path.display(), e),
+        if bak_path.exists() {
+            match fs::remove_file(bak_path) {
+                Ok(_) => log::info!("Cleaned up: {}", bak_path.display()),
+                Err(e) => log::warn!("Failed to clean {}: {}", bak_path.display(), e),
+            }
         }
     }
     Ok(())
 }
 
+/// Computes total backup storage footprint, resolving zero-byte markers to target file sizes.
 pub fn calculate_backup_size(dir: &Path) -> Result<(u64, usize)> {
     let mut total_size = 0;
     let mut total_count = 0;
@@ -147,8 +162,8 @@ pub fn calculate_backup_size(dir: &Path) -> Result<(u64, usize)> {
 
         if metadata.len() > 0 {
             total_size += metadata.len();
-        } else {
-            let original_name = caps.get(1).unwrap().as_str();
+        } else if let Some(orig) = caps.get(1) {
+            let original_name = orig.as_str();
             let original_path = path.with_file_name(original_name);
             if let Ok(orig_meta) = fs::metadata(&original_path) {
                 total_size += orig_meta.len();
@@ -159,6 +174,7 @@ pub fn calculate_backup_size(dir: &Path) -> Result<(u64, usize)> {
     Ok((total_size, total_count))
 }
 
+/// Deletes all .BAK backup files within the specified directory.
 pub fn delete_all_backups(dir: &Path) -> Result<()> {
     for entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
@@ -171,4 +187,54 @@ pub fn delete_all_backups(dir: &Path) -> Result<()> {
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_scan_and_rollback() -> Result<()> {
+        let temp_dir = std::env::temp_dir().join(format!(
+            "test_rollback_{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&temp_dir)?;
+
+        let target_file = temp_dir.join("test.ini");
+        let added_file = temp_dir.join("added.dds");
+
+        // Simulate session backup: test.ini modified, added.dds created (0-byte marker)
+        let t1 = "2026-08-29 01-00-00";
+        let bak1 = temp_dir.join(format!("test.ini_{}.BAK", t1));
+        let added_bak = temp_dir.join(format!("added.dds_{}.BAK", t1));
+
+        fs::write(&target_file, "version 2")?;
+        fs::write(&added_file, "new content")?;
+        fs::write(&bak1, "version 1")?;
+        fs::File::create(&added_bak)?;
+
+        let groups = scan_backups(&temp_dir)?;
+        assert_eq!(groups.len(), 1);
+        assert_eq!(groups[0].group_key, t1);
+        assert_eq!(groups[0].files.len(), 2);
+
+        let (size, count) = calculate_backup_size(&temp_dir)?;
+        assert_eq!(count, 2);
+        assert!(size > 0);
+
+        execute_rollback(&temp_dir, t1)?;
+
+        let content = fs::read_to_string(&target_file)?;
+        assert_eq!(content, "version 1");
+        assert!(!added_file.exists());
+        assert!(!bak1.exists());
+        assert!(!added_bak.exists());
+
+        let _ = fs::remove_dir_all(&temp_dir);
+        Ok(())
+    }
 }

@@ -1,11 +1,14 @@
 pub mod aero_fix;
+pub mod cutout_mask;
 pub mod derive_redirect;
+pub mod hair_fix;
 pub mod hash_replace;
+pub mod materialmap;
 pub mod rabbit_fx;
 pub mod rendering_3_3;
+pub mod resource_override;
 pub mod rover_fix;
 pub mod rule_replace;
-pub mod resource_override;
 pub mod shapekey;
 pub mod stride;
 pub mod traits;

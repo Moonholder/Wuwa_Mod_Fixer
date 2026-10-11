@@ -93,7 +93,7 @@ async function refreshBackups() {
   loading.value = true
   try {
     let res = await invoke<BackupGroup[]>('scan_backups', { path: settings.last_folder })
-    backups.value = res.sort((a, b) => b.group_key.localeCompare(a.group_key))
+    backups.value = Array.isArray(res) ? res.sort((a, b) => (b.group_key || '').localeCompare(a.group_key || '')) : []
     await loadBackupSize()
   } catch (e) {
     backups.value = []
@@ -121,14 +121,16 @@ async function executeRollback(group_key: string) {
   } catch (e) { fix.pushLog('ERROR', `[ERR] Rollback failed: ${formatError(e)}`) }
 }
 
-function groupFilesByDir(files: BackupFile[], basePath: string) {
+function groupFilesByDir(files: BackupFile[] | undefined, basePath: string) {
   const map = new Map<string, string[]>()
+  if (!files || !Array.isArray(files)) return map
   files.forEach(f => {
+    if (!f || typeof f.original_path !== 'string') return
     let relPath = f.original_path.replace(basePath, '').replace(/^[\\\/]/, '')
     const parts = relPath.split(/[\\\/]/)
     const fileName = parts.pop() || ''
     const dirName = parts.length > 0 ? parts.join('/') : '.'
-    if (!map.has(dirName)) map.set(dirName,[])
+    if (!map.has(dirName)) map.set(dirName, [])
     map.get(dirName)!.push(fileName)
   })
   return map

@@ -1,14 +1,26 @@
+// src-core/src/fixers/stride.rs
+
+use std::path::PathBuf;
+
 use log::info;
 
 use crate::{
+    domain::pipeline::{PipelineFixer, PipelineStage},
     errors::FixerError,
-    fixers::traits::{Fixer, FixerContext},
-    utils::regex_patterns::*,
+    fixers::traits::FixerContext,
 };
 
 pub struct StrideFixer;
 
-impl Fixer for StrideFixer {
+impl PipelineFixer for StrideFixer {
+    fn name(&self) -> &'static str {
+        "StrideFixer"
+    }
+
+    fn stage(&self) -> PipelineStage {
+        PipelineStage::MeshGated
+    }
+
     fn run(&self, ctx: &mut FixerContext) -> Result<bool, FixerError> {
         let stride_fix = match &ctx.config.stride_fix {
             Some(sf) => sf,
@@ -18,50 +30,51 @@ impl Fixer for StrideFixer {
         let has_trigger_hash = stride_fix
             .trigger_hash
             .iter()
-            .any(|h| ctx.original_hashes.contains(&h.to_lowercase()));
+            .any(|h| ctx.original_hashes().contains(&h.to_lowercase()));
 
         if !has_trigger_hash {
             return Ok(false);
         }
 
-        let mut modified = false;
+        let base_dir = ctx
+            .file_path()
+            .parent()
+            .unwrap_or(std::path::Path::new("."))
+            .to_path_buf();
+        let mut fix_list: Vec<PathBuf> = Vec::new();
+        let mut ini_modified = false;
 
-        let mut fix_list = Vec::new();
-
-        for section in &mut ctx.ini.sections {
-            if RE_BLEND.is_match(&format!("[{}]\n", section.name)) {
-                let mut needs_fix = false;
-                for line in &mut section.lines {
-                    if RE_STRIDE_8.is_match(line) {
-                        let replaced = RE_STRIDE_8.replace(line, "stride = 16");
-                        if replaced != *line {
-                            *line = replaced.to_string();
-                            needs_fix = true;
-                            modified = true;
-                        }
+        // Scan resource sections to update blend buffer stride from 8 to 16.
+        for mut res_view in ctx.ini_mut().iter_resources_mut() {
+            if res_view.is_blend_buffer() {
+                if res_view.stride() == Some(8) {
+                    if res_view.ensure_stride(16) {
+                        ini_modified = true;
                     }
-                }
-
-                if needs_fix {
-                    if let Some(filename) = section.get_value("filename") {
-                        let filepath = ctx.file_path.parent().unwrap().join(filename.trim_matches('"'));
-                        fix_list.push(filepath);
+                    if let Some(path) = res_view.resolved_path(&base_dir) {
+                        fix_list.push(path);
                     }
                 }
             }
         }
 
+        let mut modified = ini_modified;
+
+        // Expand binary blend buffer payloads on disk.
         for path in fix_list {
             if path.exists() {
-                let data = std::fs::read(&path)?;
+                let data = ctx.read_buffer(&path)?.to_vec();
                 if data.len() % 8 == 0 {
-                    // Check if it is really 8-byte stride data
-                    crate::utils::fs_utils::create_backup_once(&path, ctx.backed_up)?;
                     let new_data = expand_blend_stride_to_16(&data);
-                    std::fs::write(&path, new_data)?;
+                    ctx.write_buffer_bytes(&path, new_data);
                     info!("Expanded blend stride to 16 for {}", path.display());
+                    modified = true;
                 }
             }
+        }
+
+        if ini_modified {
+            ctx.mark_ini_modified();
         }
 
         Ok(modified)

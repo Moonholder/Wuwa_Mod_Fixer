@@ -1,50 +1,72 @@
-// src-core/src/settings.rs
-// Migrated from src/settings.rs — identical logic, no GUI dependencies
+// Persistent user settings management.
 
-use std::path::PathBuf;
+use std::{collections::BTreeMap, path::PathBuf};
 
-#[derive(serde::Serialize, serde::Deserialize, Default, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Default, Clone, Debug)]
 pub struct UserSettings {
     pub last_folder: Option<String>,
-    pub light_theme: Option<bool>,
-    pub window_width: Option<f32>,
-    pub window_height: Option<f32>,
-    pub window_x: Option<i32>,
-    pub window_y: Option<i32>,
     /// Proxy node for GitHub downloads: "direct"|"ghproxy"|"mirror"|"gh-ddlc"|"kgithub"
     pub proxy_node: Option<String>,
     /// UI Language: "zh", "en", etc.
     pub language: Option<String>,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_json::Value>,
 }
 
-pub fn settings_path() -> PathBuf {
-    let local_path = std::env::current_exe()
+/// Returns the application data root directory.
+pub fn app_data_dir() -> PathBuf {
+    let exe_dir = std::env::current_exe()
         .ok()
-        .and_then(|p| p.parent().map(|d| d.to_path_buf()))
-        .unwrap_or_else(|| PathBuf::from("."))
-        .join("settings.json");
-
-    if let Some(local_dir) = local_path.parent() {
-        let test_file = local_dir.join(".settings_write_test");
-        if std::fs::write(&test_file, "").is_ok() {
-            let _ = std::fs::remove_file(test_file);
-            return local_path;
-        }
-    }
+        .and_then(|p| p.parent().map(|d| d.to_path_buf()));
 
     let base_dir = if cfg!(target_os = "windows") {
-        std::env::var("APPDATA").map(PathBuf::from).ok()
+        std::env::var("LOCALAPPDATA")
+            .ok()
+            .or_else(|| std::env::var("APPDATA").ok())
+            .map(PathBuf::from)
+    } else if cfg!(target_os = "macos") {
+        std::env::var("HOME")
+            .ok()
+            .map(|h| PathBuf::from(h).join("Library").join("Application Support"))
     } else {
-        std::env::var("HOME").map(|h| PathBuf::from(h).join(".config")).ok()
+        std::env::var("XDG_DATA_HOME").ok().map(PathBuf::from).or_else(|| {
+            std::env::var("HOME")
+                .ok()
+                .map(|h| PathBuf::from(h).join(".local").join("share"))
+        })
     };
 
     if let Some(mut dir) = base_dir {
-        dir.push("WuwaModFixer");
+        dir.push("com.moonholder.wuwa-mod-fixer");
         let _ = std::fs::create_dir_all(&dir);
-        dir.join("settings.json")
+        dir
+    } else if let Some(dir) = exe_dir {
+        dir
     } else {
-        local_path
+        PathBuf::from(".")
     }
+}
+
+pub fn settings_path() -> PathBuf {
+    let current_path = app_data_dir().join("settings.json");
+
+    // Migrate legacy settings from roaming profile if present.
+    if !current_path.exists() && cfg!(target_os = "windows") {
+        if let Ok(roaming) = std::env::var("APPDATA") {
+            let legacy_dir = PathBuf::from(roaming).join("WuwaModFixer");
+            let legacy_file = legacy_dir.join("settings.json");
+            if legacy_file.exists() {
+                if let Ok(content) = std::fs::read_to_string(&legacy_file) {
+                    if std::fs::write(&current_path, &content).is_ok() {
+                        let _ = std::fs::remove_file(&legacy_file);
+                        let _ = std::fs::remove_dir(&legacy_dir);
+                    }
+                }
+            }
+        }
+    }
+
+    current_path
 }
 
 pub fn load_settings() -> UserSettings {

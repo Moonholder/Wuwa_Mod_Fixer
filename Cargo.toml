@@ -1,12 +1,13 @@
 [workspace]
 members = [
     "src-core",
+    "src-cli",
     "src-tauri",
 ]
 resolver = "2"
 
 [workspace.package]
-version = "3.6.0"
+version = "3.7.0"
 edition = "2024"
 license = "GPL-3.0"
 
@@ -20,12 +21,12 @@ walkdir     = "2.3"
 tokio       = { version = "1", features = ["rt-multi-thread", "sync", "macros"] }
 semver      = "1"
 chrono      = "0.4"
-once_cell   = "1"
-lazy_static = "1.4"
+clap        = { version = "4.5", features = ["derive"] }
 backtrace   = "0.3"
 futures     = "0.3"
 arc-swap    = "1"
 thiserror   = "2"
+rayon       = "1.10"
 reqwest     = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "stream", "brotli", "gzip"] }
 
 [profile.release]
@@ -34,3 +35,41 @@ codegen-units = 1
 lto = "fat"
 opt-level = "z"
 strip = true
+
+[profile.release.package.image_dds]
+opt-level = 3
+
+[workspace.lints.clippy]
+collapsible_if = "allow"
+collapsible_match = "allow"
+chunks_exact_to_as_chunks = "allow"
+manual_pattern_char_comparison = "allow"
+for_kv_map = "allow"
+too_many_arguments = "allow"
+identity_op = "allow"
+needless_lifetimes = "allow"
+unnecessary_cast = "allow"
+redundant_closure = "allow"
+double_ended_iterator_last = "allow"
+manual_strip = "allow"
+let_and_return = "allow"
+to_string_trait_impl = "allow"
+new_without_default = "allow"
+should_implement_trait = "allow"
+manual_is_multiple_of = "allow"
+search_is_some = "allow"
+type_complexity = "allow"
+question_mark = "allow"
+len_zero = "allow"
+needless_borrow = "allow"
+doc_lazy_continuation = "allow"
+field_reassign_with_default = "allow"
+manual_memcpy = "allow"
+needless_borrows_for_generic_args = "allow"
+unnecessary_map_or = "allow"
+inherent_to_string = "allow"
+manual_contains = "allow"
+explicit_auto_deref = "allow"
+manual_slice_fill = "allow"
+manual_c_str_literals = "allow"
+

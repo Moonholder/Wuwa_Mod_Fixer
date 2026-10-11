@@ -1,5 +1,4 @@
-// src-core/src/collector.rs — migrated verbatim from src/collector.rs
-// Only change: removed `error!` macro (use log::error instead, already in scope via #[macro_use])
+// Resource buffer discovery and draw call metadata extraction.
 
 use std::{
     collections::HashMap,
@@ -13,6 +12,7 @@ pub const INDEX_SIZE: usize = 4;
 pub enum BufferType {
     Blend,
     TexCoord,
+    Position,
     Index,
     BlendRemapForward,
     Color,
@@ -26,6 +26,7 @@ impl std::fmt::Display for BufferType {
         match self {
             BufferType::Blend => write!(f, "Blend"),
             BufferType::TexCoord => write!(f, "TexCoord"),
+            BufferType::Position => write!(f, "Position"),
             BufferType::Index => write!(f, "Index"),
             BufferType::BlendRemapForward => write!(f, "BlendRemapForward"),
             BufferType::Color => write!(f, "Color"),
@@ -36,21 +37,10 @@ impl std::fmt::Display for BufferType {
     }
 }
 
-lazy_static::lazy_static! {
-    static ref FILENAME_RE:   Regex = Regex::new(r"(?i)filename\s*=\s*([^\s]+?\.buf)").unwrap();
-    static ref STRIDE_RE:     Regex = Regex::new(r"(?i)stride\s*=\s*(\d+)").unwrap();
-    static ref COMPONENT_RE:  Regex = Regex::new(r"(?m)^\[TextureOverrideComponent(\d+)[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
-    static ref DRAWINDEXED_RE: Regex = Regex::new(r"drawindexed\s*=\s*(\d+),\s*(\d+),").unwrap();
-
-    static ref RE_BLEND: Regex = Regex::new(r"(?im)^\[ResourceBlendBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
-    static ref RE_TEXCOORD: Regex = Regex::new(r"(?im)^\[ResourceTexCoordBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
-    static ref RE_INDEX: Regex = Regex::new(r"(?im)^\[ResourceIndexBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
-    static ref RE_BREMAP: Regex = Regex::new(r"(?im)^\[ResourceBlendRemapForwardBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
-    static ref RE_COLOR: Regex = Regex::new(r"(?im)^\[ResourceColorBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
-    static ref RE_SHAPEKEY_OFFSET: Regex = Regex::new(r"(?im)^\[ResourceShapeKeyOffsetBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
-    static ref RE_SHAPEKEY_VERTEX_ID: Regex = Regex::new(r"(?im)^\[ResourceShapeKeyVertexIdBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
-    static ref RE_SHAPEKEY_VERTEX_OFFSET: Regex = Regex::new(r"(?im)^\[ResourceShapeKeyVertexOffsetBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)").unwrap();
-}
+use crate::utils::regex_patterns::{
+    COMPONENT_RE, DRAWINDEXED_RE, FILENAME_RE, RE_BLEND, RE_BREMAP, RE_COLOR, RE_INDEX, RE_POSITION,
+    RE_SHAPEKEY_OFFSET, RE_SHAPEKEY_VERTEX_ID, RE_SHAPEKEY_VERTEX_OFFSET, RE_TEXCOORD, STRIDE_RE,
+};
 
 pub fn parse_resource_buffer_path(
     content: &str,
@@ -60,6 +50,7 @@ pub fn parse_resource_buffer_path(
     let section_re = match buf_type {
         BufferType::Blend => &*RE_BLEND,
         BufferType::TexCoord => &*RE_TEXCOORD,
+        BufferType::Position => &*RE_POSITION,
         BufferType::Index => &*RE_INDEX,
         BufferType::BlendRemapForward => &*RE_BREMAP,
         BufferType::Color => &*RE_COLOR,
@@ -216,7 +207,13 @@ pub fn get_byte_range_in_buffer(
     for i in start_index..end_index {
         let start = i * INDEX_SIZE;
         let end = start + INDEX_SIZE;
-        let index = u32::from_le_bytes(index_buffer[start..end].try_into().unwrap()) as usize;
+        let slice = index_buffer
+            .get(start..end)
+            .ok_or_else(|| "index buffer slice out of bounds".to_string())?;
+        let bytes: [u8; 4] = slice
+            .try_into()
+            .map_err(|e| format!("failed to convert index buffer slice: {e}"))?;
+        let index = u32::from_le_bytes(bytes) as usize;
         if index < min_vi {
             min_vi = index;
         }
@@ -235,11 +232,12 @@ pub fn get_byte_range_in_buffer(
 }
 
 pub fn get_buf_path_index(path: &Path) -> Option<&str> {
-    path.file_stem()
-        .unwrap()
-        .to_str()
-        .filter(|s| s.contains('_'))
-        .map(|s| s.split('_').last().unwrap())
+    let stem = path.file_stem()?.to_str()?;
+    if stem.contains('_') {
+        stem.split('_').last()
+    } else {
+        None
+    }
 }
 
 pub fn combine_buf_path(path: &Path, buf_type: &BufferType) -> PathBuf {
