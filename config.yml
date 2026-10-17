@@ -1,6 +1,6 @@
 version:
   min_required_version: 3.7.0
-  current_version: 3.7.0
+  current_version: 3.7.1
   latest_program_version: 3.7.0
   update_url: https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest
   support_url_cn: https://support.jix.de5.net
@@ -35,10 +35,12 @@ lang:
       修复更新: 请将XXMI更新至最新版本
       * 修复主角及其表情（注意：若此前手动修改过 Hash，请先回滚或还原才能触发修复）
       * 修复千咲皮肤
+      * 纠正莫宁 Component3 Materialmap hash 的错误引用（建议回滚后重新修复）
     en: |+
       Fix Update: Please update XXMI to the latest version.
       * Fixed Rover and their expressions (Note: If you have manually modified hashes before, please rollback or restore first to trigger this fix)
       * Fixed Chisa outfit
+      * Corrected Mornye Component3 Materialmap hash reference (it is recommended to roll back and re-fix)
 
   intro_note:
     zh: |+
@@ -1450,23 +1452,23 @@ characters:
       76b6fe88: {meta: {id: 3, type: D}, replace: [d4b685ff, 201f9795], derive: {LOD: [abe960af,12d2245a]}}
       73f1de8a: {meta: {id: 3, type: L}, replace: [05ad6976], derive: {LOD: [aeae40ad,072842e1]}}
       0bb1e433: {meta: {id: 3, type: N}, replace: [37971681, b864a3fa], derive: {LOD: [d6ee7a14,24ff0077]}}
-      2dd3d65d: {meta: {id: 3, type: M}, replace: [75ce0c21], derive: {LOD: [f08c487a,d3992a2a]}}
-      89a5a60b: {meta: {id: 4, type: D, slot: [10]}, replace: [4ba9f939, 4b7131f7, adb701fd], derive: {LOD: [1b8378c6,1110df65]}}
-      47708382: {meta: {id: 4, type: L, slot: [9]}, replace: [da119917, 078d4b06], derive: {LOD: [d5565d4f,aa17ec66]}}
-      e9ac4474: {meta: {id: 4, type: N, slot: [8]}, replace: [d6cdd4cf, 4979c5b0, 75f3ce40], derive: {LOD: [7b8a9ab9,cc5e32f6]}}
+      fb7a0fd2: {meta: {id: 3, type: M}, derive: {LOD: [262591f5,1596428b]}}
+      89a5a60b: {meta: {id: 4, type: D, slot: [8]}, replace: [4ba9f939, 4b7131f7, adb701fd], derive: {LOD: [1b8378c6,1110df65]}}
+      47708382: {meta: {id: 4, type: L}, replace: [da119917, 078d4b06], derive: {LOD: [d5565d4f,aa17ec66]}}
+      e9ac4474: {meta: {id: 4, type: N}, replace: [d6cdd4cf, 4979c5b0, 75f3ce40], derive: {LOD: [7b8a9ab9,cc5e32f6]}}
       ad78bb96: {meta: {id: 5, type: D}, replace: [3ea68ef7, d5e47035], derive: {LOD: [702725b1,0ba56ddf]}}
       ccd4b666: {meta: {id: 5, type: L}, replace: [2a6aa36b, 2bf9506c], derive: {LOD: [118b2841,23db69a5]}}
       701f7bac: {meta: {id: 5, type: N}, replace: [f2768109, 1557244b], derive: {LOD: [ad40e58b,4e32c219]}}
       61d64305: {meta: {id: 5, type: M},derive: {LOD: [bc89dd22,30d78e31]}}
       1c8c931e: {replace: [afacbd93, 1e7c100d]}
       80ee93bc: {meta: {id: 6, type: D}, replace: [ca37a23c, 84a341b4, 2d26a8fe], derive: {LOD: [c3b2fd1a]}}
-      a2b39668: {meta: {id: 7, type: D, slot: [11]}, replace: [45658d90, 7b258721], derive: {LOD: [7fec084f,3cac1ec4]}}
+      a2b39668: {meta: {id: 7, type: D}, replace: [45658d90, 7b258721], derive: {LOD: [7fec084f,3cac1ec4]}}
       190d9e78: {meta: {id: 7, type: L}, replace: [5bd6d2d0], derive: {LOD: [c452005f,b00ffd73]}}
       0d3ee66e: {meta: {id: 7, type: N}, replace: [21da94eb, 1b14a741], derive: {LOD: [d0617849,8e14be18]}}
       f46e3fe6: {meta: {id: 7, type: M}, derive: {LOD: [2931a1c1,ec6993a9]}}
       7968d921: {derive: {LOD: [4d069274, 8c58128c]}}
       b2519abe: {replace: [e9ec3443]}
-      fb7a0fd2: {derive: {LOD: [262591f5,1596428b]}}
+      2dd3d65d: {replace: [75ce0c21], derive: {LOD: [f08c487a,d3992a2a]}}
       c3b2fd1a: {replace: [345146b8, 8e65d75a, b0a3755a]}
       8c40d6f2: {replace: [dc90fe92, 5a92790e]}
       422561fe: {replace: [ec17ddf3]}
