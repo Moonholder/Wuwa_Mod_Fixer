@@ -34,12 +34,12 @@ lang:
     zh: |+
       修复更新: 请将XXMI更新至最新版本
       * 修复主角及其表情（注意：若此前手动修改过 Hash，请先回滚或还原才能触发修复）
-      * 修复千咲皮肤
+      * 修复千咲皮肤和景燃
       * 纠正莫宁 Component3 Materialmap hash 的错误引用（建议回滚后重新修复）
     en: |+
       Fix Update: Please update XXMI to the latest version.
       * Fixed Rover and their expressions (Note: If you have manually modified hashes before, please rollback or restore first to trigger this fix)
-      * Fixed Chisa outfit
+      * Fixed Chisa outfit and Jingran
       * Corrected Mornye Component3 Materialmap hash reference (it is recommended to roll back and re-fix)
 
   intro_note:
@@ -1136,6 +1136,9 @@ characters:
       08a995cb: {replace: [8cb7d93a]}
       8a0b6f77: {replace: [adcb548e], derive: {LOD: [3fed8a43, 6d54e1e4]}}
       45980f8f: {replace: [e82d0d1f], derive: {LOD: [7a0bd3d2, 323ca928]}}
+  Jingran:
+    main_hashes:
+      - {old: [99f2dc5d], new: 48ccdc7a}
   Lingyang:
     main_hashes:
       - {old: [8b3c13f9], new: 9925d10e}
