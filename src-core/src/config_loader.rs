@@ -2,7 +2,7 @@
 // Config loading, validation, and hot-reload.
 
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     path::PathBuf,
     sync::{Arc, OnceLock},
     time::{Duration, Instant},
@@ -84,6 +84,41 @@ pub struct CharacterConfig {
     pub fallback_masks: Option<Vec<FallbackMaskRule>>,
     #[serde(alias = "rover_hair_fix")]
     pub hair_fix: Option<HairFixConfig>,
+    /// Statement-level resource slot shift rule, pre-digested by
+    /// `scripts/compile_config.js` (see `src-core/src/slot_fix.rs`).
+    pub slot_fix: Option<CompiledSlotRule>,
+}
+
+/// Fully derived (compile-time) slot-fix rule.
+///
+/// `scripts/compile_config.js` is the single authority that produces this
+/// structure: it normalizes slots, enforces injectivity, aggregates anchors and
+/// pre-computes the multi-epoch closures and valid_epochs below.
+#[derive(Serialize, Deserialize, Default, Clone, Debug)]
+#[serde(default)]
+pub struct CompiledSlotRule {
+    pub rule_id: String,
+    pub character: String,
+    #[serde(alias = "rev")]
+    pub latest_rev: u32,
+    /// Lowercase `vb0` anchors that identify the owning component sections.
+    pub hashes: Vec<String>,
+    pub match_first_index: Vec<String>,
+    /// Closures per epoch `e`: maps active slot at epoch `e` to destination slot at `latest_rev`.
+    pub closures: HashMap<u32, HashMap<String, String>>,
+    /// Active epochs for each slot across the lineage progression.
+    pub valid_epochs: HashMap<String, Vec<u32>>,
+}
+
+impl CompiledSlotRule {
+    /// True when the slot identifier participates in the lineage migration.
+    pub fn is_affected(&self, slot: &str) -> bool {
+        self.valid_epochs.contains_key(slot)
+    }
+
+    pub fn hash_set(&self) -> HashSet<String> {
+        self.hashes.iter().map(|h| h.to_ascii_lowercase()).collect()
+    }
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug, PartialEq, Eq)]
@@ -206,6 +241,31 @@ pub struct ShapeKeyFixConfig {
     #[serde(default, deserialize_with = "deserialize_option_multimap_or_string")]
     pub expression_remap: Option<HashMap<u16, Vec<TargetShapeKey>>>,
     pub offset_stride: Option<u32>,
+    /// `target channel -> source channel` used to fill channels that exist in the
+    /// target game build but are only 2-vertex stubs in the mod (e.g. the 3.8
+    /// viseme channels 113..=116 and the strong wink 111). Derived from the
+    /// target reference by vertex-set / displacement similarity.
+    pub channel_substitutes: Option<HashMap<String, String>>,
+    /// `resources/shapekey/*.skref` built from a default WWMI export of the target
+    /// build. When set, the listed channels are transplanted from it instead of
+    /// being approximated by `channel_substitutes`.
+    pub reference_asset: Option<String>,
+    /// Comma separated channel list to transplant **only where the mod has no
+    /// real data** (a 2-vertex stub), e.g. `"111,113,114,115,116"`.
+    pub channel_transplant: Option<String>,
+    /// Same format, but these channels are transplanted even when the mod
+    /// already carries data (use for channels that only ever existed as stubs
+    /// in the source generation, or to upgrade earlier synthetic output).
+    pub channel_transplant_force: Option<String>,
+    /// Force list used only for legacy (single batch) inputs, whose slot
+    /// numbering cannot be trusted. `"0-160"` rebuilds the whole table from
+    /// the target build.
+    pub channel_transplant_force_legacy: Option<String>,
+    /// Maximum vertex-match distance for the transplant, in position units.
+    pub transplant_tolerance: Option<String>,
+    /// Radius used to spread a transplanted displacement onto neighbouring mod
+    /// vertices that have no coincident reference vertex. `0` disables it.
+    pub transplant_diffusion: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone)]

@@ -11,6 +11,7 @@ import FixOptions from './components/FixOptions.vue'
 import UpdateModal from './components/UpdateModal.vue'
 import LogConsole from './components/LogConsole.vue'
 import Rollback from './components/Rollback.vue'
+import SlotOverlapDrawer from './components/SlotOverlapDrawer.vue'
 import { useI18n } from 'vue-i18n'
 
 const fix = useFixStore()
@@ -31,7 +32,9 @@ watch(locale, async () => {
 async function startFix() {
   if (!settings.last_folder) return
   fixFinished.value = false
-  await fix.startFix({ path: settings.last_folder, ...app.options })
+  // `slotOverlap: 'ask'` keeps phase 1 non-blocking and always defers genuinely
+  // undecidable slot overlays to the phase 2 drawer.
+  await fix.startFix({ path: settings.last_folder, ...app.options, slotOverlap: 'ask' })
   fixFinished.value = true
   setTimeout(() => {
     fixFinished.value = false
@@ -88,7 +91,7 @@ async function manualCheckUpdate() {
 async function handleConfigUpdated(fromManual = false) {
   await app.fetchConfigMeta()
   await app.fetchAndPrintIntroLogs(true, locale.value)
-  if (!fromManual) {
+  if (!fromManual && isDev) {
     app.showToast(t('console.config_updated') || '配置已热重载', 'success')
     fix.pushLog('SUCCESS', `[DEV] ${t('console.config_updated')} (v${app.configMeta.version})`)
   }
@@ -176,6 +179,26 @@ onUnmounted(() => {
 
                 <!-- Bottom action button -->
                 <div class="p-4 shrink-0 border-t border-zinc-200/80 dark:border-white/5 bg-zinc-50/50 dark:bg-[#101115]/30 rounded-b-xl">
+                  <!-- Re-entry point: pending slot-state confirmations -->
+                  <button
+                    v-if="fix.slotItems.length > 0 && !fix.running"
+                    @click="fix.slotDrawerOpen = true"
+                    class="w-full mb-3 px-3 py-2 rounded-[10px] border border-sky-400/40 dark:border-sky-500/30 bg-sky-500/[0.06] dark:bg-sky-500/[0.08] hover:bg-sky-500/[0.12] dark:hover:bg-sky-500/[0.14] transition-colors flex items-center gap-2 text-left active:scale-[0.99]"
+                  >
+                    <span class="shrink-0 min-w-[1.35rem] h-[1.35rem] px-1 rounded-md bg-sky-500/15 text-sky-600 dark:text-sky-300 text-[10.5px] font-bold flex items-center justify-center">
+                      {{ fix.slotModCount }}
+                    </span>
+                    <span class="flex-1 min-w-0 text-[11.5px] font-medium text-sky-700 dark:text-sky-300 truncate">
+                      {{ $t('slot.pending_banner', { count: fix.slotModCount }) }}
+                    </span>
+                    <span class="shrink-0 text-[10.5px] font-semibold text-sky-600 dark:text-sky-400 flex items-center gap-0.5">
+                      {{ $t('slot.pending_banner_action') }}
+                      <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </button>
+
                   <!-- Cancelling state -->
                   <button
                     v-if="fix.isCancelling"
@@ -376,6 +399,7 @@ onUnmounted(() => {
   </div>
 
   <UpdateModal />
+  <SlotOverlapDrawer />
 
   <!-- Window-level Drag and Drop Overlay -->
   <Transition name="fade">

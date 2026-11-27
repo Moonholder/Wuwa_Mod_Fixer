@@ -17,6 +17,7 @@ use crate::{
     domain::pipeline::FixerPipeline,
     errors::FixerError,
     events::{EventSink, FixSummary, LegacyProgressAdapter, PipelineEvent},
+    slot_fix::{OverlapPolicy, SlotFixSession},
     t,
     utils::regex_patterns::RE_HASH,
 };
@@ -36,6 +37,8 @@ pub struct ModFixer {
     pub enable_fix_aemeath_mech: bool,
     pub enable_rendering33_fix: bool,
     pub aero_fix_mode: u8,
+    /// Phase 1 policy for genuinely undecidable overlap slots.
+    pub slot_overlap_policy: OverlapPolicy,
     event_sink: Arc<dyn EventSink>,
     cancel_flag: Arc<AtomicBool>,
 }
@@ -117,9 +120,16 @@ impl ModFixer {
             enable_fix_aemeath_mech,
             enable_rendering33_fix,
             aero_fix_mode,
+            slot_overlap_policy: OverlapPolicy::Ask,
             event_sink,
             cancel_flag,
         }
+    }
+
+    /// Builder: selects the phase 1 overlap policy (CLI `--slot-overlap`, GUI toggle).
+    pub fn with_slot_overlap_policy(mut self, policy: OverlapPolicy) -> Self {
+        self.slot_overlap_policy = policy;
+        self
     }
 
     pub fn process_directory(&self, dir: &Path) -> FixSummary {
@@ -133,6 +143,14 @@ impl ModFixer {
 
         let total = target_files.len();
         let session_time = chrono::Local::now().format("%Y-%m-%d %H-%M-%S").to_string();
+
+        // One shared two-phase session for the whole batch: the phase 1 and
+        // phase 2 writes reuse this exact timestamp, so one `--rollback`
+        // atomically restores everything.
+        let slot_session = Arc::new(
+            SlotFixSession::new(session_time.clone(), self.slot_overlap_policy, dir.to_path_buf())
+                .with_sink(self.event_sink.clone()),
+        );
 
         self.event_sink.emit(PipelineEvent::Start {
             mode: "fix".to_string(),
@@ -174,7 +192,7 @@ impl ModFixer {
                 percent: start_percent,
             });
 
-            let file_result = self.process_file_outcome(&path, Some(&session_time));
+            let file_result = self.process_file_shared(&path, Some(&session_time), Some(&slot_session));
 
             // Acquire sequenced emit lock to ensure strictly monotonic progress across threads
             let mut guard = emit_lock.lock().unwrap_or_else(|e| e.into_inner());
@@ -266,7 +284,15 @@ impl ModFixer {
             skipped_count: sk,
             failure_count: err,
             elapsed_ms: start_time.elapsed().as_millis() as u64,
+            session_ts: Some(session_time.clone()),
+            ambiguous_items: slot_session.ambiguous_snapshot(),
         };
+
+        // Persist the ambiguity queue so a later invocation (or a third-party
+        // launcher) can finish phase 2 with `--resolve-session <ts>`.
+        if !summary.ambiguous_items.is_empty() {
+            crate::slot_fix::save_session_manifest(dir, &session_time, &summary.ambiguous_items);
+        }
 
         let finish_msg = t!(
             process_folder_done,
@@ -313,6 +339,16 @@ impl ModFixer {
         path: &Path,
         session_time: Option<&str>,
     ) -> Result<ProcessFileOutcome, FixerError> {
+        self.process_file_shared(path, session_time, None)
+    }
+
+    /// Processes one .ini file with an optional batch-wide slot-fix session.
+    fn process_file_shared(
+        &self,
+        path: &Path,
+        session_time: Option<&str>,
+        slot_session: Option<&Arc<SlotFixSession>>,
+    ) -> Result<ProcessFileOutcome, FixerError> {
         let content = std::fs::read_to_string(path)?;
 
         let mut original_hashes = HashSet::new();
@@ -340,6 +376,17 @@ impl ModFixer {
             self.enable_texture_override,
         );
         mod_ctx.session_time = session_time.map(|s| s.to_string());
+        mod_ctx.slot_session = match slot_session {
+            Some(session) => session.clone(),
+            None => Arc::new(
+                SlotFixSession::new(
+                    session_time.unwrap_or_default().to_string(),
+                    self.slot_overlap_policy,
+                    path.parent().map(|p| p.to_path_buf()).unwrap_or_default(),
+                )
+                .with_sink(self.event_sink.clone()),
+            ),
+        };
         crate::domain::pipeline::record_prof("ModContext::new", t_mc.elapsed().as_micros() as u64);
 
         let exec_result = self.pipeline.execute(

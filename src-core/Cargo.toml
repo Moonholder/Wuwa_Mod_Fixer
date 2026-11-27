@@ -28,3 +28,5 @@ image = "0.24"
 thiserror.workspace = true
 rayon.workspace     = true
 crc32fast = "1.4"
+sha2 = "0.10"
+brotli = "8.0.2"

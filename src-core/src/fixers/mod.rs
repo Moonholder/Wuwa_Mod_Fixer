@@ -10,6 +10,8 @@ pub mod resource_override;
 pub mod rover_fix;
 pub mod rule_replace;
 pub mod shapekey;
+pub mod slot_fix;
+pub use slot_fix::SlotFixFixer;
 pub mod stride;
 pub mod traits;
 pub mod vertex_remap;

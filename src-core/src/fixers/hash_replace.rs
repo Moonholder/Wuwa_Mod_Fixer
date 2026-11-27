@@ -42,6 +42,18 @@ impl PipelineFixer for HashReplaceFixer {
             return Ok(false);
         }
 
+        // Snapshot the per-section `hash` values so that the slots rewritten here
+        // can be reported as "co-mutated" to the slot-fix Level 2 short-circuit.
+        // A component whose `vb0` was just migrated from an old to a new hash is
+        // 100% an un-fixed old component, which lets a lone `ps-t7` be resolved
+        // without any guessing.
+        let before: Vec<String> = ctx
+            .ini()
+            .sections
+            .iter()
+            .map(|sec| sec.get_value("hash").unwrap_or_default())
+            .collect();
+
         let modified = ctx.ini_mut().replace_key_values("hash", |val| {
             replace_map.get(&val.to_lowercase()).map(|new_hash| {
                 info!("{} -> {}", val, new_hash);
@@ -50,6 +62,16 @@ impl PipelineFixer for HashReplaceFixer {
         });
 
         if modified {
+            let mut co_mutated = Vec::new();
+            for (idx, sec) in ctx.mod_ctx.ini.sections.iter().enumerate() {
+                let after = sec.get_value("hash").unwrap_or_default();
+                if before.get(idx).map(|b| b != &after).unwrap_or(false) {
+                    co_mutated.push(sec.name.clone());
+                }
+            }
+            for name in co_mutated {
+                ctx.mod_ctx.co_mutated_sections.insert(name);
+            }
             ctx.mark_ini_modified();
         }
 

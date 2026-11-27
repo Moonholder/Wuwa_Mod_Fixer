@@ -3,10 +3,10 @@
 use std::{
     collections::{HashMap, HashSet},
     path::{Path, PathBuf},
-    sync::OnceLock,
+    sync::{Arc, OnceLock},
 };
 
-use crate::{domain::cst::IniCstDocument, errors::FixerError, utils::fs_utils};
+use crate::{domain::cst::IniCstDocument, errors::FixerError, slot_fix::SlotFixSession, utils::fs_utils};
 
 /// Aggregate root and unit of work managing CST state, buffer caches, and writeback transactions.
 pub struct ModContext {
@@ -18,6 +18,13 @@ pub struct ModContext {
     pub backed_up: HashSet<PathBuf>,
     pub ini_modified: bool,
     pub session_time: Option<String>,
+
+    /// Sections whose `vb0`/`ib` hash was rewritten earlier in this same session.
+    /// Consumed by the slot-fix Level 2 co-mutation short-circuit.
+    pub co_mutated_sections: HashSet<String>,
+
+    /// Shared two-phase slot-fix session (ambiguity queue + session timestamp).
+    pub slot_session: Arc<SlotFixSession>,
 
     pub enable_stable_texture: bool,
     pub enable_fix_aemeath_mech: bool,
@@ -55,6 +62,8 @@ impl ModContext {
             backed_up: HashSet::new(),
             ini_modified: false,
             session_time: None,
+            co_mutated_sections: HashSet::new(),
+            slot_session: Arc::new(SlotFixSession::default()),
             enable_stable_texture,
             enable_fix_aemeath_mech,
             enable_rendering33_fix,

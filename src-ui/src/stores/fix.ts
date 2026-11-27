@@ -106,6 +106,41 @@ function scheduleFlush(store: ReturnType<typeof useFixStore>) {
   });
 }
 
+export interface AmbiguousLinePreview {
+  line_number: number
+  raw_code: string
+  current_slot: string
+  if_shifted_slot: string
+  if_kept_orig_slot: string
+  epoch_targets?: Record<number, string>
+}
+
+export interface AmbiguousSlotItem {
+  item_id: string
+  mod_folder_name: string
+  rel_ini_path: string
+  abs_ini_path: string
+  section_name: string
+  rule_id: string
+  character: string
+  rev: number
+  affected_lines: AmbiguousLinePreview[]
+  candidate_epochs?: number[]
+  conflict_reason?: string
+}
+
+export type SlotDecision = 'keep' | 'update'
+
+export interface FixSummaryPayload {
+  total_files: number
+  success_count: number
+  skipped_count: number
+  failure_count: number
+  elapsed_ms: number
+  session_ts?: string
+  ambiguous_items?: AmbiguousSlotItem[]
+}
+
 export interface PipelineEvent {
   event:
     | 'start'
@@ -117,6 +152,7 @@ export interface PipelineEvent {
     | 'file_error'
     | 'progress'
     | 'log'
+    | 'slot_fix'
     | 'task_cancelled'
     | 'finish'
   path?: string
@@ -133,13 +169,14 @@ export interface PipelineEvent {
   error_key?: string
   message_key?: string
   message?: string
-  summary?: {
-    total_files: number
-    success_count: number
-    skipped_count: number
-    failure_count: number
-    elapsed_ms: number
-  }
+  status?: 'applied' | 'pinned_existing' | 'ambiguous_pending'
+  item_id?: string
+  mod_folder?: string
+  file?: string
+  section?: string
+  rule_id?: string
+  rev?: number
+  summary?: FixSummaryPayload
 }
 
 export const useFixStore = defineStore('fix', {
@@ -150,13 +187,31 @@ export const useFixStore = defineStore('fix', {
     progress: { current: 0, total: 0 },
     currentFile: '',
     activeStage: '',
-    summary: null as PipelineEvent['summary'] | null,
+    summary: null as FixSummaryPayload | null,
     autoScroll: true,
+    // ── Two-phase slot overlap session ──
+    slotDrawerOpen: false,
+    slotSessionTs: '',
+    slotItems: [] as AmbiguousSlotItem[],
+    // No default decision: an unset entry means "the user has not chosen yet".
+    slotDecisions: {} as Partial<Record<string, SlotDecision>>,
+    isApplyingSlot: false,
   }),
 
   getters: {
     progressPct: (s) => s.progress.total ? Math.round((s.progress.current / s.progress.total) * 100) : 0,
     running: (s) => s.isProcessing,
+    hasSlotItems: (s) => s.slotItems.length > 0,
+    slotModCount: (s) => {
+      const folders = new Set<string>()
+      for (const item of s.slotItems) {
+        const folder = item.mod_folder_name || (item.rel_ini_path.split(/[/\\]/)[0] || item.rel_ini_path)
+        folders.add(folder)
+      }
+      return folders.size
+    },
+    slotDecidedCount: (s) => s.slotItems.filter(i => !!s.slotDecisions[i.item_id]).length,
+    slotAllDecided: (s) => s.slotItems.length > 0 && s.slotItems.every(i => !!s.slotDecisions[i.item_id]),
   },
 
   actions: {
@@ -203,6 +258,7 @@ export const useFixStore = defineStore('fix', {
       this.currentFile = '';
       this.activeStage = '';
       this.summary = null;
+      this.resetSlotSession();
 
       // Reset rAF batch state
       pendingLogs = [];
@@ -222,6 +278,7 @@ export const useFixStore = defineStore('fix', {
           this.activeStage = ev.description;
         } else if (ev.event === 'finish' && ev.summary) {
           this.summary = ev.summary;
+          this.ingestSlotOverlay(ev.summary);
         }
       }));
 
@@ -287,6 +344,103 @@ export const useFixStore = defineStore('fix', {
           resolve();
         }
       });
+    },
+
+    // ── Phase 2: ambiguous slot overlay resolution ──────────────────────────
+    resetSlotSession() {
+      this.slotDrawerOpen = false;
+      this.slotSessionTs = '';
+      this.slotItems = [];
+      this.slotDecisions = {};
+      this.isApplyingSlot = false;
+    },
+
+    /**
+     * Populates the drawer from the `finish` summary of phase 1.
+     *
+     * Deliberately leaves every decision UNSET: neither "old version (shift)"
+     * nor "new version (keep)" is the correct default — only the user can know
+     * which generation their mod belongs to, so no option is pre-selected.
+     */
+    ingestSlotOverlay(summary: FixSummaryPayload | null | undefined) {
+      const items = summary?.ambiguous_items ?? [];
+      if (items.length === 0) return;
+      this.slotItems = items;
+      this.slotSessionTs = summary?.session_ts ?? '';
+      this.slotDecisions = {};
+      this.slotDrawerOpen = true;
+      const modCount = new Set(
+        items.map(i => i.mod_folder_name || (i.rel_ini_path.split(/[/\\]/)[0] || i.rel_ini_path))
+      ).size;
+      this.pushLog(
+        'WARN',
+        i18n.global.t('slot.pending_log', { count: modCount }) as string,
+      );
+    },
+
+    setSlotDecision(itemId: string, decision: SlotDecision) {
+      this.slotDecisions = { ...this.slotDecisions, [itemId]: decision };
+    },
+
+    setSlotDecisionForFolder(folder: string, decision: SlotDecision) {
+      const next = { ...this.slotDecisions };
+      for (const item of this.slotItems) {
+        const key = item.mod_folder_name || item.rel_ini_path;
+        if (key === folder) next[item.item_id] = decision;
+      }
+      this.slotDecisions = next;
+    },
+
+    setAllSlotDecisions(decision: SlotDecision) {
+      const next: Partial<Record<string, SlotDecision>> = {};
+      for (const item of this.slotItems) next[item.item_id] = decision;
+      this.slotDecisions = next;
+    },
+
+    /** Closes the drawer without writing anything; the queue stays available. */
+    dismissSlotDrawer() {
+      this.slotDrawerOpen = false;
+      if (this.slotItems.length > 0) {
+        this.pushLog('INFO', i18n.global.t('slot.skipped_hint') as string);
+      }
+    },
+
+    /** Writes the chosen decisions back, reusing the phase 1 session timestamp. */
+    async applySlotDecisions(): Promise<boolean> {
+      if (this.isApplyingSlot || !this.slotSessionTs) return false;
+      // Never fall back to a default: every component must be a conscious choice.
+      if (!this.slotItems.every(i => !!this.slotDecisions[i.item_id])) {
+        this.pushLog('WARN', i18n.global.t('slot.choose_required') as string);
+        return false;
+      }
+      this.isApplyingSlot = true;
+      const shiftIds: string[] = [];
+      const keepIds: string[] = [];
+      for (const item of this.slotItems) {
+        // UI wording: "update" = the mod is still on the old layout -> shift slots.
+        if (this.slotDecisions[item.item_id] === 'update') shiftIds.push(item.item_id);
+        else keepIds.push(item.item_id);
+      }
+      try {
+        const res = await invoke<{ session_ts: string; touched: number; changed: number }>(
+          'resolve_ambiguous_slots',
+          { sessionTs: this.slotSessionTs, shiftIds, keepIds },
+        );
+        this.pushLog(
+          'INFO',
+          `✓ ${i18n.global.t('slot.done', { changed: res.changed, touched: res.touched })}`,
+        );
+        this.resetSlotSession();
+        return true;
+      } catch (e) {
+        const msg = typeof e === 'object' && e !== null && 'message' in e
+          ? String((e as any).message)
+          : String(e);
+        this.pushLog('ERROR', `${i18n.global.t('slot.failed')} ${msg}`);
+        return false;
+      } finally {
+        this.isApplyingSlot = false;
+      }
     },
 
     async cancelFix() {

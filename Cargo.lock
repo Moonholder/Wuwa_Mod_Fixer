@@ -6094,7 +6094,7 @@ dependencies = [
 
 [[package]]
 name = "wuwa-mod-cli"
-version = "3.7.0"
+version = "3.8.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -6111,11 +6111,12 @@ dependencies = [
 
 [[package]]
 name = "wuwa-mod-core"
-version = "3.7.0"
+version = "3.8.0"
 dependencies = [
  "anyhow",
  "arc-swap",
  "backtrace",
+ "brotli",
  "chrono",
  "crc32fast",
  "ddsfile",
@@ -6129,6 +6130,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
+ "sha2",
  "sys-locale",
  "thiserror 2.0.18",
  "tokio",
@@ -6137,7 +6139,7 @@ dependencies = [
 
 [[package]]
 name = "wuwa-mod-tauri"
-version = "3.7.0"
+version = "3.8.0"
 dependencies = [
  "anyhow",
  "arc-swap",

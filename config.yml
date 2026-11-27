@@ -1,7 +1,7 @@
 version:
-  min_required_version: 3.7.0
-  current_version: 3.7.1
-  latest_program_version: 3.7.0
+  min_required_version: 3.8.0
+  current_version: 3.8.0
+  latest_program_version: 3.8.0
   update_url: https://github.com/Moonholder/Wuwa_Mod_Fixer/releases/latest
   support_url_cn: https://support.jix.de5.net
   support_url_intl: https://ko-fi.com/moonholder
@@ -33,14 +33,14 @@ lang:
   intro:
     zh: |+
       修复更新: 请将XXMI更新至最新版本
-      * 修复主角及其表情（注意：若此前手动修改过 Hash，请先回滚或还原才能触发修复）
-      * 修复千咲皮肤和景燃
-      * 纠正莫宁 Component3 Materialmap hash 的错误引用（建议回滚后重新修复）
+      * 修复主角/皮肤及其表情
+      * 为绯雪(Hiyuki)添加槽位更新修复
+      * 更新白芷(Baizhi)C3和C4的Normalmap hash
     en: |+
       Fix Update: Please update XXMI to the latest version.
-      * Fixed Rover and their expressions (Note: If you have manually modified hashes before, please rollback or restore first to trigger this fix)
-      * Fixed Chisa outfit and Jingran
-      * Corrected Mornye Component3 Materialmap hash reference (it is recommended to roll back and re-fix)
+      * Fixed Rover / skins and their facial expressions
+      * Added slot update fix for Hiyuki
+      * Updated Baizhi C3 and C4 Normalmap hashes
 
   intro_note:
     zh: |+
@@ -323,10 +323,10 @@ characters:
       aec13ff5: {meta: {id: 2, type: D}, replace: [64b13efd, 804d32e9], derive: {LOD: [fcb7c144]}}
       991a236f: {meta: {id: 3, type: D}, replace: [0be38d62, 37bed36b, 718456ac], derive: {LOD: [b64abc3f]}}
       f5e98cc7: {meta: {id: 3, type: L}, replace: [2adec21b]}
-      584a35b7: {meta: {id: 3, type: N}, replace: [cac210d5, 2b7eb01d], derive: {LOD: [7bb1d2b3]}}
+      8b2ad7cd: {meta: {id: 3, type: N}, replace: [584a35b7, cac210d5, 2b7eb01d], derive: {LOD: [7bb1d2b3]}}
       fd6bb9d4: {meta: {id: 4, type: D}, replace: [060f40ba, 52c9b804, d7756134], derive: {LOD: [9e69b7cc]}}
       f37a20ec: {meta: {id: 4, type: L}, replace: [e6d4c134]}
-      c1ab535d: {meta: {id: 4, type: N}, replace: [a2315519, 91754701], derive: {LOD: [b07a8f0c]}}
+      5d35ec4b: {meta: {id: 4, type: N}, replace: [c1ab535d, a2315519, 91754701], derive: {LOD: [b07a8f0c]}}
       106fd273: {meta: {id: 5, type: D}, replace: [39b39c99, 49a71537], derive: {LOD: [5448a8ae]}}
       041cc54f: {replace: [afe67129, 64cc6fa8], derive: {LOD: [a749359c]}}
       5c7233ee: {replace: [ff9b6df0, 6f238044], derive: {LOD: [3dd54744]}}
@@ -895,10 +895,55 @@ characters:
       e692508d: {meta: {id: 0, type: D}, replace: [4082c8ea, 99977887]}
   FRoverSkin1:
     main_hashes:
-      - {old: [e8b0d332], new: aa9d9edb}
-      - {old: [55089a35], new: 82ed6a64}
-      - {old: [c2dc3697], new: 02ff8fd2}
+      - {old: [e8b0d332, aa9d9edb], new: 5ad6ac5d}
+      - {old: [82ed6a64], new: 55089a35}
+      - {old: [02ff8fd2], new: c2dc3697}
     checksum: '2742'
+    skip_components: [5]
+    shapekey_fix:
+      trigger_hash: [82ed6a64, 55089a35, aa9d9edb, 5ad6ac5d, c2dc3697]
+      offset_stride: 12
+      reference_asset: "resources/shapekey/FRoverSkin1.skref"
+      channel_transplant: "22,23,87,88,103,104,106,110,126,131,132,146"
+      channel_transplant_force: "111,113-116"
+      channel_transplant_force_legacy: ""
+      transplant_tolerance: "0.35"
+      transplant_diffusion: "0.0"
+      custom_values_array: 64
+      expression_remap: '0:0L,0:1R,0:11,0:127,0:128L,0:129R,1:2L,1:3R,1:12,2:5R,2:6L,2:13,2:131,3:4L,3:7R,3:14,3:132,4:8,5:16L,5:17R,5:133,6:18L,6:19R,6:134,7:20L,7:21R,7:135,8:24L,8:25R,8:136,9:26L,9:27R,9:137,10:138,11:139,12:22L,12:23R,12:28L,12:29R,12:140,13:30L,13:31R,13:141,14:32L,14:33R,14:142,15:34,15:111,16:35,17:38L,17:39R,17:143,18:40L,18:41R,18:144,19:42,20:43,21:9L,21:10R,21:15,21:36L,21:37R,22:44,22:113,23:45,23:114,24:46,25:47,26:48,27:49,28:51,28:55L,28:73L,29:52,29:56R,29:74R,30:53,30:101L,31:54,31:102R,32:57,33:58,34:59,35:60,35:115,36:61,36:67L,36:68R,36:72,37:63,38:64,39:65,39:103,39:105,39:116,40:66,41:76,42:77,43:78,44:79,45:80,46:81,47:62,47:82,48:83,49:84,50:85,51:86,52:87,53:88,54:89,55:90,56:91,56:145,57:93,58:94,59:95L,59:96R,59:146,60:97,61:103,62:104,63:105,64:106,65:107,66:108,68:110,70:112,84:126,85:127,86:128,87:129,88:130,89:131,90:132,91:147,92:148,93:149,94:150,95:151,96:152,97:153,98:154,99:155,100:156,101:157,102:158,103:159,104:160'
+      section_rewrites:
+        - old_section: CommandListSetupShapeKeys
+          new_content: |
+            [CommandListSetupShapeKeysBatch]
+            $\WWMIv1\shapekey_checksum_batch0 = 1398
+            $\WWMIv1\shapekey_vertex_offset_original_batch0 = 0
+            $\WWMIv1\shapekey_vertex_offset_custom_batch0 = $shapekey_vertex_offset_batch0
+            $\WWMIv1\shapekey_checksum_batch1 = 705
+            $\WWMIv1\shapekey_vertex_offset_original_batch1 = 53882
+            $\WWMIv1\shapekey_vertex_offset_custom_batch1 = $shapekey_vertex_offset_batch1
+            cs-t33 = ResourceShapeKeyOffsetBuffer
+            cs-u5 = ResourceCustomShapeKeyValuesRW
+            cs-u6 = ResourceShapeKeyCBRW
+            run = CustomShader\WWMIv1\ShapeKeyBatchOverrider
+        - old_section: CommandListLoadShapeKeys
+          new_content: |
+            [CommandListLoadShapeKeysBatch]
+            $\WWMIv1\shapekey_dispatch_size_y_original_batch0 = 1684
+            $\WWMIv1\shapekey_vertex_count_batch0 = $shapekey_vertex_count_batch0
+            $\WWMIv1\shapekey_dispatch_size_y_original_batch1 = 498
+            $\WWMIv1\shapekey_vertex_count_batch1 = $shapekey_vertex_count_batch1
+            cs-t0 = ResourceShapeKeyVertexIdBuffer
+            cs-t1 = ResourceShapeKeyVertexOffsetBuffer
+            cs-u6 = ResourceShapeKeyCBRW
+            run = CommandList\WWMIv1\LoadShapeKeysBatch
+    rules:
+      - {line_prefix: 'run', replacements: [{old: ['CommandListSetupShapeKeys'], new: 'CommandListSetupShapeKeysBatch'}]}
+      - {line_prefix: 'run', replacements: [{old: ['CommandListLoadShapeKeys'], new: 'CommandListLoadShapeKeysBatch'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_dispatch_size_y_original_batch0', replacements: [{new: '1684'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_vertex_offset_original_batch1', replacements: [{new: '53882'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_dispatch_size_y_original_batch1', replacements: [{new: '498'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_checksum_batch0', replacements: [{new: '1398'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_checksum_batch1', replacements: [{new: '705'}]}
     textures:
       aac65558: {meta: {id: 0, type: D}, replace: [0a136c79], derive: {LOD: [d74cf25e, 92f99f5c]}}
       59b28407: {replace: [0e990ce3]}
@@ -969,6 +1014,19 @@ characters:
     main_hashes:
       - {old: [14d6362b, d83b3034], new: 91cff509}
     skip_components: [6]
+    # Statement-level resource slot shift (strictly idempotent, see scripts/compile_config.js).
+    # ps-t6 -> ps-t7, ps-t7 -> ps-t8, ps-t9 -> ps-t10.
+    # `anchors` is intentionally omitted: the compile step inherits every `old`/`new`
+    # hash of main_hashes above, so the component scope is locked down whether the
+    # mod still carries the pre-update vb0 hash or was already migrated.
+    slot_fix:
+      rule_id: hiyuki_slot_fix
+      steps:
+        - rev: 1
+          slot_map:
+            ps-t6: ps-t7
+            ps-t7: ps-t8
+            ps-t9: ps-t10
     textures:
       5e804060: {replace: [88a0bbcb], derive: {LOD: [83dfde47,5d07dc8f,11f9008a,b28054bb]}}
       00ad3de9: {replace: [bf508060], derive: {LOD: [ddf2a3ce,f3db3fa2,4fd47d03,87c9e488]}}
@@ -1004,7 +1062,7 @@ characters:
       13b693db: {replace: [522e7cb9], derive: {LOD: [cee90dfc,12217efe]}}
       349e8273: {replace: [a4fb9b89], derive: {LOD: [e9c11c54,0d02a36e]}}
       4124fa59: {replace: [82c11611, 123f0570], derive: {LOD: [9c7b647e,ecd48ce4]}}
-      5d109d68: {replace: [2d8bbdd2, 28f11209], derive: {LOD: [b522140b]}}
+      5d109d68: {meta: {slot: [8]}, replace: [2d8bbdd2, 28f11209], derive: {LOD: [b522140b]}}
       16518037: {replace: [dbbc5a9a]}
       834f5389: {replace: [fad93ee6]}
       44f6cee1: {replace: [97f11e2e]}
@@ -1523,10 +1581,46 @@ characters:
       ac81a265: {replace: [e3586cd3]}
   MRoverSkin1:
     main_hashes:
-      - {old: [f1f5aa2a], new: c698c02f}
+      - {old: [f1f5aa2a, c698c02f], new: c8bde3d3}
       - {old: [5c3a5000], new: 38840111}
       - {old: [0e54d7d2], new: a93b8d36}
     skip_components: [4]
+    shapekey_fix:
+      trigger_hash: [5c3a5000, c698c02f, c8bde3d3, a93b8d36]
+      offset_stride: 12
+      reference_asset: "resources/shapekey/MRoverSkin1.skref"
+      channel_transplant: ""
+      channel_transplant_force: "111,113-116"
+      channel_transplant_force_legacy: "103-116,127-146"
+      transplant_tolerance: "0.35"
+      transplant_diffusion: "0.0"
+      custom_values_array: 64
+      expression_remap: '0:0L,0:1R,0:11,0:127,0:128L,0:129R,1:2L,1:3R,1:12,2:5R,2:6L,2:13,2:131,3:4L,3:7R,3:14,3:132,4:8,5:16L,5:17R,5:133,6:18L,6:19R,6:134,7:20L,7:21R,7:135,8:24L,8:25R,8:136,9:26L,9:27R,9:137,10:138,11:139,12:22L,12:23R,12:28L,12:29R,12:140,13:30L,13:31R,13:141,14:32L,14:33R,14:142,15:34,16:35,17:38L,17:39R,17:143,18:40L,18:41R,18:144,19:42,20:43,21:9L,21:10R,21:15,21:36L,21:37R,22:44,23:45,24:46,25:47,26:48,27:49,28:51,28:55L,29:52,29:56R,30:53,31:54,32:57,33:58,34:59,35:60,36:61,37:63,38:64,39:65,40:66,41:76,42:77,43:78,44:79,45:80,46:81,47:82,48:83,49:84,50:85,51:86,52:87,53:88,54:89,55:90,56:145,57:93,58:94,59:146,60:97,61:103,62:104,63:105,64:106,65:107,66:108,68:110,69:111,70:112,91:147,92:148,93:149,94:150,95:151,96:152,97:153,98:154,99:155,100:156,101:157,102:158,103:159,104:160'
+      section_rewrites:
+        - old_section: CommandListSetupShapeKeys
+          new_content: |
+            [CommandListSetupShapeKeysBatch]
+            $\WWMIv1\shapekey_checksum_batch0 = 873
+            $\WWMIv1\shapekey_vertex_offset_original_batch0 = 0
+            $\WWMIv1\shapekey_vertex_offset_custom_batch0 = $shapekey_vertex_offset_batch0
+            $\WWMIv1\shapekey_checksum_batch1 = 1341
+            $\WWMIv1\shapekey_vertex_offset_original_batch1 = 49247
+            $\WWMIv1\shapekey_vertex_offset_custom_batch1 = $shapekey_vertex_offset_batch1
+            cs-t33 = ResourceShapeKeyOffsetBuffer
+            cs-u5 = ResourceCustomShapeKeyValuesRW
+            cs-u6 = ResourceShapeKeyCBRW
+            run = CustomShader\WWMIv1\ShapeKeyBatchOverrider
+        - old_section: CommandListLoadShapeKeys
+          new_content: |
+            [CommandListLoadShapeKeysBatch]
+            $\WWMIv1\shapekey_dispatch_size_y_original_batch0 = 1539
+            $\WWMIv1\shapekey_vertex_count_batch0 = $shapekey_vertex_count_batch0
+            $\WWMIv1\shapekey_dispatch_size_y_original_batch1 = 777
+            $\WWMIv1\shapekey_vertex_count_batch1 = $shapekey_vertex_count_batch1
+            cs-t0 = ResourceShapeKeyVertexIdBuffer
+            cs-t1 = ResourceShapeKeyVertexOffsetBuffer
+            cs-u6 = ResourceShapeKeyCBRW
+            run = CommandList\WWMIv1\LoadShapeKeysBatch
     textures:
       eda07ae0: {meta: {id: 0, type: D}, replace: [0483589e]}
       fe1fe650: {replace: [1d33408b]}
@@ -1540,9 +1634,15 @@ characters:
       0ca12e3d: {meta: {id: 3, type: N}, replace: [a848ac00]}
       ab321cf8: {meta: {id: 4, type: D}, replace: [a0b6bb44]}
     rules:
+      - {line_prefix: 'run', replacements: [{old: ['CommandListSetupShapeKeys'], new: 'CommandListSetupShapeKeysBatch'}]}
+      - {line_prefix: 'run', replacements: [{old: ['CommandListLoadShapeKeys'], new: 'CommandListLoadShapeKeysBatch'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_dispatch_size_y_original_batch0', replacements: [{new: '1539'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_vertex_offset_original_batch1', replacements: [{new: '49247'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_dispatch_size_y_original_batch1', replacements: [{new: '777'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_checksum_batch0', replacements: [{new: '873'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_checksum_batch1', replacements: [{new: '1341'}]}
       - {line_prefix: match_first_index, replacements: [{old: ['68025'], new: '68013'}, {old: ['119691'], new: '119679'}, {old: ['185079'], new: '185067'}]}
       - {line_prefix: match_index_count, replacements: [{old: ['14766'], new: '14754'}]}
-      - {line_prefix: '$\WWMIv1\shapekey_dispatch_size_y_original_batch0', replacements: [{old: ['1535'], new: '1785'}]}
   Overture:
     main_hashes:
       - {old: [adb633a1], new: adb633a1}
@@ -1687,10 +1787,16 @@ characters:
       - {old: [972c1750, bb67ac16, feef1128], new: de97705a}
     checksum: '2742'
     shapekey_fix:
-      trigger_hash: [ac681fc1, a0a808af, 3877f0da, 2330a489, a38211d3]
+      trigger_hash: [ac681fc1, a0a808af, 3877f0da, 2330a489, a38211d3, cfd1b528]
       offset_stride: 12
+      reference_asset: "resources/shapekey/RoverFemale.skref"
+      channel_transplant: "22,23,87,88,103,104,105,106,110,126,131,132,146"
+      channel_transplant_force: "111,113-116"
+      channel_transplant_force_legacy: ""
+      transplant_tolerance: "0.35"
+      transplant_diffusion: "0.0"
       custom_values_array: 64
-      expression_remap: '0:0L,0:1R,0:11,1:2L,1:3R,1:12,2:5R,2:6L,2:13,3:4L,3:7R,3:14,4:8,5:16L,5:17R,5:133,6:18L,6:19R,6:134,7:20L,7:21R,7:135,8:24L,8:25R,8:136,9:26L,9:27R,9:137,10:138,11:139,12:28L,12:29R,12:140,13:30L,13:31R,13:141,14:32L,14:33R,14:142,15:32L,15:34L,16:33R,16:35R,17:38L,17:39R,17:143,18:40L,18:41R,18:144,19:42,20:43,21:9L,21:10R,21:15,21:36L,21:37R,22:44,23:45,24:46,25:47,26:48,27:49,28:51,28:55L,29:52,29:56R,30:53,31:54,32:57,33:58,34:59,35:60,36:61,37:63,38:64,39:65,40:66,41:76,42:77,43:78,44:79'
+      expression_remap: '0:0L,0:1R,0:11,0:127,0:128L,0:129R,1:2L,1:3R,1:12,2:5R,2:6L,2:13,2:131,3:4L,3:7R,3:14,3:132,4:8,5:16L,5:17R,5:133,6:18L,6:19R,6:134,7:20L,7:21R,7:135,8:24L,8:25R,8:136,9:26L,9:27R,9:137,10:138,11:139,12:22L,12:23R,12:28L,12:29R,12:140,13:30L,13:31R,13:141,14:32L,14:33R,14:142,15:34,15:111,16:35,17:38L,17:39R,17:143,18:40L,18:41R,18:144,19:42,20:43,21:9L,21:10R,21:15,21:36L,21:37R,22:44,22:113,23:45,23:114,24:46,25:47,26:48,27:49,28:51,28:55L,28:73L,29:52,29:56R,29:74R,30:53,30:101L,31:54,31:102R,32:57,33:58,34:59,35:60,35:115,36:61,36:67L,36:68R,36:72,37:63,38:64,39:65,39:103,39:105,39:116,40:66,41:76,42:77,43:78,44:79,45:80,46:81,47:62,47:82,48:83,49:84,50:85,51:86,52:87,53:88,54:89,55:90,56:91,56:145,57:93,58:94,59:95L,59:96R,59:146,60:97,61:103,62:104,63:105,64:106,65:107,66:108,68:110,70:112,84:126,85:127,86:128,87:129,88:130,89:131,90:132,91:147,92:148,93:149,94:150,95:151,96:152,97:153,98:154,99:155,100:156,101:157,102:158,103:159,104:160'
       section_rewrites:
         - old_section: CommandListSetupShapeKeys
           new_content: |
@@ -1699,7 +1805,7 @@ characters:
             $\WWMIv1\shapekey_vertex_offset_original_batch0 = 0
             $\WWMIv1\shapekey_vertex_offset_custom_batch0 = $shapekey_vertex_offset_batch0
             $\WWMIv1\shapekey_checksum_batch1 = 705
-            $\WWMIv1\shapekey_vertex_offset_original_batch1 = 49931
+            $\WWMIv1\shapekey_vertex_offset_original_batch1 = 55177
             $\WWMIv1\shapekey_vertex_offset_custom_batch1 = $shapekey_vertex_offset_batch1
             cs-t33 = ResourceShapeKeyOffsetBuffer
             cs-u5 = ResourceCustomShapeKeyValuesRW
@@ -1708,7 +1814,7 @@ characters:
         - old_section: CommandListLoadShapeKeys
           new_content: |
             [CommandListLoadShapeKeysBatch]
-            $\WWMIv1\shapekey_dispatch_size_y_original_batch0 = 1561
+            $\WWMIv1\shapekey_dispatch_size_y_original_batch0 = 1725
             $\WWMIv1\shapekey_vertex_count_batch0 = $shapekey_vertex_count_batch0
             $\WWMIv1\shapekey_dispatch_size_y_original_batch1 = 555
             $\WWMIv1\shapekey_vertex_count_batch1 = $shapekey_vertex_count_batch1
@@ -1721,6 +1827,11 @@ characters:
     rules:
       - {line_prefix: 'run', replacements: [{old: ['CommandListSetupShapeKeys'], new: 'CommandListSetupShapeKeysBatch'}]}
       - {line_prefix: 'run', replacements: [{old: ['CommandListLoadShapeKeys'], new: 'CommandListLoadShapeKeysBatch'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_dispatch_size_y_original_batch0', replacements: [{new: '1725'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_vertex_offset_original_batch1', replacements: [{new: '55177'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_dispatch_size_y_original_batch1', replacements: [{new: '555'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_checksum_batch0', replacements: [{new: '1398'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_checksum_batch1', replacements: [{new: '705'}]}
       - {line_prefix: match_first_index, replacements: [{old: ['13164'], new: '18831'}, {old: ['30399'], new: '41706'}, {old: ['40548'], new: '56382'}, {old: ['83781', '120117'], new: '120144'}, {old: ['113172', '172419'], new: '172554'}, {old: ['114894', '173961'], new: '174096'}]}
       - {line_prefix: match_index_count, replacements: [{old: ['13164'], new: '18831'}, {old: ['17235'], new: '22875'}, {old: ['10149'], new: '14676'}, {old: ['43233', '63735'], new: '63762'}, {old: ['29391', '52302'], new: '52410'}, {old: ['1722'], new: '1542'}, {old: ['48'], new: '129'}]}
     stride_fix:
@@ -1755,7 +1866,7 @@ characters:
       a4871136: {meta: {id: 5, type: D}, replace: [a2207e11, 52c18227], derive: {LOD: [36a1cffb, 6182f808]}}
   RoverMale:
     main_hashes:
-      - {old: [d53c2cc7, c9db8418, e18ca2cc, b22dacf9, 8b386efa, 1e003b5a, 101e8dbb, b8b24b6c], new: 52c1090e}
+      - {old: [d53c2cc7, c9db8418, e18ca2cc, b22dacf9, 8b386efa, 1e003b5a, 101e8dbb, b8b24b6c, 52c1090e], new: 3b64306a}
       - {old: [3ab7c4d1, f8375eb4, ec747460, 67650e1c], new: b4d222d6}
       - {old: [a4be44e5, 6e2f48ba, 89e3b104, 49c00841], new: e7fdfccc}
     checksum: '1718'
@@ -1774,19 +1885,25 @@ characters:
     stride_fix:
       trigger_hash: [d53c2cc7, c9db8418, e18ca2cc, b22dacf9, a4be44e5, f8375eb4]
     shapekey_fix:
-      trigger_hash: [3ab7c4d1, f8375eb4, ec747460, 67650e1c, b8b24b6c]
+      trigger_hash: [3ab7c4d1, f8375eb4, ec747460, 67650e1c, b8b24b6c, b4d222d6]
       offset_stride: 12
+      reference_asset: "resources/shapekey/RoverMale.skref"
+      channel_transplant: ""
+      channel_transplant_force: "111,113-116"
+      channel_transplant_force_legacy: "103-116,127-146"
+      transplant_tolerance: "0.35"
+      transplant_diffusion: "0.0"
       custom_values_array: 64
-      expression_remap: '0:0L,0:1R,0:11,1:2L,1:3R,1:12,2:5R,2:6L,2:13,3:4L,3:7R,3:14,4:8,5:16L,5:17R,5:133,6:18L,6:19R,6:134,7:20L,7:21R,7:135,8:24L,8:25R,8:136,9:26L,9:27R,9:137,10:138,11:139,12:28L,12:29R,12:140,13:30L,13:31R,13:141,14:32L,14:33R,14:142,15:32L,15:34L,16:33R,16:35R,17:38L,17:39R,17:143,18:40L,18:41R,18:144,21:9L,21:10R,21:15,21:36L,21:37R,19:42,20:43,22:44,23:45,24:46,25:47,26:48,27:49,27:50,28:51,29:52,30:53,31:54,32:57,33:58,34:59,35:60,36:61,37:63,38:64,39:65,40:66,41:76,42:77,43:78,44:79,45:80,46:81,47:82,48:83,49:84,50:85,51:86,52:87,53:88,54:89,55:90,56:145,58:94,59:146,60:97,61:103,62:104,63:105,64:106,65:107,66:108,66:109,67:108,67:109,68:110,69:111,70:112,71:113,72:114,73:115,74:116,75:117,76:118,77:119,78:120,79:121,80:122,81:123,82:124,83:125,84:126,85:127,86:128,87:129,88:130,89:131,90:132,91:147,92:148,93:149,94:150,95:151,96:152,97:153,98:154,99:155,100:156,101:157,102:158,103:159,104:160'
+      expression_remap: '0:0L,0:1R,0:11,0:127,0:128L,0:129R,1:2L,1:3R,1:12,2:5R,2:6L,2:13,2:131,3:4L,3:7R,3:14,3:132,4:8,5:16L,5:17R,5:133,6:18L,6:19R,6:134,7:20L,7:21R,7:135,8:24L,8:25R,8:136,9:26L,9:27R,9:137,10:138,11:139,12:22L,12:23R,12:28L,12:29R,12:140,13:30L,13:31R,13:141,14:32L,14:33R,14:142,15:34,16:35,17:38L,17:39R,17:143,18:40L,18:41R,18:144,19:42,20:43,21:9L,21:10R,21:15,21:36L,21:37R,22:44,23:45,24:46,25:47,26:48,27:49,28:51,28:55L,29:52,29:56R,30:53,31:54,32:57,33:58,34:59,35:60,36:61,37:63,38:64,39:65,40:66,41:76,42:77,43:78,44:79,45:80,46:81,47:82,48:83,49:84,50:85,51:86,52:87,53:88,54:89,55:90,56:145,57:93,58:94,59:146,60:97,61:103,62:104,63:105,64:106,65:107,66:108,68:110,69:111,70:112,91:147,92:148,93:149,94:150,95:151,96:152,97:153,98:154,99:155,100:156,101:157,102:158,103:159,104:160'
       section_rewrites:
         - old_section: CommandListSetupShapeKeys
           new_content: |
             [CommandListSetupShapeKeysBatch]
-            $\WWMIv1\shapekey_checksum_batch0 = 873
+            $\WWMIv1\shapekey_checksum_batch0 = 882
             $\WWMIv1\shapekey_vertex_offset_original_batch0 = 0
             $\WWMIv1\shapekey_vertex_offset_custom_batch0 = $shapekey_vertex_offset_batch0
             $\WWMIv1\shapekey_checksum_batch1 = 1341
-            $\WWMIv1\shapekey_vertex_offset_original_batch1 = 45917
+            $\WWMIv1\shapekey_vertex_offset_original_batch1 = 50255
             $\WWMIv1\shapekey_vertex_offset_custom_batch1 = $shapekey_vertex_offset_batch1
             cs-t33 = ResourceShapeKeyOffsetBuffer
             cs-u5 = ResourceCustomShapeKeyValuesRW
@@ -1795,9 +1912,9 @@ characters:
         - old_section: CommandListLoadShapeKeys
           new_content: |
             [CommandListLoadShapeKeysBatch]
-            $\WWMIv1\shapekey_dispatch_size_y_original_batch0 = 1435
+            $\WWMIv1\shapekey_dispatch_size_y_original_batch0 = 1571
             $\WWMIv1\shapekey_vertex_count_batch0 = $shapekey_vertex_count_batch0
-            $\WWMIv1\shapekey_dispatch_size_y_original_batch1 = 517
+            $\WWMIv1\shapekey_dispatch_size_y_original_batch1 = 731
             $\WWMIv1\shapekey_vertex_count_batch1 = $shapekey_vertex_count_batch1
             cs-t0 = ResourceShapeKeyVertexIdBuffer
             cs-t1 = ResourceShapeKeyVertexOffsetBuffer
@@ -1806,6 +1923,11 @@ characters:
     rules:
       - {line_prefix: 'run', replacements: [{old: ['CommandListSetupShapeKeys'], new: 'CommandListSetupShapeKeysBatch'}]}
       - {line_prefix: 'run', replacements: [{old: ['CommandListLoadShapeKeys'], new: 'CommandListLoadShapeKeysBatch'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_dispatch_size_y_original_batch0', replacements: [{new: '1571'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_vertex_offset_original_batch1', replacements: [{new: '50255'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_dispatch_size_y_original_batch1', replacements: [{new: '731'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_checksum_batch0', replacements: [{new: '882'}]}
+      - {line_prefix: '$\WWMIv1\shapekey_checksum_batch1', replacements: [{new: '1341'}]}
       - {line_prefix: match_first_index, replacements: [{old: ['42495', '52713'], new: '20601'}, {old: ['52533', '67467'], new: '35355'}, {old: ['102237', '120789'], new: '90684'}, {old: ['140157', '172107'], new: '143136'}, {old: ['141693', '173643'], new: '144672'}]}
       - {line_prefix: match_index_count, replacements: [{old: ['42495', '52713'], new: '20601'}, {old: ['10038'], new: '14754'}, {old: ['49704', '53322'], new: '55329'}, {old: ['37920', '51318'], new: '52452'}]}
       - {line_prefix: $\WWMIv1\vg_offset, replacements: [{old: ['46'], new: '23'}, {old: ['47'], new: '24'}, {old: ['124'], new: '101'}, {old: ['158'], new: '135'}, {old: ['159'], new: '136'}]}

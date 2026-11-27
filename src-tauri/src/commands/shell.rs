@@ -26,6 +26,12 @@ pub fn open_url(app: AppHandle, url: String) {
     let _ = app.opener().open_url(url, None::<String>);
 }
 
+#[tauri::command]
+pub fn open_path(app: AppHandle, path: String) {
+    use tauri_plugin_opener::OpenerExt;
+    let _ = app.opener().open_path(path, None::<String>);
+}
+
 use crate::error::AppError;
 
 // Emulates the original Iced "Export Logs" feature

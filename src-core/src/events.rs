@@ -43,6 +43,68 @@ pub struct FixSummary {
     pub skipped_count: usize,
     pub failure_count: usize,
     pub elapsed_ms: u64,
+    /// Unified session timestamp shared by phase 1 and phase 2 slot fixes,
+    /// so a single `--rollback` atomically reverts the whole operation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub session_ts: Option<String>,
+    /// Genuinely ambiguous slot overlays deferred to phase 2.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub ambiguous_items: Vec<crate::slot_fix::AmbiguousSlotItem>,
+}
+
+// ── Statement-level slot-fix events ────────────────────────────────────────
+
+/// Outcome status of one slot-fix action on a single component.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SlotFixStatus {
+    /// Slots were physically shifted and anchored.
+    Applied,
+    /// Slots were already shifted; only the `@wmf` anchor was back-filled.
+    PinnedExisting,
+    /// Level 1..4 could not decide; the component was queued for phase 2.
+    AmbiguousPending,
+    /// Conflicting slots from different revisions in the same section.
+    MixedEpochConflict,
+}
+
+/// One rewritten slot statement (line number is 1-based in the .ini file).
+///
+/// `line` refers to the statement's position **before** its standalone `@wmf`
+/// anchor comment was inserted, i.e. the line the user would see in the input
+/// file. Anchors live on their own line above the statement because 3DMigoto
+/// does not support trailing comments.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SlotFixChange {
+    pub line: usize,
+    pub from: String,
+    pub to: String,
+    pub orig: String,
+}
+
+/// Structured payload of one `slot_fix` NDJSON event.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SlotFixEvent {
+    pub status: SlotFixStatus,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub character: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub item_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mod_folder: Option<String>,
+    pub file: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub section: Option<String>,
+    pub rule_id: String,
+    pub rev: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reason: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub changes: Vec<SlotFixChange>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub overlap_slots: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub lines: Vec<crate::slot_fix::AmbiguousLinePreview>,
 }
 
 /// Unified, structured event emitted across the entire lifecycle of the fixing pipeline
@@ -128,6 +190,30 @@ pub enum PipelineEvent {
     /// User requested task cancellation
     TaskCancelled { current: usize, total: usize },
 
+    /// One statement-level slot-fix action (applied / pinned / ambiguous).
+    SlotFix {
+        status: SlotFixStatus,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        character: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        item_id: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        mod_folder: Option<String>,
+        file: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        section: Option<String>,
+        rule_id: String,
+        rev: u32,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        reason: Option<String>,
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        changes: Vec<SlotFixChange>,
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        overlap_slots: Vec<String>,
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        lines: Vec<crate::slot_fix::AmbiguousLinePreview>,
+    },
+
     /// Entire pipeline completed
     Finish {
         success: bool,
@@ -135,6 +221,25 @@ pub enum PipelineEvent {
         #[serde(skip_serializing_if = "Option::is_none")]
         summary: Option<FixSummary>,
     },
+}
+
+impl From<SlotFixEvent> for PipelineEvent {
+    fn from(ev: SlotFixEvent) -> Self {
+        PipelineEvent::SlotFix {
+            status: ev.status,
+            character: ev.character,
+            item_id: ev.item_id,
+            mod_folder: ev.mod_folder,
+            file: ev.file,
+            section: ev.section,
+            rule_id: ev.rule_id,
+            rev: ev.rev,
+            reason: ev.reason,
+            changes: ev.changes,
+            overlap_slots: ev.overlap_slots,
+            lines: ev.lines,
+        }
+    }
 }
 
 /// Abstract streaming sink for pipeline events

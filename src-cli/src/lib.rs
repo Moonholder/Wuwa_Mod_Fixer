@@ -168,6 +168,49 @@ impl core::EventSink for CliProgressReporter {
                 core::PipelineEvent::Log { level, message, .. } => {
                     println!("  \x1b[90m[{}]\x1b[0m {}", level, message);
                 }
+                core::PipelineEvent::SlotFix {
+                    status,
+                    file,
+                    section,
+                    reason,
+                    changes,
+                    lines,
+                    item_id,
+                    ..
+                } => match status {
+                    core::events::SlotFixStatus::Applied | core::events::SlotFixStatus::PinnedExisting => {
+                        let tag = if status == core::events::SlotFixStatus::Applied {
+                            tr("移位", "shifted")
+                        } else {
+                            tr("补齐锚点", "pinned")
+                        };
+                        println!(
+                            "  \x1b[36m[slot]\x1b[0m {} \x1b[90m{} {}\x1b[0m ({} {})",
+                            file,
+                            section.as_deref().unwrap_or("-"),
+                            reason.as_deref().unwrap_or(""),
+                            changes.len(),
+                            tag
+                        );
+                    }
+                    core::events::SlotFixStatus::AmbiguousPending
+                    | core::events::SlotFixStatus::MixedEpochConflict => {
+                        let is_conflict = status == core::events::SlotFixStatus::MixedEpochConflict;
+                        let label = if is_conflict {
+                            tr("行混杂冲突待确认", "line(s) conflict pending")
+                        } else {
+                            tr("行待确认", "line(s) pending")
+                        };
+                        println!(
+                            "  \x1b[33m[slot:?]\x1b[0m {} \x1b[90m{} / {} ({} {})\x1b[0m",
+                            file,
+                            section.as_deref().unwrap_or("-"),
+                            item_id.as_deref().unwrap_or("-"),
+                            lines.len(),
+                            label
+                        );
+                    }
+                },
                 core::PipelineEvent::Finish { summary, .. } => {
                     if let Some(s) = summary {
                         println!(
@@ -240,6 +283,23 @@ pub struct CliArgs {
     /// Output format for stdout stream (text, json)
     #[arg(long, value_enum, default_value = "text")]
     pub format: OutputFormat,
+
+    /// Phase 1 policy for genuinely ambiguous overlap slots:
+    /// ask (defer to phase 2), shift (old version), keep (new version), skip
+    #[arg(long, value_name = "MODE", default_value = "ask")]
+    pub slot_overlap: String,
+
+    /// Phase 2: resolve a previously recorded ambiguous slot session
+    #[arg(long, value_name = "SESSION_TS")]
+    pub resolve_session: Option<String>,
+
+    /// Phase 2: item ids to interpret as "old version, shift them"
+    #[arg(long, value_name = "IDS", value_delimiter = ',')]
+    pub shift_ids: Vec<String>,
+
+    /// Phase 2: item ids to interpret as "new version, keep and pin them"
+    #[arg(long, value_name = "IDS", value_delimiter = ',')]
+    pub keep_ids: Vec<String>,
 }
 
 impl CliArgs {
@@ -255,6 +315,12 @@ impl CliArgs {
             || self.aero_fix > 0
             || self.online
             || self.format == OutputFormat::Json
+            || self.resolve_session.is_some()
+    }
+
+    /// Parses `--slot-overlap` into the core policy enum.
+    pub fn slot_policy(&self) -> Option<core::slot_fix::OverlapPolicy> {
+        core::slot_fix::OverlapPolicy::parse(&self.slot_overlap)
     }
 }
 
@@ -278,6 +344,18 @@ pub fn parse_args() -> CliArgs {
                 }
                 std::process::exit(1);
             }
+            if args.slot_policy().is_none() {
+                let msg = tr(
+                    "错误：--slot-overlap 仅接受 ask / shift / keep / skip。",
+                    "Error: --slot-overlap accepts only ask / shift / keep / skip.",
+                );
+                if args.format == OutputFormat::Json {
+                    emit_json_finish(false, msg);
+                } else {
+                    eprintln!("\x1b[31m{}\x1b[0m", msg);
+                }
+                std::process::exit(1);
+            }
             args
         }
         Err(err) => {
@@ -293,9 +371,15 @@ pub fn run(args: CliArgs, is_dev: bool) {
         core::config_loader::set_config_override_path(config_path);
     }
 
-    if args.path.is_none() && args.format == OutputFormat::Json {
+    if args.path.is_none() && args.format == OutputFormat::Json && args.resolve_session.is_none() {
         emit_json_finish(false, "Missing required argument '--path' for headless json format.");
         std::process::exit(1);
+    }
+
+    if let Some(session_ts) = args.resolve_session.clone() {
+        rt.block_on(core::config_loader::init_config());
+        run_resolve_session(&args, &session_ts);
+        return;
     }
 
     if args.path.is_some() && args.rollback {
@@ -408,6 +492,16 @@ pub fn run_direct_fix(args: &CliArgs) {
                 _ => tr("关闭", "Disabled"),
             }
         );
+        println!(
+            "  {}: {}",
+            tr("歧义槽位策略", "Slot Overlap Policy"),
+            match args.slot_policy().unwrap_or_default() {
+                core::slot_fix::OverlapPolicy::Ask => tr("结束时询问", "Ask at the end"),
+                core::slot_fix::OverlapPolicy::ShiftAll => tr("全部按旧版移位", "Shift all (old)"),
+                core::slot_fix::OverlapPolicy::KeepAllAndPin => tr("全部按新版保留", "Keep all (new)"),
+                core::slot_fix::OverlapPolicy::SkipAll => tr("全部跳过", "Skip all"),
+            }
+        );
         println!("\x1b[90m--------------------------------------------------\x1b[0m");
         println!("\n\x1b[90m{}\x1b[0m", tr("处理中...", "Processing..."));
     }
@@ -423,7 +517,8 @@ pub fn run_direct_fix(args: &CliArgs) {
         args.aero_fix,
         progress,
         cancel_token,
-    );
+    )
+    .with_slot_overlap_policy(args.slot_policy().unwrap_or_default());
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         fixer.process_directory(Path::new(&path))
     }));
@@ -438,6 +533,12 @@ pub fn run_direct_fix(args: &CliArgs) {
                         "No processable .ini files found in target directory. Please verify the path and ensure it is extracted."
                     )
                 );
+            }
+            // Phase 2: never block a non-interactive or JSON consumer. The
+            // `slot_fix_ambiguous` NDJSON events already carry everything a
+            // launcher needs to call `--resolve-session` later.
+            if !is_json {
+                resolve_ambiguous_interactively(&summary);
             }
             if summary.failure_count > 0 {
                 std::process::exit(1);
@@ -745,9 +846,6 @@ fn run_fix_flow(settings: &mut UserSettings) {
         }
     };
 
-    // Default to 0: derived hashes, 3: rendering 3.3
-    let default_indices: Vec<usize> = vec![0, 3];
-
     let selected = match MultiSelect::new(
         tr(
             "选择额外修复选项 (空格勾选/取消, 回车确认):",
@@ -755,7 +853,6 @@ fn run_fix_flow(settings: &mut UserSettings) {
         ),
         vec![&opt_tex, &opt_stable, &opt_aemeath, &opt_rendering, &opt_aero],
     )
-    .with_default(&default_indices)
     .with_validator(validator)
     .prompt()
     {
@@ -800,7 +897,8 @@ fn run_fix_flow(settings: &mut UserSettings) {
         cancel_token,
     );
     let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        fixer.process_directory(Path::new(&path))
+        let summary = fixer.process_directory(Path::new(&path));
+        resolve_ambiguous_interactively(&summary);
     }));
 
     println!(
@@ -1090,6 +1188,188 @@ fn show_detailed_notes() {
     );
 
     println!("\x1b[90m--------------------------------------------------\x1b[0m\n");
+}
+
+// ── Two-phase ambiguous slot resolution ────────────────────────────────────
+
+/// Prints the phase 1 ambiguity queue grouped by mod folder.
+fn print_ambiguous_report(items: &[core::slot_fix::AmbiguousSlotItem]) {
+    let mut groups: Vec<(String, Vec<(usize, &core::slot_fix::AmbiguousSlotItem)>)> = Vec::new();
+    for (idx, item) in items.iter().enumerate() {
+        let key = if item.mod_folder_name.is_empty() {
+            item.rel_ini_path.clone()
+        } else {
+            item.mod_folder_name.clone()
+        };
+        match groups.iter_mut().find(|(k, _)| k == &key) {
+            Some((_, bucket)) => bucket.push((idx, item)),
+            None => groups.push((key, vec![(idx, item)])),
+        }
+    }
+
+    println!(
+        "\n\x1b[33m{}\x1b[0m",
+        tr(
+            "待确认槽位状态 (以下模组既无锚点、无联动、也无历史备份可反查):",
+            "Slot state needs confirmation (no anchor, no co-mutation, no backup lineage):"
+        )
+    );
+    for (folder, bucket) in groups {
+        println!("  \x1b[1m{}\x1b[0m", folder);
+        for (idx, item) in bucket {
+            println!(
+                "    \x1b[90m[{}]\x1b[0m {} :: \x1b[36m{}\x1b[0m  \x1b[90m(id {})\x1b[0m",
+                idx + 1,
+                item.rel_ini_path,
+                item.section_name,
+                item.item_id
+            );
+            if let Some(conflict) = &item.conflict_reason {
+                println!("         \x1b[31m[!] {}\x1b[0m", conflict);
+            }
+            for line in &item.affected_lines {
+                println!(
+                    "         \x1b[90mL{}:\x1b[0m {}  \x1b[90m-> {} | orig={}\x1b[0m",
+                    line.line_number, line.raw_code, line.if_shifted_slot, line.if_kept_orig_slot
+                );
+            }
+        }
+    }
+}
+
+/// Interactive phase 2 (text mode + TTY only).
+fn resolve_ambiguous_interactively(summary: &core::FixSummary) {
+    use std::io::IsTerminal;
+
+    let items = &summary.ambiguous_items;
+    if items.is_empty() || !std::io::stdin().is_terminal() {
+        return;
+    }
+    let Some(session_ts) = summary.session_ts.clone() else {
+        return;
+    };
+
+    print_ambiguous_report(items);
+
+    let answer = Text::new(tr(
+        "输入 [s] 全部按旧版移位 / [k] 全部按新版保留并锁定 / [n] 全部跳过 / 或输入序号(如 1,3)指定移位项:",
+        "Enter [s] shift all (old version) / [k] keep & pin all (new version) / [n] skip all / or indices (e.g. 1,3) to shift:",
+    ))
+    .with_default("n")
+    .prompt();
+
+    let Ok(answer) = answer else { return };
+    let answer = answer.trim().to_ascii_lowercase();
+
+    let decisions: Vec<(usize, core::slot_fix::OverlapDecision)> = match answer.as_str() {
+        "s" | "shift" => (0..items.len())
+            .map(|i| (i, core::slot_fix::OverlapDecision::Shift))
+            .collect(),
+        "k" | "keep" => (0..items.len())
+            .map(|i| (i, core::slot_fix::OverlapDecision::KeepAndPin))
+            .collect(),
+        "" | "n" | "skip" => Vec::new(),
+        other => other
+            .split(',')
+            .filter_map(|part| part.trim().parse::<usize>().ok())
+            .filter(|n| *n >= 1 && *n <= items.len())
+            .map(|n| (n - 1, core::slot_fix::OverlapDecision::Shift))
+            .collect(),
+    };
+
+    if decisions.is_empty() {
+        println!(
+            "  \x1b[90m{}\x1b[0m\n",
+            tr(
+                "已跳过，未修改任何歧义组件。可稍后使用 --resolve-session 继续。",
+                "Skipped. No ambiguous component was modified. Resume later with --resolve-session."
+            )
+        );
+        return;
+    }
+
+    let cfg = core::config_loader::config();
+    let chars = cfg.characters_ref();
+    let (mut ok, mut failed) = (0usize, 0usize);
+    for (idx, decision) in &decisions {
+        let item = &items[*idx];
+        let Some(rule) = core::slot_fix::find_rule(chars, &item.rule_id) else {
+            failed += 1;
+            continue;
+        };
+        let Some(char_cfg) = chars
+            .values()
+            .find(|c| c.slot_fix.as_ref().map(|r| r.rule_id == item.rule_id).unwrap_or(false))
+        else {
+            failed += 1;
+            continue;
+        };
+        match core::slot_fix::resolve_ambiguous_item(item, rule, char_cfg, *decision, &session_ts) {
+            Ok(true) => {
+                ok += 1;
+                println!(
+                    "  \x1b[32m✓\x1b[0m {} :: {} \x1b[90m({})\x1b[0m",
+                    item.rel_ini_path,
+                    item.section_name,
+                    match decision {
+                        core::slot_fix::OverlapDecision::Shift => tr("旧版移位", "shifted (old version)").to_string(),
+                        core::slot_fix::OverlapDecision::KeepAndPin => tr("新版保留", "kept (new version)").to_string(),
+                        core::slot_fix::OverlapDecision::Epoch(ep) => format!("epoch {ep}"),
+                    }
+                );
+            }
+            Ok(false) => {}
+            Err(e) => {
+                failed += 1;
+                eprintln!("  \x1b[31m✗\x1b[0m {} ({})", item.rel_ini_path, e);
+            }
+        }
+    }
+
+    if decisions.len() == items.len() && failed == 0 {
+        core::slot_fix::clear_session_manifest(&session_ts);
+    }
+    println!(
+        "\n  \x1b[32m{}\x1b[0m {}{}\n",
+        tr("已固化歧义槽位:", "Ambiguous slots fixed:"),
+        ok,
+        if failed > 0 {
+            format!(", {} failed", failed)
+        } else {
+            String::new()
+        }
+    );
+}
+
+/// Headless phase 2 (`--resolve-session <ts> --shift-ids ... --keep-ids ...`).
+fn run_resolve_session(args: &CliArgs, session_ts: &str) {
+    let is_json = args.format == OutputFormat::Json;
+    let cfg = core::config_loader::config();
+    match core::slot_fix::resolve_session(session_ts, cfg.characters_ref(), &args.shift_ids, &args.keep_ids) {
+        Ok((touched, changed)) => {
+            if is_json {
+                emit_json_finish(
+                    true,
+                    format!("Resolved {changed} of {touched} ambiguous slot component(s) in session '{session_ts}'."),
+                );
+            } else {
+                println!(
+                    "\x1b[32m{}\x1b[0m {} / {}",
+                    tr("歧义槽位已固化:", "Ambiguous slots resolved:"),
+                    changed,
+                    touched
+                );
+            }
+        }
+        Err(e) => {
+            if is_json {
+                emit_json_finish(false, e.to_string());
+            } else {
+                eprintln!("\x1b[31m{} {}\x1b[0m", tr("固化失败:", "Resolve failed:"), e);
+            }
+            std::process::exit(1);
+        }
+    }
 }
 
 pub fn clean_path(p: &str) -> String {

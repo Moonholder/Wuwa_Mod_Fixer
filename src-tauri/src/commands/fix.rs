@@ -161,8 +161,13 @@ pub async fn start_fix(
     enable_fix_aemeath_mech: bool,
     enable_rendering33_fix: bool,
     aero_fix_mode: u8,
+    slot_overlap: Option<String>,
 ) -> Result<(), AppError> {
     let app2 = app.clone();
+    let slot_overlap_policy = slot_overlap
+        .as_deref()
+        .and_then(core::slot_fix::OverlapPolicy::parse)
+        .unwrap_or_default();
 
     let cancel_token = Arc::new(AtomicBool::new(false));
     if let Ok(mut guard) = state.cancel_flag.lock() {
@@ -242,9 +247,38 @@ pub async fn start_fix(
             aero_fix_mode,
             event_sink,
             cancel_token,
-        );
+        )
+        .with_slot_overlap_policy(slot_overlap_policy);
         let _ = fixer.process_directory(std::path::Path::new(&path));
     });
 
     Ok(())
+}
+
+/// Phase 2 of the two-phase slot-fix session.
+///
+/// Reuses the exact `session_ts` recorded by phase 1, so the backups written by
+/// both phases share one timestamp and a single rollback reverts everything.
+#[tauri::command]
+pub async fn resolve_ambiguous_slots(
+    session_ts: String,
+    shift_ids: Vec<String>,
+    keep_ids: Vec<String>,
+) -> Result<SlotResolvePayload, AppError> {
+    let cfg = core::config_loader::config();
+    match core::slot_fix::resolve_session(&session_ts, cfg.characters_ref(), &shift_ids, &keep_ids) {
+        Ok((touched, changed)) => Ok(SlotResolvePayload {
+            session_ts,
+            touched,
+            changed,
+        }),
+        Err(e) => Err(AppError::Internal(e.to_string())),
+    }
+}
+
+#[derive(Clone, Serialize)]
+pub struct SlotResolvePayload {
+    pub session_ts: String,
+    pub touched: usize,
+    pub changed: usize,
 }

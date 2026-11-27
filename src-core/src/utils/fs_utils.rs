@@ -77,6 +77,34 @@ pub fn create_backup_once(path: &Path, backed_up: &mut HashSet<PathBuf>) -> Resu
     create_backup_once_with_time(path, backed_up, &datetime)
 }
 
+/// Creates a session backup without ever clobbering an existing one.
+///
+/// This is what keeps a two-phase slot-fix session atomic: phase 1 snapshots the
+/// pristine file, and phase 2 (running later, from another process or another
+/// invocation) must keep that snapshot instead of overwriting it with the
+/// already-fixed content — otherwise one `--rollback` could not restore the
+/// original state.
+pub fn create_session_backup_with_time(path: &Path, datetime: &str) -> Result<PathBuf, FixerError> {
+    if let Some(file_name) = path.file_name() {
+        if let Some(name) = file_name.to_str() {
+            let backup_path = path.with_file_name(format!("{}_{}.BAK", name, datetime));
+            if backup_path.exists() {
+                debug!(
+                    "Session backup already exists, keeping pristine snapshot: {}",
+                    backup_path.display()
+                );
+                return Ok(backup_path);
+            }
+            fs::copy(path, &backup_path)?;
+            info!("{}", t!(backup_created, backup_path = backup_path.display()));
+            return Ok(backup_path);
+        }
+    }
+    Err(FixerError::BackupFailed {
+        path: path.to_path_buf(),
+    })
+}
+
 /// Create a 0-byte backup for a newly created file (which didn't exist before).
 /// This is used for rolling back operations that create new files.
 pub fn create_new_file_backup_with_time(

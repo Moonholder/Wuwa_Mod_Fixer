@@ -1,31 +1,14 @@
 use std::collections::HashMap;
 
 use wuwa_mod_core::{
-    config_loader::{ShapeKeyFixConfig, SymmetryFilter, TargetShapeKey},
+    config_loader::{ShapeKeyFixConfig, TargetShapeKey},
     shapekey_fixer::ShapeKeyRebuilder,
 };
 
 #[test]
-fn test_target_shapekey_parsing() {
-    let t_left = TargetShapeKey::parse("32L").unwrap();
-    assert_eq!(t_left.target_channel, 32);
-    assert_eq!(t_left.filter, SymmetryFilter::Left);
-
-    let t_right = TargetShapeKey::parse("33r").unwrap();
-    assert_eq!(t_right.target_channel, 33);
-    assert_eq!(t_right.filter, SymmetryFilter::Right);
-
-    let t_all = TargetShapeKey::parse("142").unwrap();
-    assert_eq!(t_all.target_channel, 142);
-    assert_eq!(t_all.filter, SymmetryFilter::All);
-
-    let t_all_explicit = TargetShapeKey::parse("142A").unwrap();
-    assert_eq!(t_all_explicit.target_channel, 142);
-    assert_eq!(t_all_explicit.filter, SymmetryFilter::All);
-}
-
-#[test]
 fn test_spatial_symmetry_split() {
+    assert_eq!(TargetShapeKey::parse("142A").unwrap().target_channel, 142);
+
     // Test vertex position payload:
     // v0: x = -2.0 (Left)
     // v1: x =  2.0 (Right)
@@ -67,18 +50,9 @@ fn test_spatial_symmetry_split() {
     remap.insert(
         14,
         vec![
-            TargetShapeKey {
-                target_channel: 32,
-                filter: SymmetryFilter::Left,
-            },
-            TargetShapeKey {
-                target_channel: 33,
-                filter: SymmetryFilter::Right,
-            },
-            TargetShapeKey {
-                target_channel: 142,
-                filter: SymmetryFilter::All,
-            },
+            TargetShapeKey::parse("32L").unwrap(),
+            TargetShapeKey::parse("33r").unwrap(),
+            TargetShapeKey::parse("142").unwrap(),
         ],
     );
 
@@ -88,6 +62,13 @@ fn test_spatial_symmetry_split() {
         custom_values_array: None,
         expression_remap: Some(remap),
         offset_stride: Some(12),
+        channel_substitutes: None,
+        reference_asset: None,
+        channel_transplant: None,
+        channel_transplant_force: None,
+        channel_transplant_force_legacy: None,
+        transplant_tolerance: None,
+        transplant_diffusion: None,
     };
 
     let rebuilder = ShapeKeyRebuilder::new(&config, "RoverMale").unwrap();

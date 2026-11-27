@@ -20,6 +20,15 @@ impl<'a> ConstantsSectionView<'a> {
         self.section.has_key(&key)
     }
 
+    pub fn get_global(&self, name: &str) -> Option<String> {
+        let key = if name.starts_with("global ") {
+            name.to_string()
+        } else {
+            format!("global {}", name)
+        };
+        self.section.get_value(&key)
+    }
+
     pub fn set_global(&mut self, name: &str, value: &str) {
         let key = if name.starts_with("global ") {
             name.to_string()

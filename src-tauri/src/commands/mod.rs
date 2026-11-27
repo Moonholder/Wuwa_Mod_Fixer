@@ -10,6 +10,7 @@ pub fn generate_handlers() -> impl Fn(tauri::ipc::Invoke) -> bool {
         // Fix operations
         fix::start_fix,
         fix::cancel_fix,
+        fix::resolve_ambiguous_slots,
         // Rollback
         rollback::scan_backups,
         rollback::do_rollback,
@@ -34,5 +35,6 @@ pub fn generate_handlers() -> impl Fn(tauri::ipc::Invoke) -> bool {
         shell::export_logs,
         shell::pick_folder,
         shell::open_url,
+        shell::open_path,
     ]
 }

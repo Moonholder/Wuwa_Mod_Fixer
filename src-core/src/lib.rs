@@ -12,7 +12,12 @@ pub mod fixers;
 pub mod mod_fixer;
 pub mod rollback;
 pub mod settings;
-pub mod shapekey_fixer;
+pub mod shapekey {
+    pub use crate::fixers::shapekey::*;
+}
+pub use fixers::shapekey as shapekey_fixer;
+pub use fixers::shapekey::transplant as shapekey_transplant;
+pub use fixers::slot_fix;
 pub mod utils;
 
 // ---------------------------------------------------------------------------

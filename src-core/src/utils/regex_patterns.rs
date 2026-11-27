@@ -126,3 +126,8 @@ pub static RE_RABBIT_FX_REF_DIFFUSE: LazyLock<Regex> =
 
 pub static RE_COMP_HEADER: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?im)^\[TextureOverrideComponent(\d+)\]").unwrap());
+
+pub static RE_VECTOR: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?im)^\[ResourceVectorBuffer[^\]\n]*\]?[^\S\n]*\n((?:[^\[\r\n][^\n]*\n|\r?\n)*(?:[^\[\r\n][^\n]*)?)")
+        .unwrap()
+});

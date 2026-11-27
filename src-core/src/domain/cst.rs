@@ -537,20 +537,37 @@ impl IniCstDocument {
 
     /// Rewrites section body while preserving section header and leading comments.
     pub fn rewrite_section_content(&mut self, section_name: &str, new_content: &str) -> bool {
+        fn trim_trailing_blanks(lines: &[String]) -> &[String] {
+            let mut end = lines.len();
+            while end > 0 && lines[end - 1].trim().is_empty() {
+                end -= 1;
+            }
+            &lines[..end]
+        }
+
         if let Some(target) = self.get_section_mut(section_name) {
-            let mut dummy_doc = if new_content.trim_start().starts_with('[') {
-                Self::parse(new_content)
+            let trimmed = new_content.trim_end_matches(['\r', '\n']);
+            let mut dummy_doc = if trimmed.trim_start().starts_with('[') {
+                Self::parse(trimmed)
             } else {
-                Self::parse(&format!("[{}]\n{}", section_name, new_content))
+                Self::parse(&format!("[{}]\n{}", section_name, trimmed))
             };
             if let Some(mut sec) = dummy_doc.sections.pop() {
+                while sec.lines.last().is_some_and(|l| l.trim().is_empty()) {
+                    sec.lines.pop();
+                }
                 if sec.leading_lines.is_empty() {
-                    sec.leading_lines = std::mem::take(&mut target.leading_lines);
+                    sec.leading_lines = target.leading_lines.clone();
                 }
-                if *target != sec {
-                    *target = sec;
-                    return true;
+                if target.name == sec.name
+                    && target.header_comment == sec.header_comment
+                    && target.leading_lines == sec.leading_lines
+                    && trim_trailing_blanks(&target.lines) == sec.lines.as_slice()
+                {
+                    return false;
                 }
+                *target = sec;
+                return true;
             }
         }
         false
@@ -669,6 +686,7 @@ impl IniCstDocument {
                 crate::collector::BufferType::Index => lower.starts_with("resourceindexbuffer"),
                 crate::collector::BufferType::BlendRemapForward => lower.starts_with("resourceblendremapforwardbuffer"),
                 crate::collector::BufferType::Color => lower.starts_with("resourcecolorbuffer"),
+                crate::collector::BufferType::Vector => lower.starts_with("resourcevectorbuffer"),
                 crate::collector::BufferType::ShapeKeyOffset => lower.starts_with("resourceshapekeyoffsetbuffer"),
                 crate::collector::BufferType::ShapeKeyVertexId => lower.starts_with("resourceshapekeyvertexidbuffer"),
                 crate::collector::BufferType::ShapeKeyVertexOffset => {
@@ -910,5 +928,38 @@ impl IniCstDocument {
         } else {
             false
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::IniCstDocument;
+
+    #[test]
+    fn rewrite_section_content_is_idempotent_across_commented_and_blank_boundaries() {
+        let ini = "\
+; Setup shapekeys
+[CommandListSetupShapeKeysBatch]
+k1 = v1
+
+; Load shapekeys
+[CommandListLoadShapeKeysBatch]
+k2 = v2
+
+[NextNoComment]
+k3 = v3
+";
+        let mut doc = IniCstDocument::parse(ini);
+        let setup_yaml = "[CommandListSetupShapeKeysBatch]\nk1 = v1\n";
+        let load_yaml = "[CommandListLoadShapeKeysBatch]\nk2 = v2\n";
+
+        assert!(!doc.rewrite_section_content("CommandListSetupShapeKeysBatch", setup_yaml));
+        assert!(!doc.rewrite_section_content("CommandListLoadShapeKeysBatch", load_yaml));
+
+        let legacy_ini = "; Setup shapekeys\n[CommandListSetupShapeKeys]\nold = 1\n\n; Next\n[Other]\n";
+        let mut legacy_doc = IniCstDocument::parse(legacy_ini);
+        assert!(legacy_doc.rewrite_section_content("CommandListSetupShapeKeys", setup_yaml));
+        let rendered = legacy_doc.to_string();
+        assert!(!IniCstDocument::parse(&rendered).rewrite_section_content("CommandListSetupShapeKeysBatch", setup_yaml));
     }
 }

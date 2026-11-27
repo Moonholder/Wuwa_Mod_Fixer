@@ -52,6 +52,7 @@ pub fn init_prof() {
     let mut map = std::collections::HashMap::new();
     let names = [
         "HashReplaceFixer",
+        "SlotFixFixer",
         "RuleReplaceFixer",
         "VertexRemapFixer",
         "Rendering33Fixer",
@@ -162,12 +163,17 @@ impl FixerPipeline {
             aero_fix::AeroFixer, cutout_mask::CutoutMaskFixer, hair_fix::HairFixer, hash_replace::HashReplaceFixer,
             materialmap::MaterialmapFixer, rabbit_fx::RabbitFxFixer, rendering_3_3::Rendering33Fixer,
             resource_override::ResourceOverrideFixer, rule_replace::RuleReplaceFixer, shapekey::ShapeKeyFixer,
-            stride::StrideFixer, vertex_remap::VertexRemapFixer,
+            slot_fix::SlotFixFixer, stride::StrideFixer, vertex_remap::VertexRemapFixer,
         };
 
         Self::from_fixers(vec![
             // Phase 1: PreProcess (unconditional hash replacement)
             Box::new(HashReplaceFixer),
+            // Step 2 of the documented pipeline order: statement-level slot shift.
+            // MUST run right after HashReplaceFixer (it consumes `co_mutated_sections`
+            // and must see the post-step-1 `vb0` hash) and before every specialised
+            // pipeline (rendering-33 / stable-texture / derived-hashes / aero-fix).
+            Box::new(SlotFixFixer),
             // Phase 2: FeatureAdapt (texture-fingerprint adaptation)
             Box::new(MaterialmapFixer),
             // Phase 3: MeshGated (strictly topological character mesh fixes)

@@ -16,6 +16,7 @@ pub enum BufferType {
     Index,
     BlendRemapForward,
     Color,
+    Vector,
     ShapeKeyOffset,
     ShapeKeyVertexId,
     ShapeKeyVertexOffset,
@@ -30,6 +31,7 @@ impl std::fmt::Display for BufferType {
             BufferType::Index => write!(f, "Index"),
             BufferType::BlendRemapForward => write!(f, "BlendRemapForward"),
             BufferType::Color => write!(f, "Color"),
+            BufferType::Vector => write!(f, "Vector"),
             BufferType::ShapeKeyOffset => write!(f, "ShapeKeyOffset"),
             BufferType::ShapeKeyVertexId => write!(f, "ShapeKeyVertexId"),
             BufferType::ShapeKeyVertexOffset => write!(f, "ShapeKeyVertexOffset"),
@@ -39,7 +41,7 @@ impl std::fmt::Display for BufferType {
 
 use crate::utils::regex_patterns::{
     COMPONENT_RE, DRAWINDEXED_RE, FILENAME_RE, RE_BLEND, RE_BREMAP, RE_COLOR, RE_INDEX, RE_POSITION,
-    RE_SHAPEKEY_OFFSET, RE_SHAPEKEY_VERTEX_ID, RE_SHAPEKEY_VERTEX_OFFSET, RE_TEXCOORD, STRIDE_RE,
+    RE_SHAPEKEY_OFFSET, RE_SHAPEKEY_VERTEX_ID, RE_SHAPEKEY_VERTEX_OFFSET, RE_TEXCOORD, RE_VECTOR, STRIDE_RE,
 };
 
 pub fn parse_resource_buffer_path(
@@ -54,6 +56,7 @@ pub fn parse_resource_buffer_path(
         BufferType::Index => &*RE_INDEX,
         BufferType::BlendRemapForward => &*RE_BREMAP,
         BufferType::Color => &*RE_COLOR,
+        BufferType::Vector => &*RE_VECTOR,
         BufferType::ShapeKeyOffset => &*RE_SHAPEKEY_OFFSET,
         BufferType::ShapeKeyVertexId => &*RE_SHAPEKEY_VERTEX_ID,
         BufferType::ShapeKeyVertexOffset => &*RE_SHAPEKEY_VERTEX_OFFSET,
@@ -279,4 +282,55 @@ pub fn parse_vg_offsets(content: &str) -> HashMap<u8, u16> {
         }
     }
     offsets
+}
+
+/// Extracts all custom shapekey IDs explicitly registered in the INI (e.g., `$\WWMIv1\shapekey_id = 105`).
+pub fn parse_custom_shapekey_ids(content: &str) -> std::collections::HashSet<u32> {
+    let mut ids = std::collections::HashSet::new();
+    for line in content.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with(';') {
+            continue;
+        }
+        if let Some((lhs, rhs)) = trimmed.split_once('=') {
+            let lhs = lhs.trim();
+            if lhs.ends_with("shapekey_id") {
+                let val_str = rhs.split(';').next().unwrap_or("").trim();
+                if let Ok(id) = val_str.parse::<u32>() {
+                    ids.insert(id);
+                }
+            }
+        }
+    }
+    ids
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_custom_shapekey_ids() {
+        let ini = r#"
+[CommandListSetShapeKey105]
+$\WWMIv1\shapekey_id = 105
+$\WWMIv1\shapekey_value = 1.000000
+
+[CommandListCustomSlider108]
+; Some comment
+shapekey_id = 108 ; trailing comment
+
+[CommentedOut]
+; $\WWMIv1\shapekey_id = 120
+
+[AnotherKey]
+$\WWMIv1\shapekey_id = 161
+"#;
+        let parsed = parse_custom_shapekey_ids(ini);
+        assert_eq!(parsed.len(), 3);
+        assert!(parsed.contains(&105));
+        assert!(parsed.contains(&108));
+        assert!(parsed.contains(&161));
+        assert!(!parsed.contains(&120));
+    }
 }

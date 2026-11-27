@@ -129,16 +129,20 @@ fn run_gui_mode(is_dev: bool) {
 
                 // In Dev/Debug mode, start a lightweight thread to poll CONFIG_CHANGED
                 // and broadcast a "config:reloaded" event to refresh the Vue UI on changes!
-                let handle_dev = handle.clone();
-                std::thread::spawn(move || {
-                    loop {
-                        std::thread::sleep(std::time::Duration::from_millis(300));
-                        if core::config_loader::CONFIG_CHANGED.swap(false, std::sync::atomic::Ordering::SeqCst) {
-                            let _ = handle_dev.emit("config:reloaded", ());
-                            println!("[TAURI] Auto-reload signal captured! Emitted config:reloaded to Vue frontend.");
+                if is_dev {
+                    let handle_dev = handle.clone();
+                    std::thread::spawn(move || {
+                        loop {
+                            std::thread::sleep(std::time::Duration::from_millis(300));
+                            if core::config_loader::CONFIG_CHANGED.swap(false, std::sync::atomic::Ordering::SeqCst) {
+                                let _ = handle_dev.emit("config:reloaded", ());
+                                println!(
+                                    "[TAURI] Auto-reload signal captured! Emitted config:reloaded to Vue frontend."
+                                );
+                            }
                         }
-                    }
-                });
+                    });
+                }
 
                 // Background: fetch remote config + check update
                 if !is_dev {
